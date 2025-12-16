@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0B14">
+  <title>Looky</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+</head>
+
+<body>
+  <!-- Aurora Background -->
+  <div class="aurora-grid">
+    <div class="aurora a1"></div>
+    <div class="aurora a2"></div>
+    <div class="aurora a3"></div>
+  </div>
+
+  <!-- Noise Overlay -->
+  <div class="noise"></div>
+
+  <!-- Floating Particles -->
+  <div class="particles"></div>
+
+  <div class="container">
+    <main class="main">
+      <!-- Input Section -->
+      <section class="card input-section">
+        <div class="card-header">
+          <div class="looky-mascot">
+          <div>
+            <h1 class="logo-title">Looky</h1>
+            <p class="logo-subtitle">No connect. No approvals. Just looking.</p>
+          </div>
+          </div>
+        </div>
+
+        <div class="input-container">
+          <div class="input-header">
+            <div class="chain-badges" id="chainBadges">
+              <div class="chain-badge sol">
+                <span class="chain-dot"></span>
+                <span class="chain-count" id="solCount">0</span>
+                <span>Solana</span>
+              </div>
+              <div class="chain-badge evm">
+                <span class="chain-dot"></span>
+                <span class="chain-count" id="evmCount">0</span>
+                <span>EVM</span>
+              </div>
+            </div>
+            
+            <div class="input-actions">
+              <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
+                📋
+              </button>
+              <button class="btn-icon" id="clearInputBtn" title="Clear all">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div class="textarea-wrapper">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <textarea 
+              id="addressInput" 
+              placeholder="Paste wallet addresses here…
+Example:
+8X35rQUK2u9hfn8rMPwwr6ZSEUhbmfDPEapp589XyoM1
+0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+              spellcheck="false"></textarea>
+          </div>
+        </div>
+ <div class="looky-eyes">
+              <div class="eye">
+                <div class="pupil" id="pupil1"></div>
+              </div>
+              <div class="eye">
+                <div class="pupil" id="pupil2"></div>
+              </div>
+            </div>
+        <div class="action-buttons">
+          <button id="scanButton" class="btn btn-primary btn-lg">
+            <span>Lets Looky!</span>
+          </button>
+          
+          <div class="btn-group">
+            <button id="demoButton" class="btn btn-secondary">
+              <span class="btn-icon">🎭</span>
+              <span>Demo</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="scan-status" id="scanStatus">
+          <div class="status-content" id="statusContent">
+            Ready to scan
+          </div>
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="results-section hidden">
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+          <div class="summary-card total">
+            <div class="summary-icon">💰</div>
+            <div class="summary-content">
+              <div class="summary-label">Total Value</div>
+              <div id="totalValue" class="summary-value">$0.00</div>
+              <div id="walletCount" class="summary-sub">0 wallets</div>
+            </div>
+          </div>
+          
+          <div class="summary-card tokens">
+            <div class="summary-icon">📊</div>
+            <div class="summary-content">
+              <div class="summary-label">Unique Tokens</div>
+              <div id="tokenCount" class="summary-value">0</div>
+              <div class="summary-sub">across all wallets</div>
+            </div>
+          </div>
+          
+          <div class="summary-card chains">
+            <div class="summary-icon">🌐</div>
+            <div class="summary-content">
+              <div class="summary-label">Chains</div>
+              <div id="chainCount" class="summary-value">0</div>
+              <div class="summary-sub">active networks</div>
+            </div>
+          </div>
+          
+          <div class="summary-card biggest">
+            <div class="summary-icon">👑</div>
+            <div class="summary-content">
+              <div class="summary-label">Largest Holding</div>
+              <div id="largestHolding" class="summary-value">—</div>
+              <div id="largestValue" class="summary-sub">$0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Holdings Table -->
+        <div class="card table-section">
+          <div class="table-header">
+            <div>
+              <h3 class="table-title">Portfolio Holdings</h3>
+              <p class="table-subtitle">Sorted by value • Click any token for details</p>
+            </div>
+            
+            <div class="table-controls">
+              <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input 
+                  type="search" 
+                  id="searchInput" 
+                  placeholder="Search tokens..." 
+                  class="search-input"
+                >
+              </div>
+              
+              <select id="sortSelect" class="select">
+                <option value="valueDesc">Value (High → Low)</option>
+                <option value="valueAsc">Value (Low → High)</option>
+                <option value="nameAsc">Name (A → Z)</option>
+                <option value="chain">Chain</option>
+              </select>
+              
+              <label class="checkbox">
+                <input type="checkbox" id="hideDust" checked>
+                <span class="checkmark"></span>
+                Hide dust (&lt;$1)
+              </label>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="holdings-table" id="holdingsTable">
+              <thead>
+                <tr>
+                  <th class="token-col">Token</th>
+                  <th class="chain-col">Chain</th>
+                  <th class="balance-col">Balance</th>
+                  <th class="price-col">Price</th>
+                  <th class="value-col">Value</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr class="empty-row">
+                  <td colspan="5">
+                    <div class="empty-state">
+                      <div class="empty-text">Paste addresses above to see holdings</div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="table-footer">
+            <div class="table-stats" id="tableStats">
+              Showing 0 tokens • Total value: $0.00
+            </div>
+            <button id="exportButton" class="btn btn-outline">
+              <span class="btn-icon">📥</span>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Wallet List -->
+        <div class="card wallets-section">
+          <h3 class="section-title">Scanned Wallets</h3>
+          <div class="wallets-grid" id="walletsGrid">
+            <!-- Wallets will be added here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Token Modal -->
+    <div id="tokenModal" class="modal hidden">
+      <div class="modal-backdrop" id="modalBackdrop"></div>
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-title">
+            <img id="modalTokenIcon" class="modal-icon" alt="">
+            <div>
+              <h4 id="modalTokenName">Token Name</h4>
+              <div class="modal-subtitle" id="modalTokenAddress">0x...</div>
+            </div>
+          </div>
+          <button id="closeModal" class="modal-close">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="modal-stats">
+            <div class="modal-stat">
+              <div class="modal-stat-label">Value</div>
+              <div id="modalTokenValue" class="modal-stat-value">$0.00</div>
+            </div>
+            <div class="modal-stat">
+              <div class="modal-stat-label">Balance</div>
+              <div id="modalTokenBalance" class="modal-stat-value">0.00</div>
+            </div>
+            <div class="modal-stat">
+              <div class="modal-stat-label">Price</div>
+              <div id="modalTokenPrice" class="modal-stat-value">$0.00</div>
+            </div>
+          </div>
+          
+          <div class="modal-chain">
+            <span class="chain-tag" id="modalChainTag">Chain</span>
+            <span class="modal-chain-address mono" id="modalFullAddress">Full address...</span>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <a id="modalExplorerLink" href="#" target="_blank" class="btn btn-primary">
+            <span class="btn-icon">🔗</span>
+            View on Explorer
+          </a>
+          <button id="copyAddress" class="btn btn-outline">
+            <span class="btn-icon">📋</span>
+            Copy Address
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Examples Modal -->
+    <div id="examplesModal" class="modal hidden">
+      <div class="modal-backdrop" id="examplesBackdrop"></div>
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3 class="modal-title">Example Addresses</h3>
+          <button id="closeExamples" class="modal-close">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="examples-list">
+            <div class="example">
+              <div class="example-header">
+                <span class="example-chain">Solana</span>
+                <button class="example-copy" data-address="8X35rQUK2u9hfn8rMPwwr6ZSEUhbmfDPEapp589XyoM1">
+                  Copy
+                </button>
+              </div>
+              <code class="example-address">8X35rQUK2u9hfn8rMPwwr6ZSEUhbmfDPEapp589XyoM1</code>
+            </div>
+            
+            <div class="example">
+              <div class="example-header">
+                <span class="example-chain">EVM (Ethereum)</span>
+                <button class="example-copy" data-address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e">
+                  Copy
+                </button>
+              </div>
+              <code class="example-address">0x742d35Cc6634C0532925a3b844Bc454e4438f44e</code>
+            </div>
+            
+            <div class="example">
+              <div class="example-header">
+                <span class="example-chain">Solana</span>
+                <button class="example-copy" data-address="HV1KXxWFaSeriyFvXyx48FqG9BoFbfinB8njCJonqP7K">
+                  Copy
+                </button>
+              </div>
+              <code class="example-address">HV1KXxWFaSeriyFvXyx48FqG9BoFbfinB8njCJonqP7K</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="footer-name">Looky</span>
+        </div>
+        <div class="footer-links">
+          <span class="footer-link">Read-only • No connections • Secure</span>
+        </div>
+        <div class="footer-note">
+          Data provided by Birdeye • Updates every 5 minutes
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
