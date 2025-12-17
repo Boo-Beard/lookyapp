@@ -55,15 +55,24 @@
                 <span>EVM</span>
               </div>
             </div>
+
+            <div class="address-counter" id="addressCounter">0 / 20</div>
             
             <div class="input-actions">
               <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
                 📋
               </button>
+              <button class="btn-icon" id="loadLastBtn" title="Load last used">
+                🕘
+              </button>
               <button class="btn-icon" id="clearInputBtn" title="Clear all">
                 🗑️
               </button>
             </div>
+          </div>
+
+          <div class="input-warning hidden" id="inputWarning">
+            Only first 20 addresses were kept.
           </div>
 
           <div class="textarea-wrapper">
@@ -76,8 +85,10 @@ Example:
 0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
               spellcheck="false"></textarea>
           </div>
+
+          <div class="address-chips" id="addressChips"></div>
         </div>
- <div class="looky-eyes">
+        <div class="looky-eyes">
               <div class="eye">
                 <div class="pupil" id="pupil1"></div>
               </div>
@@ -105,13 +116,19 @@ Example:
           <div class="progress-bar" id="progressBar">
             <div class="progress-fill"></div>
           </div>
+
+          <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
+
+          <div class="scan-actions">
+            <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+          </div>
         </div>
       </section>
 
       <!-- Results Section -->
       <div id="resultsSection" class="results-section hidden">
         <!-- Summary Cards -->
-        <div class="summary-grid">
+        <div class="summary-grid sticky-summary" id="summaryGrid">
           <div class="summary-card total">
             <div class="summary-icon">💰</div>
             <div class="summary-content">
@@ -158,6 +175,11 @@ Example:
             </div>
             
             <div class="table-controls">
+              <div class="view-toggle" id="viewToggle">
+                <button class="toggle-btn active" id="viewAggregate" type="button">Aggregate</button>
+                <button class="toggle-btn" id="viewByWallet" type="button">By wallet</button>
+              </div>
+
               <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input 
@@ -268,6 +290,14 @@ Example:
           <a id="modalExplorerLink" href="#" target="_blank" class="btn btn-primary">
             <span class="btn-icon">🔗</span>
             View on Explorer
+          </a>
+          <a id="modalChartLink" href="#" target="_blank" class="btn btn-outline">
+            <span class="btn-icon">📈</span>
+            View Chart
+          </a>
+          <a id="modalWalletLink" href="#" target="_blank" class="btn btn-outline">
+            <span class="btn-icon">👛</span>
+            View Wallet
           </a>
           <button id="copyAddress" class="btn btn-outline">
             <span class="btn-icon">📋</span>

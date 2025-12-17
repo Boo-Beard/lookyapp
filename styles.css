@@ -422,6 +422,98 @@ html, body {
   font-size: 16px;
 }
 
+.address-counter {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.input-warning {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+}
+
+.address-chips {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.address-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  max-width: 100%;
+}
+
+.address-chip .chip-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.address-chip .chip-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.address-chip.solana {
+  border-color: rgba(153, 69, 255, 0.35);
+  background: rgba(153, 69, 255, 0.08);
+}
+
+.address-chip.evm {
+  border-color: rgba(98, 126, 234, 0.35);
+  background: rgba(98, 126, 234, 0.08);
+}
+
+.address-chip.invalid {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.address-chip .chip-remove {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.15);
+  color: var(--text-secondary);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.address-chip .chip-remove:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 /* Buttons */
 .action-buttons {
   padding: 0 32px 32px;
@@ -486,6 +578,13 @@ html, body {
   font-size: 16px;
 }
 
+.btn-sm {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+}
+
 .btn-group {
   display: flex;
   gap: 12px;
@@ -500,13 +599,78 @@ html, body {
   padding: 0 32px 32px;
 }
 
-.status-content {
+.scan-progress {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 160px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.scan-progress-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
+  gap: 10px;
+  font-size: 13px;
   color: var(--text-secondary);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.scan-progress-item strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.scan-progress-item.error {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.scan-progress-item.done {
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.scan-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.toggle-btn {
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.toggle-btn.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.sticky-summary {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
 }
 
 .progress-bar {
@@ -972,6 +1136,7 @@ html, body {
   border-top: 1px solid var(--border);
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .modal-footer .btn {
