@@ -393,6 +393,22 @@ function renderHoldingsTable() {
   const tbody = $('tableBody');
   if (!tbody) return;
 
+  const showSkeleton = state.scanning && state.walletHoldings.size === 0;
+  if (showSkeleton) {
+    const rows = Array.from({ length: 6 }).map(() => `
+      <tr class="skeleton-row">
+        <td><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></td>
+        <td><div class="skeleton-line w-30"></div></td>
+        <td><div class="skeleton-line w-40"></div></td>
+        <td><div class="skeleton-line w-40"></div></td>
+        <td><div class="skeleton-line w-50"></div></td>
+      </tr>
+    `).join('');
+    tbody.innerHTML = rows;
+    $('tableStats') && ($('tableStats').textContent = 'Loading holdings…');
+    return;
+  }
+
   if (state.viewMode === 'byWallet') {
     const rows = [];
     const searchTerm = ($('searchInput')?.value || '').toLowerCase();
@@ -600,7 +616,7 @@ async function scanWallets() {
   const scanButton = $('scanButton');
   if (scanButton) {
     scanButton.disabled = true;
-    scanButton.innerHTML = '<span class="btn-icon">⏳</span><span>Scanning...</span>';
+    scanButton.innerHTML = '<span class="btn-icon"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span><span>Scanning...</span>';
   }
 
   clearScanProgress();
@@ -712,6 +728,7 @@ function openTokenModal(key) {
   }
 
   $('tokenModal')?.classList.remove('hidden');
+  document.body.classList.add('modal-open');
 
   if (isTelegram()) {
     TG.BackButton.show();
@@ -722,6 +739,7 @@ function openTokenModal(key) {
 function closeTokenModal() {
   $('tokenModal')?.classList.add('hidden');
   state.activeHolding = null;
+  document.body.classList.remove('modal-open');
 
   if (isTelegram()) {
     TG.BackButton.hide();
@@ -980,6 +998,21 @@ function setupEventListeners() {
 
   $('closeModal')?.addEventListener('click', closeTokenModal);
   $('modalBackdrop')?.addEventListener('click', closeTokenModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+
+    const tokenModal = $('tokenModal');
+    const examplesModal = $('examplesModal');
+
+    if (tokenModal && !tokenModal.classList.contains('hidden')) {
+      closeTokenModal();
+      return;
+    }
+    if (examplesModal && !examplesModal.classList.contains('hidden')) {
+      examplesModal.classList.add('hidden');
+    }
+  });
 
   $('closeExamples')?.addEventListener('click', () => $('examplesModal')?.classList.add('hidden'));
   $('examplesBackdrop')?.addEventListener('click', () => $('examplesModal')?.classList.add('hidden'));
