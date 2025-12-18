@@ -261,24 +261,14 @@ const API = {
   birdeye: '/api/birdeye',
 };
 
+// Single, correct birdeyeRequest (your file currently has a duplicate nested function)
 async function birdeyeRequest(path, params = {}, { signal } = {}) {
   const url = new URL(API.birdeye, window.location.origin);
   url.searchParams.set('path', path);
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && String(value).length) {
-      url.searchParams.set(key, value);
-    }
-  });
-
-  const response = await fetch(url.toString(), signal ? { signal } : undefined);
-async function birdeyeRequest(path, params = {}, { signal } = {}) {
-  const url = new URL(API.birdeye, window.location.origin);
-  url.searchParams.set('path', path);
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && String(value).length) {
-      url.searchParams.set(key, value);
+      url.searchParams.set(key, String(value));
     }
   });
 
@@ -294,24 +284,21 @@ async function birdeyeRequest(path, params = {}, { signal } = {}) {
   }
 
   return data;
-} 
-
-  if (!response.ok) {
-    throw new Error(data?.message || `API error: ${response.status}`);
-  }
-
-  return data;
 }
 
 async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
+  // IMPORTANT:
+  // - Do NOT send `network=` anymore
+  // - Send `chain=` to your proxy (birdeye.js will convert it to x-chain header)
   const data = await birdeyeRequest('/wallet/v2/current-net-worth', {
     wallet_address: wallet,
     currency: 'usd',
-    network: chain === 'evm' ? 'ethereum' : chain,
+    chain: chain === 'evm' ? 'ethereum' : chain, // solana | ethereum
   }, { signal });
 
   return data?.data?.items || [];
 }
+
 
 function showStatus(message, type = 'info') {
   const status = $('scanStatus');
