@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   try {
-    // Your frontend sends /api/birdeye?path=/wallet/v2/current-net-worth&...
-    const { path, ...rest } = req.query;
+    // Pull out path + also strip chain/network from query so they don't get appended upstream
+    const { path, chain, network, ...rest } = req.query;
 
     if (!path || typeof path !== "string") {
       return res.status(400).json({ success: false, message: "Missing ?path=" });
@@ -19,6 +19,16 @@ export default async function handler(req, res) {
       });
     }
 
+    // Read x-chain from request headers first (preferred),
+    // fall back to query (chain/network) if you ever send it that way.
+    const xChainRaw =
+      req.headers["x-chain"] ||
+      req.headers["X-Chain"] ||
+      chain ||
+      network;
+
+    const xChain = xChainRaw ? String(xChainRaw) : "";
+
     // Build Birdeye URL
     const url = new URL(`https://public-api.birdeye.so${path}`);
     for (const [k, v] of Object.entries(rest)) {
@@ -31,15 +41,18 @@ export default async function handler(req, res) {
       method: "GET",
       headers: {
         "X-API-KEY": apiKey,
-        "accept": "application/json",
+        accept: "application/json",
+        ...(xChain ? { "x-chain": xChain } : {}), // ✅ THIS is the key fix
       },
     });
 
     const text = await upstream.text();
 
-    // Return upstream status + body (usually JSON)
     res.status(upstream.status);
-    res.setHeader("content-type", upstream.headers.get("content-type") || "application/json");
+    res.setHeader(
+      "content-type",
+      upstream.headers.get("content-type") || "application/json"
+    );
     return res.send(text);
   } catch (err) {
     return res.status(500).json({
