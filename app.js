@@ -282,12 +282,18 @@ async function birdeyeRequest(path, params = {}, { signal } = {}) {
   if (!response.ok || data?.success === false) {
     throw new Error(data?.message || `API error: ${response.status}`);
   }
-
   return data;
 }
 
 async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
-  const birdeyeChain = chain === 'evm' ? 'ethereum' : 'solana';
+  if (chain === 'evm') {
+    const data = await birdeyeRequest('/v1/wallet/token_list', {
+      wallet: wallet,
+      chain: 'ethereum',
+    }, { signal });
+
+    return data?.data?.items || [];
+  }
 
   const data = await birdeyeRequest('/wallet/v2/current-net-worth', {
     // Birdeye expects `wallet`
@@ -299,13 +305,11 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
     currency: 'usd',
 
     // Birdeye expects `chain` (not network)
-    chain: birdeyeChain,
+    chain: 'solana',
   }, { signal });
 
   return data?.data?.items || [];
 }
-
-
 
 function showStatus(message, type = 'info') {
   const status = $('scanStatus');
