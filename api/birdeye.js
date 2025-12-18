@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     // fall back to query (chain/network) if you ever send it that way.
     const xChainRaw =
       req.headers["x-chain"] ||
-      req.headers["X-Chain"] ||
       chain ||
       network;
 
@@ -61,3 +60,5 @@ export default async function handler(req, res) {
     });
   }
 }
+
+export { handler };

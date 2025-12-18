@@ -287,17 +287,24 @@ async function birdeyeRequest(path, params = {}, { signal } = {}) {
 }
 
 async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
-  // IMPORTANT:
-  // - Do NOT send `network=` anymore
-  // - Send `chain=` to your proxy (birdeye.js will convert it to x-chain header)
+  const birdeyeChain = chain === 'evm' ? 'ethereum' : 'solana';
+
   const data = await birdeyeRequest('/wallet/v2/current-net-worth', {
+    // Birdeye expects `wallet`
+    wallet: wallet,
+
+    // keep this too (harmless) in case you use other endpoints later
     wallet_address: wallet,
+
     currency: 'usd',
-    chain: chain === 'evm' ? 'ethereum' : chain, // solana | ethereum
+
+    // Birdeye expects `chain` (not network)
+    chain: birdeyeChain,
   }, { signal });
 
   return data?.data?.items || [];
 }
+
 
 
 function showStatus(message, type = 'info') {
@@ -620,6 +627,9 @@ async function scanWallets() {
     } catch (error) {
       if (!signal.aborted) {
         upsertScanProgressItem(wallet, chain, i, totalWallets, 'failed', 'error');
+        const msg = error?.message ? String(error.message) : 'Unknown error';
+        showStatus(`Failed to scan ${chain} wallet ${shortenAddress(wallet)}: ${msg}`, 'error');
+        try { console.error('Scan wallet failed', { wallet, chain, error }); } catch {}
       }
     }
   }
