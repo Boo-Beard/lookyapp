@@ -458,6 +458,8 @@ function renderHoldingsTable() {
   const tbody = $('tableBody');
   if (!tbody) return;
 
+  state.viewMode = 'aggregate';
+
   const useCardRows = isTelegram() || window.matchMedia('(max-width: 640px)').matches;
   document.body.classList.toggle('holdings-cards', useCardRows);
 
@@ -499,122 +501,6 @@ function renderHoldingsTable() {
     }).join('');
     tbody.innerHTML = rows;
     $('tableStats') && ($('tableStats').textContent = 'Loading holdings…');
-    return;
-  }
-
-  if (state.viewMode === 'byWallet') {
-    const rows = [];
-    const searchTerm = ($('searchInput')?.value || '').toLowerCase();
-    const hideDust = $('hideDust')?.checked ?? true;
-    const walletKeys = Array.from(state.walletHoldings.keys()).sort();
-
-    walletKeys.forEach(walletKey => {
-      const [chain, wallet] = walletKey.split(':');
-      const items = state.walletHoldings.get(walletKey) || [];
-      const filtered = items
-        .map(h => ({
-          chain,
-          wallet,
-          address: h.address || h.token_address,
-          symbol: h.symbol || '—',
-          name: h.name || 'Unknown Token',
-          logo: h.logo_uri || h.logoURI || h.icon || '',
-          price: Number(h.price || h.priceUsd || h.price_usd || 0) || 0,
-          balance: Number(h.amount || h.uiAmount || h.balance || 0) || 0,
-          value: Number(h.value || h.valueUsd || 0) || 0,
-        }))
-        .filter(h => {
-          if (hideDust && h.value < 1) return false;
-          if (!searchTerm) return true;
-          return h.symbol.toLowerCase().includes(searchTerm) || h.name.toLowerCase().includes(searchTerm) || h.address.toLowerCase().includes(searchTerm);
-        });
-
-      if (filtered.length === 0) return;
-      rows.push(`
-        <tr class="empty-row">
-          <td colspan="5">
-            <div class="empty-state">
-              <div class="empty-text"><strong>${chain === 'solana' ? 'Solana' : 'EVM'}</strong> ${shortenAddress(wallet)}</div>
-            </div>
-          </td>
-        </tr>
-      `);
-
-      filtered.forEach(h => {
-        const key = `${h.chain}:${h.address}`;
-        if (!useCardRows) {
-          rows.push(`
-            <tr class="holding-row" data-key="${key}">
-              <td>
-                <div class="token-cell">
-                  <img class="token-icon" src="${h.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
-                  <div class="token-info">
-                    <div class="token-symbol">${h.symbol}</div>
-                    <div class="token-name">${h.name}</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <span class="chain-badge-small ${h.chain}">${h.chain === 'solana' ? 'SOL' : 'EVM'}</span>
-              </td>
-              <td class="mono">${formatNumber(h.balance)}</td>
-              <td class="mono">${formatCurrency(h.price)}</td>
-              <td class="mono"><strong>${formatCurrency(h.value)}</strong></td>
-            </tr>
-          `);
-          return;
-        }
-
-        rows.push(`
-          <tr class="holding-row holding-card-row" data-key="${key}">
-            <td colspan="5">
-              <div class="holding-card">
-                <div class="holding-card-header">
-                  <div class="token-cell">
-                    <img class="token-icon" src="${h.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
-                    <div class="token-info">
-                      <div class="token-symbol">${h.symbol}</div>
-                      <div class="token-name">${h.name}</div>
-                    </div>
-                  </div>
-                  <span class="chain-badge-small ${h.chain}">${h.chain === 'solana' ? 'SOL' : 'EVM'}</span>
-                </div>
-
-                <div class="holding-card-metrics">
-                  <div class="holding-metric">
-                    <div class="holding-metric-label">Balance</div>
-                    <div class="holding-metric-value mono">${formatNumber(h.balance)}</div>
-                  </div>
-                  <div class="holding-metric">
-                    <div class="holding-metric-label">Price</div>
-                    <div class="holding-metric-value mono">${formatCurrency(h.price)}</div>
-                  </div>
-                  <div class="holding-metric">
-                    <div class="holding-metric-label">Value</div>
-                    <div class="holding-metric-value mono"><strong>${formatCurrency(h.value)}</strong></div>
-                  </div>
-                  <div class="holding-metric">
-                    <div class="holding-metric-label">Wallet</div>
-                    <div class="holding-metric-value mono">${shortenAddress(h.wallet)}</div>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        `);
-      });
-    });
-
-    tbody.innerHTML = rows.length ? rows.join('') : `
-      <tr class="empty-row">
-        <td colspan="5">
-          <div class="empty-state">
-            <div class="empty-text">No holdings match your filters</div>
-          </div>
-        </td>
-      </tr>
-    `;
-    $('tableStats') && ($('tableStats').textContent = `By wallet view • Total value: ${formatCurrency(state.totalValue)}`);
     return;
   }
 
@@ -1205,20 +1091,6 @@ function setupEventListeners() {
     persistAddressItems();
     updateTelegramMainButton();
     updateAddressStats();
-  });
-
-  $('viewAggregate')?.addEventListener('click', () => {
-    state.viewMode = 'aggregate';
-    $('viewAggregate')?.classList.add('active');
-    $('viewByWallet')?.classList.remove('active');
-    renderHoldingsTable();
-  });
-
-  $('viewByWallet')?.addEventListener('click', () => {
-    state.viewMode = 'byWallet';
-    $('viewByWallet')?.classList.add('active');
-    $('viewAggregate')?.classList.remove('active');
-    renderHoldingsTable();
   });
 
   $('searchInput')?.addEventListener('input', renderHoldingsTable);
