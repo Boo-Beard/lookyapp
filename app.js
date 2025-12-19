@@ -1164,10 +1164,6 @@ async function initialize() {
 
   updateAddressStats();
   updateTelegramMainButton();
-
-  setTimeout(() => {
-    showStatus('Add wallet addresses above to get started', 'info');
-  }, 1000);
 }
 
 if (document.readyState === 'loading') {
