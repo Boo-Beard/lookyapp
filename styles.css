@@ -129,18 +129,7 @@ body.ui-results .container::after {
   opacity: 0.38;
 }
 
-.container::before {
-  background:
-    linear-gradient(to right, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top left / 110px 3px no-repeat,
-    linear-gradient(to bottom, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top left / 3px 110px no-repeat,
-    linear-gradient(to left, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top right / 110px 3px no-repeat,
-    linear-gradient(to bottom, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top right / 3px 110px no-repeat,
-    linear-gradient(to right, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom left / 110px 3px no-repeat,
-    linear-gradient(to top, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom left / 3px 110px no-repeat,
-    linear-gradient(to left, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom right / 110px 3px no-repeat,
-    linear-gradient(to top, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom right / 3px 110px no-repeat;
-  filter: none;
-}
+
 
 .container::after {
   background:
