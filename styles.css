@@ -114,32 +114,6 @@ body.modal-open {
   z-index: 10;
 }
 
-.container::before,
-.container::after {
-  content: '';
-  position: fixed;
-  inset: 12px;
-  pointer-events: none;
-  z-index: 7;
-  opacity: 0.0;
-}
-
-body.ui-results .container::before,
-body.ui-results .container::after {
-  opacity: 0.38;
-}
-
-
-
-.container::after {
-  background:
-    radial-gradient(600px 260px at 0% 0%, rgba(255, 45, 85, 0.045), transparent 62%),
-    radial-gradient(600px 260px at 100% 0%, rgba(0, 194, 255, 0.04), transparent 62%),
-    radial-gradient(600px 260px at 0% 100%, rgba(255, 212, 0, 0.04), transparent 62%),
-    radial-gradient(600px 260px at 100% 100%, rgba(255, 45, 85, 0.04), transparent 62%);
-  mix-blend-mode: screen;
-}
-
 .main {
   padding: 14px 0 22px;
 }

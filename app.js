@@ -1075,36 +1075,17 @@ function setupEventListeners() {
     if (e.key !== 'Escape') return;
 
     const tokenModal = $('tokenModal');
-    const examplesModal = $('examplesModal');
 
     if (tokenModal && !tokenModal.classList.contains('hidden')) {
       closeTokenModal();
-      return;
-    }
-    if (examplesModal && !examplesModal.classList.contains('hidden')) {
-      examplesModal.classList.add('hidden');
     }
   });
-
-  $('closeExamples')?.addEventListener('click', () => $('examplesModal')?.classList.add('hidden'));
-  $('examplesBackdrop')?.addEventListener('click', () => $('examplesModal')?.classList.add('hidden'));
 
   $('copyAddress')?.addEventListener('click', () => {
     const address = $('modalFullAddress')?.textContent || '';
     navigator.clipboard.writeText(address).then(() => {
       showStatus('Address copied to clipboard', 'success');
       hapticFeedback('success');
-    });
-  });
-
-  document.querySelectorAll('.example-copy').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const address = btn.dataset.address;
-      navigator.clipboard.writeText(address).then(() => {
-        showStatus('Example address copied', 'success');
-        hapticFeedback('success');
-      });
     });
   });
 
@@ -1156,11 +1137,8 @@ function setupTelegram() {
 
   TG.BackButton.onClick(() => {
     const tokenModal = $('tokenModal');
-    const examplesModal = $('examplesModal');
     if (tokenModal && !tokenModal.classList.contains('hidden')) {
       closeTokenModal();
-    } else if (examplesModal && !examplesModal.classList.contains('hidden')) {
-      examplesModal.classList.add('hidden');
     }
   });
 }
