@@ -279,9 +279,12 @@ body.ui-landing .btn-primary.btn-lg {
   width: 100%;
 }
 
-body.ui-landing .scan-status,
-body.ui-landing .address-chips {
+body.ui-landing .scan-status {
   display: none;
+}
+
+body.ui-landing .address-chips {
+  display: block;
 }
 
 body.ui-landing .btn-group {
