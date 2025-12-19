@@ -813,7 +813,7 @@ body.ui-results .card {
 
 @media (max-width: 640px) {
   #addressInput {
-    min-height: 140px;
+    min-height: 0px;
     resize: none;
   }
 }
