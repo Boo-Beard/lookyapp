@@ -131,23 +131,23 @@ body.ui-results .container::after {
 
 .container::before {
   background:
-    linear-gradient(to right, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) top left / 110px 1px no-repeat,
-    linear-gradient(to bottom, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) top left / 1px 110px no-repeat,
-    linear-gradient(to left, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) top right / 110px 1px no-repeat,
-    linear-gradient(to bottom, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) top right / 1px 110px no-repeat,
-    linear-gradient(to right, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom left / 110px 1px no-repeat,
-    linear-gradient(to top, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom left / 1px 110px no-repeat,
-    linear-gradient(to left, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom right / 110px 1px no-repeat,
-    linear-gradient(to top, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom right / 1px 110px no-repeat;
+    linear-gradient(to right, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top left / 110px 3px no-repeat,
+    linear-gradient(to bottom, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top left / 3px 110px no-repeat,
+    linear-gradient(to left, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top right / 110px 3px no-repeat,
+    linear-gradient(to bottom, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) top right / 3px 110px no-repeat,
+    linear-gradient(to right, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom left / 110px 3px no-repeat,
+    linear-gradient(to top, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom left / 3px 110px no-repeat,
+    linear-gradient(to left, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom right / 110px 3px no-repeat,
+    linear-gradient(to top, rgba(11, 11, 16, 0.22), rgba(11, 11, 16, 0)) bottom right / 3px 110px no-repeat;
   filter: none;
 }
 
 .container::after {
   background:
-    radial-gradient(600px 260px at 0% 0%, rgba(57, 255, 136, 0.035), transparent 62%),
-    radial-gradient(600px 260px at 100% 0%, rgba(57, 255, 136, 0.03), transparent 62%),
-    radial-gradient(600px 260px at 0% 100%, rgba(57, 255, 136, 0.025), transparent 62%),
-    radial-gradient(600px 260px at 100% 100%, rgba(57, 255, 136, 0.03), transparent 62%);
+    radial-gradient(600px 260px at 0% 0%, rgba(255, 45, 85, 0.045), transparent 62%),
+    radial-gradient(600px 260px at 100% 0%, rgba(0, 194, 255, 0.04), transparent 62%),
+    radial-gradient(600px 260px at 0% 100%, rgba(255, 212, 0, 0.04), transparent 62%),
+    radial-gradient(600px 260px at 100% 100%, rgba(255, 45, 85, 0.04), transparent 62%);
   mix-blend-mode: screen;
 }
 
@@ -263,7 +263,7 @@ body.ui-landing .scan-status .status-content {
 
 body.ui-landing .scan-status .status-content::before {
   content: '$ ';
-  color: rgba(57, 255, 136, 0.92);
+  color: var(--accent);
 }
 
 body.ui-landing .scan-status.hidden {
@@ -281,7 +281,7 @@ body.ui-landing .input-tip {
 
 body.ui-landing .input-tip::before {
   content: '$ ';
-  color: rgba(57, 255, 136, 0.92);
+  color: var(--accent-2);
 }
 
 body.ui-landing .address-chips {
@@ -374,13 +374,11 @@ body.ui-reveal .wallets-section {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-xl);
-  border: 1px solid rgba(57, 255, 136, 0.16);
+  border: 3px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-  backdrop-filter: blur(16px);
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.35),
-    0 18px 60px rgba(0, 0, 0, 0.45);
+    linear-gradient(180deg, rgba(255, 212, 0, 0.12), rgba(255, 255, 255, 0.92));
+  backdrop-filter: none;
+  box-shadow: var(--shadow-md);
 }
 
 .summary-card::before {
@@ -388,20 +386,8 @@ body.ui-reveal .wallets-section {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: none;
-  opacity: 0;
-}
-
-.summary-card::after {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: -60%;
-  width: 220%;
-  height: 220%;
-  pointer-events: none;
-  background: none;
-  opacity: 0;
+  opacity: 0.7;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.08));
 }
 
 body.ui-results .summary-card::after {
@@ -572,7 +558,7 @@ body.ui-results .summary-card::after {
 }
 
 body.ui-landing .logo-title {
-  text-shadow: none;
+  text-shadow: 2px 2px 0 var(--panel), 4px 4px 0 rgba(11, 11, 16, 0.95);
 }
 
 .logo-subtitle {
@@ -807,8 +793,8 @@ body.ui-results .card {
 }
 
 .textarea-wrapper:focus-within {
-  border-color: rgba(57, 255, 136, 0.35);
-  box-shadow: none;
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .line-numbers {
@@ -835,14 +821,14 @@ body.ui-results .card {
   padding: 0 14px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
   font-family: var(--mono);
   font-size: 14px;
   line-height: 1;
   outline: none;
   position: relative;
   z-index: 1;
-  caret-color: rgba(57, 255, 136, 0.95);
+  caret-color: var(--accent);
 }
 
 .textarea-wrapper.address-entry #addressInput {
@@ -860,7 +846,7 @@ body.ui-results .card {
 }
 
 #addressInput::selection {
-  background: rgba(57, 255, 136, 0.22);
+  background: rgba(255, 212, 0, 0.55);
 }
 
 #addressInput::-webkit-scrollbar {
@@ -878,7 +864,7 @@ body.ui-results .card {
 }
 
 #addressInput::-webkit-scrollbar-thumb:hover {
-  background: rgba(57, 255, 136, 0.18);
+  background: rgba(11, 11, 16, 0.22);
 }
 
 @media (max-width: 640px) {
@@ -1006,7 +992,7 @@ body.ui-results .card {
   gap: 8px;
   padding: 0 24px;
   height: 48px;
-  border: none;
+  border: 3px solid var(--border);
   border-radius: var(--radius-lg);
   font-family: inherit;
   font-size: 15px;
@@ -1015,6 +1001,7 @@ body.ui-results .card {
   transition: all var(--transition-fast);
   outline: none;
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn:active {
@@ -1022,29 +1009,30 @@ body.ui-results .card {
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: none;
+  background: var(--accent-3);
+  color: var(--ink);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: none;
+  box-shadow: var(--shadow-lg);
 }
 
 .btn-primary:active {
   transform: translateY(1px) scale(0.992);
-  box-shadow: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-outline {
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--ink);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 194, 255, 0.10);
   border-color: var(--border-hover);
   transform: translateY(-1px);
 }
@@ -1109,12 +1097,12 @@ body.ui-results .table-subtitle {
 }
 
 .holdings-table tbody tr:hover {
-  background: rgba(57, 255, 136, 0.05);
+  background: rgba(0, 194, 255, 0.10);
   cursor: pointer;
 }
 
 .holdings-table tbody tr:active {
-  background: rgba(57, 255, 136, 0.08);
+  background: rgba(255, 45, 85, 0.10);
 }
 
 .holding-row {
@@ -1128,13 +1116,13 @@ body.ui-results .table-subtitle {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: rgba(57, 255, 136, 0.0);
+  background: rgba(0, 194, 255, 0.0);
   box-shadow: none;
   transition: all var(--transition-fast);
 }
 
 .holding-row:hover::before {
-  background: rgba(57, 255, 136, 0.85);
+  background: rgba(0, 194, 255, 0.95);
   box-shadow: none;
 }
 
@@ -1153,7 +1141,7 @@ body.ui-results .table-subtitle {
 }
 
 .holding-row:focus-visible {
-  outline: 2px solid rgba(57, 255, 136, 0.55);
+  outline: 3px solid rgba(255, 45, 85, 0.85);
   outline-offset: -2px;
 }
 
