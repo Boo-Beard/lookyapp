@@ -992,7 +992,6 @@ function setupEventListeners() {
     if (addressInput) addressInput.value = '';
     setAddressItems([]);
     $('inputSection')?.classList.remove('is-minimized');
-    document.body.classList.remove('compact-header');
     hapticFeedback('light');
   });
 

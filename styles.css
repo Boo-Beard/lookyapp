@@ -574,19 +574,11 @@ body.ui-results .input-section.is-minimized {
   padding-bottom: 0;
 }
 
-body.compact-header.ui-results .card-header {
-  padding: 14px 16px 10px;
-}
-
 .section-title {
   font-size: 24px;
   font-weight: 700;
   margin: 0 0 8px;
   color: var(--text-primary);
-}
-
-body.compact-header.ui-results .section-title {
-  font-size: 18px;
 }
 
 .section-subtitle {
