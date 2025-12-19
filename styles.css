@@ -649,6 +649,10 @@ body.compact-header.ui-results .card-header {
   color: var(--text-primary);
 }
 
+body.compact-header.ui-results .section-title {
+  font-size: 18px;
+}
+
 .section-subtitle {
   font-size: 15px;
   color: var(--text-secondary);
