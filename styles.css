@@ -633,28 +633,47 @@ body.ui-results .card {
   margin: 0;
 }
 
-/* Looky Mascot */
-.looky-mascot {
-  margin-bottom: 24px;
+.logo-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: logoBob 2.8s ease-in-out infinite;
+  transform-origin: 50% 50%;
 }
 
-.looky-eyes {
+.logo-lockup .looky-eyes {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin: 0;
+  animation: eyesWiggle 2.8s ease-in-out infinite;
 }
 
-.eye {
+.logo-lockup .eye {
   width: 60px;
   height: 60px;
-  background: white;
+  background: rgba(255, 255, 255, 0.96);
+  border: 3px solid var(--border);
   border-radius: 50%;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
-.pupil {
+.logo-lockup .eye::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  transform: scaleY(0);
+  transform-origin: 50% 50%;
+  animation: blink 5.2s infinite;
+  pointer-events: none;
+}
+
+.logo-lockup .pupil {
   position: absolute;
   width: 30px;
   height: 30px;
@@ -666,12 +685,40 @@ body.ui-results .card {
   transition: transform 0.1s linear;
 }
 
-.looky-label {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 2px;
-  text-transform: uppercase;
+@keyframes logoBob {
+  0%, 100% {
+    transform: translateY(0) rotate(-0.3deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0.3deg);
+  }
+}
+
+@keyframes eyesWiggle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1px);
+  }
+}
+
+@keyframes blink {
+  0%, 93%, 100% {
+    transform: scaleY(0);
+  }
+  94% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0);
+  }
+  97% {
+    transform: scaleY(1);
+  }
+  98% {
+    transform: scaleY(0);
+  }
 }
 
 /* Input Section */
