@@ -641,7 +641,10 @@ body.ui-results .card-header .looky-eyes {
   position: fixed;
   top: calc(env(safe-area-inset-top) + 10px);
   left: 50%;
-  transform: translateX(-50%);
+  right: auto;
+  transform: translateX(-50%) !important;
+  animation: none !important;
+  pointer-events: none;
   z-index: 40;
 }
 
