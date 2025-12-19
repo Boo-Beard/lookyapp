@@ -299,7 +299,7 @@ function addWalletFromInput() {
     wrap?.classList.remove('shake');
     void wrap?.offsetWidth;
     wrap?.classList.add('shake');
-    showStatus('Invalid wallet address', 'error');
+    showInputHint('Invalid wallet address', 'error');
     hapticFeedback('error');
     return;
   }
@@ -310,7 +310,7 @@ function addWalletFromInput() {
     wrap?.classList.remove('shake');
     void wrap?.offsetWidth;
     wrap?.classList.add('shake');
-    showStatus('Address already added', 'info');
+    showInputHint('Address already added', 'info');
     hapticFeedback('light');
     return;
   }
@@ -326,6 +326,30 @@ function addWalletFromInput() {
   input.value = '';
   input.focus();
   hapticFeedback('success');
+}
+
+function showInputHint(message, type = 'info') {
+  const hint = $('inputHint');
+  if (!hint) return;
+
+  const msg = String(message || '').trim();
+  if (!msg) {
+    hint.textContent = '';
+    hint.classList.add('hidden');
+    hint.classList.remove('error');
+    return;
+  }
+
+  hint.textContent = msg;
+  hint.classList.toggle('error', type === 'error');
+  hint.classList.remove('hidden');
+
+  window.clearTimeout(showInputHint._t);
+  showInputHint._t = window.setTimeout(() => {
+    hint.textContent = '';
+    hint.classList.add('hidden');
+    hint.classList.remove('error');
+  }, 2400);
 }
 
 // API Integration (via your backend proxy)
@@ -477,6 +501,11 @@ function showStatus(message, type = 'info') {
   const status = $('scanStatus');
   const content = $('statusContent');
   if (!status || !content) return;
+
+  if (type !== 'error') {
+    status.classList.add('hidden');
+    return;
+  }
 
   status.classList.remove('hidden');
   content.textContent = message;
@@ -807,7 +836,7 @@ async function scanWallets() {
 
   clearScanProgress();
   $('cancelScanButton')?.classList.remove('hidden');
-  showStatus('Starting scan...', 'info');
+  showStatus('', 'info');
   updateProgress(0);
 
   const totalWallets = walletsQueue.length;
@@ -818,7 +847,6 @@ async function scanWallets() {
     if (signal.aborted) break;
 
     upsertScanProgressItem(wallet, chain, i, totalWallets, 'fetching portfolio…');
-    showStatus(`Scanning wallet ${i + 1}/${totalWallets}...`, 'info');
     updateProgress((i / Math.max(totalWallets, 1)) * 100);
 
     try {
@@ -848,9 +876,8 @@ async function scanWallets() {
   updateProgress(100);
 
   if (signal.aborted) {
-    showStatus('Scan cancelled', 'info');
+    showStatus('', 'info');
   } else {
-    showStatus(`Scan complete! Found ${state.holdings.length} tokens across ${state.wallets.length} wallets`, 'success');
     hapticFeedback('success');
   }
 
