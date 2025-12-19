@@ -610,6 +610,9 @@ async function scanWallets() {
     ...evmWallets.map(w => ({ wallet: w, chain: 'evm' })),
   ];
 
+  document.body.classList.remove('ui-landing');
+  document.body.classList.add('ui-results');
+
   $('resultsSection')?.classList.remove('hidden');
 
   state.scanning = true;

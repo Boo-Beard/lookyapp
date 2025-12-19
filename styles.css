@@ -4,20 +4,20 @@
 
 :root {
   /* Color Palette */
-  --bg-primary: #0A0B14;
-  --bg-secondary: #121420;
+  --bg-primary: #05060A;
+  --bg-secondary: #0B0D14;
   --bg-card: rgba(255, 255, 255, 0.04);
   --bg-overlay: rgba(0, 0, 0, 0.6);
   
   --text-primary: rgba(255, 255, 255, 0.95);
   --text-secondary: rgba(255, 255, 255, 0.7);
   --text-tertiary: rgba(255, 255, 255, 0.5);
-  --text-accent: #60A5FA;
+  --text-accent: #38BDF8;
   
   --border: rgba(255, 255, 255, 0.1);
   --border-hover: rgba(255, 255, 255, 0.2);
   
-  --gradient-primary: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #F472B6 100%);
+  --gradient-primary: linear-gradient(135deg, #38BDF8 0%, #22C55E 50%, #A78BFA 100%);
   --gradient-card: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.08));
   --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   
@@ -63,6 +63,13 @@ html, body {
   overflow-x: hidden;
 }
 
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
 body.modal-open {
   overflow: hidden;
 }
@@ -73,6 +80,117 @@ body.modal-open {
   padding: 0 20px;
   position: relative;
   z-index: 10;
+}
+
+.main {
+  padding: 20px 0 28px;
+}
+
+/* Landing / Results modes */
+body.ui-landing {
+  background: #05060A;
+}
+
+body.ui-landing .aurora-grid,
+body.ui-landing .noise,
+body.ui-landing .particles {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.ui-landing .input-section {
+  margin-bottom: 0;
+}
+
+body.ui-landing .input-section.card {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+body.ui-landing .input-header,
+body.ui-landing .address-chips,
+body.ui-landing .scan-status,
+body.ui-landing .btn-group {
+  display: none;
+}
+
+body.ui-landing .looky-mascot {
+  margin-bottom: 14px;
+}
+
+body.ui-landing .logo-title {
+  letter-spacing: -0.02em;
+}
+
+body.ui-landing .logo-subtitle {
+  max-width: 38ch;
+}
+
+body.ui-landing .input-container {
+  padding: 0;
+}
+
+body.ui-landing .textarea-wrapper {
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.ui-landing #addressInput {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  letter-spacing: 0.1px;
+}
+
+body.ui-results .aurora-grid,
+body.ui-results .noise,
+body.ui-results .particles {
+  opacity: 1;
+}
+
+/* Mobile / Telegram WebApp ergonomics */
+@media (max-width: 640px) {
+  .container {
+    padding: 0 14px;
+  }
+
+  .main {
+    padding: 14px 0 22px;
+  }
+
+  .btn {
+    min-height: 48px;
+  }
+
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .input-container {
+    padding: 0 16px 18px;
+  }
+
+  .input-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .chain-badges {
+    gap: 8px;
+  }
+
+  .chain-badge {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .sticky-summary {
+    position: sticky;
+    top: env(safe-area-inset-top);
+    z-index: 20;
+  }
 }
 
 /* Aurora Background */
