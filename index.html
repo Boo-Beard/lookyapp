@@ -44,6 +44,21 @@
         </div>
 
         <div class="input-container">
+          <div class="scan-status hidden" id="scanStatus">
+            <div class="status-content" id="statusContent">
+              Ready to scan
+            </div>
+            <div class="progress-bar" id="progressBar">
+              <div class="progress-fill"></div>
+            </div>
+
+            <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
+
+            <div class="scan-actions">
+              <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+            </div>
+          </div>
+
           <div class="input-header">
             <div class="chain-badges" id="chainBadges">
               <div class="chain-badge sol">
@@ -97,6 +112,13 @@
 
           <div class="address-chips" id="addressChips"></div>
         </div>
+        <div class="action-buttons">
+          <button id="scanButton" class="btn btn-primary btn-lg">
+            <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+            <span>Let’s Looky</span>
+          </button>
+        </div>
+
         <div class="looky-eyes">
               <div class="eye">
                 <div class="pupil" id="pupil1"></div>
@@ -105,27 +127,6 @@
                 <div class="pupil" id="pupil2"></div>
               </div>
             </div>
-        <div class="action-buttons">
-          <button id="scanButton" class="btn btn-primary btn-lg">
-            <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
-            <span>Let’s Looky</span>
-          </button>
-        </div>
-
-        <div class="scan-status hidden" id="scanStatus">
-          <div class="status-content" id="statusContent">
-            Ready to scan
-          </div>
-          <div class="progress-bar" id="progressBar">
-            <div class="progress-fill"></div>
-          </div>
-
-          <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
-
-          <div class="scan-actions">
-            <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
-          </div>
-        </div>
       </section>
 
       <!-- Results Section -->
