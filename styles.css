@@ -108,11 +108,17 @@ body.ui-landing .input-section.card {
   box-shadow: none;
 }
 
-body.ui-landing .input-header,
-body.ui-landing .address-chips,
+body.ui-landing .input-header {
+  display: block;
+}
+
 body.ui-landing .scan-status,
-body.ui-landing .btn-group {
+body.ui-landing .address-chips {
   display: none;
+}
+
+body.ui-landing .btn-group {
+  display: block;
 }
 
 body.ui-landing .looky-mascot {
