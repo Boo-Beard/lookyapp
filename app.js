@@ -517,8 +517,9 @@ function renderHoldingsTable() {
   filtered.sort((a, b) => {
     switch (sortBy) {
       case 'valueAsc': return a.value - b.value;
+      case 'mcapAsc': return (a.mcap || 0) - (b.mcap || 0);
       case 'nameAsc': return a.name.localeCompare(b.name);
-      case 'chain': return a.chain.localeCompare(b.chain);
+      case 'mcapDesc': return (b.mcap || 0) - (a.mcap || 0);
       case 'valueDesc':
       default:
         return b.value - a.value;
@@ -549,13 +550,14 @@ function renderHoldingsTable() {
               <div class="token-symbol">${holding.symbol}</div>
               <div class="token-name">${holding.name}</div>
             </div>
+            <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
           </div>
         </td>
         <td>
-          <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+          <strong class="mono">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
         </td>
-        <td class="mono">${formatNumber(holding.balance)}</td>
-        <td class="mono">${formatCurrency(holding.price)}</td>
+        <td class="mono"><strong>${formatNumber(holding.balance)}</strong></td>
+        <td class="mono"><strong>${formatCurrency(holding.price)}</strong></td>
         <td class="mono"><strong>${formatCurrency(holding.value)}</strong></td>
       </tr>
     `).join('');
@@ -578,19 +580,19 @@ function renderHoldingsTable() {
             <div class="holding-card-metrics">
               <div class="holding-metric">
                 <div class="holding-metric-label">Balance</div>
-                <div class="holding-metric-value mono">${formatNumber(holding.balance)}</div>
+                <div class="holding-metric-value mono"><strong>${formatNumber(holding.balance)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Price</div>
-                <div class="holding-metric-value mono">${formatCurrency(holding.price)}</div>
+                <div class="holding-metric-value mono"><strong>${formatCurrency(holding.price)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Value</div>
                 <div class="holding-metric-value mono"><strong>${formatCurrency(holding.value)}</strong></div>
               </div>
               <div class="holding-metric">
-                <div class="holding-metric-label">Chain</div>
-                <div class="holding-metric-value">${holding.chain === 'solana' ? 'Solana' : 'EVM'}</div>
+                <div class="holding-metric-label">MCap</div>
+                <div class="holding-metric-value mono"><strong>${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
               </div>
             </div>
           </div>
@@ -616,11 +618,13 @@ function recomputeAggregatesAndRender() {
       const key = `${chain}:${tokenAddress}`;
       const value = Number(holding.value || holding.valueUsd || 0) || 0;
       const amount = Number(holding.amount || holding.uiAmount || holding.balance || 0) || 0;
+      const mcap = Number(holding.market_cap ?? holding.marketCap ?? holding.mc ?? holding.fdv ?? holding.fdv_usd ?? 0) || 0;
 
       if (holdingsMap.has(key)) {
         const existing = holdingsMap.get(key);
         existing.value += value;
         existing.balance += amount;
+        existing.mcap = Math.max(existing.mcap || 0, mcap);
         existing.sources.push(wallet);
       } else {
         holdingsMap.set(key, {
@@ -633,6 +637,7 @@ function recomputeAggregatesAndRender() {
           price: Number(holding.price || holding.priceUsd || holding.price_usd || 0) || 0,
           balance: amount,
           value: value,
+          mcap: mcap,
           sources: [wallet],
         });
       }
