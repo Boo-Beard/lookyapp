@@ -612,6 +612,8 @@ async function scanWallets() {
 
   document.body.classList.remove('ui-landing');
   document.body.classList.add('ui-results');
+  document.body.classList.add('ui-reveal');
+  window.setTimeout(() => document.body.classList.remove('ui-reveal'), 520);
 
   $('resultsSection')?.classList.remove('hidden');
 
