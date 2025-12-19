@@ -510,7 +510,6 @@ body.ui-results .card {
 }
 
 body.ui-results #resultsSection .card {
-  background: rgba(255, 255, 255, 0.55);
   border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
 }
