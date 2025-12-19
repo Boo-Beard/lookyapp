@@ -350,8 +350,8 @@ display: grid;
   position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 16px;
+  gap: 10px;
+  padding: 12px 12px;
   overflow: hidden;
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
@@ -372,13 +372,13 @@ display: grid;
 }
 
 .summary-card .summary-icon {
-  width: 52px;
-  height: 52px;
-  flex: 0 0 52px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
+  border-radius: 14px;
   border: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
@@ -418,7 +418,7 @@ body.ui-results .summary-card::after {
 
 .summary-card .summary-value {
   font-family: 'Bangers', system-ui, sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1.05;
   letter-spacing: 0.02em;
   color: var(--ink);
@@ -426,7 +426,7 @@ body.ui-results .summary-card::after {
 
 .summary-card .summary-sub {
   color: rgba(11, 11, 16, 0.70);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* Mobile / Telegram WebApp ergonomics */
