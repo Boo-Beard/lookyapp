@@ -4,28 +4,29 @@
 
 :root {
   /* Color Palette */
-  --bg-primary: #070A07;
-  --bg-secondary: #0B110D;
-  --bg-card: rgba(10, 16, 12, 0.70);
-  --bg-overlay: rgba(0, 0, 0, 0.8);
+  --bg-primary: #FFF8E7;
+  --bg-secondary: #FFF1CF;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-overlay: rgba(8, 8, 10, 0.72);
 
-  --neon-cyan: #38BDF8;
-  --neon-green: #22C55E;
-  --neon-purple: #A78BFA;
-  --neon-pink: #F472B6;
-  --neon-green-bright: #39FF88;
+  --ink: #0B0B10;
+  --paper: #FFF8E7;
+  --panel: #FFFFFF;
+  --accent: #FF2D55;
+  --accent-2: #00C2FF;
+  --accent-3: #FFD400;
 
-  --text-primary: rgba(255, 255, 255, 0.95);
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.5);
-  --text-accent: var(--neon-green-bright);
+  --text-primary: rgba(11, 11, 16, 0.95);
+  --text-secondary: rgba(11, 11, 16, 0.72);
+  --text-tertiary: rgba(11, 11, 16, 0.55);
+  --text-accent: var(--accent);
 
-  --border: rgba(255, 255, 255, 0.1);
-  --border-hover: rgba(255, 255, 255, 0.2);
+  --border: rgba(11, 11, 16, 0.92);
+  --border-hover: rgba(11, 11, 16, 1);
 
-  --gradient-primary: linear-gradient(135deg, rgba(57, 255, 136, 0.92) 0%, rgba(34, 197, 94, 0.92) 55%, rgba(18, 222, 120, 0.92) 100%);
-  --gradient-card: linear-gradient(135deg, rgba(96, 165, 250, 0.1), rgba(167, 139, 250, 0.08));
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  --gradient-primary: linear-gradient(135deg, var(--accent-3) 0%, var(--accent) 55%, var(--accent-2) 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255, 45, 85, 0.10), rgba(0, 194, 255, 0.08));
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
 
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
@@ -43,9 +44,9 @@
   --radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 2px 2px 0 rgba(11, 11, 16, 0.95);
+  --shadow-md: 4px 4px 0 rgba(11, 11, 16, 0.95);
+  --shadow-lg: 6px 6px 0 rgba(11, 11, 16, 0.95);
   --shadow-glow: none;
 
   /* Animations */
@@ -63,8 +64,8 @@
 
 html, body {
   height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-primary);
+  font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--paper);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -156,7 +157,7 @@ body.ui-results .container::after {
 
 /* Landing / Results modes */
 body.ui-landing {
-  background: #070A07;
+  background: var(--paper);
 }
 
 body.ui-landing::before,
@@ -167,9 +168,11 @@ body.ui-results::before {
   pointer-events: none;
   z-index: 5;
   background:
-    radial-gradient(900px 420px at 50% 10%, rgba(57, 255, 136, 0.10), transparent 60%),
-    radial-gradient(700px 360px at 15% 85%, rgba(34, 197, 94, 0.08), transparent 60%),
-    radial-gradient(700px 360px at 85% 85%, rgba(57, 255, 136, 0.06), transparent 60%);
+    radial-gradient(900px 420px at 55% 0%, rgba(255, 45, 85, 0.12), transparent 65%),
+    radial-gradient(700px 360px at 15% 85%, rgba(0, 194, 255, 0.10), transparent 62%),
+    radial-gradient(700px 360px at 85% 85%, rgba(255, 212, 0, 0.10), transparent 62%),
+    radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.06) 0 1px, transparent 1px 14px),
+    radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.05) 0 1px, transparent 1px 16px);
 }
 
 body.ui-landing .aurora-grid,
@@ -560,13 +563,12 @@ body.ui-results .summary-card::after {
 }
 
 .logo-title {
-  font-size: 28px;
-  font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
+  font-family: 'Bangers', system-ui, sans-serif;
+  font-size: 44px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0 var(--panel), 4px 4px 0 rgba(11, 11, 16, 0.95);
 }
 
 body.ui-landing .logo-title {
@@ -605,12 +607,13 @@ body.ui-landing .logo-title {
 
 /* Card */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--panel);
+  border: 3px solid var(--border);
   border-radius: var(--radius-xl);
-  backdrop-filter: blur(20px);
+  backdrop-filter: none;
   overflow: hidden;
   position: relative;
+  box-shadow: var(--shadow-md);
 }
 
 body.ui-results .card {
