@@ -572,17 +572,17 @@ body.ui-landing .logo-title {
 
 /* Card */
 .card {
-  background: var(--panel);
-  border: 3px solid var(--border);
-  border-radius: var(--radius-xl);
-  backdrop-filter: none;
-  overflow: hidden;
-  position: relative;
-  box-shadow: var(--shadow-md);
+    /* background: var(--panel); */
+    /* border: 3px solid var(--border); */
+    border-radius: var(--radius-xl);
+    backdrop-filter: none;
+    overflow: hidden;
+    position: relative;
+    /* box-shadow: var(--shadow-md);*/
 }
 
 body.ui-results .card {
-  box-shadow: var(--shadow-md);
+    /* box-shadow: var(--shadow-md);*/
 }
 
 body.ui-results #resultsSection .card {
