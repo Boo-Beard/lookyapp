@@ -280,6 +280,10 @@ body.ui-landing .btn-primary.btn-lg {
 }
 
 body.ui-landing .scan-status {
+  display: block;
+}
+
+body.ui-landing .scan-status.hidden {
   display: none;
 }
 
