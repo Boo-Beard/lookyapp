@@ -829,9 +829,20 @@ function setupEyeTracking() {
   let isTyping = false;
   let typingTimeout = null;
   let introActive = true;
-  const introStart = performance.now();
+  let introStart = performance.now();
   const INTRO_DURATION_MS = 2400;
   const INTRO_RADIUS_PX = 260;
+
+  function startIntroLookAround() {
+    introStart = performance.now();
+    introActive = true;
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    startIntroLookAround();
+  });
 
   document.addEventListener('mousemove', (e) => {
     cursorX = e.clientX;
@@ -932,9 +943,28 @@ function setupEyeTracking() {
     const introElapsed = now - introStart;
     const shouldRunIntro = introActive && introElapsed >= 0 && introElapsed < INTRO_DURATION_MS;
 
-    const introAngle = (introElapsed / INTRO_DURATION_MS) * Math.PI * 2;
-    const introX = (window.innerWidth / 2) + Math.cos(introAngle) * INTRO_RADIUS_PX;
-    const introY = (window.innerHeight / 2) + Math.sin(introAngle) * INTRO_RADIUS_PX;
+    const t = Math.max(0, Math.min(1, introElapsed / INTRO_DURATION_MS));
+
+    const segment = Math.min(3, Math.floor(t * 4));
+    const local = (t * 4) - segment;
+    const movePortion = 0.72;
+    const inMove = local < movePortion;
+    const uRaw = inMove ? (local / movePortion) : 1;
+    const u = uRaw < 0.5
+      ? 4 * uRaw * uRaw * uRaw
+      : 1 - Math.pow(-2 * uRaw + 2, 3) / 2;
+
+    const baseAngle = (segment + u) * (Math.PI / 2);
+
+    const wobblePhase = Math.max(0, local - movePortion);
+    const wobbleT = wobblePhase / Math.max(1e-6, 1 - movePortion);
+    const wobble = Math.sin(wobbleT * Math.PI * 2) * (1 - wobbleT);
+
+    const introAngle = baseAngle + wobble * 0.22;
+    const radiusWobble = 1 + wobble * 0.07;
+
+    const introX = (window.innerWidth / 2) + Math.cos(introAngle) * INTRO_RADIUS_PX * radiusWobble;
+    const introY = (window.innerHeight / 2) + Math.sin(introAngle) * INTRO_RADIUS_PX * radiusWobble;
 
     const targetX = shouldRunIntro
       ? introX
