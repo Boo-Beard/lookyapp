@@ -463,11 +463,6 @@ body.ui-results .summary-card::after {
     font-size: 13px;
   }
 
-  .sticky-summary {
-    position: sticky;
-    top: env(safe-area-inset-top);
-    z-index: 20;
-  }
 }
 
 /* Aurora Background */
