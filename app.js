@@ -97,6 +97,24 @@ function formatCurrency(value) {
   return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function formatPrice(value) {
+  const num = Number(value);
+  if (!isFinite(num)) return '$0';
+  if (num === 0) return '$0';
+
+  const abs = Math.abs(num);
+  let decimals;
+  if (abs >= 1) decimals = 4;
+  else if (abs >= 0.01) decimals = 6;
+  else if (abs >= 0.0001) decimals = 8;
+  else if (abs >= 1e-8) decimals = 10;
+  else return `$${num.toExponential(2)}`;
+
+  const fixed = num.toFixed(decimals);
+  const trimmed = fixed.replace(/\.?(0+)$/g, (m, zeros) => (m.startsWith('.') ? '' : m));
+  return `$${trimmed}`;
+}
+
 function formatNumber(num) {
   const n = Number(num);
   if (!isFinite(n)) return '0';
@@ -652,7 +670,7 @@ function renderHoldingsTable() {
           <strong class="mono">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
         </td>
         <td class="mono"><strong>${formatNumber(holding.balance)}</strong></td>
-        <td class="mono"><strong>${formatCurrency(holding.price)}</strong></td>
+        <td class="mono"><strong>${formatPrice(holding.price)}</strong></td>
         <td class="mono"><strong>${formatCurrency(holding.value)}</strong></td>
       </tr>
     `).join('');
@@ -679,7 +697,7 @@ function renderHoldingsTable() {
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Price</div>
-                <div class="holding-metric-value mono"><strong>${formatCurrency(holding.price)}</strong></div>
+                <div class="holding-metric-value mono"><strong>${formatPrice(holding.price)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Value</div>
@@ -867,7 +885,7 @@ function openTokenModal(key) {
   if (modalTokenAddress) modalTokenAddress.textContent = shortenAddress(holding.address);
   if (modalTokenValue) modalTokenValue.textContent = formatCurrency(holding.value);
   if (modalTokenBalance) modalTokenBalance.textContent = formatNumber(holding.balance);
-  if (modalTokenPrice) modalTokenPrice.textContent = formatCurrency(holding.price);
+  if (modalTokenPrice) modalTokenPrice.textContent = formatPrice(holding.price);
   if (modalChainTag) modalChainTag.textContent = holding.chain === 'solana' ? 'Solana' : 'EVM';
   if (modalFullAddress) modalFullAddress.textContent = holding.address;
 
