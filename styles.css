@@ -1297,6 +1297,102 @@ body.ui-results .holdings-table td:nth-child(5) {
     padding: 20px 18px 16px;
   }
 
+  .holdings-table thead {
+    display: none;
+  }
+
+  .holdings-table {
+    border-spacing: 0 12px;
+  }
+
+  .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
+    background: transparent;
+  }
+
+  .holdings-table td {
+    border-bottom: none;
+    padding: 0;
+  }
+
+  .holding-card-row {
+    background: transparent !important;
+  }
+
+  .holding-card-row:hover::before,
+  .holding-card-row:hover::after {
+    opacity: 0;
+  }
+
+  .holding-card {
+    border-radius: var(--radius-xl);
+    border: 3px solid var(--border);
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .holding-card-header {
+    padding: 12px 12px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 3px solid var(--border);
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  .holding-card-header .token-cell {
+    min-width: 0;
+  }
+
+  .holding-card-header .token-info {
+    min-width: 0;
+  }
+
+  .holding-card-header .token-symbol {
+    font-size: 16px;
+  }
+
+  .holding-card-header .token-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 22ch;
+  }
+
+  .holding-card-metrics {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .holding-metric {
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    background: rgba(255, 255, 255, 0.35);
+    padding: 10px;
+  }
+
+  .holding-metric-label {
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: rgba(11, 11, 16, 0.65);
+    margin-bottom: 6px;
+  }
+
+  .holding-metric-value {
+    font-size: 14px;
+    color: rgba(11, 11, 16, 0.92);
+  }
+
+  .holding-metric-value strong {
+    font-weight: 900;
+  }
+
   .holdings-table th,
   .holdings-table td {
     padding: 12px 10px;
@@ -1315,6 +1411,102 @@ body.ui-results .holdings-table td:nth-child(5) {
   .token-name {
     display: none;
   }
+}
+
+body.holdings-cards .holdings-table thead {
+  display: none;
+}
+
+body.holdings-cards .holdings-table {
+  border-spacing: 0 12px;
+}
+
+body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
+  background: transparent;
+}
+
+body.holdings-cards .holdings-table td {
+  border-bottom: none;
+  padding: 0;
+}
+
+body.holdings-cards .holding-card-row {
+  background: transparent !important;
+}
+
+body.holdings-cards .holding-card-row:hover::before,
+body.holdings-cards .holding-card-row:hover::after {
+  opacity: 0;
+}
+
+body.holdings-cards .holding-card {
+  border-radius: var(--radius-xl);
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+body.holdings-cards .holding-card-header {
+  padding: 12px 12px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+body.holdings-cards .holding-card-header .token-cell {
+  min-width: 0;
+}
+
+body.holdings-cards .holding-card-header .token-info {
+  min-width: 0;
+}
+
+body.holdings-cards .holding-card-header .token-symbol {
+  font-size: 16px;
+}
+
+body.holdings-cards .holding-card-header .token-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 22ch;
+}
+
+body.holdings-cards .holding-card-metrics {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+body.holdings-cards .holding-metric {
+  border-radius: 16px;
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.35);
+  padding: 10px;
+}
+
+body.holdings-cards .holding-metric-label {
+  font-family: var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: rgba(11, 11, 16, 0.65);
+  margin-bottom: 6px;
+}
+
+body.holdings-cards .holding-metric-value {
+  font-size: 14px;
+  color: rgba(11, 11, 16, 0.92);
+}
+
+body.holdings-cards .holding-metric-value strong {
+  font-weight: 900;
 }
 
 .chain-badge-small {

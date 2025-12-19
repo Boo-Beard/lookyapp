@@ -458,17 +458,45 @@ function renderHoldingsTable() {
   const tbody = $('tableBody');
   if (!tbody) return;
 
+  const useCardRows = isTelegram() || window.matchMedia('(max-width: 640px)').matches;
+  document.body.classList.toggle('holdings-cards', useCardRows);
+
   const showSkeleton = state.scanning && state.walletHoldings.size === 0;
   if (showSkeleton) {
-    const rows = Array.from({ length: 6 }).map(() => `
-      <tr class="skeleton-row">
-        <td><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></td>
-        <td><div class="skeleton-line w-30"></div></td>
-        <td><div class="skeleton-line w-40"></div></td>
-        <td><div class="skeleton-line w-40"></div></td>
-        <td><div class="skeleton-line w-50"></div></td>
-      </tr>
-    `).join('');
+    const rows = Array.from({ length: 6 }).map(() => {
+      if (!useCardRows) {
+        return `
+          <tr class="skeleton-row">
+            <td><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></td>
+            <td><div class="skeleton-line w-30"></div></td>
+            <td><div class="skeleton-line w-40"></div></td>
+            <td><div class="skeleton-line w-40"></div></td>
+            <td><div class="skeleton-line w-50"></div></td>
+          </tr>
+        `;
+      }
+
+      return `
+        <tr class="skeleton-row holding-card-row">
+          <td colspan="5">
+            <div class="holding-card">
+              <div class="holding-card-header">
+                <div class="token-cell">
+                  <div class="skeleton-line w-40"></div>
+                </div>
+                <div class="skeleton-line w-30"></div>
+              </div>
+              <div class="holding-card-metrics">
+                <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
     tbody.innerHTML = rows;
     $('tableStats') && ($('tableStats').textContent = 'Loading holdings…');
     return;
@@ -514,23 +542,64 @@ function renderHoldingsTable() {
 
       filtered.forEach(h => {
         const key = `${h.chain}:${h.address}`;
+        if (!useCardRows) {
+          rows.push(`
+            <tr class="holding-row" data-key="${key}">
+              <td>
+                <div class="token-cell">
+                  <img class="token-icon" src="${h.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
+                  <div class="token-info">
+                    <div class="token-symbol">${h.symbol}</div>
+                    <div class="token-name">${h.name}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="chain-badge-small ${h.chain}">${h.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+              </td>
+              <td class="mono">${formatNumber(h.balance)}</td>
+              <td class="mono">${formatCurrency(h.price)}</td>
+              <td class="mono"><strong>${formatCurrency(h.value)}</strong></td>
+            </tr>
+          `);
+          return;
+        }
+
         rows.push(`
-          <tr class="holding-row" data-key="${key}">
-            <td>
-              <div class="token-cell">
-                <img class="token-icon" src="${h.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
-                <div class="token-info">
-                  <div class="token-symbol">${h.symbol}</div>
-                  <div class="token-name">${h.name}</div>
+          <tr class="holding-row holding-card-row" data-key="${key}">
+            <td colspan="5">
+              <div class="holding-card">
+                <div class="holding-card-header">
+                  <div class="token-cell">
+                    <img class="token-icon" src="${h.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
+                    <div class="token-info">
+                      <div class="token-symbol">${h.symbol}</div>
+                      <div class="token-name">${h.name}</div>
+                    </div>
+                  </div>
+                  <span class="chain-badge-small ${h.chain}">${h.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+                </div>
+
+                <div class="holding-card-metrics">
+                  <div class="holding-metric">
+                    <div class="holding-metric-label">Balance</div>
+                    <div class="holding-metric-value mono">${formatNumber(h.balance)}</div>
+                  </div>
+                  <div class="holding-metric">
+                    <div class="holding-metric-label">Price</div>
+                    <div class="holding-metric-value mono">${formatCurrency(h.price)}</div>
+                  </div>
+                  <div class="holding-metric">
+                    <div class="holding-metric-label">Value</div>
+                    <div class="holding-metric-value mono"><strong>${formatCurrency(h.value)}</strong></div>
+                  </div>
+                  <div class="holding-metric">
+                    <div class="holding-metric-label">Wallet</div>
+                    <div class="holding-metric-value mono">${shortenAddress(h.wallet)}</div>
+                  </div>
                 </div>
               </div>
             </td>
-            <td>
-              <span class="chain-badge-small ${h.chain}">${h.chain === 'solana' ? 'SOL' : 'EVM'}</span>
-            </td>
-            <td class="mono">${formatNumber(h.balance)}</td>
-            <td class="mono">${formatCurrency(h.price)}</td>
-            <td class="mono"><strong>${formatCurrency(h.value)}</strong></td>
           </tr>
         `);
       });
@@ -584,25 +653,65 @@ function renderHoldingsTable() {
     return;
   }
 
-  tbody.innerHTML = filtered.map(holding => `
-    <tr class="holding-row" data-key="${holding.key}">
-      <td>
-        <div class="token-cell">
-          <img class="token-icon" src="${holding.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
-          <div class="token-info">
-            <div class="token-symbol">${holding.symbol}</div>
-            <div class="token-name">${holding.name}</div>
+  if (!useCardRows) {
+    tbody.innerHTML = filtered.map(holding => `
+      <tr class="holding-row" data-key="${holding.key}">
+        <td>
+          <div class="token-cell">
+            <img class="token-icon" src="${holding.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
+            <div class="token-info">
+              <div class="token-symbol">${holding.symbol}</div>
+              <div class="token-name">${holding.name}</div>
+            </div>
           </div>
-        </div>
-      </td>
-      <td>
-        <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
-      </td>
-      <td class="mono">${formatNumber(holding.balance)}</td>
-      <td class="mono">${formatCurrency(holding.price)}</td>
-      <td class="mono"><strong>${formatCurrency(holding.value)}</strong></td>
-    </tr>
-  `).join('');
+        </td>
+        <td>
+          <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+        </td>
+        <td class="mono">${formatNumber(holding.balance)}</td>
+        <td class="mono">${formatCurrency(holding.price)}</td>
+        <td class="mono"><strong>${formatCurrency(holding.value)}</strong></td>
+      </tr>
+    `).join('');
+  } else {
+    tbody.innerHTML = filtered.map(holding => `
+      <tr class="holding-row holding-card-row" data-key="${holding.key}">
+        <td colspan="5">
+          <div class="holding-card">
+            <div class="holding-card-header">
+              <div class="token-cell">
+                <img class="token-icon" src="${holding.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
+                <div class="token-info">
+                  <div class="token-symbol">${holding.symbol}</div>
+                  <div class="token-name">${holding.name}</div>
+                </div>
+              </div>
+              <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+            </div>
+
+            <div class="holding-card-metrics">
+              <div class="holding-metric">
+                <div class="holding-metric-label">Balance</div>
+                <div class="holding-metric-value mono">${formatNumber(holding.balance)}</div>
+              </div>
+              <div class="holding-metric">
+                <div class="holding-metric-label">Price</div>
+                <div class="holding-metric-value mono">${formatCurrency(holding.price)}</div>
+              </div>
+              <div class="holding-metric">
+                <div class="holding-metric-label">Value</div>
+                <div class="holding-metric-value mono"><strong>${formatCurrency(holding.value)}</strong></div>
+              </div>
+              <div class="holding-metric">
+                <div class="holding-metric-label">Chain</div>
+                <div class="holding-metric-value">${holding.chain === 'solana' ? 'Solana' : 'EVM'}</div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
 
   $('tableStats') && ($('tableStats').textContent = `Showing ${filtered.length} tokens • Total value: ${formatCurrency(filtered.reduce((s, h) => s + h.value, 0))}`);
 }
