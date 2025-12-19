@@ -44,21 +44,6 @@
         </div>
 
         <div class="input-container">
-          <div class="scan-status hidden" id="scanStatus">
-            <div class="status-content" id="statusContent">
-              Ready to scan
-            </div>
-            <div class="progress-bar" id="progressBar">
-              <div class="progress-fill"></div>
-            </div>
-
-            <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
-
-            <div class="scan-actions">
-              <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
-            </div>
-          </div>
-
           <div class="input-header">
             <div class="chain-badges" id="chainBadges">
               <div class="chain-badge sol">
@@ -90,6 +75,21 @@
 
           <div class="input-warning hidden" id="inputWarning">
             Only first 20 addresses were kept.
+          </div>
+
+          <div class="scan-status hidden" id="scanStatus">
+            <div class="status-content" id="statusContent">
+              Ready to scan
+            </div>
+            <div class="progress-bar" id="progressBar">
+              <div class="progress-fill"></div>
+            </div>
+
+            <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
+
+            <div class="scan-actions">
+              <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+            </div>
           </div>
 
           <div class="textarea-wrapper address-entry">

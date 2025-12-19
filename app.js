@@ -18,6 +18,8 @@ const state = {
   activeHolding: null,
 };
 
+let statusHideTimer = null;
+
 // Telegram Integration
 const TG = (() => {
   try { return window.Telegram?.WebApp || null; } catch { return null; }
@@ -359,6 +361,18 @@ function showStatus(message, type = 'info') {
   content.textContent = message;
   content.className = 'status-content';
   content.classList.add(type);
+
+  if (statusHideTimer) {
+    clearTimeout(statusHideTimer);
+    statusHideTimer = null;
+  }
+
+  if (!state.scanning) {
+    statusHideTimer = setTimeout(() => {
+      status.classList.add('hidden');
+      statusHideTimer = null;
+    }, 5000);
+  }
 }
 
 function updateProgress(percent) {
