@@ -673,6 +673,7 @@ async function scanWallets() {
 
   document.body.classList.remove('ui-landing');
   document.body.classList.add('ui-results');
+  document.body.classList.add('compact-header');
   document.body.classList.add('ui-reveal');
   window.setTimeout(() => document.body.classList.remove('ui-reveal'), 520);
 
@@ -984,6 +985,7 @@ function setupEventListeners() {
   $('clearInputBtn')?.addEventListener('click', () => {
     if (addressInput) addressInput.value = '';
     setAddressItems([]);
+    document.body.classList.remove('compact-header');
     hapticFeedback('light');
   });
 
