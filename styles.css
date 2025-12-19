@@ -208,24 +208,8 @@ body.ui-landing .input-container {
   gap: 12px;
 }
 
-body.ui-landing .textarea-wrapper {
-  order: 1;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-body.ui-landing .line-numbers {
-  display: none;
-}
-
-body.ui-landing #addressInput {
-  padding-left: 16px;
-  font-family: var(--mono);
-}
-
 body.ui-landing .input-header {
-  order: 2;
+  order: 0;
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--radius-lg);
@@ -236,7 +220,48 @@ body.ui-landing .input-header {
   margin-top: 4px;
 }
 
+body.ui-landing .input-warning {
+  order: 0;
+}
+
+body.ui-landing .textarea-wrapper {
+  order: 1;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.ui-landing .scan-status {
+  order: 2;
+  display: block;
+  margin-top: -6px;
+  padding: 0 6px;
+}
+
+body.ui-landing .scan-status .progress-bar,
+body.ui-landing .scan-status .scan-progress,
+body.ui-landing .scan-status .scan-actions {
+  display: none;
+}
+
+body.ui-landing .scan-status .status-content {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-tertiary);
+  font-family: var(--mono);
+}
+
+body.ui-landing .scan-status .status-content::before {
+  content: '$ ';
+  color: rgba(57, 255, 136, 0.92);
+}
+
+body.ui-landing .scan-status.hidden {
+  display: none;
+}
+
 body.ui-landing .input-tip {
+  order: 3;
   font-size: 13px;
   line-height: 1.4;
   color: var(--text-tertiary);
@@ -250,48 +275,8 @@ body.ui-landing .input-tip::before {
   color: rgba(57, 255, 136, 0.92);
 }
 
-body.ui-results .input-tip {
-  display: none;
-}
-
-body.ui-landing .chain-badge {
-  padding: 6px 12px;
-}
-
-body.ui-landing .address-counter {
-  font-size: 13px;
-  color: var(--text-tertiary);
-}
-
-body.ui-landing .btn-icon {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-body.ui-landing .action-buttons {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: center;
-  margin-top: 4px;
-}
-
-body.ui-landing .btn-primary.btn-lg {
-  width: 100%;
-}
-
-body.ui-landing .scan-status {
-  display: block;
-}
-
-body.ui-landing .scan-status.hidden {
-  display: none;
-}
-
 body.ui-landing .address-chips {
-  display: block;
-}
-
-body.ui-landing .btn-group {
+  order: 4;
   display: block;
 }
 
