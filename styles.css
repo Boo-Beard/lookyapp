@@ -642,10 +642,16 @@ body.ui-results #inputHeaderBar {
   cursor: pointer;
 }
 
-body.ui-results .input-section {
-  position: sticky;
-  top: env(safe-area-inset-top);
-  z-index: 30;
+body.ui-results .card-header .looky-eyes {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+}
+
+body.ui-results .main {
+  padding-top: 100px;
 }
 
 body.ui-results .input-section.is-minimized .input-body {
