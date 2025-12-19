@@ -828,11 +828,16 @@ function setupEyeTracking() {
   let typingTargetY = null;
   let isTyping = false;
   let typingTimeout = null;
+  let introActive = true;
+  const introStart = performance.now();
+  const INTRO_DURATION_MS = 1600;
+  const INTRO_RADIUS_PX = 120;
 
   document.addEventListener('mousemove', (e) => {
     cursorX = e.clientX;
     cursorY = e.clientY;
     isTyping = false;
+    introActive = false;
   });
 
   document.addEventListener('touchmove', (e) => {
@@ -840,6 +845,7 @@ function setupEyeTracking() {
       cursorX = e.touches[0].clientX;
       cursorY = e.touches[0].clientY;
       isTyping = false;
+      introActive = false;
     }
   });
 
@@ -847,6 +853,7 @@ function setupEyeTracking() {
   if (addressInput) {
     addressInput.addEventListener('focus', () => {
       isTyping = true;
+      introActive = false;
       updateTypingTarget(addressInput);
     });
 
@@ -858,6 +865,7 @@ function setupEyeTracking() {
 
     addressInput.addEventListener('input', () => {
       isTyping = true;
+      introActive = false;
       const caretPos = addressInput.selectionStart;
       updateTypingTarget(addressInput, caretPos);
 
@@ -869,6 +877,7 @@ function setupEyeTracking() {
 
     addressInput.addEventListener('click', (e) => {
       isTyping = true;
+      introActive = false;
       const rect = addressInput.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
 
@@ -881,6 +890,7 @@ function setupEyeTracking() {
     addressInput.addEventListener('keyup', (e) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
         isTyping = true;
+        introActive = false;
         updateTypingTarget(addressInput, addressInput.selectionStart);
       }
     });
@@ -917,8 +927,21 @@ function setupEyeTracking() {
   }
 
   function animateEyes() {
-    const targetX = (isTyping && typingTargetX && typingTargetY) ? typingTargetX : cursorX;
-    const targetY = (isTyping && typingTargetX && typingTargetY) ? typingTargetY : cursorY;
+    const now = performance.now();
+
+    const introElapsed = now - introStart;
+    const shouldRunIntro = introActive && introElapsed >= 0 && introElapsed < INTRO_DURATION_MS;
+
+    const introAngle = (introElapsed / INTRO_DURATION_MS) * Math.PI * 2;
+    const introX = (window.innerWidth / 2) + Math.cos(introAngle) * INTRO_RADIUS_PX;
+    const introY = (window.innerHeight / 2) + Math.sin(introAngle) * INTRO_RADIUS_PX;
+
+    const targetX = shouldRunIntro
+      ? introX
+      : (isTyping && typingTargetX && typingTargetY) ? typingTargetX : cursorX;
+    const targetY = shouldRunIntro
+      ? introY
+      : (isTyping && typingTargetX && typingTargetY) ? typingTargetY : cursorY;
 
     pupils.forEach((pupil) => {
       const eye = pupil.closest('.eye');
