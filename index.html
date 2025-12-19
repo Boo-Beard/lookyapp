@@ -77,6 +77,25 @@
             Only first 20 addresses were kept.
           </div>
 
+          <div class="tips-section" id="tipsSection">
+            <div class="scan-status hidden" id="scanStatus">
+              <div class="status-content" id="statusContent">
+                Ready to scan
+              </div>
+              <div class="progress-bar" id="progressBar">
+                <div class="progress-fill"></div>
+              </div>
+
+              <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
+
+              <div class="scan-actions">
+                <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+              </div>
+            </div>
+
+            <div class="input-tip" id="landingTip">Paste SOL + EVM addresses one-by-one. Tap Add wallet. No connect. No approvals.</div>
+          </div>
+
           <div class="textarea-wrapper address-entry">
             <input
               id="addressInput"
@@ -92,23 +111,6 @@
               <span>Add wallet</span>
             </button>
           </div>
-
-          <div class="scan-status hidden" id="scanStatus">
-            <div class="status-content" id="statusContent">
-              Ready to scan
-            </div>
-            <div class="progress-bar" id="progressBar">
-              <div class="progress-fill"></div>
-            </div>
-
-            <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
-
-            <div class="scan-actions">
-              <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
-            </div>
-          </div>
-
-          <div class="input-tip" id="landingTip">Paste SOL + EVM addresses one-by-one. Tap Add wallet. No connect. No approvals.</div>
 
           <div class="address-chips" id="addressChips"></div>
         </div>
