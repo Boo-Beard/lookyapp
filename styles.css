@@ -770,7 +770,7 @@ body.ui-results .card {
 
 #addressInput {
   width: 100%;
-  min-height: 200px;
+  min-height: 160px;
   padding: 16px 16px 16px 72px;
   background: transparent;
   border: none;
@@ -813,7 +813,7 @@ body.ui-results .card {
 
 @media (max-width: 640px) {
   #addressInput {
-    min-height: 176px;
+    min-height: 140px;
     resize: none;
   }
 }
