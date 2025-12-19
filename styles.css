@@ -4,10 +4,10 @@
 
 :root {
   /* Color Palette */
-  --bg-primary: #05060A;
-  --bg-secondary: #0B0D14;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --bg-primary: #070A07;
+  --bg-secondary: #0B110D;
+  --bg-card: rgba(10, 16, 12, 0.70);
+  --bg-overlay: rgba(0, 0, 0, 0.8);
 
   --neon-cyan: #38BDF8;
   --neon-green: #22C55E;
@@ -46,7 +46,7 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 40px rgba(96, 165, 250, 0.2);
+  --shadow-glow: none;
 
   /* Animations */
   --transition-fast: 150ms ease;
@@ -138,7 +138,7 @@ body.ui-results .container::after {
     linear-gradient(to top, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom left / 1px 110px no-repeat,
     linear-gradient(to left, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom right / 110px 1px no-repeat,
     linear-gradient(to top, rgba(57, 255, 136, 0.14), rgba(57, 255, 136, 0)) bottom right / 1px 110px no-repeat;
-  filter: drop-shadow(0 0 10px rgba(57, 255, 136, 0.08));
+  filter: none;
 }
 
 .container::after {
@@ -156,7 +156,7 @@ body.ui-results .container::after {
 
 /* Landing / Results modes */
 body.ui-landing {
-  background: #05060A;
+  background: #070A07;
 }
 
 body.ui-landing::before,
@@ -299,7 +299,8 @@ body.ui-landing .input-container {
 body.ui-results .aurora-grid,
 body.ui-results .noise,
 body.ui-results .particles {
-  opacity: 1;
+  opacity: 0;
+  pointer-events: none;
 }
 
 body.ui-reveal .results-section {
@@ -378,8 +379,7 @@ body.ui-reveal .wallets-section {
   backdrop-filter: blur(16px);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.35),
-    0 18px 60px rgba(0, 0, 0, 0.45),
-    0 0 26px rgba(57, 255, 136, 0.08);
+    0 18px 60px rgba(0, 0, 0, 0.45);
 }
 
 .summary-card::before {
@@ -387,10 +387,8 @@ body.ui-reveal .wallets-section {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(900px 260px at 20% 0%, rgba(57, 255, 136, 0.14), transparent 55%),
-    radial-gradient(700px 240px at 80% 0%, rgba(57, 255, 136, 0.08), transparent 55%);
-  opacity: 0.9;
+  background: none;
+  opacity: 0;
 }
 
 .summary-card::after {
@@ -401,19 +399,13 @@ body.ui-reveal .wallets-section {
   width: 220%;
   height: 220%;
   pointer-events: none;
-  background: linear-gradient(
-    115deg,
-    rgba(0, 0, 0, 0) 40%,
-    rgba(57, 255, 136, 0.10) 50%,
-    rgba(0, 0, 0, 0) 60%
-  );
-  transform: translateX(-40%) rotate(8deg);
-  opacity: 0.0;
+  background: none;
+  opacity: 0;
 }
 
 body.ui-results .summary-card::after {
-  opacity: 0.55;
-  animation: sheen 4.8s ease-in-out infinite;
+  opacity: 0;
+  animation: none;
 }
 
 @keyframes sheen {
@@ -491,14 +483,14 @@ body.ui-results .summary-card::after {
   position: absolute;
   border-radius: 50%;
   filter: blur(60px);
-  opacity: 0.4;
-  animation: float 20s infinite ease-in-out;
+  opacity: 0;
+  animation: none;
 }
 
 .a1 {
   width: 800px;
   height: 800px;
-  background: radial-gradient(circle, #60A5FA, transparent 70%);
+  background: none;
   top: -400px;
   left: -200px;
   animation-delay: 0s;
@@ -507,7 +499,7 @@ body.ui-results .summary-card::after {
 .a2 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, #A78BFA, transparent 70%);
+  background: none;
   top: 50%;
   right: -200px;
   animation-delay: 7s;
@@ -516,7 +508,7 @@ body.ui-results .summary-card::after {
 .a3 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, #F472B6, transparent 70%);
+  background: none;
   bottom: -200px;
   left: 30%;
   animation-delay: 14s;
@@ -525,7 +517,7 @@ body.ui-results .summary-card::after {
 .noise {
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  background-image: none;
   z-index: 2;
   pointer-events: none;
 }
@@ -580,7 +572,7 @@ body.ui-results .summary-card::after {
 }
 
 body.ui-landing .logo-title {
-  text-shadow: 0 0 26px rgba(57, 255, 136, 0.18);
+  text-shadow: none;
 }
 
 .logo-subtitle {
@@ -624,17 +616,15 @@ body.ui-landing .logo-title {
 }
 
 body.ui-results .card {
-  box-shadow:
-    0 0 0 1px rgba(57, 255, 136, 0.08),
-    var(--shadow-md);
+  box-shadow: var(--shadow-md);
 }
 
 .card::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--gradient-card);
-  opacity: 0.3;
+  background: none;
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -738,12 +728,12 @@ body.ui-results .card {
 
 .sol .chain-dot {
   background: var(--solana);
-  box-shadow: 0 0 10px var(--solana);
+  box-shadow: none;
 }
 
 .evm .chain-dot {
   background: var(--evm);
-  box-shadow: 0 0 10px var(--evm);
+  box-shadow: none;
 }
 
 .unknown .chain-dot {
@@ -801,17 +791,12 @@ body.ui-results .card {
   inset: 0;
   pointer-events: none;
   opacity: 0.7;
-  background:
-    radial-gradient(900px 220px at 20% 0%, rgba(57, 255, 136, 0.10), transparent 55%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.08));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.08));
 }
 
 .textarea-wrapper:focus-within {
   border-color: rgba(57, 255, 136, 0.35);
-  box-shadow:
-    inset 0 0 0 1px rgba(57, 255, 136, 0.10),
-    0 0 0 2px rgba(57, 255, 136, 0.12),
-    0 18px 70px rgba(57, 255, 136, 0.10);
+  box-shadow: none;
 }
 
 .line-numbers {
@@ -986,22 +971,17 @@ body.ui-results .card {
 .btn-primary {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: var(--shadow-glow);
+  box-shadow: none;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 12px 48px rgba(57, 255, 136, 0.18),
-    0 0 0 1px rgba(57, 255, 136, 0.18),
-    0 0 26px rgba(34, 197, 94, 0.12);
+  box-shadow: none;
 }
 
 .btn-primary:active {
-  transform: translateY(0px);
-  box-shadow:
-    0 10px 40px rgba(57, 255, 136, 0.14),
-    0 0 0 1px rgba(57, 255, 136, 0.18);
+  transform: translateY(1px) scale(0.992);
+  box-shadow: none;
 }
 
 /* ... */
@@ -1080,13 +1060,13 @@ body.ui-results .table-subtitle {
   bottom: 0;
   width: 3px;
   background: rgba(57, 255, 136, 0.0);
-  box-shadow: 0 0 0 rgba(57, 255, 136, 0);
+  box-shadow: none;
   transition: all var(--transition-fast);
 }
 
 .holding-row:hover::before {
   background: rgba(57, 255, 136, 0.85);
-  box-shadow: 0 0 18px rgba(57, 255, 136, 0.22);
+  box-shadow: none;
 }
 
 .holding-row::after {
@@ -1096,7 +1076,7 @@ body.ui-results .table-subtitle {
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--transition-fast);
-  box-shadow: inset 0 0 0 1px rgba(57, 255, 136, 0.10);
+  box-shadow: none;
 }
 
 .holding-row:hover::after {
