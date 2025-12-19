@@ -99,7 +99,11 @@ body.ui-landing .particles {
 }
 
 body.ui-landing .input-section {
-  margin-bottom: 0;
+  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
 }
 
 body.ui-landing .input-section.card {
@@ -108,8 +112,61 @@ body.ui-landing .input-section.card {
   box-shadow: none;
 }
 
+body.ui-landing .card-header {
+  padding: 18px 0 4px;
+}
+
+body.ui-landing .looky-eyes {
+  margin: 0;
+}
+
+body.ui-landing .input-container {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+body.ui-landing .textarea-wrapper {
+  order: 1;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 body.ui-landing .input-header {
-  display: block;
+  order: 2;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 10px;
+}
+
+body.ui-landing .chain-badge {
+  padding: 6px 12px;
+}
+
+body.ui-landing .address-counter {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+body.ui-landing .btn-icon {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body.ui-landing .action-buttons {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+body.ui-landing .btn-primary.btn-lg {
+  width: 100%;
 }
 
 body.ui-landing .scan-status,
@@ -121,31 +178,12 @@ body.ui-landing .btn-group {
   display: block;
 }
 
-body.ui-landing .looky-mascot {
-  margin-bottom: 14px;
-}
-
-body.ui-landing .logo-title {
-  letter-spacing: -0.02em;
-}
-
 body.ui-landing .logo-subtitle {
   max-width: 38ch;
 }
 
 body.ui-landing .input-container {
   padding: 0;
-}
-
-body.ui-landing .textarea-wrapper {
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-body.ui-landing #addressInput {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  letter-spacing: 0.1px;
 }
 
 body.ui-results .aurora-grid,
@@ -164,15 +202,6 @@ body.ui-results .particles {
     padding: 14px 0 22px;
   }
 
-  .btn {
-    min-height: 48px;
-  }
-
-  .btn-icon {
-    width: 44px;
-    height: 44px;
-  }
-
   .input-container {
     padding: 0 16px 18px;
   }
@@ -181,6 +210,15 @@ body.ui-results .particles {
     flex-wrap: wrap;
     gap: 10px;
     align-items: flex-start;
+  }
+
+  body.ui-landing .input-section {
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+
+  body.ui-landing .action-buttons {
+    grid-template-columns: 1fr;
   }
 
   .chain-badges {
