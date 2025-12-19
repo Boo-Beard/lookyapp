@@ -344,55 +344,89 @@ margin-top: 16px;
 
 .summary-grid {
 display: grid;
-grid-template-columns: 1fr;
-gap: 14px;
-margin-bottom: 18px;
 }
 
 .summary-card {
-position: relative;
-overflow: hidden;
-border-radius: var(--radius-xl);
-border: 3px solid var(--border);
-background: rgba(255, 255, 255, 0.55);
-backdrop-filter: none;
-box-shadow: var(--shadow-md);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 16px;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.60);
+  backdrop-filter: none;
+  box-shadow: var(--shadow-md);
 }
 
 .summary-card::before {
-content: '';
-position: absolute;
-inset: 0;
-pointer-events: none;
-opacity: 0;
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.30;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.14) 0 1px, transparent 1px 14px),
+    radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.12) 0 1px, transparent 1px 16px);
+}
+
+.summary-card .summary-icon {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-sm);
+  color: rgba(11, 11, 16, 0.92);
+  position: relative;
+  z-index: 1;
+}
+
+.summary-card .summary-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
 }
 
 body.ui-results .summary-card::after {
-opacity: 0;
-animation: none;
+  opacity: 0;
+  animation: none;
 }
 
 @keyframes sheen {
-0%, 55% { transform: translateX(-40%) rotate(8deg); }
-70% { transform: translateX(10%) rotate(8deg); }
-100% { transform: translateX(10%) rotate(8deg); }
+  0%, 55% { transform: translateX(-40%) rotate(8deg); }
+  70% { transform: translateX(10%) rotate(8deg); }
+  100% { transform: translateX(10%) rotate(8deg); }
 }
 
 .summary-card .summary-label {
-font-family: var(--mono);
-letter-spacing: 0.14em;
-text-transform: uppercase;
-font-size: 12px;
-color: rgba(11, 11, 16, 0.72);
+  font-family: var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: rgba(11, 11, 16, 0.72);
 }
 
 .summary-card .summary-value {
-font-family: var(--mono);
-color: var(--ink);
+  font-family: 'Bangers', system-ui, sans-serif;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: var(--ink);
 }
 
 .summary-card .summary-sub {
-color: rgba(11, 11, 16, 0.70);
+  color: rgba(11, 11, 16, 0.70);
+  font-size: 13px;
 }
 
 /* Mobile / Telegram WebApp ergonomics */
