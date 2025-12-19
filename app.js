@@ -679,6 +679,7 @@ async function scanWallets() {
   $('resultsSection')?.classList.remove('hidden');
 
   state.scanning = true;
+  document.body.classList.add('is-scanning');
   state.walletHoldings = new Map();
   state.scanAbortController = new AbortController();
   updateTelegramMainButton();
@@ -722,6 +723,7 @@ async function scanWallets() {
 
   state.scanning = false;
   state.scanAbortController = null;
+  document.body.classList.remove('is-scanning');
 
   if (scanButton) {
     scanButton.disabled = false;

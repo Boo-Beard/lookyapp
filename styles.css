@@ -649,6 +649,43 @@ body.ui-results .card {
   box-shadow: var(--shadow-sm);
 }
 
+.logo-lockup .eyebrow {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  width: 70px;
+  height: 16px;
+  transform: translateX(-50%) rotate(-8deg);
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  z-index: 3;
+  border-top: 7px solid rgba(11, 11, 16, 0.98);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-radius: 999px;
+  animation: browIdle 3.2s ease-in-out infinite;
+}
+
+.logo-lockup .eyebrow::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: -6px;
+  height: 6px;
+  border-top: 3px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  opacity: 0.75;
+}
+
+.logo-lockup .eyebrow-left {
+  transform: translateX(-50%) rotate(-10deg);
+}
+
+.logo-lockup .eyebrow-right {
+  transform: translateX(-50%) rotate(10deg);
+}
+
 .logo-lockup .eye::after {
   content: '';
   position: absolute;
@@ -709,9 +746,51 @@ body.ui-results .card {
   }
 }
 
-/* Input Section */
-.input-section {
-  margin-bottom: 24px;
+@keyframes browIdle {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0) rotate(var(--brow-rot, -8deg));
+  }
+  50% {
+    transform: translateX(-50%) translateY(-1px) rotate(calc(var(--brow-rot, -8deg) + 1deg));
+  }
+}
+
+@keyframes browRaise {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(var(--brow-rot, -8deg));
+  }
+  55% {
+    transform: translateX(-50%) translateY(-9px) rotate(calc(var(--brow-rot, -8deg) - 8deg));
+  }
+  100% {
+    transform: translateX(-50%) translateY(-6px) rotate(calc(var(--brow-rot, -8deg) - 6deg));
+  }
+}
+
+@keyframes browFurrow {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(var(--brow-rot, -8deg));
+  }
+  55% {
+    transform: translateX(-50%) translateY(2px) rotate(calc(var(--brow-rot, -8deg) + 10deg));
+  }
+  100% {
+    transform: translateX(-50%) translateY(1px) rotate(calc(var(--brow-rot, -8deg) + 6deg));
+  }
+}
+
+body.is-scanning .logo-lockup .eyebrow {
+  animation: none;
+}
+
+body.is-scanning .logo-lockup .eyebrow-left {
+  --brow-rot: -10deg;
+  animation: browRaise 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+body.is-scanning .logo-lockup .eyebrow-right {
+  --brow-rot: 10deg;
+  animation: browFurrow 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
 .input-container {
