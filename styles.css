@@ -212,15 +212,16 @@ body.ui-landing .input-container {
 }
 
 body.ui-landing .input-header {
-  order: 0;
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  gap: 10px;
-  align-items: center;
-  margin-top: 4px;
+    order: 0;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.45);
+    border: 2px solid rgb(0 0 0);
+    gap: 10px;
+    align-items: center;
+    margin-top: 4px;
+    box-shadow: var(--shadow-md);
 }
 
 body.ui-landing .input-warning {
@@ -237,9 +238,9 @@ body.ui-landing .tips-section {
 
 body.ui-landing .textarea-wrapper {
     order: 2;
-    border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, 0.02);
-    /* border: 1px solid rgba(255, 255, 255, 0.08); */
+    /* border-radius: var(--radius-lg); */
+    /* background: rgba(255, 255, 255, 0.02); */
+    /* border: 1px solid rgba(255, 255, 255, 0.08);*/
 }
 
 body.ui-landing .scan-status {
