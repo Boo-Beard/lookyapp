@@ -638,6 +638,24 @@ body.ui-results #resultsSection .card {
   text-align: center;
 }
 
+body.ui-results #inputHeaderBar {
+  cursor: pointer;
+}
+
+body.ui-results .input-section {
+  position: sticky;
+  top: env(safe-area-inset-top);
+  z-index: 30;
+}
+
+body.ui-results .input-section.is-minimized .input-body {
+  display: none;
+}
+
+body.ui-results .input-section.is-minimized {
+  padding-bottom: 0;
+}
+
 body.compact-header.ui-results .card-header {
   padding: 14px 16px 10px;
 }

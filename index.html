@@ -33,8 +33,8 @@
   <div class="container">
     <main class="main">
       <!-- Input Section -->
-      <section class="card input-section">
-        <div class="card-header">
+      <section class="card input-section" id="inputSection">
+        <div class="card-header" id="inputHeaderBar" role="button" tabindex="0" aria-label="Toggle input section">
           <div class="logo-lockup">
             <div class="looky-eyes">
               <div class="eye">
@@ -48,80 +48,80 @@
           </div>
         </div>
 
-        <div class="input-container">
-          <div class="input-warning hidden" id="inputWarning">
-            Only first 20 addresses were kept.
-          </div>
+        <div class="input-body" id="inputBody">
+          <div class="input-container">
+            <div class="input-warning hidden" id="inputWarning">
+              Only first 20 addresses were kept.
+            </div>
 
-          <div class="textarea-wrapper address-entry">
-            <input
-              id="addressInput"
-              type="text"
-              inputmode="text"
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-              placeholder="Paste a wallet address (SOL or EVM)"
-            />
-            <button id="addWalletBtn" class="btn btn-outline" type="button">
-              <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
-              <span>Add wallet</span>
+            <div class="textarea-wrapper address-entry">
+              <input
+                id="addressInput"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="Paste a wallet address (SOL or EVM)"
+              />
+              <button id="addWalletBtn" class="btn btn-outline" type="button">
+                <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                <span>Add wallet</span>
+              </button>
+            </div>
+
+            <div class="address-chips" id="addressChips"></div>
+          </div>
+          <div class="action-buttons">
+            <div class="input-header hidden" id="inputHeader">
+              <div class="chain-badges hidden" id="chainBadges">
+                <div class="chain-badge sol">
+                  <span class="chain-dot"></span>
+                  <span class="chain-count" id="solCount">0</span>
+                  <span>Solana</span>
+                </div>
+                <div class="chain-badge evm">
+                  <span class="chain-dot"></span>
+                  <span class="chain-count" id="evmCount">0</span>
+                  <span>EVM</span>
+                </div>
+              </div>
+
+              <div class="address-counter hidden" id="addressCounter">0 / 20</div>
+              
+              <div class="input-actions">
+                <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
+                  <i class="fa-solid fa-clipboard" aria-hidden="true"></i>
+                </button>
+                <button class="btn-icon" id="loadLastBtn" title="Load last used">
+                  <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                </button>
+                <button class="btn-icon" id="clearInputBtn" title="Clear all">
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <button id="scanButton" class="btn btn-primary btn-lg">
+              <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+              <span>Let’s Looky</span>
             </button>
-          </div>
 
-          <div class="address-chips" id="addressChips"></div>
-        </div>
-        <div class="action-buttons">
-          <div class="input-header hidden" id="inputHeader">
-            <div class="chain-badges hidden" id="chainBadges">
-              <div class="chain-badge sol">
-                <span class="chain-dot"></span>
-                <span class="chain-count" id="solCount">0</span>
-                <span>Solana</span>
+            <div class="scan-status hidden" id="scanStatus">
+              <div class="status-content" id="statusContent">
+                Ready to scan
               </div>
-              <div class="chain-badge evm">
-                <span class="chain-dot"></span>
-                <span class="chain-count" id="evmCount">0</span>
-                <span>EVM</span>
+              <div class="progress-bar" id="progressBar">
+                <div class="progress-fill"></div>
               </div>
-            </div>
 
-            <div class="address-counter hidden" id="addressCounter">0 / 20</div>
-            
-            <div class="input-actions">
-              <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
-                <i class="fa-solid fa-clipboard" aria-hidden="true"></i>
-              </button>
-              <button class="btn-icon" id="loadLastBtn" title="Load last used">
-                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-              </button>
-              <button class="btn-icon" id="clearInputBtn" title="Clear all">
-                <i class="fa-solid fa-trash" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-          <button id="scanButton" class="btn btn-primary btn-lg">
-            <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
-            <span>Let’s Looky</span>
-          </button>
+              <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
 
-          <div class="scan-status hidden" id="scanStatus">
-            <div class="status-content" id="statusContent">
-              Ready to scan
-            </div>
-            <div class="progress-bar" id="progressBar">
-              <div class="progress-fill"></div>
-            </div>
-
-            <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
-
-            <div class="scan-actions">
-              <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+              <div class="scan-actions">
+                <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+              </div>
             </div>
           </div>
         </div>
-
-
       </section>
 
       <!-- Results Section -->

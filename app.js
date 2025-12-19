@@ -673,7 +673,7 @@ async function scanWallets() {
 
   document.body.classList.remove('ui-landing');
   document.body.classList.add('ui-results');
-  document.body.classList.add('compact-header');
+  $('inputSection')?.classList.add('is-minimized');
   document.body.classList.add('ui-reveal');
   window.setTimeout(() => document.body.classList.remove('ui-reveal'), 520);
 
@@ -959,6 +959,7 @@ function setupEventListeners() {
         addWalletFromInput();
       }
     });
+
     addressInput.addEventListener('input', () => {
       const wrap = addressInput.closest('.address-entry');
       wrap?.classList.remove('shake');
@@ -976,6 +977,21 @@ function setupEventListeners() {
 
   $('scanButton')?.addEventListener('click', scanWallets);
 
+  const headerBar = $('inputHeaderBar');
+  const inputSection = $('inputSection');
+  const toggleInputSection = () => {
+    if (!document.body.classList.contains('ui-results')) return;
+    inputSection?.classList.toggle('is-minimized');
+  };
+
+  headerBar?.addEventListener('click', toggleInputSection);
+  headerBar?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleInputSection();
+    }
+  });
+
   $('cancelScanButton')?.addEventListener('click', () => {
     if (!state.scanning) return;
     state.scanAbortController?.abort();
@@ -985,6 +1001,7 @@ function setupEventListeners() {
   $('clearInputBtn')?.addEventListener('click', () => {
     if (addressInput) addressInput.value = '';
     setAddressItems([]);
+    $('inputSection')?.classList.remove('is-minimized');
     document.body.classList.remove('compact-header');
     hapticFeedback('light');
   });
