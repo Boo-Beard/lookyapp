@@ -75,8 +75,9 @@ function updateTelegramMainButton() {
 }
 
 function shortenAddress(address) {
-  if (!address || address.length <= 16) return address;
-  return `${address.slice(0, 8)}...${address.slice(-8)}`;
+  if (!address) return address;
+  if (address.length <= 4) return address;
+  return address.slice(-4);
 }
 
 function formatCurrency(value) {
