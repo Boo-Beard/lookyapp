@@ -265,6 +265,112 @@ body.ui-results .particles {
   opacity: 1;
 }
 
+body.ui-reveal .results-section {
+  animation: uiReveal 380ms ease both;
+}
+
+@keyframes uiReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.results-section {
+  margin-top: 18px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 1024px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(57, 255, 136, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 18px 60px rgba(0, 0, 0, 0.45),
+    0 0 26px rgba(57, 255, 136, 0.08);
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 260px at 20% 0%, rgba(57, 255, 136, 0.14), transparent 55%),
+    radial-gradient(700px 240px at 80% 0%, rgba(57, 255, 136, 0.08), transparent 55%);
+  opacity: 0.9;
+}
+
+.summary-card::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(0, 0, 0, 0) 40%,
+    rgba(57, 255, 136, 0.10) 50%,
+    rgba(0, 0, 0, 0) 60%
+  );
+  transform: translateX(-40%) rotate(8deg);
+  opacity: 0.0;
+}
+
+body.ui-results .summary-card::after {
+  opacity: 0.55;
+  animation: sheen 4.8s ease-in-out infinite;
+}
+
+@keyframes sheen {
+  0%, 55% { transform: translateX(-40%) rotate(8deg); }
+  70% { transform: translateX(10%) rotate(8deg); }
+  100% { transform: translateX(10%) rotate(8deg); }
+}
+
+.summary-card .summary-label {
+  font-family: var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.summary-card .summary-value {
+  font-family: var(--mono);
+}
+
 /* Mobile / Telegram WebApp ergonomics */
 @media (max-width: 640px) {
   .container {
@@ -612,7 +718,7 @@ body.ui-results .card {
 }
 
 .btn-icon:focus-visible {
-  outline: 2px solid rgba(96, 165, 250, 0.55);
+  outline: 2px solid rgba(57, 255, 136, 0.55);
   outline-offset: 2px;
 }
 
@@ -879,8 +985,43 @@ body.ui-results .table-subtitle {
   background: rgba(57, 255, 136, 0.08);
 }
 
+.holding-row {
+  position: relative;
+}
+
+.holding-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(57, 255, 136, 0.0);
+  box-shadow: 0 0 0 rgba(57, 255, 136, 0);
+  transition: all var(--transition-fast);
+}
+
+.holding-row:hover::before {
+  background: rgba(57, 255, 136, 0.85);
+  box-shadow: 0 0 18px rgba(57, 255, 136, 0.22);
+}
+
+.holding-row::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  box-shadow: inset 0 0 0 1px rgba(57, 255, 136, 0.10);
+}
+
+.holding-row:hover::after {
+  opacity: 1;
+}
+
 .holding-row:focus-visible {
-  outline: 2px solid rgba(96, 165, 250, 0.55);
+  outline: 2px solid rgba(57, 255, 136, 0.55);
   outline-offset: -2px;
 }
 
