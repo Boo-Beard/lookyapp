@@ -342,6 +342,22 @@ body.ui-results .results-section {
 margin-top: 16px;
 }
 
+.amend-wallets-row {
+  margin: 0 0 12px;
+}
+
+body.ui-results .amend-wallets-row {
+  background: rgba(255, 255, 255, 0.55);
+  border: 3px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 10px;
+}
+
+body.ui-results .amend-wallets-row .btn {
+  width: 100%;
+}
+
 .summary-grid {
 display: grid;
 }
@@ -631,10 +647,6 @@ body.ui-results #resultsSection .card {
 .card-header {
   padding: 32px 32px 24px;
   text-align: center;
-}
-
-body.ui-results #inputHeaderBar {
-  cursor: pointer;
 }
 
 body.ui-results .input-section.is-minimized .input-body {

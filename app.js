@@ -977,19 +977,9 @@ function setupEventListeners() {
 
   $('scanButton')?.addEventListener('click', scanWallets);
 
-  const headerBar = $('inputHeaderBar');
-  const inputSection = $('inputSection');
-  const toggleInputSection = () => {
+  $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
-    inputSection?.classList.toggle('is-minimized');
-  };
-
-  headerBar?.addEventListener('click', toggleInputSection);
-  headerBar?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggleInputSection();
-    }
+    $('inputSection')?.classList.toggle('is-minimized');
   });
 
   $('cancelScanButton')?.addEventListener('click', () => {
