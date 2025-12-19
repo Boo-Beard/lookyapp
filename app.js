@@ -912,13 +912,6 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  $('demoButton')?.addEventListener('click', () => {
-    if (!addressInput) return;
-    addressInput.value = `8X35rQUK2u9hfn8rMPwwr6ZSEUhbmfDPEapp589XyoM1\n0x742d35Cc6634C0532925a3b844Bc454e4438f44e`;
-    scheduleAddressStatsUpdate();
-    hapticFeedback('light');
-  });
-
   $('clearInputBtn')?.addEventListener('click', () => {
     if (addressInput) addressInput.value = '';
     setAddressItemsFromText('');
