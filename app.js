@@ -830,8 +830,8 @@ function setupEyeTracking() {
   let typingTimeout = null;
   let introActive = true;
   const introStart = performance.now();
-  const INTRO_DURATION_MS = 1600;
-  const INTRO_RADIUS_PX = 120;
+  const INTRO_DURATION_MS = 2400;
+  const INTRO_RADIUS_PX = 260;
 
   document.addEventListener('mousemove', (e) => {
     cursorX = e.clientX;
@@ -954,10 +954,10 @@ function setupEyeTracking() {
       const dx = targetX - eyeX;
       const dy = targetY - eyeY;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const maxMove = 8;
-      const moveFactor = Math.min(distance / 100, 1);
+      const maxMove = shouldRunIntro ? 16 : 8;
+      const moveFactor = shouldRunIntro ? 1 : Math.min(distance / 100, 1);
       const moveDistance = maxMove * moveFactor;
-      const jitter = isTyping ? 0.1 : 0.3;
+      const jitter = shouldRunIntro ? 0 : (isTyping ? 0.1 : 0.3);
       const jitterX = (Math.random() - 0.5) * jitter;
       const jitterY = (Math.random() - 0.5) * jitter;
       const angle = Math.atan2(dy, dx);
