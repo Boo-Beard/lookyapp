@@ -234,10 +234,12 @@ function updateAddressStats() {
   });
 
   const hasAny = state.addressItems.length > 0;
+  $('inputHeader')?.classList.toggle('hidden', !hasAny);
   $('chainBadges')?.classList.toggle('hidden', !hasAny);
 
   $('solCount') && ($('solCount').textContent = String(solana));
   $('evmCount') && ($('evmCount').textContent = String(evm));
+
   const counter = $('addressCounter');
   if (counter) {
     counter.classList.toggle('hidden', !hasAny);
