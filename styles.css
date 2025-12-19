@@ -1130,14 +1130,6 @@ body.ui-results .table-subtitle {
   color: var(--text-secondary);
 }
 
-.table-container {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-body.ui-results .table-container {
-  background: rgba(255, 255, 255, 0.18);
-}
-
 .holdings-table {
   width: 100%;
   border-collapse: separate;
@@ -1326,7 +1318,6 @@ body.ui-results .holdings-table td:nth-child(5) {
   .holding-card {
     border-radius: var(--radius-xl);
     border: 3px solid var(--border);
-    background: rgba(255, 255, 255, 0.55);
     box-shadow: var(--shadow-md);
     overflow: hidden;
   }
