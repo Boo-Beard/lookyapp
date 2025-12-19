@@ -1017,7 +1017,6 @@ body.ui-results .input-section.is-minimized {
 }
 
 body.ui-results .table-header {
-  background: rgba(255, 255, 255, 0.35);
   border-bottom: 3px solid var(--border);
 }
 
@@ -1135,10 +1134,22 @@ body.ui-results .table-subtitle {
   background: rgba(255, 255, 255, 0.25);
 }
 
+body.ui-results .table-container {
+  background: rgba(255, 255, 255, 0.18);
+}
+
 .holdings-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+}
+
+.holdings-table thead th:first-child {
+  border-top-left-radius: 18px;
+}
+
+.holdings-table thead th:last-child {
+  border-top-right-radius: 18px;
 }
 
 .holdings-table th {
@@ -1168,6 +1179,10 @@ body.ui-results .holdings-table th {
   transition: background var(--transition-fast);
 }
 
+.holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 body.ui-results .holdings-table td {
   color: var(--ink);
 }
@@ -1177,8 +1192,16 @@ body.ui-results .holdings-table td {
   cursor: pointer;
 }
 
+body.ui-results .holdings-table tbody tr:hover {
+  background: rgba(0, 194, 255, 0.18);
+}
+
 .holdings-table tbody tr:active {
   background: rgba(255, 45, 85, 0.10);
+}
+
+body.ui-results .holdings-table tbody tr:active {
+  background: rgba(255, 45, 85, 0.16);
 }
 
 .holding-row {
@@ -1212,72 +1235,15 @@ body.ui-results .holdings-table td {
   box-shadow: none;
 }
 
+body.ui-results .holding-row::after {
+  opacity: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.10) 0 1px, transparent 1px 16px),
+    radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.08) 0 1px, transparent 1px 18px);
+}
+
 .holding-row:hover::after {
   opacity: 1;
-}
-
-.holding-row:focus-visible {
-  outline: 3px solid rgba(255, 45, 85, 0.85);
-  outline-offset: -2px;
-}
-
-.skeleton-row {
-  cursor: default;
-}
-
-.skeleton-row:hover {
-  background: transparent;
-}
-
-.skeleton-line {
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  position: relative;
-  overflow: hidden;
-  margin: 6px 0;
-}
-
-.skeleton-line::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.10) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  animation: shimmer 1.4s infinite;
-}
-
-.w-30 { width: 30%; }
-.w-40 { width: 40%; }
-.w-50 { width: 50%; }
-.w-60 { width: 60%; }
-
-@keyframes shimmer {
-  100% { transform: translateX(100%); }
-}
-
-.holdings-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.token-col {
-  min-width: 0;
-}
-
-.chain-col {
-  min-width: 0;
-}
-
-.balance-col,
-.price-col,
-.value-col {
-  min-width: 0;
-  text-align: right;
 }
 
 .token-cell {
@@ -1290,8 +1256,8 @@ body.ui-results .holdings-table td {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid var(--border);
   object-fit: cover;
 }
 
@@ -1300,7 +1266,7 @@ body.ui-results .holdings-table td {
 }
 
 .token-symbol {
-  font-weight: 700;
+  font-weight: 900;
   font-size: 15px;
   margin-bottom: 2px;
 }
@@ -1308,6 +1274,47 @@ body.ui-results .holdings-table td {
 .token-name {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+body.ui-results .token-name {
+  color: rgba(11, 11, 16, 0.68);
+}
+
+body.ui-results .holdings-table td.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+body.ui-results .holdings-table td.mono strong {
+  font-weight: 900;
+}
+
+body.ui-results .holdings-table td:nth-child(5) {
+  color: rgba(11, 11, 16, 0.95);
+}
+
+@media (max-width: 640px) {
+  .table-header {
+    padding: 20px 18px 16px;
+  }
+
+  .holdings-table th,
+  .holdings-table td {
+    padding: 12px 10px;
+  }
+
+  .holdings-table th.price-col,
+  .holdings-table td.price-col {
+    display: none;
+  }
+
+  .token-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .token-name {
+    display: none;
+  }
 }
 
 .chain-badge-small {
