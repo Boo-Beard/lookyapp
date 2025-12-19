@@ -18,6 +18,11 @@ const state = {
   activeHolding: null,
 };
 
+const mcapCache = new Map();
+const MCAP_CACHE_TTL_MS = 10 * 60 * 1000;
+const MCAP_MAX_LOOKUPS_PER_RENDER = 80;
+const MCAP_CONCURRENCY = 4;
+
 let statusHideTimer = null;
 
 // Telegram Integration
@@ -311,7 +316,7 @@ const API = {
 };
 
 // Single, correct birdeyeRequest (your file currently has a duplicate nested function)
-async function birdeyeRequest(path, params = {}, { signal } = {}) {
+async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
   const url = new URL(API.birdeye, window.location.origin);
   url.searchParams.set('path', path);
 
@@ -321,7 +326,12 @@ async function birdeyeRequest(path, params = {}, { signal } = {}) {
     }
   });
 
-  const response = await fetch(url.toString(), signal ? { signal } : undefined);
+  const fetchOptions = {
+    ...(signal ? { signal } : {}),
+    ...(headers ? { headers } : {}),
+  };
+
+  const response = await fetch(url.toString(), Object.keys(fetchOptions).length ? fetchOptions : undefined);
 
   const text = await response.text();
   let data;
@@ -332,6 +342,91 @@ async function birdeyeRequest(path, params = {}, { signal } = {}) {
     throw new Error(data?.message || `API error: ${response.status}`);
   }
   return data;
+}
+
+function birdeyeXChain(chain) {
+  return chain === 'solana' ? 'solana' : 'ethereum';
+}
+
+async function fetchTokenOverview(address, chain, { signal } = {}) {
+  const data = await birdeyeRequest('/defi/token_overview', {
+    address,
+    ui_amount_mode: 'scaled',
+  }, {
+    signal,
+    headers: {
+      'x-chain': birdeyeXChain(chain),
+    },
+  });
+
+  return data?.data || null;
+}
+
+async function getTokenMcap(address, chain, { signal } = {}) {
+  const cacheKey = `${chain}:${address}`;
+  const cached = mcapCache.get(cacheKey);
+  if (cached && (Date.now() - cached.ts) < MCAP_CACHE_TTL_MS) {
+    return cached.mcap;
+  }
+
+  try {
+    const overview = await fetchTokenOverview(address, chain, { signal });
+    const mcap = Number(
+      overview?.marketCap ??
+      overview?.market_cap ??
+      overview?.marketcap ??
+      overview?.fdv ??
+      overview?.fdv_usd ??
+      0
+    ) || 0;
+
+    mcapCache.set(cacheKey, { mcap, ts: Date.now() });
+    return mcap;
+  } catch {
+    mcapCache.set(cacheKey, { mcap: 0, ts: Date.now() });
+    return 0;
+  }
+}
+
+function enrichHoldingsWithMcap(holdings, { signal } = {}) {
+  const candidates = holdings
+    .filter(h => h && h.address && h.chain)
+    .filter(h => !h.mcap || h.mcap <= 0)
+    .sort((a, b) => (b.value || 0) - (a.value || 0))
+    .slice(0, MCAP_MAX_LOOKUPS_PER_RENDER);
+
+  if (candidates.length === 0) return;
+
+  let idx = 0;
+  let renderQueued = false;
+  const queueRender = () => {
+    if (renderQueued) return;
+    renderQueued = true;
+    window.setTimeout(() => {
+      renderQueued = false;
+      renderHoldingsTable();
+    }, 150);
+  };
+
+  const worker = async () => {
+    while (idx < candidates.length) {
+      const current = candidates[idx++];
+      if (!current) continue;
+      if (signal?.aborted) return;
+
+      const mcap = await getTokenMcap(current.address, current.chain, { signal });
+      if (signal?.aborted) return;
+
+      if (mcap && mcap > 0) {
+        current.mcap = mcap;
+        queueRender();
+      }
+    }
+  };
+
+  for (let i = 0; i < MCAP_CONCURRENCY; i++) {
+    worker();
+  }
 }
 
 async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
@@ -652,6 +747,8 @@ function recomputeAggregatesAndRender() {
   updateSummary();
   renderHoldingsTable();
   renderWalletList();
+
+  enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
 }
 
 async function scanWallets() {
