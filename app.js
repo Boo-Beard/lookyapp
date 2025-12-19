@@ -277,7 +277,7 @@ function addWalletFromInput() {
     wrap?.classList.remove('shake');
     void wrap?.offsetWidth;
     wrap?.classList.add('shake');
-    showStatus('Wallet already added', 'info');
+    showStatus('Address already added', 'info');
     hapticFeedback('light');
     return;
   }
