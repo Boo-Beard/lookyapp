@@ -233,10 +233,16 @@ function updateAddressStats() {
     if (item.type === 'evm') evm++;
   });
 
+  const hasAny = state.addressItems.length > 0;
+  $('chainBadges')?.classList.toggle('hidden', !hasAny);
+
   $('solCount') && ($('solCount').textContent = String(solana));
   $('evmCount') && ($('evmCount').textContent = String(evm));
   const counter = $('addressCounter');
-  if (counter) counter.textContent = `${state.addressItems.length} / ${MAX_ADDRESSES}`;
+  if (counter) {
+    counter.classList.toggle('hidden', !hasAny);
+    counter.textContent = `${state.addressItems.length} / ${MAX_ADDRESSES}`;
+  }
 }
 
 function addWalletFromInput() {
