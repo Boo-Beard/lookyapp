@@ -178,18 +178,27 @@ function loadPersistedAddressItems() {
   }
 }
 
-function syncTextareaFromAddressItems() {
-  const textarea = $('addressInput');
-  if (!textarea) return;
-  textarea.value = state.addressItems.map(a => a.raw).join('\n');
+function setAddressItems(items, { showWarning = false } = {}) {
+  const list = Array.isArray(items) ? items.slice(0, MAX_ADDRESSES) : [];
+  const truncated = Array.isArray(items) ? items.length > MAX_ADDRESSES : false;
+
+  state.addressItems = list;
+  renderAddressChips();
+
+  if (showWarning && truncated) {
+    $('inputWarning')?.classList.remove('hidden');
+  } else {
+    $('inputWarning')?.classList.add('hidden');
+  }
+
+  persistAddressItems();
+  updateTelegramMainButton();
+  updateAddressStats();
 }
 
 function renderAddressChips() {
   const chips = $('addressChips');
   if (!chips) return;
-
-  const counter = $('addressCounter');
-  if (counter) counter.textContent = `${state.addressItems.length} / ${MAX_ADDRESSES}`;
 
   if (state.addressItems.length === 0) {
     chips.innerHTML = '';
@@ -199,61 +208,90 @@ function renderAddressChips() {
   chips.innerHTML = state.addressItems.map((item, idx) => {
     const badge = item.type === 'solana' ? 'SOL' : item.type === 'evm' ? 'EVM' : 'Invalid';
     const cls = item.type === 'solana' ? 'solana' : item.type === 'evm' ? 'evm' : 'invalid';
+    const isNew = !!state._lastAddedNormalized && (item.normalized || item.raw) === state._lastAddedNormalized;
     return `
-      <div class="address-chip ${cls}" data-idx="${idx}" role="button" tabindex="0">
+      <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}" data-idx="${idx}" role="button" tabindex="0">
         <span class="chip-badge">${badge}</span>
         <span class="chip-text" title="${item.raw}">${shortenAddress(item.raw)}</span>
         <button class="chip-remove" type="button" data-action="remove" aria-label="Remove">×</button>
       </div>
     `;
   }).join('');
-}
 
-function setAddressItemsFromText(text, { showWarning = false } = {}) {
-  const parsed = getAddressItemsFromText(text);
-  state.addressItems = parsed.items;
-  renderAddressChips();
-
-  if (showWarning && parsed.truncated) {
-    $('inputWarning')?.classList.remove('hidden');
-  } else {
-    $('inputWarning')?.classList.add('hidden');
-  }
-
-  persistAddressItems();
-  updateTelegramMainButton();
-}
-
-let _addressStatsRaf = 0;
-function scheduleAddressStatsUpdate() {
-  if (_addressStatsRaf) return;
-  _addressStatsRaf = requestAnimationFrame(() => {
-    _addressStatsRaf = 0;
-    updateAddressStats();
-  });
+  if (state._lastAddedNormalized) state._lastAddedNormalized = null;
 }
 
 function updateAddressStats() {
-  const textarea = $('addressInput');
-  if (!textarea) return;
+  let solana = 0;
+  let evm = 0;
 
-  const lines = textarea.value.split('\n').filter(line => line.trim());
-
-  let solana = 0, evm = 0;
-  const lineNumbers = [];
-
-  lines.forEach((line, index) => {
-    const classified = classifyAddress(line);
-    lineNumbers.push(`${index + 1}.`);
-    if (classified.type === 'solana') solana++;
-    if (classified.type === 'evm') evm++;
+  state.addressItems.forEach(item => {
+    if (item.type === 'solana') solana++;
+    if (item.type === 'evm') evm++;
   });
 
   $('solCount') && ($('solCount').textContent = String(solana));
   $('evmCount') && ($('evmCount').textContent = String(evm));
-  $('lineNumbers') && ($('lineNumbers').innerHTML = lineNumbers.join('<br>'));
+  const counter = $('addressCounter');
+  if (counter) counter.textContent = `${state.addressItems.length} / ${MAX_ADDRESSES}`;
+}
 
-  setAddressItemsFromText(textarea.value);
+function addWalletFromInput() {
+  const input = $('addressInput');
+  const wrap = input?.closest('.address-entry');
+  if (!input) return;
+
+  const raw = String(input.value || '').trim();
+  if (!raw) {
+    wrap?.classList.remove('shake');
+    void wrap?.offsetWidth;
+    wrap?.classList.add('shake');
+    hapticFeedback('light');
+    return;
+  }
+
+  if (state.addressItems.length >= MAX_ADDRESSES) {
+    $('inputWarning')?.classList.remove('hidden');
+    wrap?.classList.remove('shake');
+    void wrap?.offsetWidth;
+    wrap?.classList.add('shake');
+    hapticFeedback('error');
+    return;
+  }
+
+  const classified = classifyAddress(raw);
+  const isValid = classified.type === 'solana' || classified.type === 'evm';
+  if (!isValid) {
+    wrap?.classList.remove('shake');
+    void wrap?.offsetWidth;
+    wrap?.classList.add('shake');
+    showStatus('Invalid wallet address', 'error');
+    hapticFeedback('error');
+    return;
+  }
+
+  const normalized = classified.value || raw;
+  const exists = state.addressItems.some(a => (a.normalized || a.raw) === normalized);
+  if (exists) {
+    wrap?.classList.remove('shake');
+    void wrap?.offsetWidth;
+    wrap?.classList.add('shake');
+    showStatus('Wallet already added', 'info');
+    hapticFeedback('light');
+    return;
+  }
+
+  state._lastAddedNormalized = normalized;
+  state.addressItems.push({ raw, type: classified.type, normalized });
+  $('inputWarning')?.classList.add('hidden');
+  persistAddressItems();
+  renderAddressChips();
+  updateAddressStats();
+  updateTelegramMainButton();
+
+  input.value = '';
+  input.focus();
+  hapticFeedback('success');
 }
 
 // API Integration (via your backend proxy)
@@ -891,20 +929,26 @@ function setupEyeTracking() {
 function setupEventListeners() {
   const addressInput = $('addressInput');
   if (addressInput) {
-    addressInput.addEventListener('input', scheduleAddressStatsUpdate);
+    addressInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addWalletFromInput();
+      }
+    });
+    addressInput.addEventListener('input', () => {
+      const wrap = addressInput.closest('.address-entry');
+      wrap?.classList.remove('shake');
+    });
     addressInput.addEventListener('paste', () => {
       setTimeout(() => {
         $('inputWarning')?.classList.add('hidden');
-        scheduleAddressStatsUpdate();
-        const parsed = getAddressItemsFromText(addressInput.value);
-        if (parsed.truncated) {
-          setAddressItemsFromText(addressInput.value, { showWarning: true });
-          syncTextareaFromAddressItems();
-          scheduleAddressStatsUpdate();
-        }
       }, 10);
     });
   }
+
+  $('addWalletBtn')?.addEventListener('click', () => {
+    addWalletFromInput();
+  });
 
   $('scanButton')?.addEventListener('click', scanWallets);
 
@@ -916,16 +960,14 @@ function setupEventListeners() {
 
   $('clearInputBtn')?.addEventListener('click', () => {
     if (addressInput) addressInput.value = '';
-    setAddressItemsFromText('');
-    scheduleAddressStatsUpdate();
+    setAddressItems([]);
     hapticFeedback('light');
   });
 
   $('pasteBtn')?.addEventListener('click', async () => {
     try {
       const text = await navigator.clipboard.readText();
-      if (addressInput) addressInput.value = text;
-      scheduleAddressStatsUpdate();
+      if (addressInput) addressInput.value = text.trim();
       hapticFeedback('light');
     } catch {
       showStatus('Unable to paste from clipboard', 'error');
@@ -939,9 +981,8 @@ function setupEventListeners() {
       showStatus('No saved addresses found', 'info');
       return;
     }
-    if (addressInput) addressInput.value = list.join('\n');
-    setAddressItemsFromText((addressInput && addressInput.value) || '', { showWarning: true });
-    scheduleAddressStatsUpdate();
+    const parsed = getAddressItemsFromText(list.join('\n'));
+    setAddressItems(parsed.items, { showWarning: parsed.truncated });
     hapticFeedback('light');
   });
 
@@ -953,11 +994,10 @@ function setupEventListeners() {
 
     if (e.target?.dataset?.action === 'remove') {
       state.addressItems.splice(idx, 1);
-      syncTextareaFromAddressItems();
       renderAddressChips();
-      scheduleAddressStatsUpdate();
       persistAddressItems();
       updateTelegramMainButton();
+      updateAddressStats();
       hapticFeedback('light');
       return;
     }
@@ -968,11 +1008,10 @@ function setupEventListeners() {
     if (next === null) return;
     const parsed = getAddressItemsFromText(next);
     state.addressItems[idx] = parsed.items[0] || { raw: next, type: 'invalid', normalized: next };
-    syncTextareaFromAddressItems();
     renderAddressChips();
-    scheduleAddressStatsUpdate();
     persistAddressItems();
     updateTelegramMainButton();
+    updateAddressStats();
   });
 
   $('viewAggregate')?.addEventListener('click', () => {
@@ -1102,15 +1141,17 @@ async function initialize() {
 
   const saved = loadPersistedAddressItems();
   if (saved && saved.length) {
-    const textarea = $('addressInput');
-    if (textarea) textarea.value = saved.join('\n');
+    const parsed = getAddressItemsFromText(saved.join('\n'));
+    state.addressItems = parsed.items;
+    $('inputWarning')?.classList.toggle('hidden', !parsed.truncated);
+    renderAddressChips();
   }
 
   updateAddressStats();
   updateTelegramMainButton();
 
   setTimeout(() => {
-    showStatus('Paste wallet addresses above to get started', 'info');
+    showStatus('Add wallet addresses above to get started', 'info');
   }, 1000);
 }
 

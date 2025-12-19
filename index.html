@@ -77,18 +77,23 @@
             Only first 20 addresses were kept.
           </div>
 
-          <div class="textarea-wrapper">
-            <div class="line-numbers" id="lineNumbers"></div>
-            <textarea 
-              id="addressInput" 
-              placeholder="Paste wallet addresses here…
-Example:
-8X35rQUK2u9hfn8rMPwwr6ZSEUhbmfDPEapp589XyoM1
-0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
-              spellcheck="false"></textarea>
+          <div class="textarea-wrapper address-entry">
+            <input
+              id="addressInput"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="Paste a wallet address (SOL or EVM)"
+            />
+            <button id="addWalletBtn" class="btn btn-outline" type="button">
+              <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+              <span>Add wallet</span>
+            </button>
           </div>
 
-          <div class="input-tip" id="landingTip">Paste SOL + EVM addresses, one per line. No connect. No approvals.</div>
+          <div class="input-tip" id="landingTip">Paste SOL + EVM addresses one-by-one. Tap Add wallet. No connect. No approvals.</div>
 
           <div class="address-chips" id="addressChips"></div>
         </div>
