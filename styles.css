@@ -1442,7 +1442,6 @@ body.holdings-cards .holding-card-row:hover::after {
 body.holdings-cards .holding-card {
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
