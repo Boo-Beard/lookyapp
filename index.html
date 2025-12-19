@@ -52,23 +52,6 @@
             Only first 20 addresses were kept.
           </div>
 
-          <div class="tips-section" id="tipsSection">
-            <div class="scan-status hidden" id="scanStatus">
-              <div class="status-content" id="statusContent">
-                Ready to scan
-              </div>
-              <div class="progress-bar" id="progressBar">
-                <div class="progress-fill"></div>
-              </div>
-
-              <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
-
-              <div class="scan-actions">
-                <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
-              </div>
-            </div>
-          </div>
-
           <div class="textarea-wrapper address-entry">
             <input
               id="addressInput"
@@ -88,7 +71,7 @@
           <div class="address-chips" id="addressChips"></div>
         </div>
         <div class="action-buttons">
-                    <div class="input-header hidden" id="inputHeader">
+          <div class="input-header hidden" id="inputHeader">
             <div class="chain-badges hidden" id="chainBadges">
               <div class="chain-badge sol">
                 <span class="chain-dot"></span>
@@ -120,6 +103,21 @@
             <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
             <span>Let’s Looky</span>
           </button>
+
+          <div class="scan-status hidden" id="scanStatus">
+            <div class="status-content" id="statusContent">
+              Ready to scan
+            </div>
+            <div class="progress-bar" id="progressBar">
+              <div class="progress-fill"></div>
+            </div>
+
+            <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
+
+            <div class="scan-actions">
+              <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+            </div>
+          </div>
         </div>
 
 
