@@ -48,35 +48,6 @@
           </div>
 
         <div class="input-container">
-          <div class="input-header hidden" id="inputHeader">
-            <div class="chain-badges hidden" id="chainBadges">
-              <div class="chain-badge sol">
-                <span class="chain-dot"></span>
-                <span class="chain-count" id="solCount">0</span>
-                <span>Solana</span>
-              </div>
-              <div class="chain-badge evm">
-                <span class="chain-dot"></span>
-                <span class="chain-count" id="evmCount">0</span>
-                <span>EVM</span>
-              </div>
-            </div>
-
-            <div class="address-counter hidden" id="addressCounter">0 / 20</div>
-            
-            <div class="input-actions">
-              <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
-                <i class="fa-solid fa-clipboard" aria-hidden="true"></i>
-              </button>
-              <button class="btn-icon" id="loadLastBtn" title="Load last used">
-                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-              </button>
-              <button class="btn-icon" id="clearInputBtn" title="Clear all">
-                <i class="fa-solid fa-trash" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-
           <div class="input-warning hidden" id="inputWarning">
             Only first 20 addresses were kept.
           </div>
@@ -117,6 +88,34 @@
           <div class="address-chips" id="addressChips"></div>
         </div>
         <div class="action-buttons">
+                    <div class="input-header hidden" id="inputHeader">
+            <div class="chain-badges hidden" id="chainBadges">
+              <div class="chain-badge sol">
+                <span class="chain-dot"></span>
+                <span class="chain-count" id="solCount">0</span>
+                <span>Solana</span>
+              </div>
+              <div class="chain-badge evm">
+                <span class="chain-dot"></span>
+                <span class="chain-count" id="evmCount">0</span>
+                <span>EVM</span>
+              </div>
+            </div>
+
+            <div class="address-counter hidden" id="addressCounter">0 / 20</div>
+            
+            <div class="input-actions">
+              <button class="btn-icon" id="pasteBtn" title="Paste from clipboard">
+                <i class="fa-solid fa-clipboard" aria-hidden="true"></i>
+              </button>
+              <button class="btn-icon" id="loadLastBtn" title="Load last used">
+                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+              </button>
+              <button class="btn-icon" id="clearInputBtn" title="Clear all">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
           <button id="scanButton" class="btn btn-primary btn-lg">
             <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
             <span>Let’s Looky</span>
