@@ -402,21 +402,32 @@ display: grid;
   color: var(--ink);
 }
 
-#totalChange {
-  padding: 4px 8px;
-  border-radius: var(--radius-full);
+/* Strong override: make the 24h change a real pill next to Total Value */
+#totalChange.summary-change {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.60);
+  box-shadow: var(--shadow-sm);
   font-size: 12px;
+  line-height: 1;
   font-family: var(--mono);
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: 900;
+  color: rgba(11, 11, 16, 0.92);
+  white-space: nowrap;
 }
 
-#totalChange.positive {
-  background: var(--green);
+#totalChange.summary-change.positive {
+  background: rgba(30, 215, 96, 0.20);
+  color: rgba(12, 84, 40, 0.98);
 }
 
-#totalChange.negative {
-  background: var(--red);
+#totalChange.summary-change.negative {
+  background: rgba(255, 45, 85, 0.18);
+  color: rgba(120, 14, 34, 0.98);
 }
 
 .summary-card .summary-sub {
