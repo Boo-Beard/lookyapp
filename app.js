@@ -112,21 +112,12 @@ function formatCurrency(value) {
 }
 
 function formatPrice(value) {
-  const num = Number(value);
-  if (!isFinite(num)) return '$0';
-  if (num === 0) return '$0';
-
-  const abs = Math.abs(num);
-  let decimals;
-  if (abs >= 1) decimals = 4;
-  else if (abs >= 0.01) decimals = 6;
-  else if (abs >= 0.0001) decimals = 8;
-  else if (abs >= 1e-8) decimals = 10;
-  else return `$${num.toExponential(2)}`;
-
-  const fixed = num.toFixed(decimals);
-  const trimmed = fixed.replace(/\.?(0+)$/g, (m, zeros) => (m.startsWith('.') ? '' : m));
-  return `$${trimmed}`;
+  const v = Number(value || 0);
+  if (!Number.isFinite(v)) return '$0.00';
+  if (v === 0) return '$0.00';
+  if (v >= 1) return `$${v.toFixed(2)}`;
+  if (v >= 0.01) return `$${v.toFixed(4)}`;
+  return `$${v.toFixed(6)}`;
 }
 
 function formatNumber(num) {
@@ -805,7 +796,7 @@ function renderHoldingsTable() {
       <tr class="holding-row" data-key="${holding.key}">
         <td>
           <div class="token-cell">
-            <img class="token-icon" src="${holding.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
+            <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
             <div class="token-info">
               <div class="token-symbol">${holding.symbol}</div>
               <div class="token-name">${holding.name}</div>
@@ -828,7 +819,7 @@ function renderHoldingsTable() {
           <div class="holding-card">
             <div class="holding-card-header">
               <div class="token-cell">
-                <img class="token-icon" src="${holding.logo}" onerror="this.src=''; this.style.opacity='0.3'" alt="">
+                <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
                 <div class="token-info">
                   <div class="token-symbol">${holding.symbol}</div>
                   <div class="token-name">${holding.name}</div>
@@ -1030,7 +1021,12 @@ function openTokenModal(key) {
   const modalFullAddress = $('modalFullAddress');
 
   if (modalTokenIcon) {
-    modalTokenIcon.src = holding.logo;
+    modalTokenIcon.onerror = null;
+    modalTokenIcon.src = getTokenIconUrl(holding.logo, holding.symbol);
+    modalTokenIcon.onerror = () => {
+      modalTokenIcon.onerror = null;
+      modalTokenIcon.src = tokenIconDataUri(holding.symbol);
+    };
     modalTokenIcon.alt = holding.symbol;
   }
   if (modalTokenName) modalTokenName.textContent = `${holding.symbol} - ${holding.name}`;
