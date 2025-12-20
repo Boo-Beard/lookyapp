@@ -2179,9 +2179,20 @@ body.ui-results .table-stats {
   }
 
   .alloc-risk-header {
+    position: relative;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+  }
+
+  #allocRiskCard .alloc-risk-header .collapse-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  #allocRiskCard .alloc-risk-header .collapsible-header-left {
+    padding-right: 60px;
   }
 
   .alloc-risk-body {
