@@ -411,7 +411,7 @@ display: grid;
   border: 0;
   background: transparent;
   box-shadow: none;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1;
   font-family: var(--mono);
   font-weight: 900;
@@ -420,11 +420,11 @@ display: grid;
 }
 
 #totalChange.summary-change.positive {
-  color: rgba(30, 215, 95, 0.486);
+  color: rgb(4, 130, 48);
 }
 
 #totalChange.summary-change.negative {
-  color: rgba(255, 45, 83, 0.486);
+  color: rgb(154, 22, 22);
 }
 
 .summary-card .summary-sub {
