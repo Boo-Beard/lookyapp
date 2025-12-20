@@ -935,6 +935,125 @@ function updateSummary() {
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
 }
 
+function formatPct(value, digits = 1) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '0%';
+  return `${n.toFixed(digits)}%`;
+}
+
+function renderAllocationAndRisk() {
+  const allocationEl = $('allocationBreakdown');
+  const insightsEl = $('riskInsights');
+  if (!allocationEl || !insightsEl) return;
+
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+  const total = Number(state.totalValue || 0) || 0;
+
+  if (!holdings.length || total <= 0) {
+    allocationEl.innerHTML = '';
+    insightsEl.innerHTML = '';
+    return;
+  }
+
+  const chainTotals = new Map();
+  for (const h of holdings) {
+    const chain = String(h?.chain || 'unknown');
+    const v = Number(h?.value || 0) || 0;
+    chainTotals.set(chain, (chainTotals.get(chain) || 0) + v);
+  }
+
+  const chainRows = Array.from(chainTotals.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([chain, value]) => ({
+      key: `chain:${chain}`,
+      name: chain === 'solana' ? 'Solana' : (chain === 'evm' ? 'EVM' : chain),
+      value,
+      pct: (value / total) * 100,
+    }));
+
+  const topHoldings = holdings
+    .slice()
+    .sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0))
+    .slice(0, 5)
+    .map((h) => {
+      const value = Number(h?.value || 0) || 0;
+      return {
+        key: h?.key || `${h?.chain}:${h?.address}`,
+        name: String(h?.symbol || '—'),
+        value,
+        pct: (value / total) * 100,
+      };
+    });
+
+  const rows = [
+    ...chainRows.map(r => ({ ...r, accent: 'chain' })),
+    ...topHoldings.map(r => ({ ...r, accent: 'token' })),
+  ];
+
+  allocationEl.innerHTML = rows.map((r) => {
+    const pct = Math.max(0, Math.min(100, r.pct));
+    return `
+      <div class="alloc-row" data-key="${escapeHtml(r.key)}">
+        <div class="alloc-row-top">
+          <div class="alloc-row-name">${escapeHtml(r.name)}</div>
+          <div class="alloc-row-meta">${formatPct(pct)} · ${formatCurrency(r.value)}</div>
+        </div>
+        <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
+      </div>
+    `;
+  }).join('');
+
+  const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
+  const top1 = Number(sortedByValue[0]?.value || 0) || 0;
+  const top5Sum = sortedByValue.slice(0, 5).reduce((s, h) => s + (Number(h?.value || 0) || 0), 0);
+  const top1Pct = (top1 / total) * 100;
+  const top5Pct = (top5Sum / total) * 100;
+
+  const stableSymbols = new Set([
+    'USDC', 'USDT', 'DAI', 'USDE', 'FDUSD', 'TUSD', 'USDP', 'PYUSD', 'USDY', 'FRAX', 'LUSD', 'SUSD', 'GUSD',
+  ]);
+  const stableValue = holdings.reduce((s, h) => {
+    const sym = String(h?.symbol || '').toUpperCase();
+    if (!stableSymbols.has(sym)) return s;
+    return s + (Number(h?.value || 0) || 0);
+  }, 0);
+  const stablePct = (stableValue / total) * 100;
+
+  const withChange = holdings
+    .map((h) => {
+      const value = Number(h?.value || 0) || 0;
+      const changeUsd = Number(h?.changeUsd || 0) || 0;
+      const changePct = value > 0 ? (changeUsd / Math.max(1e-9, value - changeUsd)) * 100 : 0;
+      return {
+        symbol: String(h?.symbol || '—'),
+        value,
+        changeUsd,
+        changePct,
+      };
+    })
+    .filter(x => Number.isFinite(x.changeUsd) && Math.abs(x.changeUsd) > 0.0001);
+
+  const biggestGainer = withChange.slice().sort((a, b) => b.changeUsd - a.changeUsd)[0];
+  const biggestLoser = withChange.slice().sort((a, b) => a.changeUsd - b.changeUsd)[0];
+
+  const insights = [];
+  insights.push(`Top holding concentration: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
+  insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> of portfolio`);
+  insights.push(`Stablecoin exposure: <strong>${formatPct(stablePct)}</strong> (est.)`);
+
+  if (biggestGainer && biggestGainer.changeUsd > 0) {
+    insights.push(`24h biggest winner: <strong>${escapeHtml(biggestGainer.symbol)}</strong> (+${formatCurrency(biggestGainer.changeUsd)})`);
+  }
+  if (biggestLoser && biggestLoser.changeUsd < 0) {
+    insights.push(`24h biggest loser: <strong>${escapeHtml(biggestLoser.symbol)}</strong> (${formatCurrency(biggestLoser.changeUsd)})`);
+  }
+
+  insightsEl.innerHTML = insights
+    .slice(0, 5)
+    .map((t) => `<div class="insight-item">${t}</div>`)
+    .join('');
+}
+
 function renderHoldingsTable() {
   const tbody = $('tableBody');
   if (!tbody) return;
@@ -1188,6 +1307,7 @@ function recomputeAggregatesAndRender() {
   setHoldingsPage(1);
 
   updateSummary();
+  renderAllocationAndRisk();
   renderHoldingsTable();
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
