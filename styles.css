@@ -2177,6 +2177,25 @@ body.ui-results .table-stats {
   .summary-grid > .summary-card:last-child {
     grid-column: 1 / -1;
   }
+
+  .alloc-risk-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .alloc-risk-body {
+    padding: 16px 16px 18px;
+  }
+
+  .alloc-risk-cols {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .alloc-row-top {
+    flex-wrap: wrap;
+  }
   
   .table-header {
     flex-direction: column;
@@ -2186,6 +2205,31 @@ body.ui-results .table-stats {
   
   .table-controls {
     flex-direction: column;
+  }
+
+  .table-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .table-pagination-top {
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .holdings-table {
+    min-width: 620px;
+  }
+
+  .table-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
   
   .modal-stats {
