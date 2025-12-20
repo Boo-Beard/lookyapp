@@ -6,6 +6,8 @@ const $ = (id) => document.getElementById(id);
 const MAX_ADDRESSES = 20;
 const STORAGE_KEY_ADDRESSES = 'looky.addresses.v1';
 
+const HOLDINGS_PAGE_SIZE = 5;
+
 const state = {
   wallets: [],
   holdings: [],
@@ -20,8 +22,14 @@ const state = {
   scanAbortController: null,
   walletHoldings: new Map(),
   walletDayChange: new Map(),
+  holdingsPage: 1,
   activeHolding: null,
 };
+
+function setHoldingsPage(page) {
+  const p = Number(page);
+  state.holdingsPage = Number.isFinite(p) && p > 0 ? Math.floor(p) : 1;
+}
 
 const mcapCache = new Map();
 const MCAP_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -863,11 +871,28 @@ function renderHoldingsTable() {
       </tr>
     `;
     $('tableStats') && ($('tableStats').textContent = 'Showing 0 tokens');
+    $('pageIndicator') && ($('pageIndicator').textContent = 'Page 1 of 1');
+    $('pagePrev') && ($('pagePrev').disabled = true);
+    $('pageNext') && ($('pageNext').disabled = true);
     return;
   }
 
+  const totalItems = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / HOLDINGS_PAGE_SIZE));
+  if ((state.holdingsPage || 1) > totalPages) setHoldingsPage(totalPages);
+  const page = state.holdingsPage || 1;
+  const startIdx = (page - 1) * HOLDINGS_PAGE_SIZE;
+  const pageItems = filtered.slice(startIdx, startIdx + HOLDINGS_PAGE_SIZE);
+
+  const pageIndicator = $('pageIndicator');
+  if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+  const prevBtn = $('pagePrev');
+  const nextBtn = $('pageNext');
+  if (prevBtn) prevBtn.disabled = page <= 1;
+  if (nextBtn) nextBtn.disabled = page >= totalPages;
+
   if (!useCardRows) {
-    tbody.innerHTML = filtered.map(holding => `
+    tbody.innerHTML = pageItems.map(holding => `
       <tr class="holding-row" data-key="${holding.key}">
         <td>
           <div class="token-cell">
@@ -888,7 +913,7 @@ function renderHoldingsTable() {
       </tr>
     `).join('');
   } else {
-    tbody.innerHTML = filtered.map(holding => `
+    tbody.innerHTML = pageItems.map(holding => `
       <tr class="holding-row holding-card-row" data-key="${holding.key}">
         <td colspan="5">
           <div class="holding-card">
@@ -927,7 +952,7 @@ function renderHoldingsTable() {
     `).join('');
   }
 
-  $('tableStats') && ($('tableStats').textContent = `Showing ${filtered.length} tokens • Total value: ${formatCurrency(filtered.reduce((s, h) => s + h.value, 0))}`);
+  $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filtered.reduce((s, h) => s + h.value, 0))}`);
 }
 
 function recomputeAggregatesAndRender() {
@@ -1001,6 +1026,8 @@ function recomputeAggregatesAndRender() {
   state.totalEvmValue = totalEvmValue;
   state.totalChangeSolUsd = totalChangeSolUsd;
   state.totalChangeEvmUsd = totalChangeEvmUsd;
+
+  setHoldingsPage(1);
 
   updateSummary();
   renderHoldingsTable();
@@ -1480,9 +1507,18 @@ function setupEventListeners() {
     updateAddressStats();
   });
 
-  $('searchInput')?.addEventListener('input', renderHoldingsTable);
-  $('sortSelect')?.addEventListener('change', renderHoldingsTable);
-  $('hideDust')?.addEventListener('change', renderHoldingsTable);
+  $('searchInput')?.addEventListener('input', () => { setHoldingsPage(1); renderHoldingsTable(); });
+  $('sortSelect')?.addEventListener('change', () => { setHoldingsPage(1); renderHoldingsTable(); });
+  $('hideDust')?.addEventListener('change', () => { setHoldingsPage(1); renderHoldingsTable(); });
+
+  $('pagePrev')?.addEventListener('click', () => {
+    setHoldingsPage((state.holdingsPage || 1) - 1);
+    renderHoldingsTable();
+  });
+  $('pageNext')?.addEventListener('click', () => {
+    setHoldingsPage((state.holdingsPage || 1) + 1);
+    renderHoldingsTable();
+  });
 
   $('tableBody')?.addEventListener('click', (e) => {
     const row = e.target.closest('.holding-row');
@@ -1561,12 +1597,14 @@ function setupTelegram() {
       const tokenModal = $('tokenModal');
       if (tokenModal && !tokenModal.classList.contains('hidden')) {
         closeTokenModal();
+        return;
       }
+      $('inputSection')?.classList.toggle('is-minimized');
     });
   }
 }
 
-async function initialize() {
+function initialize() {
   setupTelegram();
   setupEyeTracking();
   setupEventListeners();
