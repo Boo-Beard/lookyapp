@@ -32,6 +32,17 @@ const TG = (() => {
 
 const isTelegram = () => !!TG && typeof TG.ready === 'function';
 
+function tgIsAtLeast(version) {
+  if (!isTelegram()) return false;
+  try {
+    if (typeof TG.isVersionAtLeast === 'function') return TG.isVersionAtLeast(version);
+    // If the SDK can't tell us, assume "supported" and rely on try/catch.
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function applyTelegramTheme() {
   if (!isTelegram()) return;
 
@@ -44,13 +55,16 @@ function applyTelegramTheme() {
   if (p.link_color) root.style.setProperty('--text-accent', p.link_color);
 
   try {
-    TG.setHeaderColor?.('secondary_bg_color');
-    TG.setBackgroundColor?.(p.bg_color || '#0A0B14');
+    if (tgIsAtLeast('6.1')) {
+      TG.setHeaderColor?.('secondary_bg_color');
+      TG.setBackgroundColor?.(p.bg_color || '#0A0B14');
+    }
   } catch {}
 }
 
 function hapticFeedback(type = 'light') {
   if (!isTelegram() || !TG.HapticFeedback) return;
+  if (!tgIsAtLeast('6.1')) return;
 
   try {
     if (type === 'success') TG.HapticFeedback.notificationOccurred('success');
@@ -62,7 +76,6 @@ function hapticFeedback(type = 'light') {
 function updateTelegramMainButton() {
   if (!isTelegram()) return;
 
-  
   try {
     const validCount = state.addressItems.filter(a => a.type === 'solana' || a.type === 'evm').length;
     TG.MainButton.setText('Scan Wallets');
@@ -356,6 +369,7 @@ function showInputHint(message, type = 'info') {
 // API Integration (via your backend proxy)
 const API = {
   birdeye: '/api/birdeye',
+  zerion: '/api/zerion',
 };
 
 // Single, correct birdeyeRequest (your file currently has a duplicate nested function)
@@ -389,6 +403,73 @@ async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
 
 function birdeyeXChain(chain) {
   return chain === 'solana' ? 'solana' : 'ethereum';
+}
+
+function isValidEvmContractAddress(addr) {
+  return /^0x[a-fA-F0-9]{40}$/.test(String(addr || '').trim());
+}
+
+function extractEvmContractAddress(input) {
+  const s = String(input || '').trim();
+  const m = s.match(/0x[a-fA-F0-9]{40}/);
+  return m ? m[0] : '';
+}
+
+function pickZerionContractAddress(fAttr) {
+  const impl = Array.isArray(fAttr?.implementations) ? fAttr.implementations : [];
+  const implAddress = impl.map(x => x?.address).find(a => isValidEvmContractAddress(a));
+  if (implAddress) return String(implAddress);
+
+  const direct = fAttr?.address || fAttr?.token_address || fAttr?.contract_address;
+  const directExtracted = extractEvmContractAddress(direct);
+  if (isValidEvmContractAddress(directExtracted)) return String(directExtracted);
+
+  return '';
+}
+
+function normalizeEvmNetwork(input) {
+  const s = String(input || '').toLowerCase().trim();
+  if (!s) return '';
+  if (s === 'ethereum' || s === 'eth') return 'ethereum';
+  if (s === 'bsc' || s === 'binance-smart-chain' || s === 'bnb' || s === 'binance') return 'bsc';
+  if (s === 'arbitrum' || s === 'arbitrum-one' || s === 'arb') return 'arbitrum';
+  if (s === 'optimism' || s === 'op') return 'optimism';
+  if (s === 'polygon' || s === 'matic') return 'polygon';
+  if (s === 'base') return 'base';
+  if (s === 'avalanche' || s === 'avax') return 'avalanche';
+  if (s === 'fantom' || s === 'ftm') return 'fantom';
+  if (s === 'gnosis' || s === 'xdai') return 'gnosis';
+  return s;
+}
+
+function evmNetworkLabel(network) {
+  switch (normalizeEvmNetwork(network)) {
+    case 'ethereum': return 'ETH';
+    case 'bsc': return 'BNB';
+    case 'arbitrum': return 'ARB';
+    case 'optimism': return 'OP';
+    case 'polygon': return 'POLY';
+    case 'base': return 'BASE';
+    case 'avalanche': return 'AVAX';
+    case 'fantom': return 'FTM';
+    case 'gnosis': return 'GNO';
+    default: return 'EVM';
+  }
+}
+
+function evmExplorerBase(network) {
+  switch (normalizeEvmNetwork(network)) {
+    case 'ethereum': return 'https://etherscan.io';
+    case 'bsc': return 'https://bscscan.com';
+    case 'arbitrum': return 'https://arbiscan.io';
+    case 'optimism': return 'https://optimistic.etherscan.io';
+    case 'polygon': return 'https://polygonscan.com';
+    case 'base': return 'https://basescan.org';
+    case 'avalanche': return 'https://snowtrace.io';
+    case 'fantom': return 'https://ftmscan.com';
+    case 'gnosis': return 'https://gnosisscan.io';
+    default: return 'https://etherscan.io';
+  }
 }
 
 async function fetchTokenOverview(address, chain, { signal } = {}) {
@@ -434,6 +515,7 @@ async function getTokenMcap(address, chain, { signal } = {}) {
 function enrichHoldingsWithMcap(holdings, { signal } = {}) {
   const candidates = holdings
     .filter(h => h && h.address && h.chain)
+    .filter(h => h.chain !== 'evm' || isValidEvmContractAddress(h.address))
     .filter(h => !h.mcap || h.mcap <= 0)
     .sort((a, b) => (b.value || 0) - (a.value || 0))
     .slice(0, MCAP_MAX_LOOKUPS_PER_RENDER);
@@ -474,12 +556,95 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
 
 async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
   if (chain === 'evm') {
-    const data = await birdeyeRequest('/v1/wallet/token_list', {
-      wallet: wallet,
-      chain: 'ethereum',
-    }, { signal });
+    const url = new URL(API.zerion, window.location.origin);
+    url.searchParams.set('address', wallet);
+    url.searchParams.set('filter[positions]', 'only_simple');
+    url.searchParams.set('currency', 'usd');
 
-    return data?.data?.items || [];
+    const response = await fetch(url.toString(), signal ? { signal } : undefined);
+
+    const text = await response.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch { data = null; }
+
+    if (!response.ok) {
+      const msg = data?.errors?.[0]?.detail || data?.message || `Zerion error: ${response.status}`;
+      throw new Error(msg);
+    }
+
+    const included = Array.isArray(data?.included) ? data.included : [];
+    const includedById = new Map(included.map(x => [x?.id, x]));
+
+    const rows = Array.isArray(data?.data) ? data.data : (data?.data ? [data.data] : []);
+    const items = [];
+
+    rows.forEach((row) => {
+      const attrs = row?.attributes || {};
+      const position = attrs?.position || attrs;
+
+      const valueUsd =
+        Number(position?.value ?? position?.value_usd ?? position?.valueUsd ??
+        attrs?.value ?? attrs?.value_usd ?? attrs?.valueUsd ?? 0) || 0;
+
+      const priceUsd =
+        Number(position?.price ?? position?.price_usd ?? position?.priceUsd ??
+        attrs?.price ?? attrs?.price_usd ?? attrs?.priceUsd ?? 0) || 0;
+
+      const amount =
+        Number(position?.quantity ?? position?.amount ?? position?.balance ??
+        attrs?.quantity ?? attrs?.amount ?? attrs?.balance ?? 0) || 0;
+
+      const rel = row?.relationships || {};
+      const fungibleRef = rel?.fungible?.data || rel?.asset?.data || rel?.token?.data;
+      const fungible = fungibleRef?.id ? includedById.get(fungibleRef.id) : null;
+      const fAttr = fungible?.attributes || {};
+
+      const fungibleInfo = fAttr?.fungible_info || fAttr?.details || {};
+
+      const contractAddress = pickZerionContractAddress(fAttr);
+      const idAddress = extractEvmContractAddress(row?.id);
+      const tokenAddress = contractAddress || idAddress || String(row?.id || '');
+
+      const symbol = String(
+        fAttr?.symbol ||
+        fungibleInfo?.symbol ||
+        attrs?.symbol ||
+        '—'
+      );
+
+      const name = String(
+        fAttr?.name ||
+        fungibleInfo?.name ||
+        attrs?.name ||
+        'Unknown Token'
+      );
+
+      const logo = String(
+        fAttr?.icon_url ||
+        fungibleInfo?.icon_url ||
+        fAttr?.image_url ||
+        fAttr?.logo_uri ||
+        ''
+      );
+
+      const chainName = String(fAttr?.chain || fAttr?.network || fungibleInfo?.chain || attrs?.chain || 'ethereum');
+
+      items.push({
+        address: tokenAddress,
+        token_address: tokenAddress,
+        contract_address: contractAddress || idAddress || '',
+        symbol,
+        name,
+        logo_uri: logo,
+        price: priceUsd,
+        value: valueUsd,
+        amount: amount,
+        chain: chainName,
+      });
+    });
+
+    return items;
   }
 
   const data = await birdeyeRequest('/wallet/v2/current-net-worth', {
@@ -551,7 +716,7 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   const id = scanProgressRowId(wallet, chain);
   const existing = document.getElementById(id);
   const safeWallet = shortenAddress(wallet);
-  const chainLabel = chain === 'solana' ? 'Solana' : 'EVM';
+  const chainLabel = chain === 'solana' ? 'Solana' : evmNetworkLabel(chain);
   const cls = `scan-progress-item ${extraClass}`.trim();
   const rowHtml = `
     <div class="${cls}" id="${id}">
@@ -566,7 +731,6 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 function updateSummary() {
   $('totalValue') && ($('totalValue').textContent = formatCurrency(state.totalValue));
-  $('walletCount') && ($('walletCount').textContent = `${state.wallets.length} wallet${state.wallets.length !== 1 ? 's' : ''}`);
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
 
   const chains = new Set(state.holdings.map(h => h.chain));
@@ -575,26 +739,6 @@ function updateSummary() {
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
-}
-
-function renderWalletList() {
-  const container = $('walletsGrid');
-  if (!container) return;
-
-  if (state.wallets.length === 0) {
-    container.innerHTML = '<div class="empty-state">No wallets scanned</div>';
-    return;
-  }
-
-  container.innerHTML = state.wallets.map(wallet => `
-    <div class="wallet-card ${wallet.chain}">
-      <div class="wallet-header">
-        <span class="wallet-chain">${wallet.chain === 'solana' ? 'Solana' : 'EVM'}</span>
-        <span class="wallet-count">${wallet.count} tokens</span>
-      </div>
-      <div class="wallet-address mono">${shortenAddress(wallet.address)}</div>
-    </div>
-  `).join('');
 }
 
 function renderHoldingsTable() {
@@ -693,7 +837,7 @@ function renderHoldingsTable() {
               <div class="token-symbol">${holding.symbol}</div>
               <div class="token-name">${holding.name}</div>
             </div>
-            <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+            <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
           </div>
         </td>
         <td>
@@ -717,7 +861,7 @@ function renderHoldingsTable() {
                   <div class="token-name">${holding.name}</div>
                 </div>
               </div>
-              <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : 'EVM'}</span>
+              <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
             </div>
 
             <div class="holding-card-metrics">
@@ -757,7 +901,10 @@ function recomputeAggregatesAndRender() {
     wallets.push({ address: wallet, chain, count: items.length });
 
     items.forEach(holding => {
-      const tokenAddress = holding.address || holding.token_address;
+      const rawTokenAddress = holding.address || holding.token_address;
+      const contractAddress = holding.contract_address || holding.contractAddress || (chain === 'evm' ? extractEvmContractAddress(rawTokenAddress) : '');
+      const tokenAddress = contractAddress || rawTokenAddress;
+      const network = chain === 'evm' ? normalizeEvmNetwork(holding.chain || holding.network) : '';
       const key = `${chain}:${tokenAddress}`;
       const value = Number(holding.value || holding.valueUsd || 0) || 0;
       const amount = Number(holding.amount || holding.uiAmount || holding.balance || 0) || 0;
@@ -768,12 +915,15 @@ function recomputeAggregatesAndRender() {
         existing.value += value;
         existing.balance += amount;
         existing.mcap = Math.max(existing.mcap || 0, mcap);
+        if (!existing.network && network) existing.network = network;
         existing.sources.push(wallet);
       } else {
         holdingsMap.set(key, {
           key,
           chain,
           address: tokenAddress,
+          contractAddress: contractAddress,
+          network: network,
           symbol: holding.symbol || '—',
           name: holding.name || 'Unknown Token',
           logo: holding.logo_uri || holding.logoURI || holding.icon || '',
@@ -794,7 +944,6 @@ function recomputeAggregatesAndRender() {
 
   updateSummary();
   renderHoldingsTable();
-  renderWalletList();
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
 }
@@ -910,17 +1059,27 @@ function openTokenModal(key) {
     modalTokenIcon.alt = holding.symbol;
   }
   if (modalTokenName) modalTokenName.textContent = `${holding.symbol} - ${holding.name}`;
-  if (modalTokenAddress) modalTokenAddress.textContent = shortenAddress(holding.address);
+  const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
+  if (modalTokenAddress) modalTokenAddress.textContent = shortenAddress(displayAddress);
   if (modalTokenValue) modalTokenValue.textContent = formatCurrency(holding.value);
   if (modalTokenBalance) modalTokenBalance.textContent = formatNumber(holding.balance);
   if (modalTokenPrice) modalTokenPrice.textContent = formatPrice(holding.price);
-  if (modalChainTag) modalChainTag.textContent = holding.chain === 'solana' ? 'Solana' : 'EVM';
-  if (modalFullAddress) modalFullAddress.textContent = holding.address;
+  if (modalChainTag) modalChainTag.textContent = holding.chain === 'solana' ? 'Solana' : evmNetworkLabel(holding.network);
+  if (modalFullAddress) modalFullAddress.textContent = displayAddress;
 
-  const explorerUrl = holding.chain === 'solana'
-    ? `https://solscan.io/token/${holding.address}`
-    : `https://etherscan.io/token/${holding.address}`;
-  $('modalExplorerLink') && ($('modalExplorerLink').href = explorerUrl);
+  const modalExplorerLink = $('modalExplorerLink');
+  if (modalExplorerLink) {
+    if (holding.chain === 'solana') {
+      modalExplorerLink.href = `https://solscan.io/token/${holding.address}`;
+      modalExplorerLink.classList.remove('hidden');
+    } else if (isValidEvmContractAddress(displayAddress)) {
+      modalExplorerLink.href = `${evmExplorerBase(holding.network)}/token/${displayAddress}`;
+      modalExplorerLink.classList.remove('hidden');
+    } else {
+      modalExplorerLink.href = '#';
+      modalExplorerLink.classList.add('hidden');
+    }
+  }
 
   const chartUrl = `https://birdeye.so/token/${holding.address}?chain=${holding.chain === 'solana' ? 'solana' : 'ethereum'}`;
   $('modalChartLink') && ($('modalChartLink').href = chartUrl);
@@ -928,7 +1087,7 @@ function openTokenModal(key) {
   const sourceWallet = holding.sources?.[0] || '';
   const walletUrl = holding.chain === 'solana'
     ? `https://solscan.io/account/${sourceWallet}`
-    : `https://etherscan.io/address/${sourceWallet}`;
+    : `${evmExplorerBase(holding.network)}/address/${sourceWallet}`;
 
   const modalWalletLink = $('modalWalletLink');
   if (modalWalletLink) {
@@ -945,8 +1104,10 @@ function openTokenModal(key) {
   document.body.classList.add('modal-open');
 
   if (isTelegram()) {
-    TG.BackButton.show();
-    TG.BackButton.onClick(closeTokenModal);
+    if (tgIsAtLeast('6.1')) {
+      TG.BackButton.show();
+      TG.BackButton.onClick(closeTokenModal);
+    }
   }
 }
 
@@ -956,8 +1117,10 @@ function closeTokenModal() {
   document.body.classList.remove('modal-open');
 
   if (isTelegram()) {
-    TG.BackButton.hide();
-    TG.BackButton.offClick(closeTokenModal);
+    if (tgIsAtLeast('6.1')) {
+      TG.BackButton.hide();
+      TG.BackButton.offClick(closeTokenModal);
+    }
   }
 }
 
@@ -1317,12 +1480,14 @@ function setupTelegram() {
   TG.MainButton.onClick(scanWallets);
   updateTelegramMainButton();
 
-  TG.BackButton.onClick(() => {
-    const tokenModal = $('tokenModal');
-    if (tokenModal && !tokenModal.classList.contains('hidden')) {
-      closeTokenModal();
-    }
-  });
+  if (tgIsAtLeast('6.1')) {
+    TG.BackButton.onClick(() => {
+      const tokenModal = $('tokenModal');
+      if (tokenModal && !tokenModal.classList.contains('hidden')) {
+        closeTokenModal();
+      }
+    });
+  }
 }
 
 async function initialize() {

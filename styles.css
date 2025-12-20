@@ -291,8 +291,26 @@ body.ui-results .results-section {
 margin-top: 16px;
 }
 
+body.ui-results #resultsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+body.ui-results #resultsSection > * {
+  margin: 0;
+}
+
+body.ui-results #summaryGrid {
+  margin: 0;
+}
+
 .amend-wallets-row {
   margin: 0 0 12px;
+}
+
+body.ui-results .amend-wallets-row {
+  margin: 0;
 }
 
 body.ui-results .amend-wallets-row {
@@ -512,6 +530,13 @@ body.ui-results .card {
 body.ui-results #resultsSection .card {
   border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
+}
+
+body.ui-results #resultsSection .card::before {
+  opacity: 0.22;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.12) 0 1px, transparent 1px 14px),
+    radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.10) 0 1px, transparent 1px 16px);
 }
 
 .card::before {
@@ -1014,6 +1039,11 @@ body.ui-results .input-section.is-minimized {
 /* Table Section */
 .table-section {
   margin-bottom: 24px;
+}
+
+body.ui-results .table-section,
+body.ui-results .wallets-section {
+  margin-bottom: 0;
 }
 
 .table-header {
@@ -1753,11 +1783,29 @@ body.ui-results .table-stats {
 
 .footer-links {
   margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 .footer-link {
-  font-size: 14px;
-  color: var(--text-secondary);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-sm);
+  color: rgba(11, 11, 16, 0.92);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.footer-link:hover {
+  background: rgba(255, 255, 255, 0.68);
 }
 
 .footer-note {
