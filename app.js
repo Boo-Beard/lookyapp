@@ -120,6 +120,30 @@ function formatPrice(value) {
   return `$${v.toFixed(6)}`;
 }
 
+function tokenIconDataUri(symbol) {
+  const s = String(symbol || '').trim().toUpperCase();
+  const label = (s.match(/[A-Z0-9]/g) || []).slice(0, 3).join('') || '•';
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#00c2ff" stop-opacity="0.9"/>
+          <stop offset="1" stop-color="#ffd400" stop-opacity="0.9"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="64" height="64" rx="14" fill="url(#g)"/>
+      <rect x="4" y="4" width="56" height="56" rx="12" fill="rgba(255,255,255,0.60)"/>
+      <text x="32" y="38" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="18" font-weight="900" fill="#0b0b10">${label}</text>
+    </svg>
+  `.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function getTokenIconUrl(logoUrl, symbol) {
+  const url = String(logoUrl || '').trim();
+  return url ? url : tokenIconDataUri(symbol);
+}
+
 function formatNumber(num) {
   const n = Number(num);
   if (!isFinite(n)) return '0';
