@@ -4,12 +4,23 @@
 const $ = (id) => document.getElementById(id);
 
 const MAX_ADDRESSES = 20;
-const STORAGE_KEY_ADDRESSES = 'looky.addresses.v1';
+const STORAGE_KEY_ADDRESSES = 'looky:lastAddresses';
+const STORAGE_KEY_PROFILES = 'looky:profiles';
+const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
 const SCAN_CACHE_TTL_MS = 60 * 1000;
 const scanCache = new Map();
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 let holdingsRenderQueued = false;
 function scheduleRenderHoldingsTable() {
@@ -299,6 +310,87 @@ function loadPersistedAddressItems() {
   } catch {
     return null;
   }
+}
+
+function loadProfiles() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PROFILES);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return {};
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function saveProfiles(profiles) {
+  try {
+    localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles || {}));
+  } catch {}
+}
+
+function getActiveProfileName() {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE);
+    return v ? String(v) : '';
+  } catch {
+    return '';
+  }
+}
+
+function setActiveProfileName(name) {
+  try {
+    if (!name) localStorage.removeItem(STORAGE_KEY_ACTIVE_PROFILE);
+    else localStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE, String(name));
+  } catch {}
+}
+
+function encodeShareParamFromItems(items) {
+  const list = Array.isArray(items) ? items : [];
+  const payload = list
+    .filter(Boolean)
+    .slice(0, MAX_ADDRESSES)
+    .map(x => ({ t: x.type, a: x.raw }));
+  try {
+    const json = JSON.stringify(payload);
+    return btoa(unescape(encodeURIComponent(json)));
+  } catch {
+    return '';
+  }
+}
+
+function decodeShareParamToRawList(param) {
+  if (!param) return null;
+  try {
+    const json = decodeURIComponent(escape(atob(String(param))));
+    const parsed = JSON.parse(json);
+    if (!Array.isArray(parsed)) return null;
+    return parsed
+      .map(x => String(x?.a || '').trim())
+      .filter(Boolean)
+      .slice(0, MAX_ADDRESSES);
+  } catch {
+    return null;
+  }
+}
+
+function buildShareUrlFromCurrent() {
+  const w = encodeShareParamFromItems(state.addressItems);
+  const url = new URL(window.location.href);
+  url.searchParams.set('w', w);
+  return url.toString();
+}
+
+function applyAddressesFromUrlIfPresent() {
+  const url = new URL(window.location.href);
+  const param = url.searchParams.get('w');
+  const rawList = decodeShareParamToRawList(param);
+  if (!rawList || rawList.length === 0) return false;
+
+  const parsed = getAddressItemsFromText(rawList.join('\n'));
+  setAddressItems(parsed.items, { showWarning: parsed.truncated });
+  return true;
 }
 
 function setAddressItems(items, { showWarning = false } = {}) {
@@ -1615,6 +1707,103 @@ function setupEventListeners() {
     updateAddressStats();
   });
 
+  const profileSelect = $('profileSelect');
+  const saveProfileBtn = $('saveProfileBtn');
+  const deleteProfileBtn = $('deleteProfileBtn');
+  const shareLinkBtn = $('shareLinkBtn');
+
+  function refreshProfilesUi() {
+    if (!profileSelect) return;
+    const profiles = loadProfiles();
+    const active = getActiveProfileName();
+    const names = Object.keys(profiles).sort((a, b) => a.localeCompare(b));
+
+    profileSelect.innerHTML = [
+      '<option value="">Profiles</option>',
+      ...names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`),
+    ].join('');
+
+    if (active && names.includes(active)) profileSelect.value = active;
+    else profileSelect.value = '';
+  }
+
+  profileSelect?.addEventListener('change', () => {
+    const name = String(profileSelect.value || '');
+    if (!name) {
+      setActiveProfileName('');
+      return;
+    }
+
+    const profiles = loadProfiles();
+    const rawList = Array.isArray(profiles?.[name]?.addresses) ? profiles[name].addresses : [];
+    const parsed = getAddressItemsFromText(rawList.join('\n'));
+    setAddressItems(parsed.items, { showWarning: parsed.truncated });
+    setActiveProfileName(name);
+    showStatus(`Loaded profile: ${name}`, 'success');
+    hapticFeedback('light');
+  });
+
+  saveProfileBtn?.addEventListener('click', () => {
+    if (state.addressItems.length === 0) {
+      showStatus('Add at least one wallet to save a profile', 'info');
+      return;
+    }
+
+    const name = prompt('Profile name');
+    if (!name) return;
+    const clean = String(name).trim();
+    if (!clean) return;
+
+    const profiles = loadProfiles();
+    profiles[clean] = {
+      addresses: state.addressItems.map(a => a.raw),
+      updatedAt: Date.now(),
+    };
+    saveProfiles(profiles);
+    setActiveProfileName(clean);
+    refreshProfilesUi();
+    showStatus(`Saved profile: ${clean}`, 'success');
+    hapticFeedback('success');
+  });
+
+  deleteProfileBtn?.addEventListener('click', () => {
+    const current = profileSelect?.value ? String(profileSelect.value) : getActiveProfileName();
+    if (!current) {
+      showStatus('Select a profile to delete', 'info');
+      return;
+    }
+
+    const ok = confirm(`Delete profile "${current}"?`);
+    if (!ok) return;
+
+    const profiles = loadProfiles();
+    delete profiles[current];
+    saveProfiles(profiles);
+    if (getActiveProfileName() === current) setActiveProfileName('');
+    refreshProfilesUi();
+    showStatus(`Deleted profile: ${current}`, 'success');
+    hapticFeedback('light');
+  });
+
+  shareLinkBtn?.addEventListener('click', async () => {
+    if (state.addressItems.length === 0) {
+      showStatus('Add wallets to generate a share link', 'info');
+      return;
+    }
+
+    const url = buildShareUrlFromCurrent();
+    try {
+      await navigator.clipboard.writeText(url);
+      showStatus('Share link copied to clipboard', 'success');
+      hapticFeedback('success');
+    } catch {
+      prompt('Copy share link', url);
+    }
+  });
+
+  state._refreshProfilesUi = refreshProfilesUi;
+  refreshProfilesUi();
+
   const searchInput = $('searchInput');
   if (searchInput) {
     let t = null;
@@ -1785,12 +1974,26 @@ function initialize() {
   setupEventListeners();
   setupFooterRotator();
 
-  const saved = loadPersistedAddressItems();
-  if (saved && saved.length) {
-    const parsed = getAddressItemsFromText(saved.join('\n'));
-    state.addressItems = parsed.items;
-    $('inputWarning')?.classList.toggle('hidden', !parsed.truncated);
-    renderAddressChips();
+  const appliedFromUrl = applyAddressesFromUrlIfPresent();
+
+  if (!appliedFromUrl) {
+    const activeProfile = getActiveProfileName();
+    const profiles = loadProfiles();
+    const profileList = activeProfile && Array.isArray(profiles?.[activeProfile]?.addresses)
+      ? profiles[activeProfile].addresses
+      : null;
+
+    const saved = profileList && profileList.length ? profileList : loadPersistedAddressItems();
+    if (saved && saved.length) {
+      const parsed = getAddressItemsFromText(saved.join('\n'));
+      state.addressItems = parsed.items;
+      $('inputWarning')?.classList.toggle('hidden', !parsed.truncated);
+      renderAddressChips();
+    }
+  }
+
+  if (typeof state._refreshProfilesUi === 'function') {
+    try { state._refreshProfilesUi(); } catch {}
   }
 
   updateAddressStats();

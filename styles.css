@@ -813,6 +813,21 @@ body.is-scanning .logo-lockup .eye::before {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.profiles-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.select.select-sm {
+  height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+  width: auto;
+}
+
 .input-warning {
   padding: 12px 14px;
   border-radius: var(--radius-xl);
