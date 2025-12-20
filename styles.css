@@ -1771,11 +1771,13 @@ body.ui-results .table-stats {
 }
 
 .footer-name {
-  font-size: 18px;
-  font-weight: 700;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: 'Bangers', system-ui, sans-serif;
+  font-size: 50px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  text-shadow: 2px 2px 0 var(--panel), 4px 4px 0 rgba(11, 11, 16, 0.95);
+
 }
 
 .footer-links {
