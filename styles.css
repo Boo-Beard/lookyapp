@@ -420,11 +420,11 @@ display: grid;
 }
 
 #totalChange.summary-change.positive {
-  color: rgba(30, 215, 96, 0.95);
+  color: rgba(30, 215, 95, 0.486);
 }
 
 #totalChange.summary-change.negative {
-  color: rgba(255, 45, 85, 0.95);
+  color: rgba(255, 45, 83, 0.486);
 }
 
 .summary-card .summary-sub {
