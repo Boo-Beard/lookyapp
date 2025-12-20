@@ -819,6 +819,8 @@ body.is-scanning .logo-lockup .eye::before {
   align-items: center;
   flex-wrap: wrap;
   margin-top: 12px;
+  justify-content: center;
+  width: 100%;
 }
 
 .select.select-sm {
