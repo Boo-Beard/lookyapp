@@ -766,8 +766,8 @@ function updateSummary() {
       totalChangeEl.classList.remove('hidden');
       totalChangeEl.classList.toggle('positive', pct > 0);
       totalChangeEl.classList.toggle('negative', pct < 0);
-      const sign = pct > 0 ? '+' : '';
-      totalChangeEl.textContent = `${sign}${pct.toFixed(2)}%`;
+      const arrow = pct > 0 ? '▲' : '▼';
+      totalChangeEl.textContent = `${arrow} ${Math.abs(pct).toFixed(2)}%`;
     }
   }
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
