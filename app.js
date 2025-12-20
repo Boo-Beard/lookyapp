@@ -1712,108 +1712,19 @@ function setupEventListeners() {
   const deleteProfileBtn = $('deleteProfileBtn');
   const shareLinkBtn = $('shareLinkBtn');
 
-  const profileSaveModal = $('profileSaveModal');
-  const profileSaveBackdrop = $('profileSaveBackdrop');
-  const profileSaveClose = $('profileSaveClose');
-  const profileSaveCancel = $('profileSaveCancel');
-  const profileSaveConfirm = $('profileSaveConfirm');
-  const profileSaveName = $('profileSaveName');
-  const profileSaveHint = $('profileSaveHint');
-
-  let profileSavePrevFocus = null;
-
-  function setProfileSaveHint(message, type = 'info') {
-    if (!profileSaveHint) return;
-    if (!message) {
-      profileSaveHint.textContent = '';
-      profileSaveHint.classList.remove('error');
-      setElHidden(profileSaveHint, true);
-      return;
-    }
-    profileSaveHint.textContent = message;
-    profileSaveHint.classList.toggle('error', type === 'error');
-    setElHidden(profileSaveHint, false);
-  }
-
-  function openProfileSaveModal({ prefill = '' } = {}) {
-    if (!profileSaveModal) return;
-    profileSavePrevFocus = document.activeElement;
-    profileSaveModal.setAttribute('aria-hidden', 'false');
-    profileSaveModal.classList.remove('hidden');
-
-    if (profileSaveName) {
-      profileSaveName.value = String(prefill || '');
-      profileSaveName.focus();
-      try { profileSaveName.setSelectionRange(0, profileSaveName.value.length); } catch {}
-    }
-    setProfileSaveHint('');
-  }
-
-  function closeProfileSaveModal() {
-    if (!profileSaveModal) return;
-    profileSaveModal.setAttribute('aria-hidden', 'true');
-    profileSaveModal.classList.add('hidden');
-    setProfileSaveHint('');
-    if (profileSaveName) profileSaveName.value = '';
-    if (profileSavePrevFocus && typeof profileSavePrevFocus.focus === 'function') {
-      profileSavePrevFocus.focus();
-    }
-    profileSavePrevFocus = null;
-  }
-
-  function commitProfileSave() {
-    if (state.addressItems.length === 0) {
-      setProfileSaveHint('Add at least one wallet to save a profile', 'error');
-      hapticFeedback('error');
-      return;
-    }
-
-    const clean = String(profileSaveName?.value || '').trim();
-    if (!clean) {
-      setProfileSaveHint('Please enter a profile name', 'error');
-      hapticFeedback('error');
-      return;
-    }
-
-    const profiles = loadProfiles();
-    if (profiles[clean]) {
-      const ok = confirm(`Overwrite existing profile "${clean}"?`);
-      if (!ok) return;
-    }
-
-    profiles[clean] = {
-      addresses: state.addressItems.map(a => a.raw),
-      updatedAt: Date.now(),
-    };
-    saveProfiles(profiles);
-    setActiveProfileName(clean);
-    refreshProfilesUi();
-    closeProfileSaveModal();
-    showInputHint(`Saved profile: ${clean}`, 'success');
-    hapticFeedback('success');
-  }
-
   function refreshProfilesUi() {
     if (!profileSelect) return;
     const profiles = loadProfiles();
     const active = getActiveProfileName();
     const names = Object.keys(profiles).sort((a, b) => a.localeCompare(b));
 
-    const hasProfiles = names.length > 0;
-    setElHidden(profileSelect, !hasProfiles);
-    setElHidden(deleteProfileBtn, !hasProfiles);
-
-    profileSelect.innerHTML = names
-      .map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
-      .join('');
-
-    if (!hasProfiles) {
-      if (active) setActiveProfileName('');
-      return;
-    }
+    profileSelect.innerHTML = [
+      '<option value="">Profiles</option>',
+      ...names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`),
+    ].join('');
 
     if (active && names.includes(active)) profileSelect.value = active;
-    else profileSelect.value = names[0];
+    else profileSelect.value = '';
   }
 
   profileSelect?.addEventListener('change', () => {
@@ -1833,29 +1744,26 @@ function setupEventListeners() {
   });
 
   saveProfileBtn?.addEventListener('click', () => {
-    openProfileSaveModal({ prefill: getActiveProfileName() || '' });
-  });
-
-  profileSaveConfirm?.addEventListener('click', commitProfileSave);
-  profileSaveCancel?.addEventListener('click', closeProfileSaveModal);
-  profileSaveClose?.addEventListener('click', closeProfileSaveModal);
-  profileSaveBackdrop?.addEventListener('click', closeProfileSaveModal);
-
-  profileSaveName?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      commitProfileSave();
+    if (state.addressItems.length === 0) {
+      showStatus('Add at least one wallet to save a profile', 'info');
+      return;
     }
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      closeProfileSaveModal();
-    }
-  });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (!profileSaveModal || profileSaveModal.classList.contains('hidden')) return;
-    closeProfileSaveModal();
+    const name = prompt('Profile name');
+    if (!name) return;
+    const clean = String(name).trim();
+    if (!clean) return;
+
+    const profiles = loadProfiles();
+    profiles[clean] = {
+      addresses: state.addressItems.map(a => a.raw),
+      updatedAt: Date.now(),
+    };
+    saveProfiles(profiles);
+    setActiveProfileName(clean);
+    refreshProfilesUi();
+    showInputHint(`Saved profile: ${clean}`, 'success');
+    hapticFeedback('success');
   });
 
   deleteProfileBtn?.addEventListener('click', () => {
