@@ -11,10 +11,15 @@ const state = {
   holdings: [],
   scanning: false,
   totalValue: 0,
+  totalSolValue: 0,
+  totalEvmValue: 0,
+  totalChangeSolUsd: 0,
+  totalChangeEvmUsd: 0,
   addressItems: [],
   viewMode: 'aggregate',
   scanAbortController: null,
   walletHoldings: new Map(),
+  walletDayChange: new Map(),
   activeHolding: null,
 };
 
@@ -420,6 +425,28 @@ function birdeyeXChain(chain) {
   return chain === 'solana' ? 'solana' : 'ethereum';
 }
 
+async function fetchSolanaNetWorthChange(wallet, { signal } = {}) {
+  const data = await birdeyeRequest('/wallet/v2/net-worth', {
+    wallet: wallet,
+    count: 7,
+    direction: 'back',
+    type: '1d',
+    sort_type: 'desc',
+  }, {
+    signal,
+    headers: {
+      'x-chain': 'solana',
+    },
+  });
+
+  const history = data?.data?.history;
+  const first = Array.isArray(history) && history.length ? history[0] : null;
+  return {
+    changeUsd: Number(first?.net_worth_change ?? 0) || 0,
+    changePct: Number(first?.net_worth_change_percent ?? 0) || 0,
+  };
+}
+
 function isValidEvmContractAddress(addr) {
   return /^0x[a-fA-F0-9]{40}$/.test(String(addr || '').trim());
 }
@@ -597,6 +624,7 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
       const quantity = attrs?.quantity || {};
       const fungible = attrs?.fungible_info || {};
       const implementations = Array.isArray(fungible?.implementations) ? fungible.implementations : [];
+      const changes = attrs?.changes || {};
 
       const chainId = String(row?.relationships?.chain?.data?.id || 'ethereum');
       const implForChain = implementations.find(x => String(x?.chain_id) === chainId);
@@ -608,6 +636,8 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
       const amount = Number(quantity?.float ?? quantity?.numeric ?? 0) || 0;
       const valueUsd = Number(attrs?.value ?? 0) || 0;
       const priceUsd = Number(attrs?.price ?? 0) || 0;
+      const changeUsd = Number(changes?.absolute_1d ?? 0) || 0;
+      const changePct = Number(changes?.percent_1d ?? 0) || 0;
 
       return {
         address: tokenAddress,
@@ -621,6 +651,8 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
         amount,
         chain: chainId,
         network: normalizeEvmNetwork(chainId),
+        changeUsd,
+        changePct,
       };
     });
   }
@@ -719,6 +751,25 @@ function updateSummary() {
       ? state.wallets.length
       : 0;
   $('walletCount') && ($('walletCount').textContent = `${walletCount} wallet${walletCount === 1 ? '' : 's'}`);
+
+  const totalChangeEl = $('totalChange');
+  if (totalChangeEl) {
+    const total = Number(state.totalValue || 0) || 0;
+    const change = (Number(state.totalChangeSolUsd || 0) || 0) + (Number(state.totalChangeEvmUsd || 0) || 0);
+    const base = Math.max(0, total - change);
+    const pct = base > 0 ? (change / base) * 100 : 0;
+
+    if (!Number.isFinite(pct) || Math.abs(pct) < 0.0001) {
+      totalChangeEl.classList.add('hidden');
+      totalChangeEl.classList.remove('positive', 'negative');
+    } else {
+      totalChangeEl.classList.remove('hidden');
+      totalChangeEl.classList.toggle('positive', pct > 0);
+      totalChangeEl.classList.toggle('negative', pct < 0);
+      const sign = pct > 0 ? '+' : '';
+      totalChangeEl.textContent = `${sign}${pct.toFixed(2)}% (24h)`;
+    }
+  }
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
 
   const chains = new Set(state.holdings.map(h => h.chain));
@@ -883,10 +934,23 @@ function recomputeAggregatesAndRender() {
   const holdingsMap = new Map();
   const wallets = [];
   let total = 0;
+  let totalSolValue = 0;
+  let totalEvmValue = 0;
+  let totalChangeSolUsd = 0;
+  let totalChangeEvmUsd = 0;
 
   state.walletHoldings.forEach((items, walletKey) => {
     const [chain, wallet] = walletKey.split(':');
     wallets.push({ address: wallet, chain, count: items.length });
+
+    const walletTotalValue = items.reduce((s, h) => s + (Number(h?.value || h?.valueUsd || 0) || 0), 0);
+    if (chain === 'solana') totalSolValue += walletTotalValue;
+    else totalEvmValue += walletTotalValue;
+
+    if (chain === 'solana') {
+      const ch = state.walletDayChange?.get(walletKey);
+      totalChangeSolUsd += Number(ch?.changeUsd || 0) || 0;
+    }
 
     items.forEach(holding => {
       const rawTokenAddress = holding.address || holding.token_address;
@@ -897,12 +961,14 @@ function recomputeAggregatesAndRender() {
       const value = Number(holding.value || holding.valueUsd || 0) || 0;
       const amount = Number(holding.amount || holding.uiAmount || holding.balance || 0) || 0;
       const mcap = Number(holding.market_cap ?? holding.marketCap ?? holding.mc ?? holding.fdv ?? holding.fdv_usd ?? 0) || 0;
+      const changeUsd = Number(holding.changeUsd ?? holding.change_usd ?? holding.change_1d_usd ?? holding.pnlUsd ?? 0) || 0;
 
       if (holdingsMap.has(key)) {
         const existing = holdingsMap.get(key);
         existing.value += value;
         existing.balance += amount;
         existing.mcap = Math.max(existing.mcap || 0, mcap);
+        existing.changeUsd = (Number(existing.changeUsd || 0) || 0) + changeUsd;
         if (!existing.network && network) existing.network = network;
         existing.sources.push(wallet);
       } else {
@@ -919,16 +985,22 @@ function recomputeAggregatesAndRender() {
           balance: amount,
           value: value,
           mcap: mcap,
+          changeUsd: changeUsd,
           sources: [wallet],
         });
       }
       total += value;
+      if (chain === 'evm') totalChangeEvmUsd += changeUsd;
     });
   });
 
   state.holdings = Array.from(holdingsMap.values());
   state.wallets = wallets;
   state.totalValue = total;
+  state.totalSolValue = totalSolValue;
+  state.totalEvmValue = totalEvmValue;
+  state.totalChangeSolUsd = totalChangeSolUsd;
+  state.totalChangeEvmUsd = totalChangeEvmUsd;
 
   updateSummary();
   renderHoldingsTable();
@@ -964,6 +1036,7 @@ async function scanWallets() {
   state.scanning = true;
   setScanningUi(true);
   state.walletHoldings = new Map();
+  state.walletDayChange = new Map();
   state.scanAbortController = new AbortController();
   updateTelegramMainButton();
 
@@ -991,6 +1064,14 @@ async function scanWallets() {
     try {
       const holdings = await fetchWalletHoldings(wallet, chain, { signal });
       state.walletHoldings.set(`${chain}:${wallet}`, holdings);
+
+      if (chain === 'solana') {
+        try {
+          const ch = await fetchSolanaNetWorthChange(wallet, { signal });
+          state.walletDayChange.set(`${chain}:${wallet}`, ch);
+        } catch {}
+      }
+
       upsertScanProgressItem(wallet, chain, i, totalWallets, 'done', 'done');
       recomputeAggregatesAndRender();
     } catch (error) {
