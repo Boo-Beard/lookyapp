@@ -626,6 +626,57 @@ body.ui-results .input-section.is-minimized {
   transition: transform 0.1s linear;
 }
 
+body.is-scanning .logo-lockup .eye {
+  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.12), 0 0 22px rgba(0, 194, 255, 0.20), var(--shadow-sm);
+  animation: scanEyePulse 1.05s ease-in-out infinite;
+}
+
+body.is-scanning .logo-lockup .pupil {
+  animation: scanPupilJitter 0.35s steps(2, end) infinite;
+}
+
+body.is-scanning .logo-lockup .eye::before {
+  animation: scanEyeSweep 1.2s ease-in-out infinite;
+}
+
+@keyframes scanEyePulse {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes scanPupilJitter {
+  0% {
+    transform: translate(-50%, -50%) translate(-4px, -3px);
+  }
+  25% {
+    transform: translate(-50%, -50%) translate(5px, -2px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translate(4px, 5px);
+  }
+  75% {
+    transform: translate(-50%, -50%) translate(-5px, 3px);
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(-4px, -3px);
+  }
+}
+
+@keyframes scanEyeSweep {
+  0%, 100% {
+    opacity: 0.18;
+    transform: translate(0, 0) rotate(-10deg);
+  }
+  50% {
+    opacity: 0.30;
+    transform: translate(6px, 6px) rotate(10deg);
+  }
+}
+
 @keyframes logoBob {
   0%, 100% {
     transform: translateY(0) rotate(-0.3deg);
