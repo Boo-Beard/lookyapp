@@ -62,6 +62,7 @@ function hapticFeedback(type = 'light') {
 function updateTelegramMainButton() {
   if (!isTelegram()) return;
 
+  
   try {
     const validCount = state.addressItems.filter(a => a.type === 'solana' || a.type === 'evm').length;
     TG.MainButton.setText('Scan Wallets');
