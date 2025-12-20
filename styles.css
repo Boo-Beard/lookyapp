@@ -387,12 +387,36 @@ display: grid;
   color: rgba(11, 11, 16, 0.72);
 }
 
+.summary-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .summary-card .summary-value {
   font-family: 'Bangers', system-ui, sans-serif;
   font-size: 24px;
   line-height: 1.05;
   letter-spacing: 0.02em;
   color: var(--ink);
+}
+
+#totalChange {
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+#totalChange.positive {
+  background: var(--green);
+}
+
+#totalChange.negative {
+  background: var(--red);
 }
 
 .summary-card .summary-sub {
