@@ -1861,7 +1861,6 @@ body.ui-results .table-stats {
   color: var(--ink);
   letter-spacing: 0.02em;
   text-shadow: 2px 2px 0 var(--panel), 4px 4px 0 rgba(11, 11, 16, 0.95);
-
 }
 
 .footer-links {
