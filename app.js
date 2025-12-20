@@ -1724,10 +1724,64 @@ function setupTelegram() {
   }
 }
 
+function setupFooterRotator() {
+  const el = $('footerRotatorText');
+  if (!el) return;
+
+  const phrases = [
+    'View Portfolio',
+    'View Value',
+     'Looky!',
+    'View Analytics',
+    'Multichain',
+    'Looky!',
+    'No Wallet Connect',
+    'Read-Only',
+    'Secure',
+    'Looky!',
+  ];
+
+  let idx = 0;
+  let timer = null;
+
+  const setText = (text) => {
+    el.textContent = text;
+  };
+
+  const tick = () => {
+    if (!document.body.contains(el)) {
+      if (timer) window.clearTimeout(timer);
+      timer = null;
+      return;
+    }
+
+    el.classList.remove('is-in');
+    el.classList.add('is-out');
+
+    window.setTimeout(() => {
+      idx = (idx + 1) % phrases.length;
+      setText(phrases[idx]);
+
+      // force reflow so transition always fires
+      void el.offsetWidth;
+
+      el.classList.remove('is-out');
+      el.classList.add('is-in');
+    }, 180);
+
+    timer = window.setTimeout(tick, 2600);
+  };
+
+  setText(phrases[idx]);
+  el.classList.add('is-in');
+  timer = window.setTimeout(tick, 2600);
+}
+
 function initialize() {
   setupTelegram();
   setupEyeTracking();
   setupEventListeners();
+  setupFooterRotator();
 
   const saved = loadPersistedAddressItems();
   if (saved && saved.length) {

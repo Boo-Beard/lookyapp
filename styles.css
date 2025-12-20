@@ -2163,5 +2163,50 @@ body.ui-results .wallet-count {
   background: rgba(98, 126, 234, 0.1);
   color: var(--ink);
 }
-/* Remove any blinking animations from CSS */
-/* Delete or comment out any @keyframes for blinking if present */
+
+.footer-rotator {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.footer-rotator-title {
+  font-family: 'Bangers', system-ui, sans-serif;
+  font-size: clamp(26px, 7vw, 42px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-shadow: 2px 2px 0 var(--panel), 4px 4px 0 rgba(11, 11, 16, 0.95);
+}
+
+.footer-rotator-sep {
+  color: rgba(11, 11, 16, 0.50);
+  user-select: none;
+}
+
+.footer-rotator-text {
+  font-family: 'Bangers', system-ui, sans-serif;
+  font-size: clamp(20px, 6vw, 38px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 var(--panel), 3px 3px 0 rgba(11, 11, 16, 0.90);
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.footer-rotator-text.is-out {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.footer-rotator-text.is-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
