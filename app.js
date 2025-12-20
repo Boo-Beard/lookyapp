@@ -1799,13 +1799,21 @@ function setupEventListeners() {
     const active = getActiveProfileName();
     const names = Object.keys(profiles).sort((a, b) => a.localeCompare(b));
 
-    profileSelect.innerHTML = [
-      '<option value="">Profiles</option>',
-      ...names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`),
-    ].join('');
+    const hasProfiles = names.length > 0;
+    setElHidden(profileSelect, !hasProfiles);
+    setElHidden(deleteProfileBtn, !hasProfiles);
+
+    profileSelect.innerHTML = names
+      .map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+      .join('');
+
+    if (!hasProfiles) {
+      if (active) setActiveProfileName('');
+      return;
+    }
 
     if (active && names.includes(active)) profileSelect.value = active;
-    else profileSelect.value = '';
+    else profileSelect.value = names[0];
   }
 
   profileSelect?.addEventListener('change', () => {
