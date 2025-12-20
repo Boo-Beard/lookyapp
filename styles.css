@@ -1150,6 +1150,35 @@ body.ui-results .table-header {
   align-items: stretch;
 }
 
+.table-pagination {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.table-pagination-top {
+  width: 100%;
+  justify-content: center;
+  margin-top: 10px;
+  flex-wrap: nowrap;
+}
+
+.table-pagination-top .page-indicator {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(11, 11, 16, 0.72);
+  user-select: none;
+  min-width: 92px;
+  text-align: center;
+}
+
+.btn-sm {
+  height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
 .view-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
