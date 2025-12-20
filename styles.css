@@ -1144,7 +1144,7 @@ body.ui-results .wallets-section {
 }
 
 .table-header {
-  /*display: flex;*/
+  display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
@@ -1820,6 +1820,51 @@ body.ui-results .table-stats {
 .alloc-risk-header {
   padding: 26px 28px 14px;
   margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.collapsible-header-left {
+  min-width: 0;
+  flex: 1;
+}
+
+.collapse-toggle {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-sm);
+  color: rgba(11, 11, 16, 0.82);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  flex: 0 0 auto;
+}
+
+.collapse-toggle:hover {
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.collapse-toggle i {
+  transition: transform var(--transition-fast);
+}
+
+.is-collapsed .collapse-toggle i {
+  transform: rotate(-90deg);
+}
+
+.collapsible-content {
+  overflow: hidden;
+}
+
+.is-collapsed .collapsible-content {
+  display: none;
 }
 
 .alloc-risk-header .table-title {

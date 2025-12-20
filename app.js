@@ -7,6 +7,7 @@ const MAX_ADDRESSES = 20;
 const STORAGE_KEY_ADDRESSES = 'looky:lastAddresses';
 const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
+const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -328,6 +329,24 @@ function saveProfiles(profiles) {
   try {
     localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles || {}));
   } catch {}
+}
+
+function loadUiSectionState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_UI_SECTIONS);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveUiSectionState(next) {
+  try {
+    localStorage.setItem(STORAGE_KEY_UI_SECTIONS, JSON.stringify(next || {}));
+  } catch {
+    // ignore
+  }
 }
 
 function getActiveProfileName() {
@@ -1924,6 +1943,44 @@ function setupEventListeners() {
 
   state._refreshProfilesUi = refreshProfilesUi;
   refreshProfilesUi();
+
+  const uiSections = loadUiSectionState();
+
+  const allocRiskCard = $('allocRiskCard');
+  const allocRiskToggle = $('allocRiskToggle');
+  const allocRiskContent = $('allocRiskContent');
+
+  const holdingsCard = $('holdingsCard');
+  const holdingsToggle = $('holdingsToggle');
+  const holdingsContent = $('holdingsContent');
+
+  function setCollapsed({ card, toggle, content, key, collapsed }) {
+    if (!card || !toggle || !content) return;
+    const isCollapsed = !!collapsed;
+    card.classList.toggle('is-collapsed', isCollapsed);
+    toggle.setAttribute('aria-expanded', String(!isCollapsed));
+    content.classList.toggle('hidden', isCollapsed);
+    uiSections[key] = !isCollapsed;
+    saveUiSectionState(uiSections);
+  }
+
+  const allocRiskOpen = Object.prototype.hasOwnProperty.call(uiSections, 'allocRisk') ? !!uiSections.allocRisk : false;
+  setCollapsed({ card: allocRiskCard, toggle: allocRiskToggle, content: allocRiskContent, key: 'allocRisk', collapsed: !allocRiskOpen });
+
+  const holdingsOpen = Object.prototype.hasOwnProperty.call(uiSections, 'holdings') ? !!uiSections.holdings : false;
+  setCollapsed({ card: holdingsCard, toggle: holdingsToggle, content: holdingsContent, key: 'holdings', collapsed: !holdingsOpen });
+
+  allocRiskToggle?.addEventListener('click', () => {
+    const open = !(allocRiskCard?.classList.contains('is-collapsed'));
+    setCollapsed({ card: allocRiskCard, toggle: allocRiskToggle, content: allocRiskContent, key: 'allocRisk', collapsed: open });
+    hapticFeedback('light');
+  });
+
+  holdingsToggle?.addEventListener('click', () => {
+    const open = !(holdingsCard?.classList.contains('is-collapsed'));
+    setCollapsed({ card: holdingsCard, toggle: holdingsToggle, content: holdingsContent, key: 'holdings', collapsed: open });
+    hapticFeedback('light');
+  });
 
   const searchInput = $('searchInput');
   if (searchInput) {

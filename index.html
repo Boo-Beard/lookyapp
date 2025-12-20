@@ -174,12 +174,17 @@
           </div>
         </div>
 
-        <div class="card alloc-risk-card" id="allocRiskCard">
+        <div class="card alloc-risk-card is-collapsed" id="allocRiskCard">
           <div class="alloc-risk-header">
-            <h3 class="table-title">Allocation &amp; Risk</h3>
-            <div class="table-subtitle">Based on current portfolio value</div>
+            <div class="collapsible-header-left">
+              <h3 class="table-title">Allocation &amp; Risk</h3>
+              <div class="table-subtitle">Based on current portfolio value</div>
+            </div>
+            <button id="allocRiskToggle" class="collapse-toggle" type="button" aria-label="Toggle Allocation and Risk" aria-controls="allocRiskContent" aria-expanded="false">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
           </div>
-          <div class="alloc-risk-body">
+          <div id="allocRiskContent" class="alloc-risk-body collapsible-content hidden">
             <div class="alloc-risk-cols">
               <div class="alloc-risk-col">
                 <div class="alloc-risk-section-title">Allocation</div>
@@ -194,13 +199,20 @@
         </div>
 
         <!-- Holdings Table -->
-        <div class="card table-section">
+        <div class="card table-section is-collapsed" id="holdingsCard">
           <div class="table-header">
-            <div>
+            <div class="collapsible-header-left">
               <h3 class="table-title">Portfolio Holdings</h3>
               <p class="table-subtitle">Sorted by value • Click any token for details</p>
             </div>
+
+            <button id="holdingsToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio Holdings" aria-controls="holdingsContent" aria-expanded="false">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
             
+          </div>
+
+          <div id="holdingsContent" class="collapsible-content hidden">
             <div class="table-controls">
               <div class="search-box">
                 <i class="search-icon fa-solid fa-magnifying-glass" aria-hidden="true"></i>
@@ -232,39 +244,39 @@
               <div class="page-indicator" id="pageIndicator">Page 1 of 1</div>
               <button id="pageNext" class="btn btn-outline btn-sm" type="button">Next</button>
             </div>
-          </div>
 
-          <div class="table-container">
-            <table class="holdings-table" id="holdingsTable">
-              <thead>
-                <tr>
-                  <th class="token-col">Token</th>
-                  <th class="mcap-col">MCap</th>
-                  <th class="balance-col">Balance</th>
-                  <th class="price-col">Price</th>
-                  <th class="value-col">Value</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody">
-                <tr class="empty-row">
-                  <td colspan="5">
-                    <div class="empty-state">
-                      <div class="empty-text">Paste addresses above to see holdings</div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="table-footer">
-            <div class="table-stats" id="tableStats">
-              Showing 0 tokens • Total value: $0.00
+            <div class="table-container">
+              <table class="holdings-table" id="holdingsTable">
+                <thead>
+                  <tr>
+                    <th class="token-col">Token</th>
+                    <th class="mcap-col">MCap</th>
+                    <th class="balance-col">Balance</th>
+                    <th class="price-col">Price</th>
+                    <th class="value-col">Value</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <tr class="empty-row">
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="empty-text">Paste addresses above to see holdings</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <button id="exportButton" class="btn btn-outline">
-              <span class="btn-icon"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></span>
-              Export CSV
-            </button>
+          
+            <div class="table-footer">
+              <div class="table-stats" id="tableStats">
+                Showing 0 tokens • Total value: $0.00
+              </div>
+              <button id="exportButton" class="btn btn-outline">
+                <span class="btn-icon"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></span>
+                Export CSV
+              </button>
+            </div>
           </div>
         </div>
       </div>
