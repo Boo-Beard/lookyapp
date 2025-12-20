@@ -8,6 +8,9 @@ const STORAGE_KEY_ADDRESSES = 'looky.addresses.v1';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
+const SCAN_CACHE_TTL_MS = 60 * 1000;
+const scanCache = new Map();
+
 let holdingsRenderQueued = false;
 function scheduleRenderHoldingsTable() {
   if (holdingsRenderQueued) return;
@@ -33,8 +36,50 @@ const state = {
   walletHoldings: new Map(),
   walletDayChange: new Map(),
   holdingsPage: 1,
+  lastScanFailedQueue: [],
   activeHolding: null,
 };
+
+function scanCacheKey(chain, wallet) {
+  return `${chain}:${wallet}`;
+}
+
+function getScanCache(chain, wallet) {
+  const key = scanCacheKey(chain, wallet);
+  const entry = scanCache.get(key);
+  if (!entry) return null;
+  if ((Date.now() - entry.ts) > SCAN_CACHE_TTL_MS) {
+    scanCache.delete(key);
+    return null;
+  }
+  return entry;
+}
+
+function setScanCache(chain, wallet, payload) {
+  const key = scanCacheKey(chain, wallet);
+  scanCache.set(key, { ts: Date.now(), ...payload });
+}
+
+function buildWalletQueue() {
+  const valid = state.addressItems.filter(a => a.type === 'solana' || a.type === 'evm');
+  const solanaWallets = valid.filter(a => a.type === 'solana').map(a => a.raw);
+  const evmWallets = valid.filter(a => a.type === 'evm').map(a => a.raw);
+  const base = [
+    ...solanaWallets.map(w => ({ wallet: w, chain: 'solana' })),
+    ...evmWallets.map(w => ({ wallet: w, chain: 'evm' })),
+  ];
+  return base.map((item, index) => ({ ...item, index }));
+}
+
+let recomputeQueued = false;
+function scheduleRecomputeAggregatesAndRender() {
+  if (recomputeQueued) return;
+  recomputeQueued = true;
+  requestAnimationFrame(() => {
+    recomputeQueued = false;
+    recomputeAggregatesAndRender();
+  });
+}
 
 function setHoldingsPage(page) {
   const p = Number(page);
@@ -1056,22 +1101,18 @@ function recomputeAggregatesAndRender() {
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
 }
 
-async function scanWallets() {
+async function scanWallets({ queueOverride } = {}) {
   if (state.scanning) return;
 
-  const valid = state.addressItems.filter(a => a.type === 'solana' || a.type === 'evm');
-  if (valid.length === 0) {
+  const walletsQueue = Array.isArray(queueOverride) && queueOverride.length
+    ? queueOverride.map((q, i) => ({ wallet: q.wallet, chain: q.chain, index: Number.isFinite(q.index) ? q.index : i }))
+    : buildWalletQueue();
+
+  if (walletsQueue.length === 0) {
     showStatus('Please enter at least one valid wallet address', 'error');
     hapticFeedback('error');
     return;
   }
-
-  const solanaWallets = valid.filter(a => a.type === 'solana').map(a => a.raw);
-  const evmWallets = valid.filter(a => a.type === 'evm').map(a => a.raw);
-  const walletsQueue = [
-    ...solanaWallets.map(w => ({ wallet: w, chain: 'solana' })),
-    ...evmWallets.map(w => ({ wallet: w, chain: 'evm' })),
-  ];
 
   document.body.classList.remove('ui-landing');
   document.body.classList.add('ui-results');
@@ -1085,6 +1126,7 @@ async function scanWallets() {
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
+  state.lastScanFailedQueue = [];
   state.scanAbortController = new AbortController();
   updateTelegramMainButton();
 
@@ -1096,45 +1138,80 @@ async function scanWallets() {
 
   clearScanProgress();
   $('cancelScanButton')?.classList.remove('hidden');
+  $('retryFailedButton')?.classList.add('hidden');
   showStatus('', 'info');
   updateProgress(0);
 
   const totalWallets = walletsQueue.length;
   const signal = state.scanAbortController.signal;
 
-  for (let i = 0; i < walletsQueue.length; i++) {
-    const { wallet, chain } = walletsQueue[i];
-    if (signal.aborted) break;
+  let completed = 0;
+  const total = Math.max(totalWallets, 1);
+  const concurrency = (isTelegram() || window.matchMedia('(max-width: 640px)').matches) ? 2 : 4;
+  let cursor = 0;
 
-    upsertScanProgressItem(wallet, chain, i, totalWallets, 'fetching portfolio…');
-    updateProgress((i / Math.max(totalWallets, 1)) * 100);
+  const markComplete = () => {
+    completed++;
+    updateProgress((completed / total) * 100);
+  };
 
-    try {
-      const holdings = await fetchWalletHoldings(wallet, chain, { signal });
-      state.walletHoldings.set(`${chain}:${wallet}`, holdings);
+  const worker = async () => {
+    while (cursor < walletsQueue.length && !signal.aborted) {
+      const current = walletsQueue[cursor++];
+      const { wallet, chain, index } = current;
+      const walletKey = `${chain}:${wallet}`;
 
-      if (chain === 'solana') {
-        try {
-          const ch = await fetchSolanaNetWorthChange(wallet, { signal });
-          state.walletDayChange.set(`${chain}:${wallet}`, ch);
-        } catch {}
-      }
+      upsertScanProgressItem(wallet, chain, index, totalWallets, 'fetching portfolio…');
 
-      upsertScanProgressItem(wallet, chain, i, totalWallets, 'done', 'done');
-      recomputeAggregatesAndRender();
-    } catch (error) {
-      if (!signal.aborted) {
-        upsertScanProgressItem(wallet, chain, i, totalWallets, 'failed', 'error');
-        const msg = error?.message ? String(error.message) : 'Unknown error';
-        showStatus(`Failed to scan ${chain} wallet ${shortenAddress(wallet)}: ${msg}`, 'error');
-        try { console.error('Scan wallet failed', { wallet, chain, error }); } catch {}
+      try {
+        const cached = getScanCache(chain, wallet);
+        if (cached) {
+          state.walletHoldings.set(walletKey, cached.holdings || []);
+          if (chain === 'solana' && cached.dayChange) {
+            state.walletDayChange.set(walletKey, cached.dayChange);
+          }
+          upsertScanProgressItem(wallet, chain, index, totalWallets, 'cached', 'done');
+          markComplete();
+          scheduleRecomputeAggregatesAndRender();
+          continue;
+        }
+
+        const holdings = await fetchWalletHoldings(wallet, chain, { signal });
+        state.walletHoldings.set(walletKey, holdings);
+
+        let dayChange = null;
+        if (chain === 'solana') {
+          try {
+            dayChange = await fetchSolanaNetWorthChange(wallet, { signal });
+            state.walletDayChange.set(walletKey, dayChange);
+          } catch {}
+        }
+
+        setScanCache(chain, wallet, { holdings, dayChange });
+        upsertScanProgressItem(wallet, chain, index, totalWallets, 'done', 'done');
+        markComplete();
+        scheduleRecomputeAggregatesAndRender();
+      } catch (error) {
+        if (!signal.aborted) {
+          state.lastScanFailedQueue.push({ wallet, chain, index });
+          upsertScanProgressItem(wallet, chain, index, totalWallets, 'failed', 'error');
+          const msg = error?.message ? String(error.message) : 'Unknown error';
+          showStatus(`Failed to scan ${chain} wallet ${shortenAddress(wallet)}: ${msg}`, 'error');
+          try { console.error('Scan wallet failed', { wallet, chain, error }); } catch {}
+          markComplete();
+        }
       }
     }
-  }
+  };
+
+  const workers = Array.from({ length: Math.min(concurrency, walletsQueue.length) }, () => worker());
+  await Promise.allSettled(workers);
 
   state.scanning = false;
   setScanningUi(false);
   state.scanAbortController = null;
+
+  scheduleRecomputeAggregatesAndRender();
 
   if (scanButton) {
     scanButton.disabled = false;
@@ -1142,6 +1219,9 @@ async function scanWallets() {
   }
 
   $('cancelScanButton')?.classList.add('hidden');
+  if (!signal.aborted && state.lastScanFailedQueue.length > 0) {
+    $('retryFailedButton')?.classList.remove('hidden');
+  }
   updateProgress(100);
 
   if (signal.aborted) {
@@ -1469,6 +1549,13 @@ function setupEventListeners() {
     if (!state.scanning) return;
     state.scanAbortController?.abort();
     hapticFeedback('light');
+  });
+
+  $('retryFailedButton')?.addEventListener('click', () => {
+    if (state.scanning) return;
+    if (!Array.isArray(state.lastScanFailedQueue) || state.lastScanFailedQueue.length === 0) return;
+    $('retryFailedButton')?.classList.add('hidden');
+    scanWallets({ queueOverride: state.lastScanFailedQueue });
   });
 
   $('clearInputBtn')?.addEventListener('click', () => {
