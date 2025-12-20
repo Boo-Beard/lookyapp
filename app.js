@@ -559,7 +559,10 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
     const url = new URL(API.zerion, window.location.origin);
     url.searchParams.set('address', wallet);
     url.searchParams.set('filter[positions]', 'only_simple');
+    url.searchParams.set('filter[trash]', 'only_non_trash');
     url.searchParams.set('currency', 'usd');
+    url.searchParams.set('sort', 'value');
+    url.searchParams.set('sync', 'false');
 
     const response = await fetch(url.toString(), signal ? { signal } : undefined);
 
@@ -573,78 +576,38 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
       throw new Error(msg);
     }
 
-    const included = Array.isArray(data?.included) ? data.included : [];
-    const includedById = new Map(included.map(x => [x?.id, x]));
-
-    const rows = Array.isArray(data?.data) ? data.data : (data?.data ? [data.data] : []);
-    const items = [];
-
-    rows.forEach((row) => {
+    const rows = Array.isArray(data?.data) ? data.data : [];
+    return rows.map((row) => {
       const attrs = row?.attributes || {};
-      const position = attrs?.position || attrs;
+      const quantity = attrs?.quantity || {};
+      const fungible = attrs?.fungible_info || {};
+      const implementations = Array.isArray(fungible?.implementations) ? fungible.implementations : [];
 
-      const valueUsd =
-        Number(position?.value ?? position?.value_usd ?? position?.valueUsd ??
-        attrs?.value ?? attrs?.value_usd ?? attrs?.valueUsd ?? 0) || 0;
+      const chainId = String(row?.relationships?.chain?.data?.id || 'ethereum');
+      const implForChain = implementations.find(x => String(x?.chain_id) === chainId);
+      const contractAddress = extractEvmContractAddress(implForChain?.address || '') || '';
 
-      const priceUsd =
-        Number(position?.price ?? position?.price_usd ?? position?.priceUsd ??
-        attrs?.price ?? attrs?.price_usd ?? attrs?.priceUsd ?? 0) || 0;
+      // native assets have null address; keep a stable key for rendering
+      const tokenAddress = contractAddress || `native:${chainId}:${String(fungible?.symbol || 'NATIVE')}`;
 
-      const amount =
-        Number(position?.quantity ?? position?.amount ?? position?.balance ??
-        attrs?.quantity ?? attrs?.amount ?? attrs?.balance ?? 0) || 0;
+      const amount = Number(quantity?.float ?? quantity?.numeric ?? 0) || 0;
+      const valueUsd = Number(attrs?.value ?? 0) || 0;
+      const priceUsd = Number(attrs?.price ?? 0) || 0;
 
-      const rel = row?.relationships || {};
-      const fungibleRef = rel?.fungible?.data || rel?.asset?.data || rel?.token?.data;
-      const fungible = fungibleRef?.id ? includedById.get(fungibleRef.id) : null;
-      const fAttr = fungible?.attributes || {};
-
-      const fungibleInfo = fAttr?.fungible_info || fAttr?.details || {};
-
-      const contractAddress = pickZerionContractAddress(fAttr);
-      const idAddress = extractEvmContractAddress(row?.id);
-      const tokenAddress = contractAddress || idAddress || String(row?.id || '');
-
-      const symbol = String(
-        fAttr?.symbol ||
-        fungibleInfo?.symbol ||
-        attrs?.symbol ||
-        '—'
-      );
-
-      const name = String(
-        fAttr?.name ||
-        fungibleInfo?.name ||
-        attrs?.name ||
-        'Unknown Token'
-      );
-
-      const logo = String(
-        fAttr?.icon_url ||
-        fungibleInfo?.icon_url ||
-        fAttr?.image_url ||
-        fAttr?.logo_uri ||
-        ''
-      );
-
-      const chainName = String(fAttr?.chain || fAttr?.network || fungibleInfo?.chain || attrs?.chain || 'ethereum');
-
-      items.push({
+      return {
         address: tokenAddress,
         token_address: tokenAddress,
-        contract_address: contractAddress || idAddress || '',
-        symbol,
-        name,
-        logo_uri: logo,
+        contract_address: contractAddress,
+        symbol: String(fungible?.symbol || '—'),
+        name: String(fungible?.name || 'Unknown Token'),
+        logo_uri: String(fungible?.icon?.url || ''),
         price: priceUsd,
         value: valueUsd,
-        amount: amount,
-        chain: chainName,
-      });
+        amount,
+        chain: chainId,
+        network: normalizeEvmNetwork(chainId),
+      };
     });
-
-    return items;
   }
 
   const data = await birdeyeRequest('/wallet/v2/current-net-worth', {
