@@ -21,13 +21,6 @@ function scheduleRenderHoldingsTable() {
   });
 }
 
-function getHoldingDayChangeUsd(holding) {
-  const direct = Number(holding?.changeUsd || 0) || 0;
-  if (direct) return direct;
-  const est = Number(holding?.changeUsdEstimate || 0) || 0;
-  return est;
-}
-
 const state = {
   wallets: [],
   holdings: [],
@@ -97,10 +90,6 @@ const mcapCache = new Map();
 const MCAP_CACHE_TTL_MS = 10 * 60 * 1000;
 const MCAP_MAX_LOOKUPS_PER_RENDER = 80;
 const MCAP_CONCURRENCY = 4;
-
-const CHANGE_CACHE_TTL_MS = 10 * 60 * 1000;
-const CHANGE_MAX_LOOKUPS_PER_RENDER = 25;
-const changeCache = new Map();
 
 let statusHideTimer = null;
 
@@ -602,85 +591,6 @@ async function fetchTokenOverview(address, chain, { signal } = {}) {
   return data?.data || null;
 }
 
-function extractOverviewPriceChangePct(overview) {
-  const v = (
-    overview?.priceChange24hPercent ??
-    overview?.price_change_24h_percent ??
-    overview?.priceChange24h ??
-    overview?.price_change_24h ??
-    overview?.priceChangePercent24h ??
-    overview?.price_change_percent_24h ??
-    null
-  );
-  const n = Number(v);
-  if (!Number.isFinite(n)) return 0;
-  // Heuristic: if API returns 0.1234 for 12.34%, scale it.
-  return Math.abs(n) <= 1 ? (n * 100) : n;
-}
-
-function estimateChangeUsdFromPct(currentValueUsd, pct) {
-  const p = Number(pct);
-  if (!Number.isFinite(p) || p === 0) return 0;
-  const ratio = p / 100;
-  const current = Number(currentValueUsd) || 0;
-  // current = base * (1 + ratio)
-  const base = (1 + ratio) !== 0 ? (current / (1 + ratio)) : current;
-  return current - base;
-}
-
-function enrichHoldingsWithDayChange(holdings, { signal } = {}) {
-  const candidates = holdings
-    .filter(h => h && h.chain === 'solana')
-    .filter(h => !h.changeUsd && (!h.changeUsdEstimate || h.changeUsdEstimate === 0))
-    .sort((a, b) => (b.value || 0) - (a.value || 0))
-    .slice(0, CHANGE_MAX_LOOKUPS_PER_RENDER);
-
-  if (candidates.length === 0) return;
-
-  let idx = 0;
-  let renderQueued = false;
-  const queueRender = () => {
-    if (renderQueued) return;
-    renderQueued = true;
-    window.setTimeout(() => {
-      renderQueued = false;
-      updateSummary();
-    }, 150);
-  };
-
-  const worker = async () => {
-    while (idx < candidates.length) {
-      const current = candidates[idx++];
-      if (!current) continue;
-      if (signal?.aborted) return;
-
-      const cacheKey = `${current.chain}:${current.address}`;
-      const cached = changeCache.get(cacheKey);
-      if (cached && (Date.now() - cached.ts) < CHANGE_CACHE_TTL_MS) {
-        current.changePct = cached.pct;
-        current.changeUsdEstimate = estimateChangeUsdFromPct(current.value || 0, cached.pct);
-        queueRender();
-        continue;
-      }
-
-      try {
-        const overview = await fetchTokenOverview(current.address, 'solana', { signal });
-        if (signal?.aborted) return;
-        const pct = extractOverviewPriceChangePct(overview);
-        changeCache.set(cacheKey, { ts: Date.now(), pct });
-        current.changePct = pct;
-        current.changeUsdEstimate = estimateChangeUsdFromPct(current.value || 0, pct);
-        queueRender();
-      } catch {
-        changeCache.set(cacheKey, { ts: Date.now(), pct: 0 });
-      }
-    }
-  };
-
-  // keep light to avoid rate limits
-  for (let i = 0; i < 2; i++) worker();
-}
-
 async function getTokenMcap(address, chain, { signal } = {}) {
   const cacheKey = `${chain}:${address}`;
   const cached = mcapCache.get(cacheKey);
@@ -931,23 +841,6 @@ function updateSummary() {
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
-
-  const gainerEl = $('topGainer');
-  const loserEl = $('topLoser');
-  if (gainerEl && loserEl) {
-    let best = null;
-    let worst = null;
-
-    for (const h of state.holdings) {
-      const delta = getHoldingDayChangeUsd(h);
-      if (!Number.isFinite(delta) || delta === 0) continue;
-      if (!best || delta > best.delta) best = { symbol: h.symbol || '—', delta };
-      if (!worst || delta < worst.delta) worst = { symbol: h.symbol || '—', delta };
-    }
-
-    gainerEl.textContent = best ? `▲ ${best.symbol} ${formatCurrency(best.delta)}` : '▲ —';
-    loserEl.textContent = worst ? `▼ ${worst.symbol} ${formatCurrency(worst.delta)}` : '▼ —';
-  }
 }
 
 function renderHoldingsTable() {
@@ -1206,7 +1099,6 @@ function recomputeAggregatesAndRender() {
   renderHoldingsTable();
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
-  enrichHoldingsWithDayChange(state.holdings, { signal: state.scanAbortController?.signal });
 }
 
 async function scanWallets({ queueOverride } = {}) {
