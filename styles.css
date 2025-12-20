@@ -340,6 +340,7 @@ display: grid;
   border: 3px solid var(--border);
   backdrop-filter: none;
   box-shadow: var(--shadow-md);
+  margin-bottom: 8px;
 }
 
 .summary-card::before {
