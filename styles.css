@@ -339,8 +339,8 @@ body.ui-results .amend-wallets-row .btn {
   justify-content: center;
   text-align: center;
   gap: 10px;
-  padding: 14px 12px;
-  overflow: hidden;
+  padding: 34px 12px 14px;
+  overflow: visible;
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
   backdrop-filter: none;
@@ -371,7 +371,10 @@ body.ui-results .amend-wallets-row .btn {
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
   color: rgba(11, 11, 16, 0.92);
-  position: relative;
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
 }
 
