@@ -1794,9 +1794,10 @@ function setupEventListeners() {
     const url = buildShareUrlFromCurrent();
     try {
       await navigator.clipboard.writeText(url);
-      showStatus('Share link copied to clipboard', 'success');
+      showInputHint('Share link copied', 'success');
       hapticFeedback('success');
     } catch {
+      showInputHint('Copy share link', 'info');
       prompt('Copy share link', url);
     }
   });
