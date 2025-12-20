@@ -873,6 +873,7 @@ function renderHoldingsTable() {
     $('tableStats') && ($('tableStats').textContent = 'Showing 0 tokens');
     $('pageIndicator') && ($('pageIndicator').textContent = 'Page 1 of 1');
     $('pagePrev') && ($('pagePrev').disabled = true);
+    $('pagePrev')?.classList?.add('hidden');
     $('pageNext') && ($('pageNext').disabled = true);
     return;
   }
@@ -888,7 +889,10 @@ function renderHoldingsTable() {
   if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
   const prevBtn = $('pagePrev');
   const nextBtn = $('pageNext');
-  if (prevBtn) prevBtn.disabled = page <= 1;
+  if (prevBtn) {
+    prevBtn.disabled = page <= 1;
+    prevBtn.classList.toggle('hidden', page <= 1);
+  }
   if (nextBtn) nextBtn.disabled = page >= totalPages;
 
   if (!useCardRows) {
