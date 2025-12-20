@@ -8,6 +8,16 @@ const STORAGE_KEY_ADDRESSES = 'looky.addresses.v1';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
+let holdingsRenderQueued = false;
+function scheduleRenderHoldingsTable() {
+  if (holdingsRenderQueued) return;
+  holdingsRenderQueued = true;
+  requestAnimationFrame(() => {
+    holdingsRenderQueued = false;
+    renderHoldingsTable();
+  });
+}
+
 const state = {
   wallets: [],
   holdings: [],
@@ -579,7 +589,7 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
     renderQueued = true;
     window.setTimeout(() => {
       renderQueued = false;
-      renderHoldingsTable();
+      scheduleRenderHoldingsTable();
     }, 150);
   };
 
@@ -792,6 +802,9 @@ function renderHoldingsTable() {
   const tbody = $('tableBody');
   if (!tbody) return;
 
+  const exportBtn = $('exportButton');
+  if (exportBtn) exportBtn.disabled = state.holdings.length === 0;
+
   state.viewMode = 'aggregate';
 
   const useCardRows = isTelegram() || window.matchMedia('(max-width: 640px)').matches;
@@ -835,6 +848,8 @@ function renderHoldingsTable() {
     }).join('');
     tbody.innerHTML = rows;
     $('tableStats') && ($('tableStats').textContent = 'Loading holdings…');
+    const pageIndicator = $('pageIndicator');
+    if (pageIndicator) pageIndicator.textContent = 'Page 1 of 1';
     return;
   }
 
@@ -879,6 +894,8 @@ function renderHoldingsTable() {
   }
 
   const totalItems = filtered.length;
+  let filteredTotalValue = 0;
+  for (let i = 0; i < filtered.length; i++) filteredTotalValue += Number(filtered[i]?.value || 0) || 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / HOLDINGS_PAGE_SIZE));
   if ((state.holdingsPage || 1) > totalPages) setHoldingsPage(totalPages);
   const page = state.holdingsPage || 1;
@@ -956,7 +973,7 @@ function renderHoldingsTable() {
     `).join('');
   }
 
-  $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filtered.reduce((s, h) => s + h.value, 0))}`);
+  $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filteredTotalValue)}`);
 }
 
 function recomputeAggregatesAndRender() {
@@ -1511,17 +1528,29 @@ function setupEventListeners() {
     updateAddressStats();
   });
 
-  $('searchInput')?.addEventListener('input', () => { setHoldingsPage(1); renderHoldingsTable(); });
-  $('sortSelect')?.addEventListener('change', () => { setHoldingsPage(1); renderHoldingsTable(); });
-  $('hideDust')?.addEventListener('change', () => { setHoldingsPage(1); renderHoldingsTable(); });
+  const searchInput = $('searchInput');
+  if (searchInput) {
+    let t = null;
+    searchInput.addEventListener('input', () => {
+      setHoldingsPage(1);
+      if (t) window.clearTimeout(t);
+      t = window.setTimeout(() => {
+        t = null;
+        scheduleRenderHoldingsTable();
+      }, 150);
+    });
+  }
+
+  $('sortSelect')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
+  $('hideDust')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
 
   $('pagePrev')?.addEventListener('click', () => {
     setHoldingsPage((state.holdingsPage || 1) - 1);
-    renderHoldingsTable();
+    scheduleRenderHoldingsTable();
   });
   $('pageNext')?.addEventListener('click', () => {
     setHoldingsPage((state.holdingsPage || 1) + 1);
-    renderHoldingsTable();
+    scheduleRenderHoldingsTable();
   });
 
   $('tableBody')?.addEventListener('click', (e) => {
