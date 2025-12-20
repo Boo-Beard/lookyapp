@@ -1729,16 +1729,18 @@ function setupFooterRotator() {
   if (!el) return;
 
   const phrases = [
-    'View Portfolio',
-    'View Value',
-     'Looky!',
-    'View Analytics',
-    'Multichain',
-    'Looky!',
-    'No Wallet Connect',
-    'Read-Only',
-    'Secure',
-    'Looky!',
+  'Looky!',
+  'No Bullshit!',
+  'No Wallet Connect!',
+  'No Login!',
+  'Multichain',
+  'View Value',
+  'View Analytics',
+  'Looky!',
+  'Just Looking',
+  'Eyes On-Chain',
+  'Spot The Bags',
+  'See It All',
   ];
 
   let idx = 0;
