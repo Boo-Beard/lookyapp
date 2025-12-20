@@ -251,6 +251,35 @@
       </div>
     </main>
 
+    <!-- Save Profile Modal -->
+    <div id="profileSaveModal" class="modal profile-modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" id="profileSaveBackdrop"></div>
+      <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="profileSaveTitle">
+        <div class="modal-header">
+          <div class="modal-title">
+            <div>
+              <h4 id="profileSaveTitle">Save profile</h4>
+              <div class="modal-subtitle">Name this wallet set for quick switching</div>
+            </div>
+          </div>
+          <button id="profileSaveClose" class="modal-close" type="button" aria-label="Close">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="profile-modal-field">
+            <label class="profile-modal-label" for="profileSaveName">Profile name</label>
+            <input id="profileSaveName" class="profile-modal-input" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. Main wallet" />
+          </div>
+          <div id="profileSaveHint" class="input-warning hidden"></div>
+        </div>
+
+        <div class="modal-footer profile-modal-footer">
+          <button id="profileSaveCancel" class="btn btn-outline" type="button">Cancel</button>
+          <button id="profileSaveConfirm" class="btn btn-primary" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Token Modal -->
     <div id="tokenModal" class="modal hidden">
       <div class="modal-backdrop" id="modalBackdrop"></div>
