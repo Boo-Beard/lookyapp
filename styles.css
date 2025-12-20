@@ -1818,19 +1818,16 @@ body.ui-results .table-stats {
 }
 
 .alloc-risk-header {
-  padding: 24px 32px 0;
+  padding: 26px 28px 14px;
+  margin-bottom: 12px;
 }
 
-.alloc-risk-title {
-  font-size: 18px;
-  font-weight: 800;
+.alloc-risk-header .table-title {
   margin: 0;
 }
 
-.alloc-risk-sub {
-  margin-top: 4px;
-  font-size: 13px;
-  color: var(--text-secondary);
+.alloc-risk-header .table-subtitle {
+  margin: 6px 0 0;
 }
 
 .alloc-risk-body {
@@ -1844,10 +1841,11 @@ body.ui-results .table-stats {
 }
 
 .alloc-risk-section-title {
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
+  font-family: var(--mono);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 800;
   color: var(--text-secondary);
   margin-bottom: 10px;
 }
