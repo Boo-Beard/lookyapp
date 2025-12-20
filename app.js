@@ -691,6 +691,10 @@ function showStatus(message, type = 'info') {
   }
 }
 
+function setScanningUi(active) {
+  document.body.classList.toggle('is-scanning', !!active);
+}
+
 function updateProgress(percent) {
   const fill = $('progressBar')?.querySelector('.progress-fill');
   if (fill) fill.style.width = `${percent}%`;
