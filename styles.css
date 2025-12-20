@@ -2248,6 +2248,14 @@ body.ui-results .table-stats {
     min-width: 620px;
   }
 
+  body.holdings-cards .table-container {
+    overflow-x: visible;
+  }
+
+  body.holdings-cards .holdings-table {
+    min-width: 0;
+  }
+
   .table-footer {
     flex-direction: column;
     align-items: stretch;
