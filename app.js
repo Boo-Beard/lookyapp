@@ -731,6 +731,12 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 function updateSummary() {
   $('totalValue') && ($('totalValue').textContent = formatCurrency(state.totalValue));
+  const walletCount = (state.walletHoldings && typeof state.walletHoldings.size === 'number')
+    ? state.walletHoldings.size
+    : Array.isArray(state.wallets)
+      ? state.wallets.length
+      : 0;
+  $('walletCount') && ($('walletCount').textContent = `${walletCount} wallet${walletCount === 1 ? '' : 's'}`);
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
 
   const chains = new Set(state.holdings.map(h => h.chain));

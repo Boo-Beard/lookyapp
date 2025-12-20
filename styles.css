@@ -1047,7 +1047,7 @@ body.ui-results .wallets-section {
 }
 
 .table-header {
-  display: flex;
+  /*display: flex;*/
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
@@ -1172,7 +1172,7 @@ body.ui-results .table-subtitle {
 .holdings-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0;
+  border-spacing: 5px;
 }
 
 .holdings-table thead th:first-child {
@@ -1447,9 +1447,6 @@ body.holdings-cards .holdings-table thead {
   display: none;
 }
 
-body.holdings-cards .holdings-table {
-  border-spacing: 0 12px;
-}
 
 body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
   background: transparent;
