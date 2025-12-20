@@ -946,9 +946,6 @@ function updateSummary() {
   }
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
 
-  const chains = new Set(state.holdings.map(h => h.chain));
-  $('chainCount') && ($('chainCount').textContent = String(chains.size));
-
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
