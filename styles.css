@@ -303,6 +303,8 @@ body.ui-results #resultsSection > * {
 
 body.ui-results #summaryGrid {
   margin: 0;
+  margin-top: 15px;
+
 }
 
 .amend-wallets-row {
@@ -354,6 +356,7 @@ body.ui-results .amend-wallets-row .btn {
   inset: 0;
   pointer-events: none;
   opacity: 0.30;
+  z-index: 0;
   background:
     radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.14) 0 1px, transparent 1px 14px),
     radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.12) 0 1px, transparent 1px 16px);
@@ -375,7 +378,7 @@ body.ui-results .amend-wallets-row .btn {
   top: -22px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 3;
 }
 
 .summary-card .summary-content {
@@ -385,7 +388,7 @@ body.ui-results .amend-wallets-row .btn {
   flex-direction: column;
   gap: 4px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   align-items: center;
   width: 100%;
 }
