@@ -1,4 +1,4 @@
-// Looky - Modern Crypto Portfolio Viewer
+// Looky - Modern Crypto Portfolio Viewerhhg
 // Enhanced UI with smooth animations and better UX
 
 const $ = (id) => document.getElementById(id);
