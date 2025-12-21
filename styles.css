@@ -2064,6 +2064,93 @@ body.ui-results .table-stats {
   gap: 10px;
 }
 
+.alloc-chain-wrap {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.alloc-chain-chart {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alloc-chain-chart svg {
+  width: 160px;
+  height: 160px;
+  display: block;
+}
+
+.alloc-chain-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.alloc-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.30);
+}
+
+.alloc-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.alloc-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 2px solid rgba(11, 11, 16, 0.18);
+  flex: 0 0 auto;
+}
+
+.alloc-legend-name {
+  font-weight: 900;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alloc-legend-meta {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(11, 11, 16, 0.72);
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .alloc-chain-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .alloc-chain-chart {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+  }
+
+  .alloc-chain-chart svg {
+    width: 150px;
+    height: 150px;
+  }
+}
+
 .alloc-row {
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);

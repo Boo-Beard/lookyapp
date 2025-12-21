@@ -958,14 +958,20 @@ function formatPct(value, digits = 1) {
 
 function renderAllocationAndRisk() {
   const allocationEl = $('allocationBreakdown');
+  const chainChartEl = $('chainAllocationChart');
+  const chainLegendEl = $('chainAllocationLegend');
+  const tokenAllocationEl = $('tokenAllocationList');
   const insightsEl = $('riskInsights');
-  if (!allocationEl || !insightsEl) return;
+  if ((!allocationEl && (!chainChartEl || !chainLegendEl || !tokenAllocationEl)) || !insightsEl) return;
 
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
   const total = Number(state.totalValue || 0) || 0;
 
   if (!holdings.length || total <= 0) {
-    allocationEl.innerHTML = '';
+    if (allocationEl) allocationEl.innerHTML = '';
+    if (chainChartEl) chainChartEl.innerHTML = '';
+    if (chainLegendEl) chainLegendEl.innerHTML = '';
+    if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
     return;
   }
@@ -1035,16 +1041,94 @@ function renderAllocationAndRisk() {
 
   const ALLOC_MIN_VALUE = 0.000001;
 
-  const rows = [
-    ...chainRows
-      .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE)
-      .map(r => ({ ...r, accent: 'chain' })),
-    ...topHoldings
-      .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE)
-      .map(r => ({ ...r, accent: 'token' })),
+  const chainRowsNonZero = chainRows
+    .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE)
+    .map(r => ({ ...r }));
+
+  const topChains = chainRowsNonZero.slice(0, 6);
+  const otherSum = chainRowsNonZero.slice(6).reduce((s, r) => s + (Number(r?.value || 0) || 0), 0);
+  const donutRows = otherSum > ALLOC_MIN_VALUE
+    ? [...topChains, { key: 'chain:other', name: 'Other', value: otherSum, pct: (otherSum / total) * 100 }]
+    : topChains;
+
+  const donutColors = [
+    '#00c2ff',
+    '#ffd400',
+    '#ff2d55',
+    '#00d28f',
+    '#8b5cff',
+    '#ff8c00',
+    '#2dd4bf',
   ];
 
-  allocationEl.innerHTML = rows.map((r) => {
+  const donutSize = 160;
+  const donutStroke = 16;
+  const r = (donutSize / 2) - (donutStroke / 2);
+  const c = 2 * Math.PI * r;
+
+  let offset = 0;
+  const segments = donutRows.map((row, idx) => {
+    const pct = Math.max(0, Math.min(100, Number(row?.pct || 0) || 0));
+    const dash = (pct / 100) * c;
+    const color = donutColors[idx % donutColors.length];
+    const seg = {
+      ...row,
+      pct,
+      color,
+      dash,
+      offset,
+    };
+    offset += dash;
+    return seg;
+  });
+
+  const svg = `
+    <svg viewBox="0 0 ${donutSize} ${donutSize}" role="img" aria-label="Chain allocation">
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r}" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="${donutStroke}" />
+      ${segments.map(s => `
+        <circle
+          cx="${donutSize / 2}"
+          cy="${donutSize / 2}"
+          r="${r}"
+          fill="none"
+          stroke="${s.color}"
+          stroke-width="${donutStroke}"
+          stroke-linecap="round"
+          stroke-dasharray="${s.dash.toFixed(2)} ${(c - s.dash).toFixed(2)}"
+          stroke-dashoffset="${(-s.offset).toFixed(2)}"
+          transform="rotate(-90 ${donutSize / 2} ${donutSize / 2})"
+        />
+      `).join('')}
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r - donutStroke / 2}" fill="rgba(255,255,255,0.35)" />
+    </svg>
+  `;
+
+  if (chainChartEl) {
+    chainChartEl.innerHTML = svg;
+  } else if (allocationEl) {
+    allocationEl.innerHTML = svg;
+  }
+
+  const legendHtml = segments.map((s) => {
+    return `
+      <div class="alloc-legend-item" data-key="${escapeHtml(s.key)}">
+        <div class="alloc-legend-left">
+          <span class="alloc-legend-swatch" style="background:${s.color}"></span>
+          <div class="alloc-legend-name">${escapeHtml(s.name)}</div>
+        </div>
+        <div class="alloc-legend-meta">${formatPct(s.pct)} · ${formatCurrency(s.value)}</div>
+      </div>
+    `;
+  }).join('');
+
+  if (chainLegendEl) {
+    chainLegendEl.innerHTML = legendHtml;
+  }
+
+  const tokenRows = topHoldings
+    .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE);
+
+  const tokenHtml = tokenRows.map((r) => {
     const pct = Math.max(0, Math.min(100, r.pct));
     return `
       <div class="alloc-row" data-key="${escapeHtml(r.key)}">
@@ -1056,6 +1140,10 @@ function renderAllocationAndRisk() {
       </div>
     `;
   }).join('');
+
+  if (tokenAllocationEl) {
+    tokenAllocationEl.innerHTML = tokenHtml;
+  }
 
   const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
   const top1 = Number(sortedByValue[0]?.value || 0) || 0;
