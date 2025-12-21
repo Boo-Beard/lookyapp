@@ -1104,7 +1104,8 @@ function renderAllocationAndRisk() {
           transform="rotate(-90 ${donutSize / 2} ${donutSize / 2})"
         />
       `).join('')}
-      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r - donutStroke / 2}" fill="rgba(255,255,255,0.78)" />
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${Math.max(0, r - donutStroke)}" fill="rgba(255,255,255,0.58)" />
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${Math.max(0, r - donutStroke)}" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="2" />
     </svg>
   `;
 
