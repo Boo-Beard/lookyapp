@@ -24,11 +24,27 @@ function escapeHtml(str) {
 }
 
 let holdingsRenderQueued = false;
+let holdingsRenderLastAt = 0;
+let holdingsRenderThrottleTimer = null;
 function scheduleRenderHoldingsTable() {
+  const now = Date.now();
+  const throttleMs = state.scanning ? 650 : 0;
+
+  if (throttleMs > 0 && (now - holdingsRenderLastAt) < throttleMs) {
+    if (holdingsRenderThrottleTimer) return;
+    const wait = Math.max(0, throttleMs - (now - holdingsRenderLastAt));
+    holdingsRenderThrottleTimer = window.setTimeout(() => {
+      holdingsRenderThrottleTimer = null;
+      scheduleRenderHoldingsTable();
+    }, wait);
+    return;
+  }
+
   if (holdingsRenderQueued) return;
   holdingsRenderQueued = true;
   requestAnimationFrame(() => {
     holdingsRenderQueued = false;
+    holdingsRenderLastAt = Date.now();
     renderHoldingsTable();
   });
 }
