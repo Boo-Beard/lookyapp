@@ -1686,10 +1686,19 @@ body.ui-results .holdings-table td:nth-child(5) {
   .holding-card-header {
     padding: 14px 14px 12px;
     display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  .holding-card-header-right {
+    width: 100%;
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.35);
   }
 
   .holding-card-header .token-cell {
@@ -1708,8 +1717,8 @@ body.ui-results .holdings-table td:nth-child(5) {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 22ch;
+    white-space: normal;
+    max-width: none;
   }
 
   .holding-card-metrics {
@@ -1803,9 +1812,10 @@ body.holdings-cards .holding-card {
 body.holdings-cards .holding-card-header {
   padding: 14px 14px 12px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
   border-bottom: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.35);
 }
@@ -1815,6 +1825,14 @@ body.holdings-cards .holding-card-header-right {
   align-items: center;
   gap: 10px;
   flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  body.holdings-cards .holding-card-header-right {
+    width: 100%;
+    justify-content: space-between;
+    flex: 1 1 auto;
+  }
 }
 
 body.holdings-cards .holding-card-actions {
@@ -1863,8 +1881,8 @@ body.holdings-cards .holding-card-header .token-name {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 22ch;
+  white-space: normal;
+  max-width: none;
 }
 
 body.holdings-cards .holding-card-metrics {
