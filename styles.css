@@ -1501,7 +1501,7 @@ body.ui-results .table-subtitle {
 
 .holdings-table th {
   padding: 12px 14px;
-  text-align: left;
+  text-align: center;
   font-size: 13px;
   font-weight: 700;
   color: var(--text-secondary);
@@ -1523,7 +1523,13 @@ body.ui-results .holdings-table th {
 .holdings-table td {
   padding: 14px 14px;
   border-bottom: 2px solid var(--border);
+  text-align: center;
   transition: background var(--transition-fast);
+}
+
+.holdings-table th.token-col,
+.holdings-table td.token-col {
+  text-align: left;
 }
 
 .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
