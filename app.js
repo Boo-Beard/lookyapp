@@ -959,10 +959,9 @@ function formatPct(value, digits = 1) {
 function renderAllocationAndRisk() {
   const allocationEl = $('allocationBreakdown');
   const chainChartEl = $('chainAllocationChart');
-  const chainLegendEl = $('chainAllocationLegend');
   const tokenAllocationEl = $('tokenAllocationList');
   const insightsEl = $('riskInsights');
-  if ((!allocationEl && (!chainChartEl || !chainLegendEl || !tokenAllocationEl)) || !insightsEl) return;
+  if ((!allocationEl && (!chainChartEl || !tokenAllocationEl)) || !insightsEl) return;
 
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
   const total = Number(state.totalValue || 0) || 0;
@@ -970,7 +969,6 @@ function renderAllocationAndRisk() {
   if (!holdings.length || total <= 0) {
     if (allocationEl) allocationEl.innerHTML = '';
     if (chainChartEl) chainChartEl.innerHTML = '';
-    if (chainLegendEl) chainLegendEl.innerHTML = '';
     if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
     return;
@@ -1061,24 +1059,27 @@ function renderAllocationAndRisk() {
     '#2dd4bf',
   ];
 
-  const donutSize = 160;
-  const donutStroke = 16;
+  const donutSize = 190;
+  const donutStroke = 20;
   const r = (donutSize / 2) - (donutStroke / 2);
   const c = 2 * Math.PI * r;
 
   let offset = 0;
   const segments = donutRows.map((row, idx) => {
     const pct = Math.max(0, Math.min(100, Number(row?.pct || 0) || 0));
-    const dash = (pct / 100) * c;
+    const dashFull = (pct / 100) * c;
+    const gap = Math.min(6, dashFull * 0.18);
+    const dash = Math.max(0, dashFull - gap);
     const color = donutColors[idx % donutColors.length];
     const seg = {
       ...row,
       pct,
       color,
       dash,
+      dashFull,
       offset,
     };
-    offset += dash;
+    offset += dashFull;
     return seg;
   });
 
@@ -1087,6 +1088,10 @@ function renderAllocationAndRisk() {
       <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r}" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="${donutStroke}" />
       ${segments.map(s => `
         <circle
+          class="alloc-seg"
+          data-name="${escapeHtml(s.name)}"
+          data-pct="${String(s.pct)}"
+          data-value="${String(s.value)}"
           cx="${donutSize / 2}"
           cy="${donutSize / 2}"
           r="${r}"
@@ -1099,7 +1104,7 @@ function renderAllocationAndRisk() {
           transform="rotate(-90 ${donutSize / 2} ${donutSize / 2})"
         />
       `).join('')}
-      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r - donutStroke / 2}" fill="rgba(255,255,255,0.35)" />
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r - donutStroke / 2}" fill="rgba(255,255,255,0.78)" />
     </svg>
   `;
 
@@ -1109,20 +1114,50 @@ function renderAllocationAndRisk() {
     allocationEl.innerHTML = svg;
   }
 
-  const legendHtml = segments.map((s) => {
-    return `
-      <div class="alloc-legend-item" data-key="${escapeHtml(s.key)}">
-        <div class="alloc-legend-left">
-          <span class="alloc-legend-swatch" style="background:${s.color}"></span>
-          <div class="alloc-legend-name">${escapeHtml(s.name)}</div>
-        </div>
-        <div class="alloc-legend-meta">${formatPct(s.pct)} · ${formatCurrency(s.value)}</div>
-      </div>
-    `;
-  }).join('');
+  const tooltipEl = $('chainAllocationTooltip');
+  const chartHost = chainChartEl || allocationEl;
+  if (tooltipEl && chartHost) {
+    let hideTimer = null;
 
-  if (chainLegendEl) {
-    chainLegendEl.innerHTML = legendHtml;
+    const hideTooltip = () => {
+      if (hideTimer) window.clearTimeout(hideTimer);
+      hideTimer = null;
+      tooltipEl.classList.add('hidden');
+      tooltipEl.innerHTML = '';
+    };
+
+    const showTooltip = (segEl) => {
+      if (!segEl) return;
+      const name = segEl.getAttribute('data-name') || '—';
+      const pct = Number(segEl.getAttribute('data-pct') || 0) || 0;
+      const value = Number(segEl.getAttribute('data-value') || 0) || 0;
+      tooltipEl.innerHTML = `
+        <div class="alloc-chain-tooltip-title">${escapeHtml(name)}</div>
+        <div class="alloc-chain-tooltip-meta">${formatPct(pct)} · ${formatCurrency(value)}</div>
+      `;
+      tooltipEl.classList.remove('hidden');
+    };
+
+    chartHost.querySelectorAll('.alloc-seg').forEach((segEl) => {
+      segEl.addEventListener('mouseenter', () => {
+        if (window.matchMedia('(hover: hover)').matches) showTooltip(segEl);
+      });
+      segEl.addEventListener('mouseleave', () => {
+        if (window.matchMedia('(hover: hover)').matches) hideTooltip();
+      });
+      segEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showTooltip(segEl);
+        if (hideTimer) window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(hideTooltip, 1800);
+      });
+    });
+
+    chartHost.addEventListener('click', (e) => {
+      if (e.target && e.target.closest && e.target.closest('.alloc-seg')) return;
+      hideTooltip();
+    });
   }
 
   const tokenRows = topHoldings
