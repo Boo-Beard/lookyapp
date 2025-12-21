@@ -2458,10 +2458,6 @@ body.ui-results .table-stats {
   .container {
     padding: 0 16px;
   }
-
-  body.ui-results .container {
-    max-width: 100%;
-  }
   
   .header-content {
     flex-direction: column;
@@ -2577,8 +2573,8 @@ body.ui-results .table-stats {
   .table-header,
   .table-container,
   .table-footer {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }
 
