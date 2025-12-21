@@ -2089,13 +2089,11 @@ body.ui-results .table-stats {
 .alloc-chain-chart .alloc-seg {
   cursor: pointer;
   transition: transform var(--transition-fast), filter var(--transition-fast), opacity var(--transition-fast);
-  transform-origin: 50% 50%;
-  filter: drop-shadow(0 6px 10px rgba(11, 11, 16, 0.14));
 }
 
 .alloc-chain-chart .alloc-seg:hover {
-  transform: scale(1.035);
-  filter: drop-shadow(0 10px 16px rgba(11, 11, 16, 0.18));
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.20));
+  transform: scale(1.03);
 }
 
 .alloc-chain-tooltip {
