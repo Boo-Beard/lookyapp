@@ -8,11 +8,64 @@ const STORAGE_KEY_ADDRESSES = 'looky:lastAddresses';
 const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
+const STORAGE_KEY_LAST_SCAN = 'looky:lastScan';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
-const SCAN_CACHE_TTL_MS = 60 * 1000;
+const SCAN_CACHE_TTL_MS = 10 * 60 * 1000;
 const scanCache = new Map();
+
+function saveLastScanSnapshot() {
+  try {
+    const snapshot = {
+      ts: Date.now(),
+      addressItems: Array.isArray(state.addressItems) ? state.addressItems : [],
+      walletHoldings: Array.from(state.walletHoldings?.entries?.() || []),
+      walletDayChange: Array.from(state.walletDayChange?.entries?.() || []),
+    };
+    localStorage.setItem(STORAGE_KEY_LAST_SCAN, JSON.stringify(snapshot));
+  } catch {}
+}
+
+function loadLastScanSnapshot({ maxAgeMs } = {}) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_LAST_SCAN);
+    if (!raw) return null;
+    const snap = JSON.parse(raw);
+    const ts = Number(snap?.ts || 0) || 0;
+    if (!ts) return null;
+    if (Number.isFinite(maxAgeMs) && maxAgeMs > 0 && (Date.now() - ts) > maxAgeMs) return null;
+    return snap;
+  } catch {
+    return null;
+  }
+}
+
+function restoreLastScanSnapshot(snapshot) {
+  if (!snapshot) return false;
+  try {
+    const wh = Array.isArray(snapshot.walletHoldings) ? snapshot.walletHoldings : [];
+    const dc = Array.isArray(snapshot.walletDayChange) ? snapshot.walletDayChange : [];
+    state.walletHoldings = new Map(wh);
+    state.walletDayChange = new Map(dc);
+    state.addressItems = Array.isArray(snapshot.addressItems) ? snapshot.addressItems : [];
+    state.scanning = false;
+    state.scanAbortController = null;
+    state.scanMeta = { completed: 0, total: 0 };
+
+    document.body.classList.remove('ui-landing');
+    document.body.classList.add('ui-results');
+    $('resultsSection')?.classList.remove('hidden');
+    $('inputSection')?.classList.add('is-minimized');
+
+    recomputeAggregatesAndRender();
+    updateTelegramMainButton();
+    updateAddressStats();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function escapeHtml(str) {
   return String(str)
@@ -1796,6 +1849,7 @@ async function scanWallets({ queueOverride } = {}) {
     showStatus('', 'info');
   } else {
     hapticFeedback('success');
+    saveLastScanSnapshot();
   }
 
   updateTelegramMainButton();
@@ -2049,6 +2103,13 @@ function setupEventListeners() {
   });
 
   $('loadLastBtn')?.addEventListener('click', () => {
+    const lastScan = loadLastScanSnapshot({ maxAgeMs: SCAN_CACHE_TTL_MS });
+    if (lastScan && restoreLastScanSnapshot(lastScan)) {
+      showStatus('Restored last scan (cached)', 'success');
+      hapticFeedback('light');
+      return;
+    }
+
     const list = loadPersistedAddressItems();
     if (!list || list.length === 0) {
       showStatus('No saved addresses found', 'info');
