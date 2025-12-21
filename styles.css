@@ -874,7 +874,9 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .input-actions {
-  display: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .hint-icon {
