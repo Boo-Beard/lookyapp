@@ -1199,14 +1199,45 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
 }
 
 #holdingsCard .table-controls .search-box,
 #holdingsCard .table-controls .select,
 #holdingsCard .table-controls .checkbox {
-  width: 100%;
-  max-width: 230px;
+  width: auto;
+  max-width: none;
+}
+
+#holdingsCard .table-controls .search-box {
+  flex: 1 1 320px;
+  max-width: 520px;
+}
+
+#holdingsCard .table-controls .select {
+  flex: 0 1 220px;
+  min-width: 200px;
+}
+
+#holdingsCard .table-controls .checkbox {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 520px) {
+  #holdingsCard .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #holdingsCard .table-controls .search-box,
+  #holdingsCard .table-controls .select,
+  #holdingsCard .table-controls .checkbox {
+    width: 100%;
+    max-width: none;
+  }
 }
 
 .table-pagination {
@@ -1327,17 +1358,17 @@ body.ui-results .table-header {
 }
 
 .checkbox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.45);
-  box-shadow: var(--shadow-md);
-  color: rgba(11, 11, 16, 0.80);
-  font-weight: 700;
-  user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 11px;
+    border-radius: var(--radius-xl);
+    border: 3px solid var(--border);
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: var(--shadow-md);
+    color: rgba(11, 11, 16, 0.80);
+    font-weight: 700;
+    user-select: none;
 }
 
 .checkbox input {
