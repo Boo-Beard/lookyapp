@@ -1322,10 +1322,7 @@ body.ui-results .table-header {
 .table-pagination-top {
     width: 100%;
     justify-content: center;
-    margin-top: 25px;
     flex-wrap: nowrap;
-    /* margin-top: 20px; */
-    /* margin-bottom: -20px;*/
 }
 
 .table-pagination-top .page-indicator {
@@ -1975,6 +1972,7 @@ body.ui-results .chain-badge-small {
 body.ui-results .table-footer {
   border-top: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.35);
+  margin-top: 10px;
 }
 
 .table-stats {
