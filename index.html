@@ -215,7 +215,7 @@
                 </tbody>
               </table>
             </div>
-                    <div class="table-pagination table-pagination-top" id="tablePagination">
+            <div class="table-pagination table-pagination-top" id="tablePagination">
               <button id="pagePrev" class="btn btn-outline btn-sm" type="button">Prev</button>
               <div class="page-indicator" id="pageIndicator">Page 1 of 1</div>
               <button id="pageNext" class="btn btn-outline btn-sm" type="button">Next</button>
@@ -224,10 +224,20 @@
               <div class="table-stats" id="tableStats">
                 Showing 0 tokens • Total value: $0.00
               </div>
-              <button id="exportButton" class="btn btn-outline">
-                <span class="btn-icon"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></span>
-                Export CSV
-              </button>
+              <div class="table-footer-actions">
+                <button id="snapshotButton" class="btn btn-outline" type="button">
+                  <span class="btn-icon"><i class="fa-solid fa-camera" aria-hidden="true"></i></span>
+                  LOOKY Snapshot
+                </button>
+                <button id="exportJsonButton" class="btn btn-outline" type="button">
+                  <span class="btn-icon"><i class="fa-solid fa-brackets-curly" aria-hidden="true"></i></span>
+                  Export JSON
+                </button>
+                <button id="exportButton" class="btn btn-outline" type="button">
+                  <span class="btn-icon"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></span>
+                  Export CSV
+                </button>
+              </div>
             </div>
           </div>
         </div>

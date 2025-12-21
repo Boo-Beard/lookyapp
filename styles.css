@@ -1969,6 +1969,14 @@ body.ui-results .chain-badge-small {
   border-top: 1px solid var(--border);
 }
 
+.table-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 body.ui-results .table-footer {
   border-top: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.35);

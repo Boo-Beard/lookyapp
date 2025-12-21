@@ -52,6 +52,192 @@ const state = {
   lastScanFailedQueue: [],
 };
 
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function toCsvCell(value) {
+  const s = value == null ? '' : String(value);
+  const escaped = s.replace(/"/g, '""');
+  return `"${escaped}"`;
+}
+
+function buildHoldingsCsv(holdings) {
+  const header = [
+    'Token',
+    'Symbol',
+    'Chain',
+    'Network',
+    'Balance',
+    'Price',
+    'ValueUsd',
+    'Mcap',
+    'ChangeUsd',
+    'TokenAddress',
+    'SourcesCount',
+    'Sources',
+  ];
+
+  const rows = holdings.map((h) => {
+    const sources = Array.isArray(h.sources) ? h.sources : [];
+    const sourcesStr = sources.join(' | ');
+    return [
+      toCsvCell(h.name),
+      toCsvCell(h.symbol),
+      toCsvCell(h.chain),
+      toCsvCell(h.network || ''),
+      toCsvCell(h.balance),
+      toCsvCell(h.price),
+      toCsvCell(h.value),
+      toCsvCell(h.mcap),
+      toCsvCell(h.changeUsd),
+      toCsvCell(h.address),
+      toCsvCell(sources.length),
+      toCsvCell(sourcesStr),
+    ].join(',');
+  });
+
+  return [header.join(','), ...rows].join('\n');
+}
+
+function buildHoldingsJson() {
+  const now = new Date();
+  return {
+    generatedAt: now.toISOString(),
+    totals: {
+      totalValueUsd: Number(state.totalValue || 0) || 0,
+      totalSolValueUsd: Number(state.totalSolValue || 0) || 0,
+      totalEvmValueUsd: Number(state.totalEvmValue || 0) || 0,
+      totalChangeSolUsd: Number(state.totalChangeSolUsd || 0) || 0,
+      totalChangeEvmUsd: Number(state.totalChangeEvmUsd || 0) || 0,
+    },
+    wallets: Array.isArray(state.wallets) ? state.wallets : [],
+    holdings: Array.isArray(state.holdings) ? state.holdings : [],
+  };
+}
+
+function formatSnapshotDate(d) {
+  try {
+    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+  } catch {
+    return d.toISOString();
+  }
+}
+
+function createLookySnapshotPng() {
+  const now = new Date();
+  const w = 1080;
+  const h = 1350;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas not supported');
+
+  // Background
+  ctx.fillStyle = '#dba931';
+  ctx.fillRect(0, 0, w, h);
+
+  // Card
+  const pad = 64;
+  const cardX = pad;
+  const cardY = pad;
+  const cardW = w - pad * 2;
+  const cardH = h - pad * 2;
+  const r = 40;
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+  ctx.strokeStyle = 'rgba(11, 11, 16, 0.92)';
+  ctx.lineWidth = 8;
+
+  ctx.beginPath();
+  ctx.moveTo(cardX + r, cardY);
+  ctx.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + cardH, r);
+  ctx.arcTo(cardX + cardW, cardY + cardH, cardX, cardY + cardH, r);
+  ctx.arcTo(cardX, cardY + cardH, cardX, cardY, r);
+  ctx.arcTo(cardX, cardY, cardX + cardW, cardY, r);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Title
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.95)';
+  ctx.font = '900 96px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  ctx.fillText('LOOKY!', cardX + 48, cardY + 120);
+
+  ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
+  ctx.fillText('Portfolio Snapshot', cardX + 48, cardY + 170);
+
+  // Totals
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.95)';
+  ctx.font = '900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  const totalStr = typeof formatCurrency === 'function'
+    ? formatCurrency(Number(state.totalValue || 0) || 0)
+    : `$${(Number(state.totalValue || 0) || 0).toFixed(2)}`;
+  ctx.fillText(totalStr, cardX + 48, cardY + 280);
+
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
+  ctx.font = '700 30px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  const walletsCount = Array.isArray(state.wallets) ? state.wallets.length : 0;
+  ctx.fillText(`${walletsCount} wallet${walletsCount === 1 ? '' : 's'} • ${formatSnapshotDate(now)}`, cardX + 48, cardY + 330);
+
+  // Top holdings list
+  const top = (Array.isArray(state.holdings) ? state.holdings : [])
+    .slice()
+    .sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0))
+    .slice(0, 10);
+
+  const listX = cardX + 48;
+  let y = cardY + 420;
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.92)';
+  ctx.font = '900 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  ctx.fillText('Top Holdings', listX, y);
+  y += 26;
+
+  const rowH = 54;
+  ctx.font = '800 30px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  for (let i = 0; i < top.length; i += 1) {
+    const hItem = top[i];
+    const symbol = String(hItem?.symbol || '—');
+    const value = Number(hItem?.value || 0) || 0;
+    const valueTxt = typeof formatCurrency === 'function'
+      ? formatCurrency(value)
+      : `$${value.toFixed(2)}`;
+
+    y += rowH;
+
+    ctx.fillStyle = 'rgba(11, 11, 16, 0.80)';
+    ctx.fillText(`${i + 1}. ${symbol}`, listX, y);
+
+    ctx.fillStyle = 'rgba(11, 11, 16, 0.92)';
+    ctx.textAlign = 'right';
+    ctx.fillText(valueTxt, cardX + cardW - 48, y);
+    ctx.textAlign = 'left';
+
+    ctx.strokeStyle = 'rgba(11, 11, 16, 0.14)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(listX, y + 14);
+    ctx.lineTo(cardX + cardW - 48, y + 14);
+    ctx.stroke();
+  }
+
+  // Footer
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.60)';
+  ctx.font = '700 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+  ctx.fillText('lookyapp', cardX + 48, cardY + cardH - 64);
+
+  return canvas.toDataURL('image/png');
+}
+
 function scanCacheKey(chain, wallet) {
   return `${chain}:${wallet}`;
 }
@@ -1292,6 +1478,12 @@ function renderHoldingsTable() {
   const exportBtn = $('exportButton');
   if (exportBtn) exportBtn.disabled = state.holdings.length === 0;
 
+  const exportJsonBtn = $('exportJsonButton');
+  if (exportJsonBtn) exportJsonBtn.disabled = state.holdings.length === 0;
+
+  const snapshotBtn = $('snapshotButton');
+  if (snapshotBtn) snapshotBtn.disabled = state.holdings.length === 0;
+
   state.viewMode = 'aggregate';
 
   const useCardRows = isTelegram() || window.matchMedia('(max-width: 640px)').matches;
@@ -2225,31 +2417,45 @@ function setupEventListeners() {
       return;
     }
 
-    const csv = [
-      ['Token', 'Symbol', 'Chain', 'Balance', 'Price', 'Value', 'Address'].join(','),
-      ...state.holdings.map(h => [
-        `"${h.name}"`,
-        `"${h.symbol}"`,
-        h.chain,
-        h.balance,
-        h.price,
-        h.value,
-        h.address
-      ].join(','))
-    ].join('\n');
-
+    const csv = buildHoldingsCsv(state.holdings);
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `looky-export-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, `looky-export-${new Date().toISOString().split('T')[0]}.csv`);
 
     showStatus('CSV exported successfully', 'success');
     hapticFeedback('success');
+  });
+
+  $('exportJsonButton')?.addEventListener('click', () => {
+    if (state.holdings.length === 0) {
+      showStatus('No data to export', 'error');
+      return;
+    }
+
+    const payload = buildHoldingsJson();
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    downloadBlob(blob, `looky-export-${new Date().toISOString().split('T')[0]}.json`);
+    showStatus('JSON exported successfully', 'success');
+    hapticFeedback('success');
+  });
+
+  $('snapshotButton')?.addEventListener('click', async () => {
+    if (state.holdings.length === 0) {
+      showStatus('No data to snapshot', 'error');
+      return;
+    }
+
+    try {
+      const dataUrl = createLookySnapshotPng();
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      downloadBlob(blob, `looky-snapshot-${new Date().toISOString().split('T')[0]}.png`);
+      showStatus('Snapshot downloaded', 'success');
+      hapticFeedback('success');
+    } catch (e) {
+      const msg = e?.message ? String(e.message) : 'Failed to generate snapshot';
+      showStatus(msg, 'error');
+    }
   });
 }
 
