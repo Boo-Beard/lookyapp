@@ -170,7 +170,7 @@
           <div class="table-header">
             <div class="collapsible-header-left">
               <h3 class="table-title">Portfolio Holdings</h3>
-              <p class="table-subtitle">Sorted by value • Click any token for details</p>
+              <p class="table-subtitle">Sorted by value • Use the icons to open explorer, chart, or wallet</p>
             </div>
             
             <button id="holdingsToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio Holdings" aria-controls="holdingsContent" aria-expanded="false">
@@ -272,64 +272,6 @@
         </div>
       </div>
     </main>
-
-    <!-- Token Modal -->
-    <div id="tokenModal" class="modal hidden">
-      <div class="modal-backdrop" id="modalBackdrop"></div>
-      <div class="modal-container">
-        <div class="modal-header">
-          <div class="modal-title">
-            <img id="modalTokenIcon" class="modal-icon" alt="">
-            <div>
-              <h4 id="modalTokenName">Token Name</h4>
-              <div class="modal-subtitle" id="modalTokenAddress">0x...</div>
-            </div>
-          </div>
-          <button id="closeModal" class="modal-close">×</button>
-        </div>
-        
-        <div class="modal-body">
-          <div class="modal-stats">
-            <div class="modal-stat">
-              <div class="modal-stat-label">Value</div>
-              <div id="modalTokenValue" class="modal-stat-value">$0.00</div>
-            </div>
-            <div class="modal-stat">
-              <div class="modal-stat-label">Balance</div>
-              <div id="modalTokenBalance" class="modal-stat-value">0.00</div>
-            </div>
-            <div class="modal-stat">
-              <div class="modal-stat-label">Price</div>
-              <div id="modalTokenPrice" class="modal-stat-value">$0.00</div>
-            </div>
-          </div>
-          
-          <div class="modal-chain">
-            <span class="chain-tag" id="modalChainTag">Chain</span>
-            <span class="modal-chain-address mono" id="modalFullAddress">Full address...</span>
-          </div>
-        </div>
-        
-        <div class="modal-footer">
-          <a id="modalExplorerLink" href="#" target="_blank" class="btn btn-primary">
-            <span class="btn-icon"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></span>
-            View on Explorer
-          </a>
-          <a id="modalChartLink" href="#" target="_blank" class="btn btn-outline">
-            <span class="btn-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
-            View Chart
-          </a>
-          <a id="modalWalletLink" href="#" target="_blank" class="btn btn-outline">
-            <span class="btn-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
-            View Wallet
-          </a>
-          <button id="copyAddress" class="btn btn-outline">
-            <span class="btn-icon"><i class="fa-solid fa-copy" aria-hidden="true"></i></span>
-            Copy Address
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Footer -->
     <footer class="footer">

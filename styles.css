@@ -1473,7 +1473,7 @@ body.ui-results .holdings-table td {
 
 .holdings-table tbody tr:hover {
   background: rgba(0, 194, 255, 0.12);
-  cursor: pointer;
+  cursor: default;
 }
 
 body.ui-results .holdings-table tbody tr:hover {
@@ -1734,6 +1734,43 @@ body.holdings-cards .holding-card-header {
   gap: 10px;
   border-bottom: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.35);
+}
+
+body.holdings-cards .holding-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+body.holdings-cards .holding-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.holdings-cards .holding-action {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  color: rgba(11, 11, 16, 0.82);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+body.holdings-cards .holding-action:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+body.holdings-cards .holding-action.disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 body.holdings-cards .holding-card-header .token-cell {

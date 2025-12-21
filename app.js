@@ -49,7 +49,6 @@ const state = {
   walletDayChange: new Map(),
   holdingsPage: 1,
   lastScanFailedQueue: [],
-  activeHolding: null,
 };
 
 function scanCacheKey(chain, wallet) {
@@ -1206,7 +1205,29 @@ function renderHoldingsTable() {
       </tr>
     `).join('');
   } else {
-    tbody.innerHTML = pageItems.map(holding => `
+    tbody.innerHTML = pageItems.map(holding => {
+      const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
+
+      let explorerHref = '#';
+      if (holding.chain === 'solana') {
+        explorerHref = `https://solscan.io/token/${holding.address}`;
+      } else if (isValidEvmContractAddress(displayAddress)) {
+        explorerHref = `${evmExplorerBase(holding.network)}/token/${displayAddress}`;
+      }
+
+      const chartHref = `https://birdeye.so/token/${holding.address}?chain=${holding.chain === 'solana' ? 'solana' : 'ethereum'}`;
+
+      const sourceWallet = holding.sources?.[0] || '';
+      const walletHref = sourceWallet
+        ? (holding.chain === 'solana'
+          ? `https://solscan.io/account/${sourceWallet}`
+          : `${evmExplorerBase(holding.network)}/address/${sourceWallet}`)
+        : '#';
+
+      const explorerDisabled = explorerHref === '#';
+      const walletDisabled = walletHref === '#';
+
+      return `
       <tr class="holding-row holding-card-row" data-key="${holding.key}">
         <td colspan="5">
           <div class="holding-card">
@@ -1218,7 +1239,21 @@ function renderHoldingsTable() {
                   <div class="token-name">${holding.name}</div>
                 </div>
               </div>
-              <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+
+              <div class="holding-card-header-right">
+                <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+                <div class="holding-card-actions" aria-label="Holding actions">
+                  <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
+                    <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+                  </a>
+                  <a class="holding-action" href="${chartHref}" target="_blank" rel="noopener noreferrer" aria-label="View Chart">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                  </a>
+                  <a class="holding-action ${walletDisabled ? 'disabled' : ''}" href="${walletHref}" target="_blank" rel="noopener noreferrer" aria-label="View Wallet" ${walletDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
+                    <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
             </div>
 
             <div class="holding-card-metrics">
@@ -1242,7 +1277,8 @@ function renderHoldingsTable() {
           </div>
         </td>
       </tr>
-    `).join('');
+      `;
+    }).join('');
   }
 
   $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filteredTotalValue)}`);
@@ -1463,97 +1499,6 @@ async function scanWallets({ queueOverride } = {}) {
   setTimeout(() => {
     $('scanStatus')?.classList.add('hidden');
   }, 3000);
-}
-
-function openTokenModal(key) {
-  const holding = state.holdings.find(h => h.key === key);
-  if (!holding) return;
-
-  state.activeHolding = holding;
-  hapticFeedback('light');
-
-  const modalTokenIcon = $('modalTokenIcon');
-  const modalTokenName = $('modalTokenName');
-  const modalTokenAddress = $('modalTokenAddress');
-  const modalTokenValue = $('modalTokenValue');
-  const modalTokenBalance = $('modalTokenBalance');
-  const modalTokenPrice = $('modalTokenPrice');
-  const modalChainTag = $('modalChainTag');
-  const modalFullAddress = $('modalFullAddress');
-
-  if (modalTokenIcon) {
-    modalTokenIcon.onerror = null;
-    modalTokenIcon.src = getTokenIconUrl(holding.logo, holding.symbol);
-    modalTokenIcon.onerror = () => {
-      modalTokenIcon.onerror = null;
-      modalTokenIcon.src = tokenIconDataUri(holding.symbol);
-    };
-    modalTokenIcon.alt = holding.symbol;
-  }
-  if (modalTokenName) modalTokenName.textContent = `${holding.symbol} - ${holding.name}`;
-  const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
-  if (modalTokenAddress) modalTokenAddress.textContent = shortenAddress(displayAddress);
-  if (modalTokenValue) modalTokenValue.textContent = formatCurrency(holding.value);
-  if (modalTokenBalance) modalTokenBalance.textContent = formatNumber(holding.balance);
-  if (modalTokenPrice) modalTokenPrice.textContent = formatPrice(holding.price);
-  if (modalChainTag) modalChainTag.textContent = holding.chain === 'solana' ? 'Solana' : evmNetworkLabel(holding.network);
-  if (modalFullAddress) modalFullAddress.textContent = displayAddress;
-
-  const modalExplorerLink = $('modalExplorerLink');
-  if (modalExplorerLink) {
-    if (holding.chain === 'solana') {
-      modalExplorerLink.href = `https://solscan.io/token/${holding.address}`;
-      modalExplorerLink.classList.remove('hidden');
-    } else if (isValidEvmContractAddress(displayAddress)) {
-      modalExplorerLink.href = `${evmExplorerBase(holding.network)}/token/${displayAddress}`;
-      modalExplorerLink.classList.remove('hidden');
-    } else {
-      modalExplorerLink.href = '#';
-      modalExplorerLink.classList.add('hidden');
-    }
-  }
-
-  const chartUrl = `https://birdeye.so/token/${holding.address}?chain=${holding.chain === 'solana' ? 'solana' : 'ethereum'}`;
-  $('modalChartLink') && ($('modalChartLink').href = chartUrl);
-
-  const sourceWallet = holding.sources?.[0] || '';
-  const walletUrl = holding.chain === 'solana'
-    ? `https://solscan.io/account/${sourceWallet}`
-    : `${evmExplorerBase(holding.network)}/address/${sourceWallet}`;
-
-  const modalWalletLink = $('modalWalletLink');
-  if (modalWalletLink) {
-    if (sourceWallet) {
-      modalWalletLink.href = walletUrl;
-      modalWalletLink.classList.remove('hidden');
-    } else {
-      modalWalletLink.href = '#';
-      modalWalletLink.classList.add('hidden');
-    }
-  }
-
-  $('tokenModal')?.classList.remove('hidden');
-  document.body.classList.add('modal-open');
-
-  if (isTelegram()) {
-    if (tgIsAtLeast('6.1')) {
-      TG.BackButton.show();
-      TG.BackButton.onClick(closeTokenModal);
-    }
-  }
-}
-
-function closeTokenModal() {
-  $('tokenModal')?.classList.add('hidden');
-  state.activeHolding = null;
-  document.body.classList.remove('modal-open');
-
-  if (isTelegram()) {
-    if (tgIsAtLeast('6.1')) {
-      TG.BackButton.hide();
-      TG.BackButton.offClick(closeTokenModal);
-    }
-  }
 }
 
 function setupEyeTracking() {
@@ -2004,32 +1949,6 @@ function setupEventListeners() {
     scheduleRenderHoldingsTable();
   });
 
-  $('tableBody')?.addEventListener('click', (e) => {
-    const row = e.target.closest('.holding-row');
-    if (row) openTokenModal(row.dataset.key);
-  });
-
-  $('closeModal')?.addEventListener('click', closeTokenModal);
-  $('modalBackdrop')?.addEventListener('click', closeTokenModal);
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-
-    const tokenModal = $('tokenModal');
-
-    if (tokenModal && !tokenModal.classList.contains('hidden')) {
-      closeTokenModal();
-    }
-  });
-
-  $('copyAddress')?.addEventListener('click', () => {
-    const address = $('modalFullAddress')?.textContent || '';
-    navigator.clipboard.writeText(address).then(() => {
-      showStatus('Address copied to clipboard', 'success');
-      hapticFeedback('success');
-    });
-  });
-
   $('exportButton')?.addEventListener('click', () => {
     if (state.holdings.length === 0) {
       showStatus('No data to export', 'error');
@@ -2078,11 +1997,6 @@ function setupTelegram() {
 
   if (tgIsAtLeast('6.1')) {
     TG.BackButton.onClick(() => {
-      const tokenModal = $('tokenModal');
-      if (tokenModal && !tokenModal.classList.contains('hidden')) {
-        closeTokenModal();
-        return;
-      }
       $('inputSection')?.classList.toggle('is-minimized');
     });
   }
