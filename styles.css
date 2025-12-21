@@ -233,6 +233,47 @@ body.ui-landing .scan-status.hidden {
   display: none;
 }
 
+.scan-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.scan-progress-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.40);
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(11, 11, 16, 0.78);
+}
+
+.scan-progress-item > div:last-child {
+  font-family: var(--mono);
+  font-weight: 900;
+  color: rgba(11, 11, 16, 0.68);
+  white-space: nowrap;
+}
+
+.scan-progress-item.error {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.10);
+}
+
+.scan-progress-item.error > div:last-child {
+  color: rgba(239, 68, 68, 0.92);
+}
+
+.scan-progress-item.done {
+  opacity: 0.88;
+}
+
 body.ui-landing .address-chips {
   order: 3;
   display: grid;

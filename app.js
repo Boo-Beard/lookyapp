@@ -1763,8 +1763,9 @@ async function scanWallets({ queueOverride } = {}) {
       } catch (error) {
         if (!signal.aborted) {
           state.lastScanFailedQueue.push({ wallet, chain, index });
-          upsertScanProgressItem(wallet, chain, index, totalWallets, 'failed', 'error');
           const msg = error?.message ? String(error.message) : 'Unknown error';
+          const inlineMsg = msg.length > 70 ? `${msg.slice(0, 70)}…` : msg;
+          upsertScanProgressItem(wallet, chain, index, totalWallets, `failed: ${inlineMsg}`, 'error');
           showStatus(`Failed to scan ${chain} wallet ${shortenAddress(wallet)}: ${msg}`, 'error');
           try { console.error('Scan wallet failed', { wallet, chain, error }); } catch {}
           markComplete();
@@ -1788,9 +1789,7 @@ async function scanWallets({ queueOverride } = {}) {
   }
 
   $('cancelScanButton')?.classList.add('hidden');
-  if (!signal.aborted && state.lastScanFailedQueue.length > 0) {
-    $('retryFailedButton')?.classList.remove('hidden');
-  }
+  $('retryFailedButton')?.classList.add('hidden');
   updateProgress(100);
 
   if (signal.aborted) {
@@ -2029,12 +2028,7 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  $('retryFailedButton')?.addEventListener('click', () => {
-    if (state.scanning) return;
-    if (!Array.isArray(state.lastScanFailedQueue) || state.lastScanFailedQueue.length === 0) return;
-    $('retryFailedButton')?.classList.add('hidden');
-    scanWallets({ queueOverride: state.lastScanFailedQueue });
-  });
+  $('retryFailedButton')?.classList.add('hidden');
 
   $('clearInputBtn')?.addEventListener('click', () => {
     if (addressInput) addressInput.value = '';
