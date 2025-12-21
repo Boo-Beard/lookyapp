@@ -1206,12 +1206,6 @@ body.is-scanning .logo-lockup .eye::before {
   margin-bottom: 24px;
 }
 
-body.ui-results #holdingsCard {
-  width: min(calc(100% + 20%), calc(100vw - 28px));
-  margin-left: auto;
-  margin-right: auto;
-}
-
 body.ui-results .table-section,
 body.ui-results .wallets-section {
   margin-bottom: 0;
@@ -1691,7 +1685,7 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card-header {
-    padding: 14px 14px 12px;
+    padding: 16px 16px 14px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -1717,7 +1711,7 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card-header .token-symbol {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   .holding-card-header .token-name {
@@ -1729,7 +1723,7 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card-metrics {
-    padding: 14px;
+    padding: 16px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -1753,7 +1747,7 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-metric-value {
-    font-size: 14px;
+    font-size: 15px;
     color: rgba(11, 11, 16, 0.92);
   }
 
@@ -1772,8 +1766,8 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .token-icon {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
   }
 
   .token-name {
@@ -1817,7 +1811,7 @@ body.holdings-cards .holding-card {
 }
 
 body.holdings-cards .holding-card-header {
-  padding: 14px 14px 12px;
+  padding: 16px 16px 14px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1881,7 +1875,7 @@ body.holdings-cards .holding-card-header .token-info {
 }
 
 body.holdings-cards .holding-card-header .token-symbol {
-  font-size: 16px;
+  font-size: 17px;
 }
 
 body.holdings-cards .holding-card-header .token-name {
@@ -1893,7 +1887,7 @@ body.holdings-cards .holding-card-header .token-name {
 }
 
 body.holdings-cards .holding-card-metrics {
-  padding: 14px;
+  padding: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -1916,7 +1910,7 @@ body.holdings-cards .holding-metric-label {
 }
 
 body.holdings-cards .holding-metric-value {
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(11, 11, 16, 0.92);
 }
 
