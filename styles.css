@@ -1678,8 +1678,9 @@ body.ui-results .holdings-table td:nth-child(5) {
 
   .holding-card {
     width: min(calc(100vw - 32px), calc(100% + 40%));
-    margin-left: auto;
-    margin-right: auto;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
     border-radius: var(--radius-xl);
     border: 3px solid var(--border);
     box-shadow: var(--shadow-md);
@@ -1806,8 +1807,9 @@ body.holdings-cards .holding-card-row:hover::after {
 
 body.holdings-cards .holding-card {
   width: min(calc(100vw - 32px), calc(100% + 40%));
-  margin-left: auto;
-  margin-right: auto;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
