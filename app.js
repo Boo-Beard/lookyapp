@@ -134,7 +134,7 @@ function formatSnapshotDate(d) {
 function createLookySnapshotPng() {
   const now = new Date();
   const w = 900;
-  const h = 900;
+  const h = 560;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -171,6 +171,7 @@ function createLookySnapshotPng() {
       ? formatCurrency(Number(state.totalValue || 0) || 0)
       : `$${(Number(state.totalValue || 0) || 0).toFixed(2)}`)
   );
+  const totalChangeTxt = getText('totalChange', '');
   const walletCountTxt = getText('walletCount', '');
   const tokenCountTxt = getText('tokenCount', String((Array.isArray(state.holdings) ? state.holdings.length : 0) || 0));
   const largestHoldingTxt = getText('largestHolding', '—');
@@ -194,13 +195,15 @@ function createLookySnapshotPng() {
   const domCardRect = domCard?.getBoundingClientRect?.();
   const domCardW = domCardRect?.width || 320;
 
-  // Layout matches summary grid: 3 cards in a row
-  const pad = 64;
-  const gridW = w - pad * 2;
+  // Snapshot layout (match reference): 2 top cards + 1 full-width card
+  const pad = 34;
   const gap = 18;
-  const cardInnerW = Math.floor((gridW - gap * 2) / 3);
-  const cardInnerH = 300;
-  const scale = domCardW > 0 ? (cardInnerW / domCardW) : 1;
+  const gridW = w - pad * 2;
+  const cardW2 = Math.floor((gridW - gap) / 2);
+  const cardH2 = 210;
+  const cardWFull = gridW;
+  const cardHFull = 210;
+  const scale = domCardW > 0 ? (cardW2 / domCardW) : 1;
 
   const cardStyle = getStyle(domCard);
   const labelStyle = getStyle(domLabel);
@@ -225,16 +228,10 @@ function createLookySnapshotPng() {
   const valueWeight = (valueStyle?.fontWeight || '900');
   const subWeight = (subStyle?.fontWeight || '700');
 
-  // Keep typography aligned to the summary cards
-  const typeBoost = 1.0;
-  const labelFontPx = Math.round(labelFontSize * typeBoost);
-  const valueFontPx = Math.round(valueFontSize * typeBoost);
-  const subFontPx = Math.round(subFontSize * typeBoost);
-
-  // Force snapshot text to neutral greys (no accent/green)
-  const textGreyStrong = 'rgba(11, 11, 16, 0.82)';
-  const textGrey = 'rgba(11, 11, 16, 0.68)';
-  const textGreySoft = 'rgba(11, 11, 16, 0.55)';
+  // Typography: match summary card computed styles (no forced overrides)
+  const labelFontPx = Math.round(labelFontSize);
+  const valueFontPx = Math.round(valueFontSize);
+  const subFontPx = Math.round(subFontSize);
 
   const wrapText = (context, text, x, y, maxWidth, lineHeight, maxLines) => {
     const words = String(text).split(/\s+/).filter(Boolean);
@@ -271,13 +268,16 @@ function createLookySnapshotPng() {
     const pupilStyle = getStyle(domPupil);
     const logoStyle = getStyle(domLogoTitle);
 
+    const eyeBg = cssColor(eyeStyle?.backgroundColor, 'rgba(255, 255, 255, 0.96)');
+    const eyeBorderColor = cssColor(eyeStyle?.borderColor, cardBorderColor);
+    const eyeBorderW = Math.max(2, px(eyeStyle?.borderTopWidth) * 2);
     const pupilBg = cssColor(pupilStyle?.backgroundColor, '#111827');
 
-    const eyeSize = 96;
-    const gapEyes = 22;
+    const eyeSize = 84;
+    const gapEyes = 14;
     const totalEyesW = eyeSize * 2 + gapEyes;
     const startX = (w - totalEyesW) / 2;
-    const y = 120;
+    const y = 16;
 
     const pupilSize = Math.round(eyeSize * 0.50);
     const pupilOffsetY = Math.round(eyeSize * 0.22); // looking down
@@ -285,24 +285,35 @@ function createLookySnapshotPng() {
     // LOOKY! title above pupils (match app logo font)
     const lookyFamily = (logoStyle?.fontFamily || 'Bangers, system-ui, -apple-system, Segoe UI, Roboto, Arial');
     const lookyWeight = (logoStyle?.fontWeight || '900');
-    const lookySize = Math.max(48, Math.round(px(logoStyle?.fontSize) * 1.25) || 64);
-    ctx.fillStyle = textGreyStrong;
+    const lookySize = Math.max(44, Math.round(px(logoStyle?.fontSize) * 1.05) || 56);
+    ctx.fillStyle = cssColor(logoStyle?.color, valueColor);
     ctx.font = `${lookyWeight} ${lookySize}px ${lookyFamily}`;
     const lookyText = 'LOOKY!';
     const lookyW = ctx.measureText(lookyText).width;
-    ctx.fillText(lookyText, (w - lookyW) / 2, 84);
+    ctx.fillText(lookyText, (w - lookyW) / 2, y + 46);
 
     const drawEyeAt = (x) => {
       ctx.save();
-      // Only pupils (no white eyeballs)
-      ctx.shadowColor = 'rgba(0,0,0,0.22)';
-      ctx.shadowBlur = 10;
-      ctx.shadowOffsetY = 6;
+      // White eyes + pupils (match app)
+      ctx.shadowColor = 'rgba(0,0,0,0.18)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 10;
+
+      ctx.fillStyle = eyeBg;
+      ctx.strokeStyle = eyeBorderColor;
+      ctx.lineWidth = eyeBorderW;
+      ctx.beginPath();
+      ctx.arc(x + eyeSize / 2, y + 78 + eyeSize / 2, (eyeSize / 2) - (eyeBorderW / 2), 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
       ctx.fillStyle = pupilBg;
       ctx.beginPath();
       ctx.arc(
         x + eyeSize / 2,
-        y + eyeSize / 2 + pupilOffsetY,
+        y + 78 + eyeSize / 2 + pupilOffsetY,
         pupilSize / 2,
         0,
         Math.PI * 2
@@ -316,68 +327,132 @@ function createLookySnapshotPng() {
     drawEyeAt(startX);
     drawEyeAt(startX + eyeSize + gapEyes);
 
-    // small caption/date under pupils
-    ctx.fillStyle = textGreySoft;
-    ctx.font = `${subWeight} ${Math.max(16, Math.round(subFontPx * 0.85))}px ${fontFamily}`;
+    // date under eyes (use summary sub style)
+    ctx.fillStyle = subColor;
+    ctx.font = `${subWeight} ${Math.max(14, Math.round(subFontPx * 0.9))}px ${fontFamily}`;
     const dateText = formatSnapshotDate(now);
     const dateW = ctx.measureText(dateText).width;
-    ctx.fillText(dateText, (w - dateW) / 2, y + eyeSize + 34);
+    ctx.fillText(dateItems(dateText), (w - dateW) / 2, y + 78 + eyeSize + 36);
   };
+
+  const dateItems = (t) => String(t || '').trim();
 
   drawEyes();
 
   const gridX = pad;
-  const gridY = 270;
+  const gridY = 170;
 
-  const drawSummaryCard = ({ x, y, title, value, sub }) => {
+  const getCardNodes = (selector) => {
+    const c = document.querySelector(selector);
+    return {
+      card: c,
+      label: c?.querySelector('.summary-label'),
+      value: c?.querySelector('.summary-value'),
+      sub: c?.querySelector('.summary-sub'),
+      change: c?.querySelector('#totalChange') || c?.querySelector('.summary-change'),
+    };
+  };
+
+  const drawSummaryCard = ({ x, y, w2, h2, title, value, sub, change, styles }) => {
+    const { cardBg2, cardBorderColor2, cardBorderW2, cardRadius2, labelColor2, valueColor2, subColor2, changeColor2, labelFontPx2, valueFontPx2, subFontPx2, labelWeight2, valueWeight2, subWeight2, fontFamily2 } = styles;
     // Card
-    drawRoundedRect(x, y, cardInnerW, cardInnerH, cardRadius || 28);
-    ctx.fillStyle = cardBg;
+    drawRoundedRect(x, y, w2, h2, cardRadius2 || cardRadius || 28);
+    ctx.fillStyle = cardBg2;
     ctx.fill();
-    if (cardBorderW > 0) {
-      ctx.strokeStyle = cardBorderColor;
-      ctx.lineWidth = cardBorderW;
+    if (cardBorderW2 > 0) {
+      ctx.strokeStyle = cardBorderColor2;
+      ctx.lineWidth = cardBorderW2;
       ctx.stroke();
     }
 
     const innerPad = 18;
-    ctx.fillStyle = textGrey;
-    ctx.font = `${labelWeight} ${labelFontPx}px ${fontFamily}`;
+    ctx.fillStyle = labelColor2;
+    ctx.font = `${labelWeight2} ${labelFontPx2}px ${fontFamily2}`;
     ctx.fillText(String(title || '').toUpperCase(), x + innerPad, y + 54);
 
-    ctx.fillStyle = textGreyStrong;
-    ctx.font = `${valueWeight} ${valueFontPx}px ${fontFamily}`;
-    wrapText(ctx, String(value || '—'), x + innerPad, y + 148, cardInnerW - innerPad * 2, Math.round(valueFontPx * 1.06), 2);
+    ctx.fillStyle = valueColor2;
+    ctx.font = `${valueWeight2} ${valueFontPx2}px ${fontFamily2}`;
+    wrapText(ctx, String(value || '—'), x + innerPad, y + 134, w2 - innerPad * 2, Math.round(valueFontPx2 * 1.06), 2);
+
+    if (change) {
+      ctx.fillStyle = changeColor2;
+      ctx.font = `${subWeight2} ${Math.max(14, Math.round(subFontPx2 * 0.95))}px ${fontFamily2}`;
+      ctx.fillText(String(change), x + innerPad, y + 172);
+    }
 
     if (sub) {
-      ctx.fillStyle = textGreySoft;
-      ctx.font = `${subWeight} ${subFontPx}px ${fontFamily}`;
-      wrapText(ctx, String(sub), x + innerPad, y + 244, cardInnerW - innerPad * 2, Math.round(subFontPx * 1.22), 2);
+      ctx.fillStyle = subColor2;
+      ctx.font = `${subWeight2} ${subFontPx2}px ${fontFamily2}`;
+      wrapText(ctx, String(sub), x + innerPad, y + 204, w2 - innerPad * 2, Math.round(subFontPx2 * 1.22), 2);
     }
   };
+
+  const readCardStyles = (nodes) => {
+    const cs = getStyle(nodes.card);
+    const ls = getStyle(nodes.label);
+    const vs = getStyle(nodes.value);
+    const ss = getStyle(nodes.sub);
+    const chs = getStyle(nodes.change);
+
+    return {
+      cardBg2: cssColor(cs?.backgroundColor, cardBg),
+      cardBorderColor2: cssColor(cs?.borderColor, cardBorderColor),
+      cardBorderW2: px(cs?.borderTopWidth) * scale,
+      cardRadius2: px(cs?.borderTopLeftRadius) * scale,
+      labelColor2: cssColor(ls?.color, labelColor),
+      valueColor2: cssColor(vs?.color, valueColor),
+      subColor2: cssColor(ss?.color, subColor),
+      changeColor2: cssColor(chs?.color, cssColor(getStyle(document.getElementById('totalChange'))?.color, subColor)),
+      labelFontPx2: Math.max(12, Math.round(px(ls?.fontSize) * scale) || labelFontPx),
+      valueFontPx2: Math.max(18, Math.round(px(vs?.fontSize) * scale) || valueFontPx),
+      subFontPx2: Math.max(12, Math.round(px(ss?.fontSize) * scale) || subFontPx),
+      labelWeight2: (ls?.fontWeight || labelWeight),
+      valueWeight2: (vs?.fontWeight || valueWeight),
+      subWeight2: (ss?.fontWeight || subWeight),
+      fontFamily2: (vs?.fontFamily || ls?.fontFamily || fontFamily),
+    };
+  };
+
+  const totalNodes = getCardNodes('#summaryGrid .summary-card.total');
+  const tokensNodes = getCardNodes('#summaryGrid .summary-card.tokens');
+  const biggestNodes = getCardNodes('#summaryGrid .summary-card.biggest');
+
+  const totalStyles = readCardStyles(totalNodes);
+  const tokensStyles = readCardStyles(tokensNodes);
+  const biggestStyles = readCardStyles(biggestNodes);
 
   drawSummaryCard({
     x: gridX,
     y: gridY,
+    w2: cardW2,
+    h2: cardH2,
     title: 'Total Value',
     value: totalValueTxt,
+    change: (document.getElementById('totalChange')?.classList?.contains('hidden') ? '' : totalChangeTxt),
     sub: walletCountTxt,
+    styles: totalStyles,
   });
 
   drawSummaryCard({
-    x: gridX + cardInnerW + gap,
+    x: gridX + cardW2 + gap,
     y: gridY,
+    w2: cardW2,
+    h2: cardH2,
     title: 'Unique Tokens',
     value: tokenCountTxt,
-    sub: getText('tokenCount') ? 'across all wallets' : '',
+    sub: 'across all wallets',
+    styles: tokensStyles,
   });
 
   drawSummaryCard({
-    x: gridX + (cardInnerW + gap) * 2,
-    y: gridY,
+    x: gridX,
+    y: gridY + cardH2 + gap,
+    w2: cardWFull,
+    h2: cardHFull,
     title: 'Largest Holding',
     value: largestHoldingTxt,
     sub: largestValueTxt,
+    styles: biggestStyles,
   });
 
   return canvas.toDataURL('image/png');
