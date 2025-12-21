@@ -147,6 +147,24 @@ function createLookySnapshotPng() {
     return txt || fallback;
   };
 
+  const px = (v) => {
+    const n = Number.parseFloat(String(v || ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const getStyle = (el) => {
+    try {
+      return el ? window.getComputedStyle(el) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const cssColor = (v, fallback) => {
+    const s = String(v || '').trim();
+    return s && s !== 'transparent' ? s : fallback;
+  };
+
   const totalValueTxt = getText(
     'totalValue',
     (typeof formatCurrency === 'function'
@@ -158,84 +176,46 @@ function createLookySnapshotPng() {
   const largestHoldingTxt = getText('largestHolding', '—');
   const largestValueTxt = getText('largestValue', '');
 
-  // Background
-  ctx.fillStyle = '#dba931';
+  // Background (match app if possible)
+  const bodyBg = cssColor(getStyle(document.body)?.backgroundColor, '#dba931');
+  ctx.fillStyle = bodyBg;
   ctx.fillRect(0, 0, w, h);
 
-  // Card
+  // Sample real summary card styles from DOM
+  const domCard = document.querySelector('#summaryGrid .summary-card');
+  const domLabel = domCard?.querySelector('.summary-label');
+  const domValue = domCard?.querySelector('.summary-value');
+  const domSub = domCard?.querySelector('.summary-sub');
+
+  const domCardRect = domCard?.getBoundingClientRect?.();
+  const domCardW = domCardRect?.width || 320;
+
+  // Layout matches summary grid: 3 cards in a row
   const pad = 64;
-  const cardX = pad;
-  const cardY = pad;
-  const cardW = w - pad * 2;
-  const cardH = h - pad * 2;
-  const r = 40;
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-  ctx.strokeStyle = 'rgba(11, 11, 16, 0.92)';
-  ctx.lineWidth = 8;
-
-  ctx.beginPath();
-  ctx.moveTo(cardX + r, cardY);
-  ctx.arcTo(cardX + cardW, cardY, cardX + cardW, cardY + cardH, r);
-  ctx.arcTo(cardX + cardW, cardY + cardH, cardX, cardY + cardH, r);
-  ctx.arcTo(cardX, cardY + cardH, cardX, cardY, r);
-  ctx.arcTo(cardX, cardY, cardX + cardW, cardY, r);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Title
-  ctx.fillStyle = 'rgba(11, 11, 16, 0.95)';
-  ctx.font = '900 96px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  ctx.fillText('LOOKY!', cardX + 48, cardY + 120);
-
-  ctx.font = '700 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
-  ctx.fillText('Portfolio Snapshot', cardX + 48, cardY + 170);
-
-  ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
-  ctx.font = '700 30px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  ctx.fillText(formatSnapshotDate(now), cardX + 48, cardY + 214);
-
-  // Summary grid (3 cards)
-  const gridPadX = 48;
-  const gridX = cardX + gridPadX;
-  const gridY = cardY + 280;
-  const gridW = cardW - gridPadX * 2;
+  const gridW = w - pad * 2;
   const gap = 18;
   const cardInnerW = Math.floor((gridW - gap * 2) / 3);
-  const cardInnerH = 320;
+  const cardInnerH = 300;
+  const scale = domCardW > 0 ? (cardInnerW / domCardW) : 1;
 
-  const drawSummaryCard = ({ x, y, title, value, sub }) => {
-    const rr = 28;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.80)';
-    ctx.strokeStyle = 'rgba(11, 11, 16, 0.20)';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(x + rr, y);
-    ctx.arcTo(x + cardInnerW, y, x + cardInnerW, y + cardInnerH, rr);
-    ctx.arcTo(x + cardInnerW, y + cardInnerH, x, y + cardInnerH, rr);
-    ctx.arcTo(x, y + cardInnerH, x, y, rr);
-    ctx.arcTo(x, y, x + cardInnerW, y, rr);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+  const cardStyle = getStyle(domCard);
+  const labelStyle = getStyle(domLabel);
+  const valueStyle = getStyle(domValue);
+  const subStyle = getStyle(domSub);
 
-    ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
-    ctx.font = '800 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    ctx.fillText(title.toUpperCase(), x + 22, y + 58);
+  const cardBg = cssColor(cardStyle?.backgroundColor, 'rgba(255, 255, 255, 0.8)');
+  const cardBorderColor = cssColor(cardStyle?.borderColor, 'rgba(11, 11, 16, 0.2)');
+  const cardBorderW = px(cardStyle?.borderTopWidth) * scale;
+  const cardRadius = px(cardStyle?.borderTopLeftRadius) * scale;
 
-    ctx.fillStyle = 'rgba(11, 11, 16, 0.95)';
-    ctx.font = '900 52px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-    const v = String(value || '—');
-    wrapText(ctx, v, x + 22, y + 140, cardInnerW - 44, 58, 2);
+  const labelColor = cssColor(labelStyle?.color, 'rgba(11, 11, 16, 0.70)');
+  const valueColor = cssColor(valueStyle?.color, 'rgba(11, 11, 16, 0.95)');
+  const subColor = cssColor(subStyle?.color, 'rgba(11, 11, 16, 0.68)');
 
-    if (sub) {
-      ctx.fillStyle = 'rgba(11, 11, 16, 0.68)';
-      ctx.font = '700 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      wrapText(ctx, String(sub), x + 22, y + 240, cardInnerW - 44, 30, 2);
-    }
-  };
+  const labelFontSize = Math.max(12, px(labelStyle?.fontSize) * scale);
+  const valueFontSize = Math.max(20, px(valueStyle?.fontSize) * scale);
+  const subFontSize = Math.max(12, px(subStyle?.fontSize) * scale);
+  const fontFamily = (valueStyle?.fontFamily || labelStyle?.fontFamily || 'system-ui, -apple-system, Segoe UI, Roboto, Arial');
 
   const wrapText = (context, text, x, y, maxWidth, lineHeight, maxLines) => {
     const words = String(text).split(/\s+/).filter(Boolean);
@@ -256,6 +236,55 @@ function createLookySnapshotPng() {
     if (lineCount < maxLines) context.fillText(line, x, y + lineCount * lineHeight);
   };
 
+  const drawRoundedRect = (x, y, w2, h2, rr) => {
+    const r2 = Math.max(0, Math.min(rr, Math.min(w2, h2) / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r2, y);
+    ctx.arcTo(x + w2, y, x + w2, y + h2, r2);
+    ctx.arcTo(x + w2, y + h2, x, y + h2, r2);
+    ctx.arcTo(x, y + h2, x, y, r2);
+    ctx.arcTo(x, y, x + w2, y, r2);
+    ctx.closePath();
+  };
+
+  // Optional title above the grid
+  ctx.fillStyle = cssColor(getStyle(document.body)?.color, 'rgba(11, 11, 16, 0.95)');
+  ctx.font = `900 ${Math.round(46)}px ${fontFamily}`;
+  ctx.fillText('LOOKY Snapshot', pad, 96);
+  ctx.fillStyle = 'rgba(11, 11, 16, 0.65)';
+  ctx.font = `700 ${Math.round(26)}px ${fontFamily}`;
+  ctx.fillText(formatSnapshotDate(now), pad, 134);
+
+  const gridX = pad;
+  const gridY = 190;
+
+  const drawSummaryCard = ({ x, y, title, value, sub }) => {
+    // Card
+    drawRoundedRect(x, y, cardInnerW, cardInnerH, cardRadius || 28);
+    ctx.fillStyle = cardBg;
+    ctx.fill();
+    if (cardBorderW > 0) {
+      ctx.strokeStyle = cardBorderColor;
+      ctx.lineWidth = cardBorderW;
+      ctx.stroke();
+    }
+
+    const innerPad = 18;
+    ctx.fillStyle = labelColor;
+    ctx.font = `800 ${Math.round(labelFontSize)}px ${fontFamily}`;
+    ctx.fillText(String(title || '').toUpperCase(), x + innerPad, y + 54);
+
+    ctx.fillStyle = valueColor;
+    ctx.font = `900 ${Math.round(valueFontSize)}px ${fontFamily}`;
+    wrapText(ctx, String(value || '—'), x + innerPad, y + 140, cardInnerW - innerPad * 2, Math.round(valueFontSize * 1.08), 2);
+
+    if (sub) {
+      ctx.fillStyle = subColor;
+      ctx.font = `700 ${Math.round(subFontSize)}px ${fontFamily}`;
+      wrapText(ctx, String(sub), x + innerPad, y + 232, cardInnerW - innerPad * 2, Math.round(subFontSize * 1.2), 2);
+    }
+  };
+
   drawSummaryCard({
     x: gridX,
     y: gridY,
@@ -263,13 +292,15 @@ function createLookySnapshotPng() {
     value: totalValueTxt,
     sub: walletCountTxt,
   });
+
   drawSummaryCard({
     x: gridX + cardInnerW + gap,
     y: gridY,
     title: 'Unique Tokens',
     value: tokenCountTxt,
-    sub: 'across all wallets',
+    sub: getText('tokenCount') ? 'across all wallets' : '',
   });
+
   drawSummaryCard({
     x: gridX + (cardInnerW + gap) * 2,
     y: gridY,
@@ -277,11 +308,6 @@ function createLookySnapshotPng() {
     value: largestHoldingTxt,
     sub: largestValueTxt,
   });
-
-  // Footer
-  ctx.fillStyle = 'rgba(11, 11, 16, 0.60)';
-  ctx.font = '700 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  ctx.fillText('lookyapp', cardX + 48, cardY + cardH - 64);
 
   return canvas.toDataURL('image/png');
 }
