@@ -1033,9 +1033,15 @@ function renderAllocationAndRisk() {
       };
     });
 
+  const ALLOC_MIN_VALUE = 0.000001;
+
   const rows = [
-    ...chainRows.map(r => ({ ...r, accent: 'chain' })),
-    ...topHoldings.map(r => ({ ...r, accent: 'token' })),
+    ...chainRows
+      .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE)
+      .map(r => ({ ...r, accent: 'chain' })),
+    ...topHoldings
+      .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE)
+      .map(r => ({ ...r, accent: 'token' })),
   ];
 
   allocationEl.innerHTML = rows.map((r) => {
