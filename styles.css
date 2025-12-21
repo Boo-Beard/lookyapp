@@ -1224,15 +1224,55 @@ body.ui-results .table-header {
 
 @media (max-width: 520px) {
   #holdingsCard .table-controls {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "search search"
+      "sort dust";
+    gap: 10px;
     align-items: stretch;
+    justify-content: stretch;
+    padding: 12px;
+    border-radius: var(--radius-xl);
+    border: 3px solid var(--border);
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: var(--shadow-sm);
   }
 
-  #holdingsCard .table-controls .search-box,
-  #holdingsCard .table-controls .select,
-  #holdingsCard .table-controls .checkbox {
+  #holdingsCard .table-controls .search-box {
+    grid-area: search;
     width: 100%;
     max-width: none;
+  }
+
+  #holdingsCard .table-controls .select {
+    grid-area: sort;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #holdingsCard .table-controls .checkbox {
+    grid-area: dust;
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+
+  #holdingsCard .table-controls .search-input,
+  #holdingsCard .table-controls .select {
+    min-height: 44px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 14px;
+  }
+
+  #holdingsCard .table-controls .search-icon {
+    left: 12px;
+  }
+
+  #holdingsCard .table-controls .search-input {
+    padding-left: 38px;
   }
 }
 
