@@ -1816,6 +1816,12 @@ body.holdings-cards .holding-card {
   overflow: hidden;
 }
 
+@media (min-width: 641px) {
+  body.holdings-cards .holding-card {
+    width: min(calc(100vw - 32px), calc(100% + 35%));
+  }
+}
+
 body.holdings-cards .holding-card-header {
   padding: 16px 16px 14px;
   display: flex;
