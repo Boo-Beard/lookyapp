@@ -1466,6 +1466,31 @@ body.ui-results .table-subtitle {
   border-spacing: 5px;
 }
 
+.holdings-table th.token-col,
+.holdings-table td.token-col {
+  width: 44%;
+}
+
+.holdings-table th.mcap-col,
+.holdings-table td.mcap-col {
+  width: 16%;
+}
+
+.holdings-table th.balance-col,
+.holdings-table td.balance-col {
+  width: 14%;
+}
+
+.holdings-table th.price-col,
+.holdings-table td.price-col {
+  width: 12%;
+}
+
+.holdings-table th.value-col,
+.holdings-table td.value-col {
+  width: 14%;
+}
+
 .holdings-table thead th:first-child {
   border-top-left-radius: 18px;
 }
@@ -1646,6 +1671,7 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card {
+    width: 100%;
     border-radius: var(--radius-xl);
     border: 3px solid var(--border);
     box-shadow: var(--shadow-md);
@@ -1653,12 +1679,11 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card-header {
-    padding: 12px 12px 10px;
+    padding: 14px 14px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    border-bottom: 3px solid var(--border);
     background: rgba(255, 255, 255, 0.35);
   }
 
@@ -1683,10 +1708,11 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card-metrics {
-    padding: 12px;
+    padding: 14px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+    background: rgba(255, 255, 255, 0.30);
   }
 
   .holding-metric {
@@ -1743,6 +1769,10 @@ body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not
   background: transparent;
 }
 
+body.holdings-cards .holdings-table {
+  border-spacing: 0 12px;
+}
+
 body.holdings-cards .holdings-table td {
   border-bottom: none;
   padding: 0;
@@ -1758,6 +1788,7 @@ body.holdings-cards .holding-card-row:hover::after {
 }
 
 body.holdings-cards .holding-card {
+  width: 100%;
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
@@ -1765,7 +1796,7 @@ body.holdings-cards .holding-card {
 }
 
 body.holdings-cards .holding-card-header {
-  padding: 12px 12px 10px;
+  padding: 14px 14px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1832,7 +1863,7 @@ body.holdings-cards .holding-card-header .token-name {
 }
 
 body.holdings-cards .holding-card-metrics {
-  padding: 12px;
+  padding: 14px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
