@@ -1210,7 +1210,7 @@ body.ui-results .table-header {
     margin-top: 25px;
     flex-wrap: nowrap;
     /* margin-top: 20px; */
-    margin-bottom: -20px;
+    /* margin-bottom: -20px;*/
 }
 
 .table-pagination-top .page-indicator {
