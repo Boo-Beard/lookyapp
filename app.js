@@ -141,12 +141,15 @@ async function createLookySnapshotPngExact() {
 
   const wrap = document.createElement('div');
   wrap.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  // Keep it in the viewport (some webviews won't render far-offscreen nodes)
+  // but invisible and non-interactive.
   wrap.style.position = 'fixed';
-  wrap.style.left = '-10000px';
+  wrap.style.left = '0';
   wrap.style.top = '0';
-  wrap.style.zIndex = '-1';
+  wrap.style.opacity = '0';
   wrap.style.pointerEvents = 'none';
   wrap.style.display = 'inline-block';
+  wrap.style.zIndex = '-1';
 
   const bg = window.getComputedStyle(document.body).backgroundColor || '#dba931';
   wrap.style.background = bg;
@@ -182,6 +185,15 @@ async function createLookySnapshotPngExact() {
 
   wrap.appendChild(header);
   wrap.appendChild(gridClone);
+
+  const cleanup = () => {
+    try {
+      wrap.remove();
+    } catch {
+      // ignore
+    }
+  };
+
   document.body.appendChild(wrap);
 
   const inlineStyles = (root) => {
@@ -199,37 +211,60 @@ async function createLookySnapshotPngExact() {
     });
   };
 
-  inlineStyles(wrap);
+  try {
+    inlineStyles(wrap);
 
-  const rect = wrap.getBoundingClientRect();
-  const width = Math.ceil(rect.width);
-  const height = Math.ceil(rect.height);
+    // Ensure layout has settled
+    await new Promise((r) => window.requestAnimationFrame(() => r()));
 
-  const serialized = new XMLSerializer().serializeToString(wrap);
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
-    `<foreignObject x="0" y="0" width="100%" height="100%">${serialized}</foreignObject>` +
-    `</svg>`;
+    const rect = wrap.getBoundingClientRect();
+    const width = Math.max(1, Math.ceil(rect.width));
+    const height = Math.max(1, Math.ceil(rect.height));
 
-  const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-  const img = new Image();
-  img.decoding = 'async';
-  img.src = svgDataUrl;
+    const serialized = new XMLSerializer().serializeToString(wrap);
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+      `<foreignObject x="0" y="0" width="100%" height="100%">${serialized}</foreignObject>` +
+      `</svg>`;
 
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-  });
+    const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = svgDataUrl;
 
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas not supported');
-  ctx.drawImage(img, 0, 0);
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
 
-  wrap.remove();
-  return canvas.toDataURL('image/png');
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas not supported');
+    ctx.drawImage(img, 0, 0);
+
+    // Validate output: if it's blank/transparent, fail so caller can fall back.
+    try {
+      const sampleW = Math.min(width, 80);
+      const sampleH = Math.min(height, 80);
+      const imgData = ctx.getImageData(0, 0, sampleW, sampleH).data;
+      let nonTransparent = 0;
+      for (let i = 3; i < imgData.length; i += 4) {
+        if (imgData[i] > 10) nonTransparent += 1;
+      }
+      if (nonTransparent < (sampleW * sampleH * 0.05)) {
+        throw new Error('Snapshot render produced blank image');
+      }
+    } catch (e) {
+      if (e instanceof Error) throw e;
+      throw new Error('Snapshot render validation failed');
+    }
+
+    return canvas.toDataURL('image/png');
+  } finally {
+    cleanup();
+  }
 }
 
 function createLookySnapshotPng() {
