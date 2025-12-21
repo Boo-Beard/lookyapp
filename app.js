@@ -1228,37 +1228,58 @@ function renderAllocationAndRisk() {
   }, 0);
   const stablePct = (stableValue / total) * 100;
 
-  const withChange = holdings
-    .map((h) => {
-      const value = Number(h?.value || 0) || 0;
-      const changeUsd = Number(h?.changeUsd || 0) || 0;
-      const changePct = value > 0 ? (changeUsd / Math.max(1e-9, value - changeUsd)) * 100 : 0;
-      return {
-        symbol: String(h?.symbol || '—'),
-        value,
-        changeUsd,
-        changePct,
-      };
-    })
-    .filter(x => Number.isFinite(x.changeUsd) && Math.abs(x.changeUsd) > 0.0001);
+  const topChain = chainRowsNonZero[0];
+  const topChainPct = topChain ? ((Number(topChain.value || 0) || 0) / total) * 100 : 0;
+  const top3ChainsPct = chainRowsNonZero
+    .slice(0, 3)
+    .reduce((s, r) => s + ((Number(r?.value || 0) || 0) / total) * 100, 0);
 
-  const biggestGainer = withChange.slice().sort((a, b) => b.changeUsd - a.changeUsd)[0];
-  const biggestLoser = withChange.slice().sort((a, b) => a.changeUsd - b.changeUsd)[0];
+  const chainsOver5 = chainRowsNonZero.filter(r => (((Number(r?.value || 0) || 0) / total) * 100) >= 5).length;
+
+  const DUST_USD = 1;
+  const dust = holdings.reduce((acc, h) => {
+    const v = Number(h?.value || 0) || 0;
+    if (v > 0 && v < DUST_USD) {
+      acc.count += 1;
+      acc.value += v;
+    }
+    return acc;
+  }, { count: 0, value: 0 });
+
+  const walletTotals = new Map();
+  for (const h of holdings) {
+    const v = Number(h?.value || 0) || 0;
+    const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean).map(String) : [];
+    if (!sources.length || v <= 0) continue;
+
+    const uniq = Array.from(new Set(sources));
+    const per = v / Math.max(1, uniq.length);
+    for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
+  }
+  let topWallet = null;
+  for (const [wallet, value] of walletTotals.entries()) {
+    if (!topWallet || value > topWallet.value) topWallet = { wallet, value };
+  }
+  const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
   const insights = [];
   insights.push(`Top holding concentration: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
   insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> of portfolio`);
-  insights.push(`Stablecoin exposure: <strong>${formatPct(stablePct)}</strong> (est.)`);
-
-  if (biggestGainer && biggestGainer.changeUsd > 0) {
-    insights.push(`24h biggest winner: <strong>${escapeHtml(biggestGainer.symbol)}</strong> (+${formatCurrency(biggestGainer.changeUsd)})`);
+  if (topChain) {
+    insights.push(`Top chain concentration: <strong>${formatPct(topChainPct)}</strong> on ${escapeHtml(topChain.name || '—')}`);
+    insights.push(`Top 3 chains: <strong>${formatPct(top3ChainsPct)}</strong> of portfolio`);
+    insights.push(`Chains with meaningful exposure: <strong>${chainsOver5}</strong> chain${chainsOver5 === 1 ? '' : 's'} ≥ 5%`);
   }
-  if (biggestLoser && biggestLoser.changeUsd < 0) {
-    insights.push(`24h biggest loser: <strong>${escapeHtml(biggestLoser.symbol)}</strong> (${formatCurrency(biggestLoser.changeUsd)})`);
+  insights.push(`Stablecoin exposure: <strong>${formatPct(stablePct)}</strong> (est.)`);
+  if (dust.count > 0 && dust.value > 0) {
+    insights.push(`Dust exposure: <strong>${formatCurrency(dust.value)}</strong> across <strong>${dust.count}</strong> token${dust.count === 1 ? '' : 's'} (&lt; ${formatCurrency(DUST_USD)})`);
+  }
+  if (topWallet && topWallet.value > 0) {
+    insights.push(`Wallet concentration: <strong>${formatPct(topWalletPct)}</strong> in top wallet`);
   }
 
   insightsEl.innerHTML = insights
-    .slice(0, 5)
+    .slice(0, 7)
     .map((t) => `<div class="insight-item">${t}</div>`)
     .join('');
 }
