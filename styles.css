@@ -1206,7 +1206,7 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .select,
 #holdingsCard .table-controls .checkbox {
   width: 100%;
-  max-width: 520px;
+  max-width: 230px;
 }
 
 .table-pagination {
