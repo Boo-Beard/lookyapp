@@ -141,6 +141,23 @@ function createLookySnapshotPng() {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas not supported');
 
+  const getText = (id, fallback = '') => {
+    const el = document.getElementById(id);
+    const txt = el?.textContent ? String(el.textContent).trim() : '';
+    return txt || fallback;
+  };
+
+  const totalValueTxt = getText(
+    'totalValue',
+    (typeof formatCurrency === 'function'
+      ? formatCurrency(Number(state.totalValue || 0) || 0)
+      : `$${(Number(state.totalValue || 0) || 0).toFixed(2)}`)
+  );
+  const walletCountTxt = getText('walletCount', '');
+  const tokenCountTxt = getText('tokenCount', String((Array.isArray(state.holdings) ? state.holdings.length : 0) || 0));
+  const largestHoldingTxt = getText('largestHolding', '—');
+  const largestValueTxt = getText('largestValue', '');
+
   // Background
   ctx.fillStyle = '#dba931';
   ctx.fillRect(0, 0, w, h);
@@ -176,59 +193,90 @@ function createLookySnapshotPng() {
   ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
   ctx.fillText('Portfolio Snapshot', cardX + 48, cardY + 170);
 
-  // Totals
-  ctx.fillStyle = 'rgba(11, 11, 16, 0.95)';
-  ctx.font = '900 72px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  const totalStr = typeof formatCurrency === 'function'
-    ? formatCurrency(Number(state.totalValue || 0) || 0)
-    : `$${(Number(state.totalValue || 0) || 0).toFixed(2)}`;
-  ctx.fillText(totalStr, cardX + 48, cardY + 280);
-
   ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
   ctx.font = '700 30px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  const walletsCount = Array.isArray(state.wallets) ? state.wallets.length : 0;
-  ctx.fillText(`${walletsCount} wallet${walletsCount === 1 ? '' : 's'} • ${formatSnapshotDate(now)}`, cardX + 48, cardY + 330);
+  ctx.fillText(formatSnapshotDate(now), cardX + 48, cardY + 214);
 
-  // Top holdings list
-  const top = (Array.isArray(state.holdings) ? state.holdings : [])
-    .slice()
-    .sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0))
-    .slice(0, 10);
+  // Summary grid (3 cards)
+  const gridPadX = 48;
+  const gridX = cardX + gridPadX;
+  const gridY = cardY + 280;
+  const gridW = cardW - gridPadX * 2;
+  const gap = 18;
+  const cardInnerW = Math.floor((gridW - gap * 2) / 3);
+  const cardInnerH = 320;
 
-  const listX = cardX + 48;
-  let y = cardY + 420;
-  ctx.fillStyle = 'rgba(11, 11, 16, 0.92)';
-  ctx.font = '900 34px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  ctx.fillText('Top Holdings', listX, y);
-  y += 26;
-
-  const rowH = 54;
-  ctx.font = '800 30px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-  for (let i = 0; i < top.length; i += 1) {
-    const hItem = top[i];
-    const symbol = String(hItem?.symbol || '—');
-    const value = Number(hItem?.value || 0) || 0;
-    const valueTxt = typeof formatCurrency === 'function'
-      ? formatCurrency(value)
-      : `$${value.toFixed(2)}`;
-
-    y += rowH;
-
-    ctx.fillStyle = 'rgba(11, 11, 16, 0.80)';
-    ctx.fillText(`${i + 1}. ${symbol}`, listX, y);
-
-    ctx.fillStyle = 'rgba(11, 11, 16, 0.92)';
-    ctx.textAlign = 'right';
-    ctx.fillText(valueTxt, cardX + cardW - 48, y);
-    ctx.textAlign = 'left';
-
-    ctx.strokeStyle = 'rgba(11, 11, 16, 0.14)';
-    ctx.lineWidth = 2;
+  const drawSummaryCard = ({ x, y, title, value, sub }) => {
+    const rr = 28;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.80)';
+    ctx.strokeStyle = 'rgba(11, 11, 16, 0.20)';
+    ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(listX, y + 14);
-    ctx.lineTo(cardX + cardW - 48, y + 14);
+    ctx.moveTo(x + rr, y);
+    ctx.arcTo(x + cardInnerW, y, x + cardInnerW, y + cardInnerH, rr);
+    ctx.arcTo(x + cardInnerW, y + cardInnerH, x, y + cardInnerH, rr);
+    ctx.arcTo(x, y + cardInnerH, x, y, rr);
+    ctx.arcTo(x, y, x + cardInnerW, y, rr);
+    ctx.closePath();
+    ctx.fill();
     ctx.stroke();
-  }
+
+    ctx.fillStyle = 'rgba(11, 11, 16, 0.70)';
+    ctx.font = '800 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    ctx.fillText(title.toUpperCase(), x + 22, y + 58);
+
+    ctx.fillStyle = 'rgba(11, 11, 16, 0.95)';
+    ctx.font = '900 52px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    const v = String(value || '—');
+    wrapText(ctx, v, x + 22, y + 140, cardInnerW - 44, 58, 2);
+
+    if (sub) {
+      ctx.fillStyle = 'rgba(11, 11, 16, 0.68)';
+      ctx.font = '700 26px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      wrapText(ctx, String(sub), x + 22, y + 240, cardInnerW - 44, 30, 2);
+    }
+  };
+
+  const wrapText = (context, text, x, y, maxWidth, lineHeight, maxLines) => {
+    const words = String(text).split(/\s+/).filter(Boolean);
+    let line = '';
+    let lineCount = 0;
+    for (let n = 0; n < words.length; n += 1) {
+      const testLine = line ? `${line} ${words[n]}` : words[n];
+      const metrics = context.measureText(testLine);
+      if (metrics.width > maxWidth && line) {
+        context.fillText(line, x, y + lineCount * lineHeight);
+        line = words[n];
+        lineCount += 1;
+        if (lineCount >= maxLines) return;
+      } else {
+        line = testLine;
+      }
+    }
+    if (lineCount < maxLines) context.fillText(line, x, y + lineCount * lineHeight);
+  };
+
+  drawSummaryCard({
+    x: gridX,
+    y: gridY,
+    title: 'Total Value',
+    value: totalValueTxt,
+    sub: walletCountTxt,
+  });
+  drawSummaryCard({
+    x: gridX + cardInnerW + gap,
+    y: gridY,
+    title: 'Unique Tokens',
+    value: tokenCountTxt,
+    sub: 'across all wallets',
+  });
+  drawSummaryCard({
+    x: gridX + (cardInnerW + gap) * 2,
+    y: gridY,
+    title: 'Largest Holding',
+    value: largestHoldingTxt,
+    sub: largestValueTxt,
+  });
 
   // Footer
   ctx.fillStyle = 'rgba(11, 11, 16, 0.60)';
