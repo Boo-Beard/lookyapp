@@ -1198,6 +1198,17 @@ body.ui-results .table-header {
   align-items: stretch;
 }
 
+#holdingsCard .table-controls {
+  align-items: center;
+}
+
+#holdingsCard .table-controls .search-box,
+#holdingsCard .table-controls .select,
+#holdingsCard .table-controls .checkbox {
+  width: 100%;
+  max-width: 520px;
+}
+
 .table-pagination {
   display: flex;
   align-items: center;
@@ -1226,6 +1237,18 @@ body.ui-results .table-header {
 .btn-sm {
   height: 38px;
   padding: 0 14px;
+  font-size: 13px;
+}
+
+#holdingsCard #pagePrev,
+#holdingsCard #pageNext {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+#holdingsCard #exportButton {
+  padding: 10px 12px;
   font-size: 13px;
 }
 
