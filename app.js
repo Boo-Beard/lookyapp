@@ -37,6 +37,7 @@ const state = {
   wallets: [],
   holdings: [],
   scanning: false,
+  scanMeta: { completed: 0, total: 0 },
   totalValue: 0,
   totalSolValue: 0,
   totalEvmValue: 0,
@@ -1339,6 +1340,11 @@ function renderHoldingsTable() {
     return;
   }
 
+  const scanTotal = Number(state.scanMeta?.total || 0) || 0;
+  const scanCompleted = Number(state.scanMeta?.completed || 0) || 0;
+  const scanRemaining = Math.max(0, scanTotal - scanCompleted);
+  const scanSkeletonCount = state.scanning ? Math.min(3, Math.max(1, scanRemaining)) : 0;
+
   const searchTerm = ($('searchInput')?.value || '').toLowerCase();
   const hideDust = $('hideDust')?.checked ?? true;
   const sortBy = $('sortSelect')?.value || 'valueDesc';
@@ -1362,6 +1368,52 @@ function renderHoldingsTable() {
   });
 
   if (filtered.length === 0) {
+    if (state.scanning) {
+      const rows = Array.from({ length: 6 }).map(() => {
+        if (!useCardRows) {
+          return `
+            <tr class="skeleton-row">
+              <td><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></td>
+              <td><div class="skeleton-line w-30"></div></td>
+              <td><div class="skeleton-line w-40"></div></td>
+              <td><div class="skeleton-line w-40"></div></td>
+              <td><div class="skeleton-line w-50"></div></td>
+            </tr>
+          `;
+        }
+
+        return `
+          <tr class="skeleton-row holding-card-row">
+            <td colspan="5">
+              <div class="holding-card">
+                <div class="holding-card-header">
+                  <div class="token-cell">
+                    <div class="skeleton-line w-40"></div>
+                  </div>
+                  <div class="skeleton-line w-30"></div>
+                </div>
+                <div class="holding-card-metrics">
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.innerHTML = rows;
+      const progressPart = scanTotal > 0 ? ` • Scanning ${scanCompleted}/${scanTotal}` : '';
+      $('tableStats') && ($('tableStats').textContent = `Loading holdings…${progressPart}`);
+      $('pageIndicator') && ($('pageIndicator').textContent = 'Page 1 of 1');
+      $('pagePrev') && ($('pagePrev').disabled = true);
+      $('pagePrev')?.classList?.add('hidden');
+      $('pageNext') && ($('pageNext').disabled = true);
+      return;
+    }
+
     tbody.innerHTML = `
       <tr class="empty-row">
         <td colspan="5">
@@ -1399,6 +1451,18 @@ function renderHoldingsTable() {
   if (nextBtn) nextBtn.disabled = page >= totalPages;
 
   if (!useCardRows) {
+    const skeletonRows = state.scanning && scanSkeletonCount > 0
+      ? Array.from({ length: scanSkeletonCount }).map(() => `
+          <tr class="skeleton-row">
+            <td><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></td>
+            <td><div class="skeleton-line w-30"></div></td>
+            <td><div class="skeleton-line w-40"></div></td>
+            <td><div class="skeleton-line w-40"></div></td>
+            <td><div class="skeleton-line w-50"></div></td>
+          </tr>
+        `).join('')
+      : '';
+
     tbody.innerHTML = pageItems.map(holding => `
       <tr class="holding-row" data-key="${holding.key}">
         <td>
@@ -1418,8 +1482,31 @@ function renderHoldingsTable() {
         <td class="mono"><strong>${formatPrice(holding.price)}</strong></td>
         <td class="mono"><strong>${formatCurrency(holding.value)}</strong></td>
       </tr>
-    `).join('');
+    `).join('') + skeletonRows;
   } else {
+    const skeletonRows = state.scanning && scanSkeletonCount > 0
+      ? Array.from({ length: scanSkeletonCount }).map(() => `
+          <tr class="skeleton-row holding-card-row">
+            <td colspan="5">
+              <div class="holding-card">
+                <div class="holding-card-header">
+                  <div class="token-cell">
+                    <div class="skeleton-line w-40"></div>
+                  </div>
+                  <div class="skeleton-line w-30"></div>
+                </div>
+                <div class="holding-card-metrics">
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `).join('')
+      : '';
+
     tbody.innerHTML = pageItems.map(holding => {
       const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
 
@@ -1493,10 +1580,11 @@ function renderHoldingsTable() {
         </td>
       </tr>
       `;
-    }).join('');
+    }).join('') + skeletonRows;
   }
 
-  $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filteredTotalValue)}`);
+  const progressPart = (state.scanning && scanTotal > 0) ? ` • Scanning ${scanCompleted}/${scanTotal}` : '';
+  $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filteredTotalValue)}${progressPart}`);
 }
 
 function recomputeAggregatesAndRender() {
@@ -1606,6 +1694,7 @@ async function scanWallets({ queueOverride } = {}) {
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
   state.lastScanFailedQueue = [];
+  state.scanMeta = { completed: 0, total: walletsQueue.length };
   state.scanAbortController = new AbortController();
   updateTelegramMainButton();
 
@@ -1631,6 +1720,7 @@ async function scanWallets({ queueOverride } = {}) {
 
   const markComplete = () => {
     completed++;
+    state.scanMeta = { completed, total: totalWallets };
     updateProgress((completed / total) * 100);
   };
 
