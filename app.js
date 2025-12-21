@@ -133,8 +133,8 @@ function formatSnapshotDate(d) {
 
 function createLookySnapshotPng() {
   const now = new Date();
-  const w = 1080;
-  const h = 1350;
+  const w = 900;
+  const h = 900;
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -189,6 +189,7 @@ function createLookySnapshotPng() {
 
   const domEye = document.querySelector('.logo-lockup .eye') || document.querySelector('.eye');
   const domPupil = document.querySelector('.logo-lockup .pupil') || document.querySelector('.pupil');
+  const domLogoTitle = document.querySelector('.logo-title');
 
   const domCardRect = domCard?.getBoundingClientRect?.();
   const domCardW = domCardRect?.width || 320;
@@ -224,11 +225,16 @@ function createLookySnapshotPng() {
   const valueWeight = (valueStyle?.fontWeight || '900');
   const subWeight = (subStyle?.fontWeight || '700');
 
-  // Boost typography a bit so the snapshot reads like the UI cards
-  const typeBoost = 1.18;
+  // Keep typography aligned to the summary cards
+  const typeBoost = 1.0;
   const labelFontPx = Math.round(labelFontSize * typeBoost);
   const valueFontPx = Math.round(valueFontSize * typeBoost);
   const subFontPx = Math.round(subFontSize * typeBoost);
+
+  // Force snapshot text to neutral greys (no accent/green)
+  const textGreyStrong = 'rgba(11, 11, 16, 0.82)';
+  const textGrey = 'rgba(11, 11, 16, 0.68)';
+  const textGreySoft = 'rgba(11, 11, 16, 0.55)';
 
   const wrapText = (context, text, x, y, maxWidth, lineHeight, maxLines) => {
     const words = String(text).split(/\s+/).filter(Boolean);
@@ -263,38 +269,35 @@ function createLookySnapshotPng() {
   const drawEyes = () => {
     const eyeStyle = getStyle(domEye);
     const pupilStyle = getStyle(domPupil);
+    const logoStyle = getStyle(domLogoTitle);
 
-    const eyeBg = cssColor(eyeStyle?.backgroundColor, 'rgba(255, 255, 255, 0.96)');
-    const eyeBorderColor = cssColor(eyeStyle?.borderColor, cardBorderColor);
-    const eyeBorderW = Math.max(2, px(eyeStyle?.borderTopWidth) * 2);
     const pupilBg = cssColor(pupilStyle?.backgroundColor, '#111827');
 
-    const eyeSize = 140;
-    const gapEyes = 28;
+    const eyeSize = 96;
+    const gapEyes = 22;
     const totalEyesW = eyeSize * 2 + gapEyes;
     const startX = (w - totalEyesW) / 2;
-    const y = 86;
+    const y = 120;
 
     const pupilSize = Math.round(eyeSize * 0.50);
-    const pupilOffsetY = Math.round(eyeSize * 0.20); // looking down
+    const pupilOffsetY = Math.round(eyeSize * 0.22); // looking down
+
+    // LOOKY! title above pupils (match app logo font)
+    const lookyFamily = (logoStyle?.fontFamily || 'Bangers, system-ui, -apple-system, Segoe UI, Roboto, Arial');
+    const lookyWeight = (logoStyle?.fontWeight || '900');
+    const lookySize = Math.max(48, Math.round(px(logoStyle?.fontSize) * 1.25) || 64);
+    ctx.fillStyle = textGreyStrong;
+    ctx.font = `${lookyWeight} ${lookySize}px ${lookyFamily}`;
+    const lookyText = 'LOOKY!';
+    const lookyW = ctx.measureText(lookyText).width;
+    ctx.fillText(lookyText, (w - lookyW) / 2, 84);
 
     const drawEyeAt = (x) => {
       ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.18)';
-      ctx.shadowBlur = 18;
-      ctx.shadowOffsetY = 10;
-
-      ctx.fillStyle = eyeBg;
-      ctx.strokeStyle = eyeBorderColor;
-      ctx.lineWidth = eyeBorderW;
-      ctx.beginPath();
-      ctx.arc(x + eyeSize / 2, y + eyeSize / 2, (eyeSize / 2) - (eyeBorderW / 2), 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // pupil
-      ctx.shadowBlur = 0;
+      // Only pupils (no white eyeballs)
+      ctx.shadowColor = 'rgba(0,0,0,0.22)';
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 6;
       ctx.fillStyle = pupilBg;
       ctx.beginPath();
       ctx.arc(
@@ -307,31 +310,24 @@ function createLookySnapshotPng() {
       ctx.closePath();
       ctx.fill();
 
-      // subtle highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.beginPath();
-      ctx.arc(x + eyeSize * 0.34, y + eyeSize * 0.32, eyeSize * 0.08, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-
       ctx.restore();
     };
 
     drawEyeAt(startX);
     drawEyeAt(startX + eyeSize + gapEyes);
 
-    // small caption/date under eyes, minimal
-    ctx.fillStyle = 'rgba(11, 11, 16, 0.65)';
-    ctx.font = `${subWeight} ${Math.round(subFontPx * 0.9)}px ${fontFamily}`;
+    // small caption/date under pupils
+    ctx.fillStyle = textGreySoft;
+    ctx.font = `${subWeight} ${Math.max(16, Math.round(subFontPx * 0.85))}px ${fontFamily}`;
     const dateText = formatSnapshotDate(now);
     const dateW = ctx.measureText(dateText).width;
-    ctx.fillText(dateText, (w - dateW) / 2, y + eyeSize + 44);
+    ctx.fillText(dateText, (w - dateW) / 2, y + eyeSize + 34);
   };
 
   drawEyes();
 
   const gridX = pad;
-  const gridY = 320;
+  const gridY = 270;
 
   const drawSummaryCard = ({ x, y, title, value, sub }) => {
     // Card
@@ -345,16 +341,16 @@ function createLookySnapshotPng() {
     }
 
     const innerPad = 18;
-    ctx.fillStyle = labelColor;
+    ctx.fillStyle = textGrey;
     ctx.font = `${labelWeight} ${labelFontPx}px ${fontFamily}`;
     ctx.fillText(String(title || '').toUpperCase(), x + innerPad, y + 54);
 
-    ctx.fillStyle = valueColor;
+    ctx.fillStyle = textGreyStrong;
     ctx.font = `${valueWeight} ${valueFontPx}px ${fontFamily}`;
     wrapText(ctx, String(value || '—'), x + innerPad, y + 148, cardInnerW - innerPad * 2, Math.round(valueFontPx * 1.06), 2);
 
     if (sub) {
-      ctx.fillStyle = subColor;
+      ctx.fillStyle = textGreySoft;
       ctx.font = `${subWeight} ${subFontPx}px ${fontFamily}`;
       wrapText(ctx, String(sub), x + innerPad, y + 244, cardInnerW - innerPad * 2, Math.round(subFontPx * 1.22), 2);
     }
