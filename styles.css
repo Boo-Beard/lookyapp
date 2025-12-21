@@ -235,7 +235,9 @@ body.ui-landing .scan-status.hidden {
 
 body.ui-landing .address-chips {
   order: 3;
-  display: block;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 body.ui-landing .logo-subtitle {
