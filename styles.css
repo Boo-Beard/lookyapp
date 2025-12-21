@@ -1461,6 +1461,7 @@ body.ui-results .table-subtitle {
 
 .holdings-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 5px;
 }
@@ -2480,12 +2481,13 @@ body.ui-results .table-stats {
   }
 
   .table-container {
-    overflow-x: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
   .holdings-table {
-    min-width: 620px;
+    min-width: 0;
+    max-width: 100%;
   }
 
   body.holdings-cards .table-container {
