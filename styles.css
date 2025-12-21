@@ -1677,10 +1677,9 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card {
-    width: calc(100% + 40%);
-    margin-left: -5%;
-    margin-right: -5%;
-    max-width: calc(100vw - 32px);
+    width: min(calc(100vw - 32px), calc(100% + 40%));
+    margin-left: auto;
+    margin-right: auto;
     border-radius: var(--radius-xl);
     border: 3px solid var(--border);
     box-shadow: var(--shadow-md);
@@ -1806,10 +1805,9 @@ body.holdings-cards .holding-card-row:hover::after {
 }
 
 body.holdings-cards .holding-card {
-  width: calc(100% + 10%);
-  margin-left: -5%;
-  margin-right: -5%;
-  max-width: calc(100vw - 32px);
+  width: min(calc(100vw - 32px), calc(100% + 40%));
+  margin-left: auto;
+  margin-right: auto;
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
