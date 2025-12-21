@@ -873,12 +873,6 @@ body.is-scanning .logo-lockup .eye::before {
   color: var(--text-primary);
 }
 
-.input-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
 .hint-icon {
   font-size: 16px;
 }
