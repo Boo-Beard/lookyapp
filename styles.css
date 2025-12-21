@@ -1207,7 +1207,7 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 body.ui-results #holdingsCard {
-  width: min(calc(100% + 10%), calc(100vw - 28px));
+  width: min(calc(100% + 20%), calc(100vw - 28px));
   margin-left: auto;
   margin-right: auto;
 }
