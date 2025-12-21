@@ -970,21 +970,54 @@ function renderAllocationAndRisk() {
     return;
   }
 
+  const evmNetworkName = (network) => {
+    switch (normalizeEvmNetwork(network)) {
+      case 'ethereum': return 'Ethereum';
+      case 'bsc': return 'BSC';
+      case 'arbitrum': return 'Arbitrum';
+      case 'optimism': return 'Optimism';
+      case 'polygon': return 'Polygon';
+      case 'base': return 'Base';
+      case 'avalanche': return 'Avalanche';
+      case 'fantom': return 'Fantom';
+      case 'gnosis': return 'Gnosis';
+      default: {
+        const s = String(network || '').trim();
+        if (!s) return 'EVM';
+        return s.toUpperCase();
+      }
+    }
+  };
+
   const chainTotals = new Map();
   for (const h of holdings) {
-    const chain = String(h?.chain || 'unknown');
     const v = Number(h?.value || 0) || 0;
-    chainTotals.set(chain, (chainTotals.get(chain) || 0) + v);
+    const chain = String(h?.chain || 'unknown');
+
+    let bucketKey = chain;
+    let bucketName = chain;
+
+    if (chain === 'solana') {
+      bucketKey = 'solana';
+      bucketName = 'Solana';
+    } else if (chain === 'evm') {
+      const network = normalizeEvmNetwork(h?.network || h?.chain || '');
+      bucketKey = `evm:${network || 'unknown'}`;
+      bucketName = evmNetworkName(network);
+    }
+
+    if (!chainTotals.has(bucketKey)) chainTotals.set(bucketKey, { name: bucketName, value: 0 });
+    chainTotals.get(bucketKey).value += v;
   }
 
   const chainRows = Array.from(chainTotals.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([chain, value]) => ({
-      key: `chain:${chain}`,
-      name: chain === 'solana' ? 'Solana' : (chain === 'evm' ? 'EVM' : chain),
-      value,
-      pct: (value / total) * 100,
-    }));
+    .map(([bucketKey, data]) => ({
+      key: `chain:${bucketKey}`,
+      name: data.name,
+      value: data.value,
+      pct: (data.value / total) * 100,
+    }))
+    .sort((a, b) => b.value - a.value);
 
   const topHoldings = holdings
     .slice()
