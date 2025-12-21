@@ -120,11 +120,6 @@ body.modal-open {
   z-index: 10;
 }
 
-body.ui-results .container {
-  width: 100%;
-  max-width: clamp(560px, 96vw, 1120px);
-}
-
 .main {
   padding: 14px 0 22px;
 }
