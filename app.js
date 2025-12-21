@@ -131,6 +131,107 @@ function formatSnapshotDate(d) {
   }
 }
 
+async function createLookySnapshotPngExact() {
+  const summaryGrid = document.getElementById('summaryGrid');
+  if (!summaryGrid) throw new Error('Summary grid not found');
+
+  const logoLockup = document.querySelector('.logo-lockup');
+  const lookyEyes = logoLockup?.querySelector('.looky-eyes');
+  const logoTitle = logoLockup?.querySelector('.logo-title');
+
+  const wrap = document.createElement('div');
+  wrap.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  wrap.style.position = 'fixed';
+  wrap.style.left = '-10000px';
+  wrap.style.top = '0';
+  wrap.style.zIndex = '-1';
+  wrap.style.pointerEvents = 'none';
+  wrap.style.display = 'inline-block';
+
+  const bg = window.getComputedStyle(document.body).backgroundColor || '#dba931';
+  wrap.style.background = bg;
+  wrap.style.padding = '18px';
+  wrap.style.borderRadius = '20px';
+
+  const header = document.createElement('div');
+  header.style.display = 'flex';
+  header.style.flexDirection = 'column';
+  header.style.alignItems = 'center';
+  header.style.justifyContent = 'center';
+  header.style.gap = '10px';
+  header.style.marginBottom = '14px';
+
+  if (logoTitle) {
+    const titleClone = logoTitle.cloneNode(true);
+    header.appendChild(titleClone);
+  }
+  if (lookyEyes) {
+    const eyesClone = lookyEyes.cloneNode(true);
+    header.appendChild(eyesClone);
+  }
+
+  const gridClone = summaryGrid.cloneNode(true);
+
+  // Force the 2-top + 1-wide layout (like your reference)
+  gridClone.style.display = 'grid';
+  gridClone.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+  gridClone.style.gap = '14px';
+
+  const biggest = gridClone.querySelector('.summary-card.biggest');
+  if (biggest) biggest.style.gridColumn = '1 / -1';
+
+  wrap.appendChild(header);
+  wrap.appendChild(gridClone);
+  document.body.appendChild(wrap);
+
+  const inlineStyles = (root) => {
+    const all = [root, ...root.querySelectorAll('*')];
+    all.forEach((el) => {
+      const cs = window.getComputedStyle(el);
+      let cssText = '';
+      for (let i = 0; i < cs.length; i += 1) {
+        const prop = cs[i];
+        const val = cs.getPropertyValue(prop);
+        const prio = cs.getPropertyPriority(prop);
+        cssText += `${prop}:${val}${prio ? ' !important' : ''};`;
+      }
+      el.setAttribute('style', cssText);
+    });
+  };
+
+  inlineStyles(wrap);
+
+  const rect = wrap.getBoundingClientRect();
+  const width = Math.ceil(rect.width);
+  const height = Math.ceil(rect.height);
+
+  const serialized = new XMLSerializer().serializeToString(wrap);
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+    `<foreignObject x="0" y="0" width="100%" height="100%">${serialized}</foreignObject>` +
+    `</svg>`;
+
+  const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  const img = new Image();
+  img.decoding = 'async';
+  img.src = svgDataUrl;
+
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+  });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas not supported');
+  ctx.drawImage(img, 0, 0);
+
+  wrap.remove();
+  return canvas.toDataURL('image/png');
+}
+
 function createLookySnapshotPng() {
   const now = new Date();
   const w = 900;
@@ -2666,7 +2767,12 @@ function setupEventListeners() {
     }
 
     try {
-      const dataUrl = createLookySnapshotPng();
+      let dataUrl;
+      try {
+        dataUrl = await createLookySnapshotPngExact();
+      } catch {
+        dataUrl = createLookySnapshotPng();
+      }
       const res = await fetch(dataUrl);
       const blob = await res.blob();
       downloadBlob(blob, `looky-snapshot-${new Date().toISOString().split('T')[0]}.png`);
