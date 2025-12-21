@@ -1966,6 +1966,8 @@ body.ui-results .chain-badge-small {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
   border-top: 1px solid var(--border);
 }
 
@@ -1975,6 +1977,27 @@ body.ui-results .chain-badge-small {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.table-stats {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+@media (max-width: 520px) {
+  .table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-footer-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-footer-actions .btn {
+    flex: 1 1 auto;
+  }
 }
 
 body.ui-results .table-footer {
