@@ -2091,9 +2091,13 @@ body.ui-results .table-stats {
   transition: transform var(--transition-fast), filter var(--transition-fast), opacity var(--transition-fast);
 }
 
+.alloc-chain-chart:hover .alloc-seg {
+  opacity: 0.72;
+}
+
 .alloc-chain-chart .alloc-seg:hover {
-  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.20));
-  transform: scale(1.03);
+  opacity: 1;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.14));
 }
 
 .alloc-chain-tooltip {
