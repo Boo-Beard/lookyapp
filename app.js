@@ -1049,15 +1049,36 @@ function renderAllocationAndRisk() {
     ? [...topChains, { key: 'chain:other', name: 'Other', value: otherSum, pct: (otherSum / total) * 100 }]
     : topChains;
 
-  const donutColors = [
-    '#00c2ff',
-    '#ffd400',
-    '#ff2d55',
-    '#00d28f',
-    '#8b5cff',
-    '#ff8c00',
-    '#2dd4bf',
-  ];
+  const hashHue = (str) => {
+    const s = String(str || '');
+    let h = 0;
+    for (let i = 0; i < s.length; i += 1) h = ((h << 5) - h) + s.charCodeAt(i);
+    return Math.abs(h) % 360;
+  };
+
+  const chainBrandColor = (chainKey) => {
+    const key = String(chainKey || '').toLowerCase();
+
+    // Non-EVM
+    if (key === 'solana') return '#7c3aed'; // purple
+
+    // EVM networks
+    if (key === 'evm:ethereum') return '#3b82f6'; // blue
+    if (key === 'evm:base') return '#2563eb'; // deeper blue
+    if (key === 'evm:arbitrum') return '#60a5fa'; // light blue
+    if (key === 'evm:optimism') return '#ef4444'; // red
+    if (key === 'evm:bsc') return '#fbbf24'; // yellow
+    if (key === 'evm:polygon') return '#a855f7'; // purple
+    if (key === 'evm:avalanche') return '#f43f5e'; // red/pink
+    if (key === 'evm:fantom') return '#38bdf8'; // cyan
+    if (key === 'evm:gnosis') return '#22c55e'; // green
+
+    if (key === 'other') return '#94a3b8'; // slate
+
+    // Stable fallback color
+    const hue = hashHue(key);
+    return `hsl(${hue} 85% 55%)`;
+  };
 
   const donutSize = 190;
   const donutStroke = 20;
@@ -1071,7 +1092,9 @@ function renderAllocationAndRisk() {
     const pct = Math.max(0, Math.min(100, Number.isFinite(pctRaw) ? pctRaw : 0));
     const dashFull = (pct / 100) * c;
     const dash = dashFull;
-    const color = donutColors[idx % donutColors.length];
+    const rawKey = String(row?.key || '');
+    const bucketKey = rawKey.startsWith('chain:') ? rawKey.slice('chain:'.length) : rawKey;
+    const color = chainBrandColor(bucketKey || String(row?.name || idx));
     const seg = {
       ...row,
       value,
