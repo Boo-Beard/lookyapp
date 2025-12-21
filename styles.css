@@ -1677,7 +1677,7 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card {
-    width: calc(100% + 10%);
+    width: calc(100% + 20%);
     margin-left: -5%;
     margin-right: -5%;
     max-width: calc(100vw - 32px);
