@@ -121,7 +121,8 @@ body.modal-open {
 }
 
 body.ui-results .container {
-  max-width: 100%;
+  width: 100%;
+  max-width: clamp(560px, 96vw, 1120px);
 }
 
 .main {
