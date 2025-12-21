@@ -382,12 +382,6 @@ body.ui-results .amend-wallets-row .btn {
   gap: 14px;
 }
 
-.summary-actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: center;
-}
-
 .summary-card {
   position: relative;
   display: flex;
