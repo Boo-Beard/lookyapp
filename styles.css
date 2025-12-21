@@ -1011,8 +1011,8 @@ body.is-scanning .logo-lockup .eye::before {
 
 .address-chips {
   margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1020,52 +1020,40 @@ body.is-scanning .logo-lockup .eye::before {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border-radius: var(--radius-full);
-  border: 2px solid var(--border);
-  background: rgba(255, 255, 255, 0.40);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all var(--transition-fast);
   max-width: 100%;
+  width: 100%;
+  min-width: 0;
 }
 
 .address-chip.chip-new {
   animation: chipPop 260ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
-@keyframes chipPop {
-  from { transform: translateY(6px) scale(0.98); opacity: 0; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.address-entry.shake {
-  animation: shake 320ms ease both;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-}
-
 .address-chip .chip-text {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-primary);
   font-family: 'SF Mono', Monaco, 'Courier New', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 220px;
+  max-width: none;
+  min-width: 0;
+  flex: 1;
 }
 
 .address-chip .chip-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.2px;
-  padding: 4px 8px;
-  border-radius: var(--radius-full);
-  border: 2px solid var(--border);
-  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.35);
 }
 
@@ -1085,17 +1073,23 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .address-chip .chip-remove {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.15);
-  color: var(--text-secondary);
-  cursor: pointer;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 18px;
   line-height: 1;
+}
+
+@media (max-width: 360px) {
+  .address-chips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .address-chip .chip-remove:hover {
