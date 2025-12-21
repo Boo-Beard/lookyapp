@@ -1066,13 +1066,15 @@ function renderAllocationAndRisk() {
 
   let offset = 0;
   const segments = donutRows.map((row, idx) => {
-    const pct = Math.max(0, Math.min(100, Number(row?.pct || 0) || 0));
+    const value = Number(row?.value || 0) || 0;
+    const pctRaw = total > 0 ? (value / total) * 100 : 0;
+    const pct = Math.max(0, Math.min(100, Number.isFinite(pctRaw) ? pctRaw : 0));
     const dashFull = (pct / 100) * c;
-    const gap = Math.min(6, dashFull * 0.18);
-    const dash = Math.max(0, dashFull - gap);
+    const dash = dashFull;
     const color = donutColors[idx % donutColors.length];
     const seg = {
       ...row,
+      value,
       pct,
       color,
       dash,
@@ -1083,9 +1085,14 @@ function renderAllocationAndRisk() {
     return seg;
   });
 
+  if (!segments.length) {
+    if (chainChartEl) chainChartEl.innerHTML = '';
+    $('chainAllocationTooltip')?.classList.add('hidden');
+  }
+
   const svg = `
     <svg viewBox="0 0 ${donutSize} ${donutSize}" role="img" aria-label="Chain allocation">
-      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r}" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="${donutStroke}" />
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r}" fill="none" stroke="rgba(0,0,0,0.16)" stroke-width="${donutStroke}" />
       ${segments.map(s => `
         <circle
           class="alloc-seg"
@@ -1097,6 +1104,7 @@ function renderAllocationAndRisk() {
           r="${r}"
           fill="none"
           stroke="${s.color}"
+          stroke-opacity="1"
           stroke-width="${donutStroke}"
           stroke-linecap="round"
           stroke-dasharray="${s.dash.toFixed(2)} ${(c - s.dash).toFixed(2)}"
