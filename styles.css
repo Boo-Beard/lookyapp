@@ -2462,17 +2462,6 @@ body.ui-results .table-stats {
   color: var(--ink);
 }
 
-.wallet-chain-tags {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 8px;
-}
-
-.wallet-chain-tag {
-  text-decoration: none;
-}
-
 .alloc-row-meta {
   font-size: 12px;
   font-weight: 800;
