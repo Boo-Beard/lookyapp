@@ -9,6 +9,7 @@ const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
+const STORAGE_KEY_LAST_SCAN_TOKENS = 'looky:lastScanTokens';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -940,6 +941,103 @@ function setActiveProfileName(name) {
   } catch {}
 }
 
+function lastScanTokensStorageKey() {
+  const profile = getActiveProfileName();
+  const suffix = profile ? `:${profile}` : ':default';
+  return `${STORAGE_KEY_LAST_SCAN_TOKENS}${suffix}`;
+}
+
+function loadLastScanTokenSet() {
+  try {
+    const raw = localStorage.getItem(lastScanTokensStorageKey());
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.map(String));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveLastScanTokenSet(tokenIds) {
+  try {
+    const arr = Array.from(new Set((Array.isArray(tokenIds) ? tokenIds : []).map(String)));
+    localStorage.setItem(lastScanTokensStorageKey(), JSON.stringify(arr));
+  } catch {}
+}
+
+function tokenIdForHolding(h) {
+  const chain = String(h?.chain || '').trim() || 'unknown';
+  const addr = String(h?.address || h?.token_address || '').trim() || String(h?.key || '').trim();
+  return `${chain}:${addr}`;
+}
+
+function computeWhatChangedToday() {
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+  const totalNow = Number(state.totalValueForChange || 0) || 0;
+  const total24hAgo = Number(state.totalValue24hAgo || 0) || 0;
+  const totalDeltaUsd = totalNow - total24hAgo;
+
+  const topTokens = holdings
+    .map((h) => {
+      const deltaUsd = Number(h?.changeUsd ?? 0) || 0;
+      const valueUsd = Number(h?.value ?? 0) || 0;
+      return {
+        id: tokenIdForHolding(h),
+        symbol: String(h?.symbol || '—'),
+        deltaUsd,
+        valueUsd,
+      };
+    })
+    .filter(t => Number.isFinite(t.deltaUsd) && Math.abs(t.deltaUsd) > 0)
+    .sort((a, b) => Math.abs(b.deltaUsd) - Math.abs(a.deltaUsd))
+    .slice(0, 6);
+
+  const currentTokenIds = holdings.map(tokenIdForHolding);
+  const prevSet = loadLastScanTokenSet();
+  const currentSet = new Set(currentTokenIds);
+  const newTokens = Array.from(currentSet)
+    .filter(id => !prevSet.has(id))
+    .slice(0, 10);
+
+  const walletDeltas = [];
+  try {
+    state.walletHoldings?.forEach((items, walletKey) => {
+      const [chain, wallet] = String(walletKey).split(':');
+      let delta = 0;
+      (Array.isArray(items) ? items : []).forEach((h) => {
+        const d = Number(
+          h?.changeUsd ??
+          h?.change_usd ??
+          h?.change_1d_usd ??
+          h?.value_change_1d ??
+          h?.value_change_24h ??
+          h?.valueChange1d ??
+          h?.pnlUsd ??
+          0
+        ) || 0;
+
+        if (chain === 'solana') {
+          const eligible = h?._changeEligible !== false;
+          if (!eligible) return;
+        }
+
+        delta += d;
+      });
+      if (Math.abs(delta) > 0) walletDeltas.push({ chain, wallet, deltaUsd: delta });
+    });
+  } catch {}
+
+  walletDeltas.sort((a, b) => Math.abs(b.deltaUsd) - Math.abs(a.deltaUsd));
+  const topWallet = walletDeltas[0] || null;
+
+  return {
+    totalDeltaUsd,
+    topTokens,
+    newTokens,
+    topWallet,
+  };
+}
+
 function encodeShareParamFromItems(items) {
   const list = Array.isArray(items) ? items : [];
   const payload = list
@@ -1615,6 +1713,7 @@ function renderAllocationAndRisk() {
   const chainChartEl = $('chainAllocationChart');
   const tokenAllocationEl = $('tokenAllocationList');
   const insightsEl = $('riskInsights');
+  const whatChangedEl = $('whatChangedToday');
   if ((!allocationEl && (!chainChartEl || !tokenAllocationEl)) || !insightsEl) return;
 
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
@@ -1625,6 +1724,7 @@ function renderAllocationAndRisk() {
     if (chainChartEl) chainChartEl.innerHTML = '';
     if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
+    if (whatChangedEl) whatChangedEl.innerHTML = '';
     return;
   }
 
@@ -1936,6 +2036,43 @@ function renderAllocationAndRisk() {
     .slice(0, 7)
     .map((t) => `<div class="insight-item">${t}</div>`)
     .join('');
+
+  if (whatChangedEl) {
+    const data = computeWhatChangedToday();
+    const blocks = [];
+
+    if (data.topTokens.length) {
+      const deltaTotal = Number(data.totalDeltaUsd || 0) || 0;
+      const lines = data.topTokens.map((t) => {
+        const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '+';
+        const pct = (deltaTotal !== 0) ? (Math.abs(t.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
+        const pctPart = (pct > 0.05) ? ` · ${formatPct(pct, 1)} of move` : '';
+        return `${escapeHtml(t.symbol)}: <strong>${sign}${formatCurrency(Math.abs(t.deltaUsd))}</strong>${pctPart}`;
+      });
+      blocks.push(`<div class="insight-item"><strong>Top contributors (24h)</strong><div>${lines.join('<br/>')}</div></div>`);
+    }
+
+    if (data.newTokens.length) {
+      const list = data.newTokens
+        .map((id) => {
+          const parts = String(id).split(':');
+          const sym = parts.slice(1).join(':');
+          return escapeHtml(sym);
+        })
+        .join(', ');
+      blocks.push(`<div class="insight-item"><strong>New tokens detected</strong><div>${list}</div></div>`);
+    } else {
+      blocks.push(`<div class="insight-item"><strong>New tokens detected</strong><div>None since last scan</div></div>`);
+    }
+
+    if (data.topWallet && data.topWallet.wallet) {
+      const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '+';
+      const label = data.topWallet.chain === 'solana' ? 'Solana' : evmNetworkLabel(data.topWallet.chain);
+      blocks.push(`<div class="insight-item"><strong>Wallet driving the move</strong><div>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}: <strong>${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))}</strong></div></div>`);
+    }
+
+    whatChangedEl.innerHTML = blocks.join('');
+  }
 }
 
 function renderHoldingsByWallet() {
@@ -2612,6 +2749,10 @@ async function scanWallets({ queueOverride } = {}) {
     showStatus('', 'info');
   } else {
     hapticFeedback('success');
+    try {
+      const ids = (Array.isArray(state.holdings) ? state.holdings : []).map(tokenIdForHolding);
+      saveLastScanTokenSet(ids);
+    } catch {}
   }
 
   updateTelegramMainButton();
