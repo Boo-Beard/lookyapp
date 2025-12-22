@@ -192,7 +192,23 @@ function holdingDeltaUsdFromPct({ valueUsd, pct }) {
 }
 
 async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
-  if (!Array.isArray(holdings) || holdings.length === 0) return holdings;
+  if (!Array.isArray(holdings) || holdings.length === 0) {
+    if (DEBUG_SOL_CHANGE) {
+      try {
+        const reason = !Array.isArray(holdings) ? 'holdings_not_array' : 'holdings_empty';
+        const summary = {
+          reason,
+          holdings: Array.isArray(holdings) ? holdings.length : null,
+          missing: null,
+          missingValueUsd: null,
+          top: [],
+        };
+        window.__lookySol24hDebug = summary;
+        console.warn('[SOL 24h] enrich skipped', summary);
+      } catch {}
+    }
+    return holdings;
+  }
 
   const out = holdings.map((h) => ({ ...h }));
   const uniq = Array.from(new Set(out
@@ -255,6 +271,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
         .sort((a, b) => (b.valueUsd || 0) - (a.valueUsd || 0))
         .slice(0, 10);
       const summary = {
+        reason: 'ok',
         holdings: out.length,
         missing: missing.length,
         missingValueUsd: missingValue,
@@ -2145,7 +2162,15 @@ async function scanWallets({ queueOverride } = {}) {
         if (chain === 'solana') {
           try {
             holdings = await enrichSolHoldingsWith24hChange(holdings, { signal });
-          } catch {}
+          } catch (err) {
+            if (DEBUG_SOL_CHANGE) {
+              try {
+                const info = { reason: 'enrich_throw', message: err?.message || String(err) };
+                window.__lookySol24hDebug = info;
+                console.warn('[SOL 24h] enrich threw', info);
+              } catch {}
+            }
+          }
         }
         state.walletHoldings.set(walletKey, holdings);
 
