@@ -580,6 +580,18 @@ width: 44px;
   min-width: 0;
 }
 
+#aiScoreValue {
+  font-family: 'Bangers', system-ui, sans-serif;
+  font-size: clamp(40px, 7vw, 56px);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 1px 1px 0 rgba(11, 11, 16, 0.28);
+}
+
 /* 24h change: arrow + colored text (no pill) */
 #totalChange.summary-change {
     align-items: baseline;
@@ -2279,71 +2291,6 @@ body.ui-results .table-stats {
 
 .alloc-risk-card {
   margin-bottom: 24px;
-}
-
-#aiScoreCard {
-  position: relative;
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-lg);
-  background: rgba(255, 255, 255, 0.92);
-}
-
-#aiScoreCard::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: var(--radius-xl);
-  background: var(--gradient-primary);
-  z-index: 0;
-  opacity: 0.22;
-  pointer-events: none;
-}
-
-#aiScoreCard > * {
-  position: relative;
-  z-index: 1;
-}
-
-#aiScoreCard .alloc-risk-header {
-  border-bottom: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
-}
-
-#aiScoreCard .table-title {
-  font-family: 'Bangers', system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  font-size: 30px;
-}
-
-#aiScoreCard .table-subtitle {
-  font-weight: 900;
-}
-
-#aiScoreValue {
-  font-family: 'Bangers', system-ui, sans-serif;
-  font-size: 54px;
-  line-height: 0.95;
-  letter-spacing: 0.02em;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-#aiScoreMeta {
-  font-weight: 900;
-  color: rgba(11, 11, 16, 0.78);
-}
-
-@media (max-width: 520px) {
-  #aiScoreCard .table-title {
-    font-size: 26px;
-  }
-
-  #aiScoreValue {
-    font-size: 46px;
-  }
 }
 
 .alloc-risk-header {
