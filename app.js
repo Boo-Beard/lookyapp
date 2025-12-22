@@ -15,6 +15,9 @@ const HOLDINGS_PAGE_SIZE = 5;
 const SCAN_CACHE_TTL_MS = 10 * 60 * 1000;
 const scanCache = new Map();
 
+const SOL_CHANGE_CACHE_TTL_MS = 10 * 60 * 1000;
+const solTokenChangeCache = new Map();
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -22,6 +25,155 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function getSolTokenChangeCache(address) {
+  const key = String(address || '').trim();
+  if (!key) return null;
+  const entry = solTokenChangeCache.get(key);
+  if (!entry) return null;
+  if ((Date.now() - entry.ts) > SOL_CHANGE_CACHE_TTL_MS) {
+    solTokenChangeCache.delete(key);
+    return null;
+  }
+  return entry;
+}
+
+function setSolTokenChangeCache(address, payload) {
+  const key = String(address || '').trim();
+  if (!key) return;
+  solTokenChangeCache.set(key, { ts: Date.now(), ...payload });
+}
+
+async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
+  const cached = getSolTokenChangeCache(tokenAddress);
+  if (cached && Number.isFinite(cached.pct24h)) return cached.pct24h;
+
+  let pct24h = 0;
+
+  // Prefer /defi/price which is designed to return price + 24h change fields.
+  try {
+    const priceData = await birdeyeRequest('/defi/price', {
+      address: tokenAddress,
+    }, {
+      signal,
+      headers: {
+        'x-chain': 'solana',
+      },
+    });
+
+    const d = priceData?.data || {};
+    const pct = Number(
+      d?.priceChangePercent ??
+      d?.price_change_percent ??
+      d?.priceChangePercent24h ??
+      d?.price_change_percent_24h ??
+      d?.priceChangePct ??
+      d?.priceChangePct24h ??
+      d?.changePercent24h ??
+      d?.change_percent_24h ??
+      d?.changePct24h ??
+      0
+    );
+    if (Number.isFinite(pct) && Math.abs(pct) > 0) pct24h = pct;
+  } catch {}
+
+  // Fallback: token_overview with frames=24h (Solana).
+  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
+    try {
+      const overview = await birdeyeRequest('/defi/token_overview', {
+        address: tokenAddress,
+        frames: '24h',
+      }, {
+        signal,
+        headers: {
+          'x-chain': 'solana',
+        },
+      });
+
+      const d = overview?.data || {};
+
+      // Be defensive: response schema can differ by package/endpoint version.
+      const frame24 = d?.['24h'] || d?.frame_24h || d?.frame24h || d?.frames?.['24h'] || d?.frames?.frame_24h || null;
+      const pct = Number(
+        frame24?.priceChangePercent ??
+        frame24?.price_change_percent ??
+        frame24?.priceChangePct ??
+        frame24?.changePct ??
+        frame24?.change_percent ??
+        frame24?.price_change_24h_percent ??
+        frame24?.percent_change ??
+        d?.priceChangePercent24h ??
+        d?.price_change_percent_24h ??
+        d?.priceChangePct24h ??
+        d?.changePct24h ??
+        d?.change_percent_24h ??
+        0
+      );
+      if (Number.isFinite(pct) && Math.abs(pct) > 0) pct24h = pct;
+    } catch {}
+  }
+
+  if (!Number.isFinite(pct24h)) pct24h = 0;
+  setSolTokenChangeCache(tokenAddress, { pct24h });
+  return pct24h;
+}
+
+function holdingDeltaUsdFromPct({ valueUsd, pct }) {
+  const v = Number(valueUsd) || 0;
+  const p = Number(pct);
+  if (!Number.isFinite(v) || !Number.isFinite(p) || v <= 0) return 0;
+  const r = p / 100;
+  const denom = 1 + r;
+  if (Math.abs(denom) < 1e-9) return 0;
+  // value_now = value_24h_ago * (1 + r)
+  // delta = value_now - value_24h_ago = value_now * r/(1+r)
+  return v * (r / denom);
+}
+
+async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
+  if (!Array.isArray(holdings) || holdings.length === 0) return holdings;
+
+  const out = holdings.map((h) => ({ ...h }));
+  const uniq = Array.from(new Set(out
+    .map((h) => String(h?.address || h?.token_address || '').trim())
+    .filter(Boolean)));
+
+  if (uniq.length === 0) return out;
+
+  // Keep concurrency conservative.
+  const concurrency = 4;
+  let cursor = 0;
+  const pctByAddr = new Map();
+
+  const worker = async () => {
+    while (cursor < uniq.length && !signal?.aborted) {
+      const addr = uniq[cursor++];
+      try {
+        const pct24h = await fetchSolTokenChangePct24h(addr, { signal });
+        pctByAddr.set(addr, pct24h);
+      } catch {
+        pctByAddr.set(addr, 0);
+      }
+    }
+  };
+
+  await Promise.allSettled(Array.from({ length: Math.min(concurrency, uniq.length) }, () => worker()));
+
+  out.forEach((h) => {
+    const addr = String(h?.address || h?.token_address || '').trim();
+    if (!addr) return;
+    const pct24h = Number(pctByAddr.get(addr) ?? 0) || 0;
+    const valueUsd = Number(h?.value || h?.valueUsd || 0) || 0;
+
+    // Overwrite/change fields used by aggregation, so SOL portfolio change becomes price-based.
+    const deltaUsd = holdingDeltaUsdFromPct({ valueUsd, pct: pct24h });
+    h.changePct = pct24h;
+    h.changeUsd = deltaUsd;
+    h.change_1d_usd = deltaUsd;
+  });
+
+  return out;
 }
 
 let holdingsRenderQueued = false;
@@ -1888,7 +2040,13 @@ async function scanWallets({ queueOverride } = {}) {
       try {
         const cached = getScanCache(chain, wallet);
         if (cached) {
-          state.walletHoldings.set(walletKey, cached.holdings || []);
+          let cachedHoldings = cached.holdings || [];
+          if (chain === 'solana') {
+            try {
+              cachedHoldings = await enrichSolHoldingsWith24hChange(cachedHoldings, { signal });
+            } catch {}
+          }
+          state.walletHoldings.set(walletKey, cachedHoldings);
           if (chain === 'solana' && cached.dayChange) {
             state.walletDayChange.set(walletKey, cached.dayChange);
           }
@@ -1898,7 +2056,13 @@ async function scanWallets({ queueOverride } = {}) {
           continue;
         }
 
-        const holdings = await fetchWalletHoldings(wallet, chain, { signal });
+        let holdings = await fetchWalletHoldings(wallet, chain, { signal });
+
+        if (chain === 'solana') {
+          try {
+            holdings = await enrichSolHoldingsWith24hChange(holdings, { signal });
+          } catch {}
+        }
         state.walletHoldings.set(walletKey, holdings);
 
         let dayChange = null;
