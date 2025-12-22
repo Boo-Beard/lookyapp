@@ -3345,6 +3345,8 @@ function setupEventListeners() {
     const active = getActiveProfileName();
     const names = Object.keys(profiles).sort((a, b) => a.localeCompare(b));
 
+    profileSelect.classList.toggle('hidden', names.length === 0);
+
     profileSelect.innerHTML = [
       '<option value="">Select profile</option>',
       ...names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`),
