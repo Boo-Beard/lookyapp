@@ -751,6 +751,10 @@ body.is-redacted .logo-lockup .eye::after {
   box-shadow: 0 3px 0 rgba(11, 11, 16, 0.25);
 }
 
+body.is-redacted .logo-lockup .eye {
+  background: transparent;
+}
+
 body.is-redacted .logo-lockup .pupil {
   opacity: 0;
 }
