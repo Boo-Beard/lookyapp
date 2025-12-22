@@ -1,5 +1,3 @@
-// Looky - Modern Crypto Portfolio Viewerhhg
-// Enhanced UI with smooth animations and better UX
 
 const $ = (id) => document.getElementById(id);
 
@@ -116,9 +114,7 @@ function extractBirdeyePriceValue(obj) {
   return Number.isFinite(price) ? price : 0;
 }
 
-async function fetchSolTokenPct24hFromHistoricalUnix(tokenAddress, { signal } = {}) {
-  // Query closest price around (now - 24h). Birdeye supports Solana coverage for this endpoint.
-  const unixtime = Math.floor((Date.now() - (24 * 60 * 60 * 1000)) / 1000);
+async function fetchSolTokenPct24hFromHistoricalUnix(tokenAddress, { signal } = {}) {  const unixtime = Math.floor((Date.now() - (24 * 60 * 60 * 1000)) / 1000);
   const hist = await birdeyeRequest('/defi/historical_price_unix', {
     address: tokenAddress,
     unixtime,
@@ -129,17 +125,11 @@ async function fetchSolTokenPct24hFromHistoricalUnix(tokenAddress, { signal } = 
     },
   });
 
-  const d = hist?.data || {};
-
-  // If Birdeye provides priceChange24h directly, it appears to be a percent value.
-  const direct = Number(d?.priceChange24h ?? d?.price_change_24h ?? 0);
+  const d = hist?.data || {};  const direct = Number(d?.priceChange24h ?? d?.price_change_24h ?? 0);
   if (Number.isFinite(direct) && Math.abs(direct) > 0) return direct;
 
   const price24hAgo = Number(d?.value ?? 0);
-  if (!Number.isFinite(price24hAgo) || price24hAgo <= 0) return 0;
-
-  // Compute pct from current price.
-  let priceNow = 0;
+  if (!Number.isFinite(price24hAgo) || price24hAgo <= 0) return 0;  let priceNow = 0;
   try {
     const priceNowResp = await birdeyeRequest('/defi/price', { address: tokenAddress }, {
       signal,
@@ -160,10 +150,7 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
   if (cached && Number.isFinite(cached.pct24h)) return cached.pct24h;
 
   let pct24h = 0;
-  let source = 'none';
-
-  // Prefer /defi/price which is designed to return price + 24h change fields.
-  try {
+  let source = 'none';  try {
     const priceData = await birdeyeRequest('/defi/price', {
       address: tokenAddress,
     }, {
@@ -208,29 +195,18 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
         });
       } catch {}
     }
-  } catch {}
-
-  // Fallback: token_overview with frames=24h (Solana).
-  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
+  } catch {}  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
     try {
       const d = (await fetchSolTokenOverview(tokenAddress, { signal })) || {};
-      const v = d?.value || d?.data || {};
-
-      // Be defensive: response schema can differ by package/endpoint version.
-      const frame24 = d?.['24h'] || d?.frame_24h || d?.frame24h || d?.frames?.['24h'] || d?.frames?.frame_24h || null;
-      const pct = Number(
-        // Some Birdeye responses use priceChange24hPercent.
-        d?.priceChange24hPercent ??
+      const v = d?.value || d?.data || {};      const frame24 = d?.['24h'] || d?.frame_24h || d?.frame24h || d?.frames?.['24h'] || d?.frames?.frame_24h || null;
+      const pct = Number(        d?.priceChange24hPercent ??
         d?.price_change_24h_percent ??
         d?.price_change_24h_percent_value ??
         v?.priceChange24hPercent ??
         v?.price_change_24h_percent ??
         v?.price_change_24h_percent_value ??
         frame24?.priceChange24hPercent ??
-        frame24?.price_change_24h_percent ??
-
-        // Some Birdeye responses put the 24h percent at top-level.
-        d?.priceChangePercent ??
+        frame24?.price_change_24h_percent ??        d?.priceChangePercent ??
         d?.price_change_percent ??
         v?.priceChangePercent ??
         v?.price_change_percent ??
@@ -262,10 +238,7 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
         } catch {}
       }
     } catch {}
-  }
-
-  // Final fallback: compute from historical price at ~24h ago.
-  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
+  }  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
     try {
       const pct = await fetchSolTokenPct24hFromHistoricalUnix(tokenAddress, { signal });
       if (Number.isFinite(pct) && Math.abs(pct) > 0) {
@@ -304,10 +277,7 @@ function holdingDeltaUsdFromPct({ valueUsd, pct }) {
   if (!Number.isFinite(v) || !Number.isFinite(p) || v <= 0) return 0;
   const r = p / 100;
   const denom = 1 + r;
-  if (Math.abs(denom) < 1e-9) return 0;
-  // value_now = value_24h_ago * (1 + r)
-  // delta = value_now - value_24h_ago = value_now * r/(1+r)
-  return v * (r / denom);
+  if (Math.abs(denom) < 1e-9) return 0;  return v * (r / denom);
 }
 
 async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
@@ -334,19 +304,14 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
     .map((h) => String(h?.address || h?.token_address || '').trim())
     .filter(Boolean)));
 
-  if (uniq.length === 0) return out;
-
-  // Keep concurrency conservative.
-  const concurrency = 4;
+  if (uniq.length === 0) return out;  const concurrency = 4;
   const pctByAddr = new Map();
   const metaByAddr = new Map();
   let idx = 0;
 
   const isNativeSol = (addr) => String(addr) === 'So11111111111111111111111111111111111111111';
 
-  async function fetchSolTokenMeta(addr) {
-    // token_overview often includes liquidity/volume stats; reuse cached response.
-    const d = (await fetchSolTokenOverview(addr, { signal })) || {};
+  async function fetchSolTokenMeta(addr) {    const d = (await fetchSolTokenOverview(addr, { signal })) || {};
     const liquidityUsd = Number(
       d?.liquidity ?? 
       d?.liquidityUsd ?? 
@@ -404,10 +369,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
     const meta = metaByAddr.get(addr) || { liquidityUsd: 0, volume24hUsd: 0 };
     const eligible = isNativeSol(addr) ||
       (Number(meta?.liquidityUsd || 0) >= SOL_CHANGE_ELIGIBLE_LIQUIDITY_USD) ||
-      (Number(meta?.volume24hUsd || 0) >= SOL_CHANGE_ELIGIBLE_VOLUME24H_USD);
-
-    // Overwrite/change fields used by aggregation, so SOL portfolio change becomes price-based.
-    const deltaUsd = holdingDeltaUsdFromPct({ valueUsd, pct: pct24h });
+      (Number(meta?.volume24hUsd || 0) >= SOL_CHANGE_ELIGIBLE_VOLUME24H_USD);    const deltaUsd = holdingDeltaUsdFromPct({ valueUsd, pct: pct24h });
     h.changePct = pct24h;
     h.changeUsd = deltaUsd;
     h.change_1d_usd = deltaUsd;
@@ -639,10 +601,7 @@ const MCAP_CACHE_TTL_MS = 10 * 60 * 1000;
 const MCAP_MAX_LOOKUPS_PER_RENDER = 80;
 const MCAP_CONCURRENCY = 4;
 
-let statusHideTimer = null;
-
-// Telegram Integration
-const TG = (() => {
+let statusHideTimer = null;const TG = (() => {
   try { return window.Telegram?.WebApp || null; } catch { return null; }
 })();
 
@@ -651,9 +610,7 @@ const isTelegram = () => !!TG && typeof TG.ready === 'function';
 function tgIsAtLeast(version) {
   if (!isTelegram()) return false;
   try {
-    if (typeof TG.isVersionAtLeast === 'function') return TG.isVersionAtLeast(version);
-    // If the SDK can't tell us, assume "supported" and rely on try/catch.
-    return true;
+    if (typeof TG.isVersionAtLeast === 'function') return TG.isVersionAtLeast(version);    return true;
   } catch {
     return false;
   }
@@ -771,10 +728,7 @@ function formatNumber(num) {
   if (Math.abs(n) >= 1) return n.toLocaleString('en-US', { maximumFractionDigits: 6 });
 
   return n.toFixed(8).replace(/\.?0+$/, '') || '0';
-}
-
-// Simple base58 validation
-function isValidBase58(str) {
+}function isValidBase58(str) {
   const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
   for (let i = 0; i < str.length; i++) {
     if (alphabet.indexOf(str[i]) === -1) return false;
@@ -881,9 +835,7 @@ function loadUiSectionState() {
 function saveUiSectionState(next) {
   try {
     localStorage.setItem(STORAGE_KEY_UI_SECTIONS, JSON.stringify(next || {}));
-  } catch {
-    // ignore
-  }
+  } catch {  }
 }
 
 function forceCollapseResultsSections() {
@@ -1119,10 +1071,7 @@ function updateAddressStats() {
   if (counter) {
     counter.classList.toggle('hidden', !hasAny);
     counter.textContent = `${state.addressItems.length} / ${MAX_ADDRESSES}`;
-  }
-
-  // Eye tiredness: start showing veins at 3+ wallets, scale up to the max.
-  const count = state.addressItems.length;
+  }  const count = state.addressItems.length;
   const startAt = 3;
   const maxAt = MAX_ADDRESSES;
   const t = (count < startAt)
@@ -1211,16 +1160,10 @@ function showInputHint(message, type = 'info') {
     hint.classList.add('hidden');
     hint.classList.remove('error');
   }, 2400);
-}
-
-// API Integration (via your backend proxy)
-const API = {
+}const API = {
   zerion: '/api/zerion',
   birdeye: '/api/birdeye',
-};
-
-// Single, correct birdeyeRequest (your file currently has a duplicate nested function)
-async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
+};async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
   const url = new URL(API.birdeye, window.location.origin);
   url.searchParams.set('path', path);
 
@@ -1512,10 +1455,7 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
 
       const chainId = String(row?.relationships?.chain?.data?.id || 'ethereum');
       const implForChain = implementations.find(x => String(x?.chain_id) === chainId);
-      const contractAddress = extractEvmContractAddress(implForChain?.address || '') || '';
-
-      // native assets have null address; keep a stable key for rendering
-      const tokenAddress = contractAddress || `native:${chainId}:${String(fungible?.symbol || 'NATIVE')}`;
+      const contractAddress = extractEvmContractAddress(implForChain?.address || '') || '';      const tokenAddress = contractAddress || `native:${chainId}:${String(fungible?.symbol || 'NATIVE')}`;
 
       const amount = Number(quantity?.float ?? quantity?.numeric ?? 0) || 0;
       const valueUsd = Number(attrs?.value ?? 0) || 0;
@@ -1541,17 +1481,9 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
     });
   }
 
-  const data = await birdeyeRequest('/wallet/v2/current-net-worth', {
-    // Birdeye expects `wallet`
-    wallet: wallet,
+  const data = await birdeyeRequest('/wallet/v2/current-net-worth', {    wallet: wallet,    wallet_address: wallet,
 
-    // keep this too (harmless) in case you use other endpoints later
-    wallet_address: wallet,
-
-    currency: 'usd',
-
-    // Birdeye expects `chain` (not network)
-    chain: 'solana',
+    currency: 'usd',    chain: 'solana',
   }, { signal });
 
   return data?.data?.items || [];
@@ -1777,18 +1709,12 @@ function computePortfolioBlendScore(options = {}) {
     return { score: NaN, meta: '—' };
   }
 
-  const pct = (v) => total > 0 ? (Number(v || 0) / total) * 100 : 0;
-
-  // Concentration
-  const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
+  const pct = (v) => total > 0 ? (Number(v || 0) / total) * 100 : 0;  const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
   const top1Value = Number(sortedByValue[0]?.value || 0) || 0;
   const top5Value = sortedByValue.slice(0, 5).reduce((s, h) => s + (Number(h?.value || 0) || 0), 0);
   const top1Pct = pct(top1Value);
   const top5Pct = pct(top5Value);
-  const top1Symbol = String(sortedByValue[0]?.symbol || sortedByValue[0]?.name || 'Top holding');
-
-  // Stablecoin exposure
-  const stableSymbols = new Set([
+  const top1Symbol = String(sortedByValue[0]?.symbol || sortedByValue[0]?.name || 'Top holding');  const stableSymbols = new Set([
     'USDC', 'USDT', 'DAI', 'USDE', 'FDUSD', 'TUSD', 'USDP', 'PYUSD', 'USDY', 'FRAX', 'LUSD', 'SUSD', 'GUSD',
   ]);
   const stableValue = holdings.reduce((s, h) => {
@@ -1796,10 +1722,7 @@ function computePortfolioBlendScore(options = {}) {
     if (!stableSymbols.has(sym)) return s;
     return s + (Number(h?.value || 0) || 0);
   }, 0);
-  const stablePct = pct(stableValue);
-
-  // Chain diversification (HHI)
-  const chainTotals = new Map();
+  const stablePct = pct(stableValue);  const chainTotals = new Map();
   for (const h of holdings) {
     const v = Number(h?.value || 0) || 0;
     const chain = String(h?.chain || 'unknown');
@@ -1813,10 +1736,7 @@ function computePortfolioBlendScore(options = {}) {
   }
   const chainShares = Array.from(chainTotals.values()).map(v => (total > 0 ? (Number(v || 0) / total) : 0));
   const hhi = chainShares.reduce((s, w) => s + (w * w), 0);
-  const topChainPct = chainShares.length ? (Math.max(...chainShares) * 100) : 0;
-
-  // Dust / clutter
-  const DUST_USD = 1;
+  const topChainPct = chainShares.length ? (Math.max(...chainShares) * 100) : 0;  const DUST_USD = 1;
   const dust = holdings.reduce((acc, h) => {
     const v = Number(h?.value || 0) || 0;
     if (v > 0 && v < DUST_USD) {
@@ -1825,10 +1745,7 @@ function computePortfolioBlendScore(options = {}) {
     }
     return acc;
   }, { count: 0, value: 0 });
-  const dustPct = pct(dust.value);
-
-  // Wallet concentration
-  const walletTotals = new Map();
+  const dustPct = pct(dust.value);  const walletTotals = new Map();
   for (const h of holdings) {
     const v = Number(h?.value || 0) || 0;
     const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean).map(String) : [];
@@ -1838,16 +1755,10 @@ function computePortfolioBlendScore(options = {}) {
     for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
   }
   const topWalletValue = walletTotals.size ? Math.max(...Array.from(walletTotals.values())) : 0;
-  const topWalletPct = pct(topWalletValue);
-
-  // Volatility proxy (portfolio 24h move magnitude)
-  const totalNow = Number(state.totalValueForChange || 0) || 0;
+  const topWalletPct = pct(topWalletValue);  const totalNow = Number(state.totalValueForChange || 0) || 0;
   const total24hAgo = Number(state.totalValue24hAgo || 0) || 0;
   const delta = totalNow - total24hAgo;
-  const movePct = (total24hAgo > 0) ? (Math.abs(delta) / total24hAgo) * 100 : 0;
-
-  // Penalties (tuned for a "blend" score: balances risk + opportunity)
-  const penalties = [];
+  const movePct = (total24hAgo > 0) ? (Math.abs(delta) / total24hAgo) * 100 : 0;  const penalties = [];
   const addPenalty = (key, points, reason) => {
     const p = clamp(points, 0, 100);
     if (p <= 0.0001) return;
@@ -1871,10 +1782,7 @@ function computePortfolioBlendScore(options = {}) {
     Number(options?.top1TargetPct ?? 25),
     5,
     90
-  );
-
-  // Concentration: biggest driver
-  addPenalty(
+  );  addPenalty(
     'concentration_top1',
     clamp(((top1Pct - top1TargetPct) / 50) * 18, 0, 18),
     `High concentration: top holding ${formatPct(top1Pct)} (target ${formatPct(top1TargetPct)})`
@@ -1883,10 +1791,7 @@ function computePortfolioBlendScore(options = {}) {
     'concentration_top5',
     clamp(((top5Pct - 60) / 40) * 12, 0, 12),
     `Top 5 holdings ${formatPct(top5Pct)}`
-  );
-
-  // Stablecoins: sweet spot around target (default ~25%)
-  const stableDistance = Math.abs(stablePct - targetStablePct);
+  );  const stableDistance = Math.abs(stablePct - targetStablePct);
   addPenalty(
     'stable_balance',
     clamp((stableDistance / Math.max(10, targetStablePct || 25)) * 10, 0, 10),
@@ -1896,23 +1801,15 @@ function computePortfolioBlendScore(options = {}) {
     'stable_too_high',
     stablePct > 80 ? clamp(((stablePct - 80) / 20) * 10, 0, 10) : 0,
     `High stablecoin allocation ${formatPct(stablePct)}`
-  );
-
-  // Chains: penalize domination + low diversification via HHI
-  addPenalty(
+  );  addPenalty(
     'chain_domination',
     clamp(((topChainPct - 70) / 30) * 8, 0, 8),
     `Chain concentration ${formatPct(topChainPct)}`
-  );
-  // HHI ranges [~0.2 diversified .. 1 concentrated]
-  addPenalty(
+  );  addPenalty(
     'chain_diversification',
     clamp(((hhi - 0.35) / 0.65) * 7, 0, 7),
     'Low chain diversification'
-  );
-
-  // Dust
-  addPenalty(
+  );  addPenalty(
     'dust_value',
     clamp((dustPct / 5) * 10, 0, 10),
     `Dust exposure ${formatPct(dustPct)} (${dust.count} tokens)`
@@ -1921,17 +1818,11 @@ function computePortfolioBlendScore(options = {}) {
     'dust_count',
     clamp((dust.count / 20) * 5, 0, 5),
     `Many tiny positions (${dust.count})`
-  );
-
-  // Wallet concentration
-  addPenalty(
+  );  addPenalty(
     'wallet_concentration',
     clamp(((topWalletPct - 85) / 15) * 10, 0, 10),
     `Wallet concentration ${formatPct(topWalletPct)}`
-  );
-
-  // Volatility proxy
-  addPenalty(
+  );  addPenalty(
     'volatility',
     clamp((movePct / 20) * 10, 0, 10),
     `24h move magnitude ${formatPct(movePct)}`
@@ -2150,13 +2041,7 @@ function renderAllocationAndRisk() {
   };
 
   const chainBrandColor = (chainKey) => {
-    const key = String(chainKey || '').toLowerCase();
-
-    // Non-EVM
-    if (key === 'solana') return '#7c3aed'; // purple
-
-    // EVM networks
-    if (key === 'evm:ethereum') return '#3b82f6'; // blue
+    const key = String(chainKey || '').toLowerCase();    if (key === 'solana') return '#7c3aed'; // purple    if (key === 'evm:ethereum') return '#3b82f6'; // blue
     if (key === 'evm:base') return '#2563eb'; // deeper blue
     if (key === 'evm:arbitrum') return '#60a5fa'; // light blue
     if (key === 'evm:optimism') return '#ef4444'; // red
@@ -2166,10 +2051,7 @@ function renderAllocationAndRisk() {
     if (key === 'evm:fantom') return '#38bdf8'; // cyan
     if (key === 'evm:gnosis') return '#22c55e'; // green
 
-    if (key === 'other') return '#94a3b8'; // slate
-
-    // Stable fallback color
-    const hue = hashHue(key);
+    if (key === 'other') return '#94a3b8'; // slate    const hue = hashHue(key);
     return `hsl(${hue} 85% 55%)`;
   };
 
@@ -2355,10 +2237,7 @@ function renderAllocationAndRisk() {
   }
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
-  const insights = [];
-
-  // Deterministic "what changed today" highlights (kept compact and non-gimmicky)
-  try {
+  const insights = [];  try {
     const data = computeWhatChangedToday();
 
     if (Array.isArray(data?.topTokens) && data.topTokens.length) {
@@ -2786,11 +2665,7 @@ function recomputeAggregatesAndRender() {
 
   state.walletHoldings.forEach((items, walletKey) => {
     const [chain, wallet] = walletKey.split(':');
-    wallets.push({ address: wallet, chain, count: items.length });
-
-    // For Solana, prefer a price/market-based 24h change by summing per-holding 1d deltas.
-    // This tends to match Phantom better than "net worth change" which can include transfers.
-    let solWalletNow = 0;
+    wallets.push({ address: wallet, chain, count: items.length });    let solWalletNow = 0;
     let solWalletChange = 0;
     let solWalletHasChange = false;
 
@@ -2845,10 +2720,7 @@ function recomputeAggregatesAndRender() {
         });
       }
       total += value;
-      if (chain === 'solana') {
-        // To match Phantom more closely, only include tokens that appear to have real price discovery
-        // (liquidity/volume), otherwise spam/illiquid tokens can dominate and flip sign.
-        const eligible = holding._changeEligible !== false;
+      if (chain === 'solana') {        const eligible = holding._changeEligible !== false;
         if (DEBUG_SOL_CHANGE) {
           try {
             solDebugContrib.push({
@@ -3368,10 +3240,7 @@ function setupEventListeners() {
     const next = !document.body.classList.contains('is-redacted');
     applyRedactedMode(next);
     hapticFeedback('light');
-  });
-
-  // Tap to reveal (mobile): temporarily unblur a single field.
-  document.addEventListener('click', (e) => {
+  });  document.addEventListener('click', (e) => {
     if (!document.body.classList.contains('is-redacted')) return;
     if (window.matchMedia('(hover: hover)').matches) return;
     const el = e.target?.closest?.('.redacted-field');
@@ -3690,10 +3559,7 @@ function setupFooterRotator() {
 
     window.setTimeout(() => {
       idx = (idx + 1) % phrases.length;
-      setText(phrases[idx]);
-
-      // force reflow so transition always fires
-      void el.offsetWidth;
+      setText(phrases[idx]);      void el.offsetWidth;
 
       el.classList.remove('is-out');
       el.classList.add('is-in');

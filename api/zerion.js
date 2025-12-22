@@ -17,10 +17,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Missing ?path= or ?address=' });
     }
 
-    const normalizedPath = String(path).trim();
-    // Allow only the Zerion endpoint this app uses.
-    // This prevents the backend from becoming a general-purpose proxy.
-    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/positions\/$/i.test(normalizedPath);
+    const normalizedPath = String(path).trim();    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/positions\/$/i.test(normalizedPath);
     if (!allowedPath) {
       return res.status(400).json({ success: false, message: 'Invalid Zerion path.' });
     }

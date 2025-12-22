@@ -1,9 +1,7 @@
-/* ============================================
-   LOOKY - Modern Crypto Portfolio Viewer
-   ============================================ */
+
 
 :root {
-  /* Color Palette */
+  
   --bg-primary: #FFF8E7;
   --bg-secondary: #FFF1CF;
   --bg-card: rgba(255, 255, 255, 0.92);
@@ -36,20 +34,20 @@
   --warning: #F59E0B;
   --danger: #EF4444;
 
-  /* Spacing */
+  
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Shadows */
+  
   --shadow-sm: 2px 2px 0 rgba(11, 11, 16, 0.95);
   --shadow-md: 4px 4px 0 rgba(11, 11, 16, 0.95);
   --shadow-lg: 6px 6px 0 rgba(11, 11, 16, 0.95);
   --shadow-glow: none;
 
-  /* Animations */
+  
   --transition-fast: 150ms ease;
   --transition-normal: 300ms ease;
   --transition-slow: 500ms ease;
@@ -61,7 +59,7 @@
   }
 }
 
-/* Reset & Base */
+
 * {
   margin: 0;
   padding: 0;
@@ -216,7 +214,7 @@ background: var(--paper);
   padding: 14px 0 22px;
 }
 
-/* Landing / Results modes */
+
 body.ui-landing {
   background: var(--paper);
 }
@@ -292,9 +290,9 @@ body.ui-landing .tips-section {
 
 body.ui-landing .textarea-wrapper {
     order: 2;
-    /* border-radius: var(--radius-lg); */
-    /* background: rgba(255, 255, 255, 0.02); */
-    /* border: 1px solid rgba(255, 255, 255, 0.08);*/
+    
+    
+    
 }
 
 body.ui-landing .scan-status {
@@ -594,7 +592,7 @@ width: 44px;
   display: inline-block;
 }
 
-/* 24h change: arrow + colored text (no pill) */
+
 #totalChange.summary-change {
     align-items: baseline;
     gap: 6px;
@@ -633,7 +631,7 @@ width: 44px;
   }
 }
 
-/* Mobile / Telegram WebApp ergonomics */
+
 @media (max-width: 640px) {
   .container {
     padding: 0 14px;
@@ -670,7 +668,7 @@ width: 44px;
 
 }
 
-/* Header */
+
 .header {
   padding: 24px 0;
   margin-bottom: 16px;
@@ -745,15 +743,15 @@ body.ui-landing .logo-title {
   transform: translateY(-1px);
 }
 
-/* Card */
+
 .card {
-    /* background: var(--panel); */
-    /* border: 3px solid var(--border); */
+    
+    
     border-radius: var(--radius-xl);
     backdrop-filter: none;
     overflow: hidden;
     position: relative;
-    /* box-shadow: var(--shadow-md);*/
+    
 }
 
 body.ui-results #resultsSection .card {
@@ -1317,7 +1315,7 @@ body.is-scanning .logo-lockup .eye::before {
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* Buttons */
+
 .action-buttons {
   padding: 0 32px 32px;
   display: flex;
@@ -1381,9 +1379,9 @@ body.is-scanning .logo-lockup .eye::before {
   transform: translateY(1px) scale(0.992);
 }
 
-/* ... */
 
-/* Table Section */
+
+
 .table-section {
   margin-bottom: 24px;
 }
@@ -2197,7 +2195,7 @@ body.ui-results .table-stats {
   color: rgba(11, 11, 16, 0.70);
 }
 
-/* Modal */
+
 .modal {
   position: fixed;
   inset: 0;
@@ -2580,7 +2578,7 @@ body.ui-results .table-stats {
   flex: 1;
 }
 
-/* Footer */
+
 .footer {
   margin-top: 48px;
   padding: 32px 0;
@@ -2644,12 +2642,12 @@ body.ui-results .table-stats {
   color: var(--text-tertiary);
 }
 
-/* Utilities */
+
 .hidden {
   display: none !important;
 }
 
-/* Animations */
+
 @keyframes float {
   0%, 100% {
     transform: translate(0, 0) scale(1);
@@ -2682,7 +2680,7 @@ body.ui-results .table-stats {
   }
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .container {
     padding: 0 16px;
@@ -2835,7 +2833,7 @@ body.ui-results .table-stats {
     flex-direction: column;
   }
   
-  /* Eye styling - simplified without blinking */
+  
   .eye {
     width: 80px;
     height: 80px;
@@ -2846,7 +2844,7 @@ body.ui-results .table-stats {
     box-shadow: 
       0 10px 30px rgba(0, 0, 0, 0.3),
       inset 0 -5px 15px rgba(0, 0, 0, 0.1);
-    /* Remove transition property that was causing blinking */
+    
   }
 
   .pupil {
@@ -2858,11 +2856,11 @@ body.ui-results .table-stats {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transition: transform 0.08s ease-out; /* Keep smooth movement */
+    transition: transform 0.08s ease-out; 
     will-change: transform;
   }
 
-  /* Add a subtle shine to the eyes */
+  
   .eye::before {
     content: '';
     position: absolute;
@@ -2874,7 +2872,7 @@ body.ui-results .table-stats {
     border-radius: 50%;
     z-index: 2;
   }
-  /* Looky eyes container */
+  
   .looky-eyes {
     display: flex;
     justify-content: center;
@@ -2882,7 +2880,7 @@ body.ui-results .table-stats {
   }
 }
 
-/* Wallet Cards */
+
 .wallets-section {
   margin-bottom: 24px;
 }
