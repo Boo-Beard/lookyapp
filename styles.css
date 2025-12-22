@@ -2,14 +2,14 @@
 
 :root {
   
-  --bg-primary: #FFF8E7;
-  --bg-secondary: #FFF1CF;
-  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-primary: #FFF4D3;
+  --bg-secondary: #FFE7A0;
+  --bg-card: rgba(255, 255, 255, 0.94);
   --bg-overlay: rgba(8, 8, 10, 0.72);
 
   --ink: #0B0B10;
-  --paper: #dba931;
-  --panel: #dba931;
+  --paper: #F2C94C;
+  --panel: #F7D772;
   --accent: #FF2D55;
   --accent-2: #00C2FF;
   --accent-3: #FFD400;
@@ -42,9 +42,9 @@
   --radius-full: 9999px;
 
   
-  --shadow-sm: 2px 2px 0 rgba(11, 11, 16, 0.95);
-  --shadow-md: 4px 4px 0 rgba(11, 11, 16, 0.95);
-  --shadow-lg: 6px 6px 0 rgba(11, 11, 16, 0.95);
+  --shadow-sm: 3px 3px 0 rgba(11, 11, 16, 0.95);
+  --shadow-md: 6px 6px 0 rgba(11, 11, 16, 0.95);
+  --shadow-lg: 9px 9px 0 rgba(11, 11, 16, 0.95);
   --shadow-glow: none;
 
   
@@ -230,8 +230,9 @@ body.ui-results::before {
     radial-gradient(900px 420px at 55% 0%, rgba(255, 45, 85, 0.12), transparent 65%),
     radial-gradient(700px 360px at 15% 85%, rgba(0, 194, 255, 0.10), transparent 62%),
     radial-gradient(700px 360px at 85% 85%, rgba(255, 212, 0, 0.10), transparent 62%),
-    radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.06) 0 1px, transparent 1px 14px),
-    radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.05) 0 1px, transparent 1px 16px);
+    radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.07) 0 1px, transparent 1px 13px),
+    radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.06) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(0deg, rgba(11, 11, 16, 0.025) 0 1px, rgba(0, 0, 0, 0) 1px 9px);
 }
 
 body.ui-landing .input-section {
@@ -499,9 +500,9 @@ body.is-redacted .redacted-field.is-revealed {
   padding: 34px 12px 14px;
   overflow: visible;
   border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   backdrop-filter: none;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   margin-bottom: 0;
 }
 
@@ -752,12 +753,17 @@ body.ui-landing .logo-title {
     backdrop-filter: none;
     overflow: hidden;
     position: relative;
+    transform: translateZ(0);
     
 }
 
 body.ui-results #resultsSection .card {
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-md);
+  border: 4px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+body.ui-results #resultsSection .card:hover {
+  transform: translateY(-2px);
 }
 
 body.ui-results #resultsSection .card::before {
@@ -1331,7 +1337,7 @@ body.is-scanning .logo-lockup .eye::before {
   gap: 8px;
   padding: 0 24px;
   height: 48px;
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   border-radius: var(--radius-lg);
   font-family: inherit;
   font-size: 15px;
@@ -1344,7 +1350,8 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .btn:active {
-  transform: translateY(1px) scale(0.992);
+  transform: translateY(3px) scale(0.992);
+  box-shadow: 1px 1px 0 rgba(11, 11, 16, 0.95);
 }
 
 .btn-primary {
@@ -1354,7 +1361,7 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) rotate(-0.2deg);
   box-shadow: var(--shadow-lg);
 }
 
@@ -1366,7 +1373,7 @@ body.is-scanning .logo-lockup .eye::before {
 .btn-outline {
   background: var(--panel);
   color: var(--ink);
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
 
@@ -1584,7 +1591,7 @@ body.ui-results .table-header {
   width: 100%;
   padding: 12px 14px 12px 42px;
   border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-md);
   color: var(--ink);
@@ -1600,7 +1607,7 @@ body.ui-results .table-header {
   width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-md);
   color: var(--ink);
@@ -1614,12 +1621,28 @@ body.ui-results .table-header {
     gap: 10px;
     padding: 3px 11px;
     border-radius: var(--radius-xl);
-    border: 3px solid var(--border);
+    border: 4px solid var(--border);
     background: rgba(255, 255, 255, 0.45);
     box-shadow: var(--shadow-md);
     color: rgba(11, 11, 16, 0.80);
     font-weight: 700;
     user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  body.ui-results #resultsSection .card:hover {
+    transform: none;
+  }
+
+  .btn-primary:hover {
+    transform: none;
+  }
 }
 
 .checkbox input {
