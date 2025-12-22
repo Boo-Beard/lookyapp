@@ -1257,8 +1257,8 @@ function buildDexscreenerTokenUrl({ chain, network, address }) {
 }
 
 function buildDextoolsTokenUrl({ chain, network, address }) {
-  const c = dextoolsChain(chain, network);
-  return `https://www.dextools.io/app/en/${c}/token/${address}`;
+  const q = encodeURIComponent(String(address || '').trim());
+  return `https://www.dextools.io/app/en/search?query=${q}`;
 }
 
 function buildBirdeyeTokenUrl({ chain, network, address }) {
