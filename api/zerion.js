@@ -2,14 +2,27 @@ export default async function handler(req, res) {
   try {
     const { path: rawPath, address, ...rest } = req.query;
 
+    const addressStr = (typeof address === 'string' && address) ? String(address).trim() : '';
+    if (addressStr && !/^(0x[a-f0-9]{40}|[a-z0-9\.\-]{3,})$/i.test(addressStr)) {
+      return res.status(400).json({ success: false, message: 'Invalid address.' });
+    }
+
     const path = (typeof rawPath === 'string' && rawPath)
-      ? rawPath
-      : (typeof address === 'string' && address)
-        ? `/v1/wallets/${address}/positions/`
+      ? String(rawPath)
+      : addressStr
+        ? `/v1/wallets/${addressStr}/positions/`
         : null;
 
     if (!path || typeof path !== 'string') {
       return res.status(400).json({ success: false, message: 'Missing ?path= or ?address=' });
+    }
+
+    const normalizedPath = String(path).trim();
+    // Allow only the Zerion endpoint this app uses.
+    // This prevents the backend from becoming a general-purpose proxy.
+    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/positions\/$/i.test(normalizedPath);
+    if (!allowedPath) {
+      return res.status(400).json({ success: false, message: 'Invalid Zerion path.' });
     }
 
     const auth =
@@ -24,7 +37,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const url = new URL(`https://api.zerion.io${path}`);
+    const url = new URL(`https://api.zerion.io${normalizedPath}`);
     for (const [k, v] of Object.entries(rest)) {
       if (v !== undefined && v !== null && String(v).length) {
         url.searchParams.set(k, String(v));

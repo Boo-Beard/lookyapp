@@ -604,11 +604,27 @@ function buildWalletQueue() {
 }
 
 let recomputeQueued = false;
+let recomputeLastAt = 0;
+let recomputeThrottleTimer = null;
 function scheduleRecomputeAggregatesAndRender() {
+  const now = Date.now();
+  const throttleMs = state.scanning ? 450 : 0;
+
+  if (throttleMs > 0 && (now - recomputeLastAt) < throttleMs) {
+    if (recomputeThrottleTimer) return;
+    const wait = Math.max(0, throttleMs - (now - recomputeLastAt));
+    recomputeThrottleTimer = window.setTimeout(() => {
+      recomputeThrottleTimer = null;
+      scheduleRecomputeAggregatesAndRender();
+    }, wait);
+    return;
+  }
+
   if (recomputeQueued) return;
   recomputeQueued = true;
   requestAnimationFrame(() => {
     recomputeQueued = false;
+    recomputeLastAt = Date.now();
     recomputeAggregatesAndRender();
   });
 }

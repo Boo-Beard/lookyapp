@@ -7,6 +7,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: "Missing ?path=" });
     }
 
+    const normalizedPath = String(path).trim();
+    // Only allow known Birdeye API namespaces used by the app.
+    // This avoids turning the server into a generic open proxy.
+    const allowedPath = /^\/(defi|wallet)\/[a-z0-9_\-\/]+$/i.test(normalizedPath);
+    if (!allowedPath) {
+      return res.status(400).json({ success: false, message: "Invalid Birdeye path." });
+    }
+
     const apiKey =
       process.env.BIRDEYE_API_KEY ||
       process.env.BIRDEYE_KEY ||
@@ -26,10 +34,13 @@ export default async function handler(req, res) {
       chain ||
       network;
 
-    const xChain = xChainRaw ? String(xChainRaw) : "";
+    const xChain = xChainRaw ? String(xChainRaw).trim() : "";
+    if (xChain && !/^[a-z0-9_\-]+$/i.test(xChain)) {
+      return res.status(400).json({ success: false, message: "Invalid x-chain." });
+    }
 
     // Build Birdeye URL
-    const url = new URL(`https://public-api.birdeye.so${path}`);
+    const url = new URL(`https://public-api.birdeye.so${normalizedPath}`);
     for (const [k, v] of Object.entries(rest)) {
       if (v !== undefined && v !== null && String(v).length) {
         url.searchParams.set(k, v);
