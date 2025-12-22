@@ -527,7 +527,7 @@ width: 44px;
     justify-content: center;
     border-radius: 14px;
     border: 3px solid var(--border);
-    background: #f4d896;
+    background: var(--panel);
     box-shadow: var(--shadow-sm);
     color: rgba(11, 11, 16, 0.92);
     position: absolute;
@@ -583,7 +583,7 @@ width: 44px;
   margin-bottom: 10px;
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.28);
+  background: var(--panel);
   padding: 10px 12px;
   font-weight: 800;
   color: rgba(11, 11, 16, 0.82);
@@ -1280,7 +1280,7 @@ body.is-scanning .logo-lockup .eye::before {
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--panel);
 }
 
 .address-chip.solana {
@@ -1460,7 +1460,7 @@ body.ui-results .table-header {
     padding: 12px;
     border-radius: var(--radius-xl);
     border: 3px solid var(--border);
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--panel);
     box-shadow: var(--shadow-sm);
   }
 
@@ -1548,7 +1548,7 @@ body.ui-results .table-header {
   padding: 8px;
   border-radius: var(--radius-xl);
   border: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--panel);
   box-shadow: var(--shadow-md);
 }
 
@@ -1559,7 +1559,7 @@ body.ui-results .table-header {
   padding: 10px 12px;
   font-weight: 800;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--panel);
   color: var(--ink);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
@@ -1592,11 +1592,11 @@ body.ui-results .table-header {
   padding: 12px 14px 12px 42px;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-md);
   color: var(--ink);
   font-size: 14px;
   outline: none;
+  background: var(--panel);
 }
 
 .search-input:focus {
@@ -1608,7 +1608,7 @@ body.ui-results .table-header {
   padding: 12px 14px;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--panel);
   box-shadow: var(--shadow-md);
   color: var(--ink);
   font-weight: 700;
@@ -1622,11 +1622,11 @@ body.ui-results .table-header {
     padding: 3px 11px;
     border-radius: var(--radius-xl);
     border: 4px solid var(--border);
-    background: rgba(255, 255, 255, 0.45);
     box-shadow: var(--shadow-md);
     color: rgba(11, 11, 16, 0.80);
     font-weight: 700;
     user-select: none;
+    background: var(--panel);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1706,7 +1706,7 @@ body.ui-results .table-subtitle {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--panel);
   border-bottom: 3px solid var(--border);
   position: sticky;
   top: 0;
@@ -1810,7 +1810,7 @@ body.ui-results .holding-row::after {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--panel);
   object-fit: cover;
 }
 
@@ -1894,7 +1894,7 @@ body.ui-results .holdings-table td:nth-child(5) {
     justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--panel);
   }
 
   .holding-card-header-right {
@@ -1930,13 +1930,13 @@ body.ui-results .holdings-table td:nth-child(5) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.30);
+    background: var(--panel);
   }
 
   .holding-metric {
     border-radius: 16px;
     border: 2px solid var(--border);
-    background: rgba(255, 255, 255, 0.35);
+    background: var(--panel);
     padding: 10px;
   }
 
@@ -2030,7 +2030,7 @@ body.holdings-cards .holding-card-header {
   gap: 10px;
   flex-wrap: wrap;
   border-bottom: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--panel);
 }
 
 body.holdings-cards .holding-card-header-right {
@@ -2062,7 +2062,7 @@ body.holdings-cards .holding-action {
   justify-content: center;
   border-radius: 12px;
   border: 2px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--panel);
   color: rgba(11, 11, 16, 0.82);
   text-decoration: none;
   box-shadow: var(--shadow-sm);
@@ -2108,7 +2108,7 @@ body.holdings-cards .holding-card-metrics {
 body.holdings-cards .holding-metric {
   border-radius: 16px;
   border: 2px solid var(--border);
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--panel);
   padding: 10px;
 }
 
@@ -2143,7 +2143,7 @@ body.holdings-cards .holding-metric-value strong {
 }
 
 body.ui-results .chain-badge-small {
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--panel);
   border: 2px solid var(--border);
   color: rgba(11, 11, 16, 0.78);
 }
@@ -2205,7 +2205,7 @@ body.ui-results .chain-badge-small {
 
 body.ui-results .table-footer {
   border-top: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--panel);
   margin-top: 10px;
 }
 
@@ -2338,7 +2338,7 @@ body.ui-results .table-stats {
   justify-content: center;
   border-radius: var(--radius-lg);
   border: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--panel);
   box-shadow: var(--shadow-sm);
   color: rgba(11, 11, 16, 0.82);
   cursor: pointer;
@@ -2485,7 +2485,7 @@ body.ui-results .table-stats {
 .alloc-row {
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--panel);
   padding: 10px 12px;
 }
 
@@ -2526,10 +2526,10 @@ body.ui-results .table-stats {
 .insight-item {
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.28);
   padding: 10px 12px;
   font-weight: 800;
   color: rgba(11, 11, 16, 0.82);
+  background: var(--panel);
 }
 
 .modal-stats {
