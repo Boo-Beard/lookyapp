@@ -1082,6 +1082,8 @@ function updateAddressStats() {
   $('inputHeader')?.classList.toggle('hidden', !hasAny);
   $('chainBadges')?.classList.toggle('hidden', !hasAny);
   $('shareLinkBtn')?.classList.toggle('hidden', !hasValid);
+  $('saveProfileBtn')?.classList.toggle('hidden', !hasValid);
+  $('deleteProfileBtn')?.classList.toggle('hidden', !hasValid);
 
   $('solCount') && ($('solCount').textContent = String(solana));
   $('evmCount') && ($('evmCount').textContent = String(evm));
