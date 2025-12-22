@@ -2123,7 +2123,7 @@ function setupEventListeners() {
     const btn = $('redactedToggleBtn');
     if (btn) {
       const label = btn.querySelector('span:last-child');
-      if (label) label.textContent = enabled ? 'Reveal' : 'Redact';
+      if (label) label.textContent = enabled ? 'Show Balances' : 'Hide Balances';
     }
   };
 

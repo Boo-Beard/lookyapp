@@ -737,6 +737,15 @@ body.ui-results .input-section.is-minimized {
   pointer-events: none;
 }
 
+body.is-redacted .logo-lockup .eye::after {
+  transform: scaleY(1);
+  animation: none;
+}
+
+body.is-redacted .logo-lockup .pupil {
+  opacity: 0;
+}
+
 .logo-lockup .pupil {
   position: absolute;
   width: 50px;
