@@ -55,11 +55,14 @@ const state = {
   holdings: [],
   scanning: false,
   scanMeta: { completed: 0, total: 0 },
+  lastScanFailedQueue: [],
   totalValue: 0,
   totalSolValue: 0,
   totalEvmValue: 0,
   totalChangeSolUsd: 0,
   totalChangeEvmUsd: 0,
+  totalValueForChange: 0,
+  totalValue24hAgo: 0,
   addressItems: [],
   viewMode: 'aggregate',
   scanAbortController: null,
@@ -712,9 +715,11 @@ async function fetchSolanaNetWorthChange(wallet, { signal } = {}) {
 
   const history = data?.data?.history;
   const first = Array.isArray(history) && history.length ? history[0] : null;
+  const netWorthUsd = Number(first?.net_worth ?? first?.netWorth ?? 0) || 0;
   return {
     changeUsd: Number(first?.net_worth_change ?? 0) || 0,
     changePct: Number(first?.net_worth_change_percent ?? 0) || 0,
+    netWorthUsd,
   };
 }
 
@@ -1025,10 +1030,10 @@ function updateSummary() {
 
   const totalChangeEl = $('totalChange');
   if (totalChangeEl) {
-    const total = Number(state.totalValue || 0) || 0;
-    const change = (Number(state.totalChangeSolUsd || 0) || 0) + (Number(state.totalChangeEvmUsd || 0) || 0);
-    const base = Math.max(0, total - change);
-    const pct = base > 0 ? (change / base) * 100 : 0;
+    const totalNow = Number(state.totalValueForChange || 0) || 0;
+    const total24hAgo = Number(state.totalValue24hAgo || 0) || 0;
+    const delta = totalNow - total24hAgo;
+    const pct = total24hAgo > 0 ? (delta / total24hAgo) * 100 : 0;
 
     if (!Number.isFinite(pct) || Math.abs(pct) < 0.0001) {
       totalChangeEl.classList.add('hidden');
@@ -1697,6 +1702,8 @@ function recomputeAggregatesAndRender() {
   let totalEvmValue = 0;
   let totalChangeSolUsd = 0;
   let totalChangeEvmUsd = 0;
+  let totalForChange = 0;
+  let total24hAgo = 0;
 
   state.walletHoldings.forEach((items, walletKey) => {
     const [chain, wallet] = walletKey.split(':');
@@ -1709,6 +1716,16 @@ function recomputeAggregatesAndRender() {
     if (chain === 'solana') {
       const ch = state.walletDayChange?.get(walletKey);
       totalChangeSolUsd += Number(ch?.changeUsd || 0) || 0;
+
+      const solNow = Number(ch?.netWorthUsd || 0) || 0;
+      if (solNow > 0) {
+        totalForChange += solNow;
+        total24hAgo += Math.max(0, solNow - (Number(ch?.changeUsd || 0) || 0));
+      } else {
+        // Fallback: if net worth isn't available, fall back to holdings-derived totals.
+        totalForChange += walletTotalValue;
+        total24hAgo += Math.max(0, walletTotalValue - (Number(ch?.changeUsd || 0) || 0));
+      }
     }
 
     items.forEach(holding => {
@@ -1749,7 +1766,11 @@ function recomputeAggregatesAndRender() {
         });
       }
       total += value;
-      if (chain === 'evm') totalChangeEvmUsd += changeUsd;
+      if (chain === 'evm') {
+        totalChangeEvmUsd += changeUsd;
+        totalForChange += value;
+        total24hAgo += Math.max(0, value - changeUsd);
+      }
     });
   });
 
@@ -1760,6 +1781,8 @@ function recomputeAggregatesAndRender() {
   state.totalEvmValue = totalEvmValue;
   state.totalChangeSolUsd = totalChangeSolUsd;
   state.totalChangeEvmUsd = totalChangeEvmUsd;
+  state.totalValueForChange = totalForChange;
+  state.totalValue24hAgo = total24hAgo;
 
   setHoldingsPage(1);
 
