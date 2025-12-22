@@ -157,15 +157,18 @@
           </div>
         </div>
 
-        <div class="card alloc-risk-card" id="aiScoreCard">
+        <div class="card alloc-risk-card is-collapsed" id="aiScoreCard">
           <div class="alloc-risk-header">
             <div class="collapsible-header-left">
-              <h3 class="table-title">AI Blend Score</h3>
+              <h3 class="table-title">LOOKY! AI Score</h3>
               <div class="table-subtitle">Multi-factor portfolio score (deterministic)</div>
             </div>
             <div class="section-scan-indicator" aria-hidden="true"></div>
+            <button id="aiScoreToggle" class="collapse-toggle" type="button" aria-label="Toggle LOOKY! AI Score" aria-controls="aiScoreContent" aria-expanded="false">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
           </div>
-          <div class="alloc-risk-body">
+          <div id="aiScoreContent" class="alloc-risk-body collapsible-content hidden">
             <div class="alloc-risk-cols">
               <div class="alloc-risk-col full-width">
                 <div class="alloc-risk-section-title">Score</div>

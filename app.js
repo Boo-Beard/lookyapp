@@ -899,6 +899,10 @@ function forceCollapseResultsSections() {
   const walletHoldingsToggle = $('walletHoldingsToggle');
   const walletHoldingsContent = $('walletHoldingsContent');
 
+  const aiScoreCard = $('aiScoreCard');
+  const aiScoreToggle = $('aiScoreToggle');
+  const aiScoreContent = $('aiScoreContent');
+
   if (holdingsCard && holdingsToggle && holdingsContent) {
     holdingsCard.classList.add('is-collapsed');
     holdingsToggle.setAttribute('aria-expanded', 'false');
@@ -917,10 +921,17 @@ function forceCollapseResultsSections() {
     walletHoldingsContent.classList.add('hidden');
   }
 
+  if (aiScoreCard && aiScoreToggle && aiScoreContent) {
+    aiScoreCard.classList.add('is-collapsed');
+    aiScoreToggle.setAttribute('aria-expanded', 'false');
+    aiScoreContent.classList.add('hidden');
+  }
+
   const uiSections = loadUiSectionState();
   uiSections.holdings = false;
   uiSections.allocRisk = false;
   uiSections.walletHoldings = false;
+  uiSections.aiScore = false;
   saveUiSectionState(uiSections);
 }
 
@@ -1683,19 +1694,35 @@ function renderAiScoreSection() {
   metaEl.textContent = s?.meta || '—';
 
   const penalties = Array.isArray(s?.penalties) ? s.penalties.slice() : [];
-  penalties.sort((a, b) => (Number(b?.points || 0) || 0) - (Number(a?.points || 0) || 0));
-  const top = penalties.slice(0, 3);
+  const bonuses = Array.isArray(s?.bonuses) ? s.bonuses.slice() : [];
 
+  penalties.sort((a, b) => (Number(b?.points || 0) || 0) - (Number(a?.points || 0) || 0));
+  bonuses.sort((a, b) => (Number(b?.points || 0) || 0) - (Number(a?.points || 0) || 0));
+
+  const items = [];
+  for (const b of bonuses.slice(0, 3)) {
+    const pts = Math.round(Number(b?.points || 0) || 0);
+    const reason = String(b?.reason || '').trim() || '—';
+    if (pts > 0) items.push({ kind: 'bonus', pts, reason });
+  }
+  for (const p of penalties.slice(0, 6)) {
+    const pts = Math.round(Number(p?.points || 0) || 0);
+    const reason = String(p?.reason || '').trim() || '—';
+    if (pts > 0) items.push({ kind: 'penalty', pts, reason });
+  }
+
+  const top = items.slice(0, 8);
   if (!top.length) {
     driversEl.innerHTML = '<div class="insight-item">Balanced portfolio</div>';
     return;
   }
 
   driversEl.innerHTML = top
-    .map((p) => {
-      const pts = Math.round(Number(p?.points || 0) || 0);
-      const reason = String(p?.reason || '').trim() || '—';
-      return `<div class="insight-item">${escapeHtml(reason)} <span style="opacity:0.75">(-${pts})</span></div>`;
+    .map((it) => {
+      const suffix = it.kind === 'bonus'
+        ? `<span style="opacity:0.75">(+${it.pts})</span>`
+        : `<span style="opacity:0.75">(-${it.pts})</span>`;
+      return `<div class="insight-item">${escapeHtml(it.reason)} ${suffix}</div>`;
     })
     .join('');
 }
@@ -1790,6 +1817,13 @@ function computePortfolioBlendScore() {
     penalties.push({ key, points: p, reason });
   };
 
+  const bonuses = [];
+  const addBonus = (key, points, reason) => {
+    const p = clamp(points, 0, 100);
+    if (p <= 0.0001) return;
+    bonuses.push({ key, points: p, reason });
+  };
+
   // Concentration: biggest driver
   addPenalty(
     'concentration_top1',
@@ -1854,8 +1888,17 @@ function computePortfolioBlendScore() {
     `24h move magnitude ${formatPct(movePct)}`
   );
 
+  const sizeSteps = Math.floor(total / 5000);
+  const sizeBonus = clamp(sizeSteps * 5, 0, 25);
+  addBonus(
+    'portfolio_size',
+    sizeBonus,
+    `Portfolio size bonus ${formatCurrency(total)}`
+  );
+
   const totalPenalty = penalties.reduce((s, p) => s + p.points, 0);
-  const score = clamp(100 - totalPenalty, 0, 100);
+  const totalBonus = bonuses.reduce((s, b) => s + b.points, 0);
+  const score = clamp(100 - totalPenalty + totalBonus, 0, 100);
 
   const label = score >= 85 ? 'Excellent'
     : score >= 75 ? 'Great'
@@ -1867,7 +1910,7 @@ function computePortfolioBlendScore() {
   const topReason = penalties[0]?.reason || 'Balanced portfolio';
   const meta = `${label} • ${topReason}`;
 
-  return { score, label, meta, penalties };
+  return { score, label, meta, penalties, bonuses };
 }
 
 function formatPct(value, digits = 1) {
@@ -3355,6 +3398,10 @@ function setupEventListeners() {
   const walletHoldingsToggle = $('walletHoldingsToggle');
   const walletHoldingsContent = $('walletHoldingsContent');
 
+  const aiScoreCard = $('aiScoreCard');
+  const aiScoreToggle = $('aiScoreToggle');
+  const aiScoreContent = $('aiScoreContent');
+
   function setCollapsed({ card, toggle, content, key, collapsed }) {
     if (!card || !toggle || !content) return;
     const isCollapsed = !!collapsed;
@@ -3374,6 +3421,9 @@ function setupEventListeners() {
   const walletHoldingsOpen = Object.prototype.hasOwnProperty.call(uiSections, 'walletHoldings') ? !!uiSections.walletHoldings : false;
   setCollapsed({ card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings', collapsed: !walletHoldingsOpen });
 
+  const aiScoreOpen = Object.prototype.hasOwnProperty.call(uiSections, 'aiScore') ? !!uiSections.aiScore : false;
+  setCollapsed({ card: aiScoreCard, toggle: aiScoreToggle, content: aiScoreContent, key: 'aiScore', collapsed: !aiScoreOpen });
+
   allocRiskToggle?.addEventListener('click', () => {
     const open = !(allocRiskCard?.classList.contains('is-collapsed'));
     setCollapsed({ card: allocRiskCard, toggle: allocRiskToggle, content: allocRiskContent, key: 'allocRisk', collapsed: open });
@@ -3389,6 +3439,12 @@ function setupEventListeners() {
   walletHoldingsToggle?.addEventListener('click', () => {
     const open = !(walletHoldingsCard?.classList.contains('is-collapsed'));
     setCollapsed({ card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings', collapsed: open });
+    hapticFeedback('light');
+  });
+
+  aiScoreToggle?.addEventListener('click', () => {
+    const open = !(aiScoreCard?.classList.contains('is-collapsed'));
+    setCollapsed({ card: aiScoreCard, toggle: aiScoreToggle, content: aiScoreContent, key: 'aiScore', collapsed: open });
     hapticFeedback('light');
   });
 

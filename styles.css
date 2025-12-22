@@ -135,11 +135,13 @@ body.is-scanning #aiScoreCard {
 body.is-scanning #holdingsCard .collapse-toggle,
 body.is-scanning #allocRiskCard .collapse-toggle,
 body.is-scanning #walletHoldingsCard .collapse-toggle,
+body.is-scanning #aiScoreCard .collapse-toggle,
 body.is-scanning #holdingsCard input,
 body.is-scanning #holdingsCard select,
 body.is-scanning #holdingsCard button,
 body.is-scanning #allocRiskCard button,
-body.is-scanning #walletHoldingsCard button {
+body.is-scanning #walletHoldingsCard button,
+body.is-scanning #aiScoreCard button {
   pointer-events: none;
 }
 
