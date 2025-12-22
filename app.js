@@ -254,12 +254,16 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
         .slice()
         .sort((a, b) => (b.valueUsd || 0) - (a.valueUsd || 0))
         .slice(0, 10);
-      console.debug('[SOL 24h] missing pct24h summary', {
+      const summary = {
         holdings: out.length,
         missing: missing.length,
         missingValueUsd: missingValue,
         top,
-      });
+      };
+
+      window.__lookySol24hDebug = summary;
+      console.debug('[SOL 24h] missing pct24h summary', summary);
+      console.log('[SOL 24h] missing pct24h summary json', JSON.stringify(summary));
     } catch {}
   }
 
