@@ -719,12 +719,12 @@ body.ui-results .input-section.is-minimized {
   height: 100px;
   background-color: rgba(255, 255, 255, 0.96);
   background-image:
-    radial-gradient(circle at 20% 28%, rgb(255 0 0 / calc(var(--eye-tired, 0) * 0.35)) 0 1px, transparent 2px 100%),
-    radial-gradient(circle at 78% 34%, rgb(255 0 0 / calc(var(--eye-tired, 0) * 0.30)) 0 1px, transparent 2px 100%),
-    linear-gradient(30deg, transparent 38%, rgb(255 0 0 / calc(var(--eye-tired, 0) * 0.22)) 39%, transparent 41%),
-    linear-gradient(110deg, transparent 44%, rgb(255 0 0 / calc(var(--eye-tired, 0) * 0.18)) 45%, transparent 47%),
-    linear-gradient(70deg, transparent 62%, rgb(255 0 0 / calc(var(--eye-tired, 0) * 0.14)) 63%, transparent 65%);
-  background-blend-mode: multiply;
+    radial-gradient(circle at 18% 30%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.85)) 0 2px, transparent 3px 100%),
+    radial-gradient(circle at 78% 32%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.75)) 0 2px, transparent 3px 100%),
+    linear-gradient(28deg, transparent 36%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.55)) 37%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.55)) 40%, transparent 41%),
+    linear-gradient(118deg, transparent 42%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.50)) 43%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.50)) 46%, transparent 47%),
+    linear-gradient(72deg, transparent 60%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.45)) 61%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.45)) 63%, transparent 64%);
+  background-blend-mode: normal;
   border: 3px solid var(--border);
   border-radius: 50%;
   position: relative;
