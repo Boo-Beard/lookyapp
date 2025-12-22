@@ -18,6 +18,8 @@ const scanCache = new Map();
 const SOL_CHANGE_CACHE_TTL_MS = 10 * 60 * 1000;
 const solTokenChangeCache = new Map();
 
+const SOL_CHANGE_CACHE_TTL_ZERO_MS = 30 * 1000;
+
 const DEBUG_SOL_CHANGE = false;
 
 function escapeHtml(str) {
@@ -34,7 +36,12 @@ function getSolTokenChangeCache(address) {
   if (!key) return null;
   const entry = solTokenChangeCache.get(key);
   if (!entry) return null;
-  if ((Date.now() - entry.ts) > SOL_CHANGE_CACHE_TTL_MS) {
+
+  const ttl = (Number(entry?.pct24h) && Math.abs(Number(entry.pct24h)) > 0)
+    ? SOL_CHANGE_CACHE_TTL_MS
+    : SOL_CHANGE_CACHE_TTL_ZERO_MS;
+
+  if ((Date.now() - entry.ts) > ttl) {
     solTokenChangeCache.delete(key);
     return null;
   }
