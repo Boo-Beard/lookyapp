@@ -1907,8 +1907,21 @@ function computePortfolioBlendScore() {
           : 'Risky';
 
   penalties.sort((a, b) => b.points - a.points);
-  const topReason = penalties[0]?.reason || 'Balanced portfolio';
-  const meta = `${label} • ${topReason}`;
+  bonuses.sort((a, b) => b.points - a.points);
+
+  const topPenalty = penalties[0];
+  const topPenaltyReason = topPenalty?.reason || 'Balanced portfolio';
+
+  const topBonus = bonuses[0];
+  const topBonusPoints = Math.round(Number(topBonus?.points || 0) || 0);
+  const topBonusLabel = (topBonus && topBonusPoints > 0)
+    ? `+${topBonusPoints} ${String(topBonus?.key || 'bonus').replace(/_/g, ' ')}`
+    : '';
+
+  const metaParts = [label];
+  if (topBonusLabel) metaParts.push(topBonusLabel);
+  if (topPenaltyReason) metaParts.push(topPenaltyReason);
+  const meta = metaParts.join(' • ');
 
   return { score, label, meta, penalties, bonuses };
 }
