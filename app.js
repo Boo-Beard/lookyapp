@@ -109,6 +109,9 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       // Be defensive: response schema can differ by package/endpoint version.
       const frame24 = d?.['24h'] || d?.frame_24h || d?.frame24h || d?.frames?.['24h'] || d?.frames?.frame_24h || null;
       const pct = Number(
+        // Some Birdeye responses put the 24h percent at top-level.
+        d?.priceChangePercent ??
+        d?.price_change_percent ??
         frame24?.priceChangePercent ??
         frame24?.price_change_percent ??
         frame24?.priceChangePct ??
