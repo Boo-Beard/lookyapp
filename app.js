@@ -57,6 +57,62 @@ function setSolTokenChangeCache(address, payload) {
   solTokenChangeCache.set(key, { ts: Date.now(), ...payload });
 }
 
+function extractBirdeyePriceValue(obj) {
+  const d = obj?.data || obj || {};
+  const v = d?.value || d?.data || d?.result || {};
+  const price = Number(
+    d?.value ??
+    d?.price ??
+    d?.priceUsd ??
+    d?.price_usd ??
+    v?.value ??
+    v?.price ??
+    v?.priceUsd ??
+    v?.price_usd ??
+    0
+  );
+  return Number.isFinite(price) ? price : 0;
+}
+
+async function fetchSolTokenPct24hFromHistoricalUnix(tokenAddress, { signal } = {}) {
+  // Query closest price around (now - 24h). Birdeye supports Solana coverage for this endpoint.
+  const unixtime = Math.floor((Date.now() - (24 * 60 * 60 * 1000)) / 1000);
+  const hist = await birdeyeRequest('/defi/historical_price_unix', {
+    address: tokenAddress,
+    unixtime,
+  }, {
+    signal,
+    headers: {
+      'x-chain': 'solana',
+    },
+  });
+
+  const d = hist?.data || {};
+
+  // If Birdeye provides priceChange24h directly, it appears to be a percent value.
+  const direct = Number(d?.priceChange24h ?? d?.price_change_24h ?? 0);
+  if (Number.isFinite(direct) && Math.abs(direct) > 0) return direct;
+
+  const price24hAgo = Number(d?.value ?? 0);
+  if (!Number.isFinite(price24hAgo) || price24hAgo <= 0) return 0;
+
+  // Compute pct from current price.
+  let priceNow = 0;
+  try {
+    const priceNowResp = await birdeyeRequest('/defi/price', { address: tokenAddress }, {
+      signal,
+      headers: {
+        'x-chain': 'solana',
+      },
+    });
+    priceNow = extractBirdeyePriceValue(priceNowResp);
+  } catch {}
+
+  if (!Number.isFinite(priceNow) || priceNow <= 0) return 0;
+  const pct = ((priceNow - price24hAgo) / price24hAgo) * 100;
+  return Number.isFinite(pct) ? pct : 0;
+}
+
 async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
   const cached = getSolTokenChangeCache(tokenAddress);
   if (cached && Number.isFinite(cached.pct24h)) return cached.pct24h;
@@ -164,6 +220,27 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
         } catch {}
       }
     } catch {}
+  }
+
+  // Final fallback: compute from historical price at ~24h ago.
+  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
+    try {
+      const pct = await fetchSolTokenPct24hFromHistoricalUnix(tokenAddress, { signal });
+      if (Number.isFinite(pct) && Math.abs(pct) > 0) {
+        pct24h = pct;
+        source = 'hist_unix';
+      } else if (DEBUG_SOL_CHANGE) {
+        try {
+          console.debug('[SOL 24h] /defi/historical_price_unix pct not found', { tokenAddress });
+        } catch {}
+      }
+    } catch (err) {
+      if (DEBUG_SOL_CHANGE) {
+        try {
+          console.debug('[SOL 24h] /defi/historical_price_unix error', { tokenAddress, message: err?.message || String(err) });
+        } catch {}
+      }
+    }
   }
 
   if (!Number.isFinite(pct24h)) pct24h = 0;
