@@ -155,13 +155,28 @@
               <div id="largestValue" class="summary-sub redacted-field" tabindex="0">$0.00</div>
             </div>
           </div>
+        </div>
 
-          <div class="summary-card score">
-            <div class="summary-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></div>
-            <div class="summary-content">
-              <div class="summary-label">AI Blend Score</div>
-              <div id="portfolioScore" class="summary-value">—</div>
-              <div id="portfolioScoreMeta" class="summary-sub">—</div>
+        <div class="card alloc-risk-card" id="aiScoreCard">
+          <div class="alloc-risk-header">
+            <div class="collapsible-header-left">
+              <h3 class="table-title">AI Blend Score</h3>
+              <div class="table-subtitle">Multi-factor portfolio score (deterministic)</div>
+            </div>
+            <div class="section-scan-indicator" aria-hidden="true"></div>
+          </div>
+          <div class="alloc-risk-body">
+            <div class="alloc-risk-cols">
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Score</div>
+                <div id="aiScoreValue" class="summary-value">—</div>
+                <div id="aiScoreMeta" class="table-subtitle">—</div>
+              </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Key drivers</div>
+                <div id="aiScoreDrivers" class="alloc-risk-insights"></div>
+              </div>
             </div>
           </div>
         </div>

@@ -1661,13 +1661,43 @@ function updateSummary() {
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
 
-  const scoreEl = $('portfolioScore');
-  const scoreMetaEl = $('portfolioScoreMeta');
-  if (scoreEl && scoreMetaEl) {
-    const s = computePortfolioBlendScore();
-    scoreEl.textContent = Number.isFinite(s?.score) ? `${Math.round(s.score)}/100` : '—';
-    scoreMetaEl.textContent = s?.meta || '—';
+  renderAiScoreSection();
+}
+
+function renderAiScoreSection() {
+  const card = $('aiScoreCard');
+  const valueEl = $('aiScoreValue');
+  const metaEl = $('aiScoreMeta');
+  const driversEl = $('aiScoreDrivers');
+  if (!card || !valueEl || !metaEl || !driversEl) return;
+
+  const s = computePortfolioBlendScore();
+  if (!Number.isFinite(s?.score)) {
+    valueEl.textContent = '—';
+    metaEl.textContent = '—';
+    driversEl.innerHTML = '';
+    return;
   }
+
+  valueEl.textContent = `${Math.round(s.score)}/100`;
+  metaEl.textContent = s?.meta || '—';
+
+  const penalties = Array.isArray(s?.penalties) ? s.penalties.slice() : [];
+  penalties.sort((a, b) => (Number(b?.points || 0) || 0) - (Number(a?.points || 0) || 0));
+  const top = penalties.slice(0, 3);
+
+  if (!top.length) {
+    driversEl.innerHTML = '<div class="insight-item">Balanced portfolio</div>';
+    return;
+  }
+
+  driversEl.innerHTML = top
+    .map((p) => {
+      const pts = Math.round(Number(p?.points || 0) || 0);
+      const reason = String(p?.reason || '').trim() || '—';
+      return `<div class="insight-item">${escapeHtml(reason)} <span style="opacity:0.75">(-${pts})</span></div>`;
+    })
+    .join('');
 }
 
 function clamp(n, min, max) {

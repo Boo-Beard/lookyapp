@@ -127,7 +127,8 @@ body.ui-results::after {
 
 body.is-scanning #holdingsCard,
 body.is-scanning #allocRiskCard,
-body.is-scanning #walletHoldingsCard {
+body.is-scanning #walletHoldingsCard,
+body.is-scanning #aiScoreCard {
   opacity: 0.55;
 }
 
@@ -144,7 +145,8 @@ body.is-scanning #walletHoldingsCard button {
 
 body.is-scanning #holdingsCard .section-scan-indicator,
 body.is-scanning #allocRiskCard .section-scan-indicator,
-body.is-scanning #walletHoldingsCard .section-scan-indicator {
+body.is-scanning #walletHoldingsCard .section-scan-indicator,
+body.is-scanning #aiScoreCard .section-scan-indicator {
   display: inline-block;
 }
 
@@ -482,7 +484,7 @@ body.is-redacted .redacted-field.is-revealed {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
