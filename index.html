@@ -180,11 +180,40 @@
                 <div class="alloc-risk-section-title">Key drivers</div>
                 <div id="aiScoreDrivers" class="alloc-risk-insights"></div>
               </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">AI subscores</div>
+                <div id="aiScoreSubscores" class="alloc-risk-insights"></div>
+              </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Recommendations</div>
+                <div id="aiScoreRecs" class="alloc-risk-insights"></div>
+              </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">What-if simulator</div>
+                <div class="looky-whatif">
+                  <div class="looky-whatif-row">
+                    <div class="looky-whatif-label">Target stablecoins</div>
+                    <input id="aiWhatIfStable" type="range" min="0" max="100" step="1" value="25" />
+                    <div id="aiWhatIfStableValue" class="looky-whatif-value">25%</div>
+                  </div>
+                  <div class="looky-whatif-row">
+                    <div class="looky-whatif-label">Max top holding</div>
+                    <input id="aiWhatIfTop1" type="range" min="10" max="80" step="1" value="25" />
+                    <div id="aiWhatIfTop1Value" class="looky-whatif-value">25%</div>
+                  </div>
+                  <div class="looky-whatif-summary">
+                    <div class="looky-whatif-score" id="aiWhatIfScore">—</div>
+                    <div class="looky-whatif-delta" id="aiWhatIfDelta">—</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Holdings Table -->
         <div class="card table-section is-collapsed" id="holdingsCard">
           <div class="table-header">
             <div class="collapsible-header-left">

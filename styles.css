@@ -2701,7 +2701,27 @@ body.ui-results .table-stats {
     right: 16px;
   }
 
+  #aiScoreCard .alloc-risk-header .collapse-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  #walletHoldingsCard .alloc-risk-header .collapse-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
   #allocRiskCard .alloc-risk-header .collapsible-header-left {
+    padding-right: 60px;
+  }
+
+  #aiScoreCard .alloc-risk-header .collapsible-header-left {
+    padding-right: 60px;
+  }
+
+  #walletHoldingsCard .alloc-risk-header .collapsible-header-left {
     padding-right: 60px;
   }
 

@@ -1680,6 +1680,16 @@ function renderAiScoreSection() {
   const valueEl = $('aiScoreValue');
   const metaEl = $('aiScoreMeta');
   const driversEl = $('aiScoreDrivers');
+  const subscoresEl = $('aiScoreSubscores');
+  const recsEl = $('aiScoreRecs');
+
+  const whatIfStableEl = $('aiWhatIfStable');
+  const whatIfStableValueEl = $('aiWhatIfStableValue');
+  const whatIfTop1El = $('aiWhatIfTop1');
+  const whatIfTop1ValueEl = $('aiWhatIfTop1Value');
+  const whatIfScoreEl = $('aiWhatIfScore');
+  const whatIfDeltaEl = $('aiWhatIfDelta');
+
   if (!card || !valueEl || !metaEl || !driversEl) return;
 
   const s = computePortfolioBlendScore();
@@ -1687,6 +1697,10 @@ function renderAiScoreSection() {
     valueEl.textContent = '—';
     metaEl.textContent = '—';
     driversEl.innerHTML = '';
+    subscoresEl && (subscoresEl.innerHTML = '');
+    recsEl && (recsEl.innerHTML = '');
+    whatIfScoreEl && (whatIfScoreEl.textContent = '—');
+    whatIfDeltaEl && (whatIfDeltaEl.textContent = '—');
     return;
   }
 
@@ -1725,6 +1739,56 @@ function renderAiScoreSection() {
       return `<div class="insight-item">${escapeHtml(it.reason)} ${suffix}</div>`;
     })
     .join('');
+
+  if (subscoresEl) {
+    const sub = s?.subscores && typeof s.subscores === 'object' ? s.subscores : null;
+    const parts = sub ? [
+      { k: 'diversification', label: 'Diversification' },
+      { k: 'stability', label: 'Stability' },
+      { k: 'cleanliness', label: 'Cleanliness' },
+      { k: 'custody', label: 'Custody' },
+    ] : [];
+
+    const rows = parts
+      .map((p) => ({ label: p.label, score: Math.round(Number(sub?.[p.k] || 0) || 0) }))
+      .filter((r) => Number.isFinite(r.score));
+
+    subscoresEl.innerHTML = rows.length
+      ? rows.map((r) => `<div class="insight-item">${escapeHtml(r.label)} <span style="opacity:0.75">${r.score}/100</span></div>`).join('')
+      : '<div class="insight-item">—</div>';
+  }
+
+  if (recsEl) {
+    const recs = Array.isArray(s?.recommendations) ? s.recommendations : [];
+    const topRecs = recs.slice(0, 5);
+    recsEl.innerHTML = topRecs.length
+      ? topRecs.map((r) => {
+        const pts = Math.round(Number(r?.impactPoints || 0) || 0);
+        const txt = String(r?.text || '').trim() || '—';
+        const suffix = pts > 0 ? `<span style="opacity:0.75">(+${pts})</span>` : '';
+        return `<div class="insight-item">${escapeHtml(txt)} ${suffix}</div>`;
+      }).join('')
+      : '<div class="insight-item">No recommendations yet</div>';
+  }
+
+  const stableTarget = whatIfStableEl ? clamp(Number(whatIfStableEl.value), 0, 100) : 25;
+  const top1Target = whatIfTop1El ? clamp(Number(whatIfTop1El.value), 10, 80) : 25;
+  whatIfStableValueEl && (whatIfStableValueEl.textContent = `${Math.round(stableTarget)}%`);
+  whatIfTop1ValueEl && (whatIfTop1ValueEl.textContent = `${Math.round(top1Target)}%`);
+
+  if (whatIfScoreEl && whatIfDeltaEl) {
+    const sim = computePortfolioBlendScore({ targetStablePct: stableTarget, top1TargetPct: top1Target, mode: 'whatif' });
+    if (Number.isFinite(sim?.score)) {
+      const base = Number(s?.score || 0) || 0;
+      const delta = sim.score - base;
+      const sign = delta >= 0 ? '+' : '';
+      whatIfScoreEl.textContent = `Simulated: ${Math.round(sim.score)}/100`;
+      whatIfDeltaEl.textContent = `Change: ${sign}${delta.toFixed(1)} pts`;
+    } else {
+      whatIfScoreEl.textContent = '—';
+      whatIfDeltaEl.textContent = '—';
+    }
+  }
 }
 
 function clamp(n, min, max) {
@@ -1733,7 +1797,7 @@ function clamp(n, min, max) {
   return Math.min(max, Math.max(min, x));
 }
 
-function computePortfolioBlendScore() {
+function computePortfolioBlendScore(options = {}) {
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
   const total = Number(state.totalValue || 0) || 0;
 
@@ -1824,11 +1888,23 @@ function computePortfolioBlendScore() {
     bonuses.push({ key, points: p, reason });
   };
 
+  const targetStablePct = clamp(
+    Number(options?.targetStablePct ?? 25),
+    0,
+    100
+  );
+
+  const top1TargetPct = clamp(
+    Number(options?.top1TargetPct ?? 25),
+    5,
+    90
+  );
+
   // Concentration: biggest driver
   addPenalty(
     'concentration_top1',
-    clamp(((top1Pct - 25) / 50) * 18, 0, 18),
-    `High concentration: top holding ${formatPct(top1Pct)}`
+    clamp(((top1Pct - top1TargetPct) / 50) * 18, 0, 18),
+    `High concentration: top holding ${formatPct(top1Pct)} (target ${formatPct(top1TargetPct)})`
   );
   addPenalty(
     'concentration_top5',
@@ -1836,12 +1912,12 @@ function computePortfolioBlendScore() {
     `Top 5 holdings ${formatPct(top5Pct)}`
   );
 
-  // Stablecoins: sweet spot around ~25%
-  const stableDistance = Math.abs(stablePct - 25);
+  // Stablecoins: sweet spot around target (default ~25%)
+  const stableDistance = Math.abs(stablePct - targetStablePct);
   addPenalty(
     'stable_balance',
-    clamp((stableDistance / 25) * 10, 0, 10),
-    `Stablecoin balance ${formatPct(stablePct)}`
+    clamp((stableDistance / Math.max(10, targetStablePct || 25)) * 10, 0, 10),
+    `Stablecoin balance ${formatPct(stablePct)} (target ${formatPct(targetStablePct)})`
   );
   addPenalty(
     'stable_too_high',
@@ -1923,7 +1999,47 @@ function computePortfolioBlendScore() {
   if (topPenaltyReason) metaParts.push(topPenaltyReason);
   const meta = metaParts.join(' • ');
 
-  return { score, label, meta, penalties, bonuses };
+  const penaltyByKey = new Map(penalties.map(p => [p.key, p]));
+  const recs = [];
+  const addRec = (key, text, impactPoints) => {
+    const pts = clamp(Number(impactPoints || 0), 0, 100);
+    if (!text) return;
+    recs.push({ key, text, impactPoints: pts });
+  };
+
+  const pTop1 = Number(penaltyByKey.get('concentration_top1')?.points || 0) || 0;
+  if (pTop1 > 1) addRec('concentration_top1', `Reduce top holding toward ${formatPct(top1TargetPct)} max`, pTop1);
+
+  const pTop5 = Number(penaltyByKey.get('concentration_top5')?.points || 0) || 0;
+  if (pTop5 > 1) addRec('concentration_top5', 'Diversify beyond top 5 holdings', pTop5);
+
+  const pStable = Number(penaltyByKey.get('stable_balance')?.points || 0) || 0;
+  if (pStable > 1) addRec('stable_balance', `Move stablecoins toward ~${formatPct(targetStablePct)}`, pStable);
+
+  const pDustValue = Number(penaltyByKey.get('dust_value')?.points || 0) || 0;
+  const pDustCount = Number(penaltyByKey.get('dust_count')?.points || 0) || 0;
+  if ((pDustValue + pDustCount) > 1) addRec('dust', 'Consolidate / close tiny positions (reduce dust)', pDustValue + pDustCount);
+
+  const pChainDom = Number(penaltyByKey.get('chain_domination')?.points || 0) || 0;
+  const pChainDiv = Number(penaltyByKey.get('chain_diversification')?.points || 0) || 0;
+  if ((pChainDom + pChainDiv) > 1) addRec('chains', 'Reduce single-chain dominance (add a second strong chain)', pChainDom + pChainDiv);
+
+  const pWallet = Number(penaltyByKey.get('wallet_concentration')?.points || 0) || 0;
+  if (pWallet > 1) addRec('wallet_concentration', 'Avoid having one wallet dominate the whole portfolio', pWallet);
+
+  const pVol = Number(penaltyByKey.get('volatility')?.points || 0) || 0;
+  if (pVol > 1) addRec('volatility', 'Lower 24h volatility (increase stables or reduce high-beta exposure)', pVol);
+
+  recs.sort((a, b) => (Number(b?.impactPoints || 0) || 0) - (Number(a?.impactPoints || 0) || 0));
+
+  const subscores = {
+    diversification: clamp(100 - ((pTop1 + pTop5 + pChainDom + pChainDiv) / 45) * 100, 0, 100),
+    stability: clamp(100 - ((pStable + pVol) / 20) * 100, 0, 100),
+    cleanliness: clamp(100 - ((pDustValue + pDustCount) / 15) * 100, 0, 100),
+    custody: clamp(100 - (pWallet / 10) * 100, 0, 100),
+  };
+
+  return { score, label, meta, penalties, bonuses, subscores, recommendations: recs, config: { targetStablePct, top1TargetPct } };
 }
 
 function formatPct(value, digits = 1) {
@@ -3219,6 +3335,15 @@ function setupEventListeners() {
   });
 
   $('scanButton')?.addEventListener('click', scanWallets);
+
+  const whatIfStableEl = $('aiWhatIfStable');
+  const whatIfTop1El = $('aiWhatIfTop1');
+  const onWhatIfChange = () => {
+    if (state.scanning) return;
+    renderAiScoreSection();
+  };
+  whatIfStableEl?.addEventListener('input', onWhatIfChange);
+  whatIfTop1El?.addEventListener('input', onWhatIfChange);
 
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
