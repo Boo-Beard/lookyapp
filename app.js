@@ -20,7 +20,10 @@ const solTokenChangeCache = new Map();
 
 const SOL_CHANGE_CACHE_TTL_ZERO_MS = 30 * 1000;
 
-const DEBUG_SOL_CHANGE = false;
+const DEBUG_SOL_CHANGE = (() => {
+  try { return localStorage.getItem('looky:debugSolChange') === '1'; }
+  catch { return false; }
+})();
 
 function escapeHtml(str) {
   return String(str)
@@ -73,6 +76,7 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
     });
 
     const d = priceData?.data || {};
+    const v = d?.value || d?.data || {};
     const pct = Number(
       d?.priceChangePercent ??
       d?.price_change_percent ??
@@ -83,11 +87,28 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       d?.changePercent24h ??
       d?.change_percent_24h ??
       d?.changePct24h ??
+      v?.priceChangePercent ??
+      v?.price_change_percent ??
+      v?.priceChangePercent24h ??
+      v?.price_change_percent_24h ??
+      v?.priceChangePct ??
+      v?.priceChangePct24h ??
+      v?.changePercent24h ??
+      v?.change_percent_24h ??
+      v?.changePct24h ??
       0
     );
     if (Number.isFinite(pct) && Math.abs(pct) > 0) {
       pct24h = pct;
       source = 'price';
+    } else if (DEBUG_SOL_CHANGE) {
+      try {
+        console.debug('[SOL 24h] /defi/price pct not found', {
+          tokenAddress,
+          keys: Object.keys(d || {}),
+          valueKeys: Object.keys(v || {}),
+        });
+      } catch {}
     }
   } catch {}
 
@@ -105,6 +126,7 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       });
 
       const d = overview?.data || {};
+      const v = d?.value || d?.data || {};
 
       // Be defensive: response schema can differ by package/endpoint version.
       const frame24 = d?.['24h'] || d?.frame_24h || d?.frame24h || d?.frames?.['24h'] || d?.frames?.frame_24h || null;
@@ -112,6 +134,8 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
         // Some Birdeye responses put the 24h percent at top-level.
         d?.priceChangePercent ??
         d?.price_change_percent ??
+        v?.priceChangePercent ??
+        v?.price_change_percent ??
         frame24?.priceChangePercent ??
         frame24?.price_change_percent ??
         frame24?.priceChangePct ??
@@ -129,6 +153,15 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       if (Number.isFinite(pct) && Math.abs(pct) > 0) {
         pct24h = pct;
         source = 'overview';
+      } else if (DEBUG_SOL_CHANGE) {
+        try {
+          console.debug('[SOL 24h] /defi/token_overview pct not found', {
+            tokenAddress,
+            keys: Object.keys(d || {}),
+            valueKeys: Object.keys(v || {}),
+            frameKeys: frame24 ? Object.keys(frame24 || {}) : [],
+          });
+        } catch {}
       }
     } catch {}
   }
