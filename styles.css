@@ -126,7 +126,7 @@ body.modal-open {
   padding: 6px;
   border-radius: 10px;
   border: 2px solid rgba(0, 0, 0, 0.9);
-  background: rgba(255, 255, 255, 0.96);
+background: var(--paper);
   box-shadow: var(--shadow-md);
   z-index: 20;
 }
