@@ -1577,6 +1577,7 @@ function renderAllocationAndRisk() {
   const allocationEl = $('allocationBreakdown');
   const chainChartEl = $('chainAllocationChart');
   const tokenAllocationEl = $('tokenAllocationList');
+  const walletAllocationEl = $('walletAllocationList');
   const insightsEl = $('riskInsights');
   if ((!allocationEl && (!chainChartEl || !tokenAllocationEl)) || !insightsEl) return;
 
@@ -1587,6 +1588,7 @@ function renderAllocationAndRisk() {
     if (allocationEl) allocationEl.innerHTML = '';
     if (chainChartEl) chainChartEl.innerHTML = '';
     if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
+    if (walletAllocationEl) walletAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
     return;
   }
@@ -1878,6 +1880,36 @@ function renderAllocationAndRisk() {
     if (!topWallet || value > topWallet.value) topWallet = { wallet, value };
   }
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
+
+  const walletRows = Array.from(walletTotals.entries())
+    .map(([wallet, value]) => {
+      const v = Number(value || 0) || 0;
+      return {
+        wallet,
+        value: v,
+        pct: total > 0 ? (v / total) * 100 : 0,
+      };
+    })
+    .filter(r => r.value > ALLOC_MIN_VALUE)
+    .sort((a, b) => b.value - a.value);
+
+  if (walletAllocationEl) {
+    walletAllocationEl.innerHTML = walletRows
+      .slice(0, 12)
+      .map((r) => {
+        const pct = Math.max(0, Math.min(100, r.pct));
+        return `
+          <div class="alloc-row" data-key="wallet:${escapeHtml(r.wallet)}">
+            <div class="alloc-row-top">
+              <div class="alloc-row-name mono">${escapeHtml(shortenAddress(r.wallet))}</div>
+              <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
+            </div>
+            <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
+          </div>
+        `;
+      })
+      .join('');
+  }
 
   const insights = [];
   insights.push(`Top holding concentration: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
