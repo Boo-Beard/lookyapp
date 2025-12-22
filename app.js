@@ -697,8 +697,9 @@ function updateTelegramMainButton() {
 
 function shortenAddress(address) {
   if (!address) return address;
-  if (address.length <= 4) return address;
-  return address.slice(-4);
+  const s = String(address);
+  if (s.length <= 8) return s;
+  return `${s.slice(0, 3)}...${s.slice(-3)}`;
 }
 
 function formatCurrency(value) {
