@@ -50,6 +50,7 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
   if (cached && Number.isFinite(cached.pct24h)) return cached.pct24h;
 
   let pct24h = 0;
+  let source = 'none';
 
   // Prefer /defi/price which is designed to return price + 24h change fields.
   try {
@@ -75,7 +76,10 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       d?.changePct24h ??
       0
     );
-    if (Number.isFinite(pct) && Math.abs(pct) > 0) pct24h = pct;
+    if (Number.isFinite(pct) && Math.abs(pct) > 0) {
+      pct24h = pct;
+      source = 'price';
+    }
   } catch {}
 
   // Fallback: token_overview with frames=24h (Solana).
@@ -110,12 +114,23 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
         d?.change_percent_24h ??
         0
       );
-      if (Number.isFinite(pct) && Math.abs(pct) > 0) pct24h = pct;
+      if (Number.isFinite(pct) && Math.abs(pct) > 0) {
+        pct24h = pct;
+        source = 'overview';
+      }
     } catch {}
   }
 
   if (!Number.isFinite(pct24h)) pct24h = 0;
-  setSolTokenChangeCache(tokenAddress, { pct24h });
+
+  if (DEBUG_SOL_CHANGE) {
+    try {
+      if (Math.abs(pct24h) > 0) console.debug('[SOL 24h] token pct', { tokenAddress, pct24h, source });
+      else console.debug('[SOL 24h] token pct missing/0', { tokenAddress, pct24h, source });
+    } catch {}
+  }
+
+  setSolTokenChangeCache(tokenAddress, { pct24h, source });
   return pct24h;
 }
 
@@ -171,6 +186,16 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
     h.changePct = pct24h;
     h.changeUsd = deltaUsd;
     h.change_1d_usd = deltaUsd;
+
+    if (DEBUG_SOL_CHANGE && valueUsd > 0 && Math.abs(pct24h) < 1e-9) {
+      try {
+        console.debug('[SOL 24h] holding missing pct24h', {
+          address: addr,
+          symbol: h?.symbol,
+          valueUsd,
+        });
+      } catch {}
+    }
   });
 
   return out;
@@ -814,9 +839,11 @@ function showInputHint(message, type = 'info') {
 
 // API Integration (via your backend proxy)
 const API = {
-  birdeye: '/api/birdeye',
   zerion: '/api/zerion',
+  birdeye: '/api/birdeye',
 };
+
+const DEBUG_SOL_CHANGE = false;
 
 // Single, correct birdeyeRequest (your file currently has a duplicate nested function)
 async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
@@ -1938,6 +1965,16 @@ function recomputeAggregatesAndRender() {
         total24hAgo += Math.max(0, solWalletNow - solWalletChange);
       } else {
         // Fallback: use Birdeye wallet net worth change if holdings don't provide 1d deltas.
+        if (DEBUG_SOL_CHANGE) {
+          try {
+            console.debug('[SOL 24h] wallet fallback to net-worth change', {
+              wallet,
+              solWalletNow,
+              solWalletChange,
+              holdingsCount: Array.isArray(items) ? items.length : 0,
+            });
+          } catch {}
+        }
         const ch = state.walletDayChange?.get(walletKey);
         const solNow = Number(ch?.netWorthUsd || 0) || 0;
         const solDelta = Number(ch?.changeUsd || 0) || 0;
