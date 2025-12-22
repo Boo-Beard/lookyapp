@@ -1787,7 +1787,6 @@ body.ui-results .holding-row::after {
   height: 40px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.45);
-  border: 2px solid var(--border);
   object-fit: cover;
 }
 
