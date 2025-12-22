@@ -18,6 +18,9 @@ const scanCache = new Map();
 const SOL_CHANGE_CACHE_TTL_MS = 10 * 60 * 1000;
 const solTokenChangeCache = new Map();
 
+const SOL_OVERVIEW_CACHE_TTL_MS = 10 * 60 * 1000;
+const solTokenOverviewCache = new Map();
+
 const SOL_CHANGE_CACHE_TTL_ZERO_MS = 30 * 1000;
 
 const DEBUG_SOL_CHANGE = (() => {
@@ -58,6 +61,42 @@ function setSolTokenChangeCache(address, payload) {
   const key = String(address || '').trim();
   if (!key) return;
   solTokenChangeCache.set(key, { ts: Date.now(), ...payload });
+}
+
+function getSolTokenOverviewCache(address) {
+  const key = String(address || '').trim();
+  if (!key) return null;
+  const entry = solTokenOverviewCache.get(key);
+  if (!entry) return null;
+  if ((Date.now() - entry.ts) > SOL_OVERVIEW_CACHE_TTL_MS) {
+    solTokenOverviewCache.delete(key);
+    return null;
+  }
+  return entry.data || null;
+}
+
+function setSolTokenOverviewCache(address, data) {
+  const key = String(address || '').trim();
+  if (!key) return;
+  solTokenOverviewCache.set(key, { ts: Date.now(), data });
+}
+
+async function fetchSolTokenOverview(addr, { signal } = {}) {
+  const cached = getSolTokenOverviewCache(addr);
+  if (cached) return cached;
+
+  const overview = await birdeyeRequest('/defi/token_overview', {
+    address: addr,
+    ui_amount_mode: 'scaled',
+  }, {
+    signal,
+    headers: {
+      'x-chain': 'solana',
+    },
+  });
+  const data = overview?.data || null;
+  setSolTokenOverviewCache(addr, data);
+  return data;
 }
 
 function extractBirdeyePriceValue(obj) {
@@ -174,17 +213,7 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
   // Fallback: token_overview with frames=24h (Solana).
   if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
     try {
-      const overview = await birdeyeRequest('/defi/token_overview', {
-        address: tokenAddress,
-        frames: '24h',
-      }, {
-        signal,
-        headers: {
-          'x-chain': 'solana',
-        },
-      });
-
-      const d = overview?.data || {};
+      const d = (await fetchSolTokenOverview(tokenAddress, { signal })) || {};
       const v = d?.value || d?.data || {};
 
       // Be defensive: response schema can differ by package/endpoint version.
@@ -316,18 +345,8 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
   const isNativeSol = (addr) => String(addr) === 'So11111111111111111111111111111111111111111';
 
   async function fetchSolTokenMeta(addr) {
-    // token_overview (no frames) often includes liquidity/volume stats.
-    const overview = await birdeyeRequest('/defi/token_overview', {
-      address: addr,
-      ui_amount_mode: 'scaled',
-    }, {
-      signal,
-      headers: {
-        'x-chain': 'solana',
-      },
-    });
-
-    const d = overview?.data || {};
+    // token_overview often includes liquidity/volume stats; reuse cached response.
+    const d = (await fetchSolTokenOverview(addr, { signal })) || {};
     const liquidityUsd = Number(
       d?.liquidity ?? 
       d?.liquidityUsd ?? 
