@@ -9,7 +9,6 @@ const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
-const STORAGE_KEY_LAST_SCAN_TOKENS = 'looky:lastScanTokens';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -941,36 +940,6 @@ function setActiveProfileName(name) {
   } catch {}
 }
 
-function lastScanTokensStorageKey() {
-  const profile = getActiveProfileName();
-  const suffix = profile ? `:${profile}` : ':default';
-  return `${STORAGE_KEY_LAST_SCAN_TOKENS}${suffix}`;
-}
-
-function loadLastScanTokenSet() {
-  try {
-    const raw = localStorage.getItem(lastScanTokensStorageKey());
-    const parsed = raw ? JSON.parse(raw) : null;
-    if (!Array.isArray(parsed)) return new Set();
-    return new Set(parsed.map(String));
-  } catch {
-    return new Set();
-  }
-}
-
-function saveLastScanTokenSet(tokenIds) {
-  try {
-    const arr = Array.from(new Set((Array.isArray(tokenIds) ? tokenIds : []).map(String)));
-    localStorage.setItem(lastScanTokensStorageKey(), JSON.stringify(arr));
-  } catch {}
-}
-
-function tokenIdForHolding(h) {
-  const chain = String(h?.chain || '').trim() || 'unknown';
-  const addr = String(h?.address || h?.token_address || '').trim() || String(h?.key || '').trim();
-  return `${chain}:${addr}`;
-}
-
 function computeWhatChangedToday() {
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
   const totalNow = Number(state.totalValueForChange || 0) || 0;
@@ -982,7 +951,6 @@ function computeWhatChangedToday() {
       const deltaUsd = Number(h?.changeUsd ?? 0) || 0;
       const valueUsd = Number(h?.value ?? 0) || 0;
       return {
-        id: tokenIdForHolding(h),
         symbol: String(h?.symbol || '—'),
         deltaUsd,
         valueUsd,
@@ -991,13 +959,6 @@ function computeWhatChangedToday() {
     .filter(t => Number.isFinite(t.deltaUsd) && Math.abs(t.deltaUsd) > 0)
     .sort((a, b) => Math.abs(b.deltaUsd) - Math.abs(a.deltaUsd))
     .slice(0, 6);
-
-  const currentTokenIds = holdings.map(tokenIdForHolding);
-  const prevSet = loadLastScanTokenSet();
-  const currentSet = new Set(currentTokenIds);
-  const newTokens = Array.from(currentSet)
-    .filter(id => !prevSet.has(id))
-    .slice(0, 10);
 
   const walletDeltas = [];
   try {
@@ -1033,7 +994,6 @@ function computeWhatChangedToday() {
   return {
     totalDeltaUsd,
     topTokens,
-    newTokens,
     topWallet,
   };
 }
@@ -1700,6 +1660,184 @@ function updateSummary() {
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
+
+  const scoreEl = $('portfolioScore');
+  const scoreMetaEl = $('portfolioScoreMeta');
+  if (scoreEl && scoreMetaEl) {
+    const s = computePortfolioBlendScore();
+    scoreEl.textContent = Number.isFinite(s?.score) ? `${Math.round(s.score)}/100` : '—';
+    scoreMetaEl.textContent = s?.meta || '—';
+  }
+}
+
+function clamp(n, min, max) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return min;
+  return Math.min(max, Math.max(min, x));
+}
+
+function computePortfolioBlendScore() {
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+  const total = Number(state.totalValue || 0) || 0;
+
+  if (!holdings.length || total <= 0) {
+    return { score: NaN, meta: '—' };
+  }
+
+  const pct = (v) => total > 0 ? (Number(v || 0) / total) * 100 : 0;
+
+  // Concentration
+  const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
+  const top1Value = Number(sortedByValue[0]?.value || 0) || 0;
+  const top5Value = sortedByValue.slice(0, 5).reduce((s, h) => s + (Number(h?.value || 0) || 0), 0);
+  const top1Pct = pct(top1Value);
+  const top5Pct = pct(top5Value);
+
+  // Stablecoin exposure
+  const stableSymbols = new Set([
+    'USDC', 'USDT', 'DAI', 'USDE', 'FDUSD', 'TUSD', 'USDP', 'PYUSD', 'USDY', 'FRAX', 'LUSD', 'SUSD', 'GUSD',
+  ]);
+  const stableValue = holdings.reduce((s, h) => {
+    const sym = String(h?.symbol || '').toUpperCase();
+    if (!stableSymbols.has(sym)) return s;
+    return s + (Number(h?.value || 0) || 0);
+  }, 0);
+  const stablePct = pct(stableValue);
+
+  // Chain diversification (HHI)
+  const chainTotals = new Map();
+  for (const h of holdings) {
+    const v = Number(h?.value || 0) || 0;
+    const chain = String(h?.chain || 'unknown');
+    let bucketKey = chain;
+    if (chain === 'solana') bucketKey = 'solana';
+    else if (chain === 'evm') {
+      const network = normalizeEvmNetwork(h?.network || h?.chain || '');
+      bucketKey = `evm:${network || 'unknown'}`;
+    }
+    chainTotals.set(bucketKey, (chainTotals.get(bucketKey) || 0) + v);
+  }
+  const chainShares = Array.from(chainTotals.values()).map(v => (total > 0 ? (Number(v || 0) / total) : 0));
+  const hhi = chainShares.reduce((s, w) => s + (w * w), 0);
+  const topChainPct = chainShares.length ? (Math.max(...chainShares) * 100) : 0;
+
+  // Dust / clutter
+  const DUST_USD = 1;
+  const dust = holdings.reduce((acc, h) => {
+    const v = Number(h?.value || 0) || 0;
+    if (v > 0 && v < DUST_USD) {
+      acc.count += 1;
+      acc.value += v;
+    }
+    return acc;
+  }, { count: 0, value: 0 });
+  const dustPct = pct(dust.value);
+
+  // Wallet concentration
+  const walletTotals = new Map();
+  for (const h of holdings) {
+    const v = Number(h?.value || 0) || 0;
+    const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean).map(String) : [];
+    if (!sources.length || v <= 0) continue;
+    const uniq = Array.from(new Set(sources));
+    const per = v / Math.max(1, uniq.length);
+    for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
+  }
+  const topWalletValue = walletTotals.size ? Math.max(...Array.from(walletTotals.values())) : 0;
+  const topWalletPct = pct(topWalletValue);
+
+  // Volatility proxy (portfolio 24h move magnitude)
+  const totalNow = Number(state.totalValueForChange || 0) || 0;
+  const total24hAgo = Number(state.totalValue24hAgo || 0) || 0;
+  const delta = totalNow - total24hAgo;
+  const movePct = (total24hAgo > 0) ? (Math.abs(delta) / total24hAgo) * 100 : 0;
+
+  // Penalties (tuned for a "blend" score: balances risk + opportunity)
+  const penalties = [];
+  const addPenalty = (key, points, reason) => {
+    const p = clamp(points, 0, 100);
+    if (p <= 0.0001) return;
+    penalties.push({ key, points: p, reason });
+  };
+
+  // Concentration: biggest driver
+  addPenalty(
+    'concentration_top1',
+    clamp(((top1Pct - 25) / 50) * 18, 0, 18),
+    `High concentration: top holding ${formatPct(top1Pct)}`
+  );
+  addPenalty(
+    'concentration_top5',
+    clamp(((top5Pct - 60) / 40) * 12, 0, 12),
+    `Top 5 holdings ${formatPct(top5Pct)}`
+  );
+
+  // Stablecoins: sweet spot around ~25%
+  const stableDistance = Math.abs(stablePct - 25);
+  addPenalty(
+    'stable_balance',
+    clamp((stableDistance / 25) * 10, 0, 10),
+    `Stablecoin balance ${formatPct(stablePct)}`
+  );
+  addPenalty(
+    'stable_too_high',
+    stablePct > 80 ? clamp(((stablePct - 80) / 20) * 10, 0, 10) : 0,
+    `High stablecoin allocation ${formatPct(stablePct)}`
+  );
+
+  // Chains: penalize domination + low diversification via HHI
+  addPenalty(
+    'chain_domination',
+    clamp(((topChainPct - 70) / 30) * 8, 0, 8),
+    `Chain concentration ${formatPct(topChainPct)}`
+  );
+  // HHI ranges [~0.2 diversified .. 1 concentrated]
+  addPenalty(
+    'chain_diversification',
+    clamp(((hhi - 0.35) / 0.65) * 7, 0, 7),
+    'Low chain diversification'
+  );
+
+  // Dust
+  addPenalty(
+    'dust_value',
+    clamp((dustPct / 5) * 10, 0, 10),
+    `Dust exposure ${formatPct(dustPct)} (${dust.count} tokens)`
+  );
+  addPenalty(
+    'dust_count',
+    clamp((dust.count / 20) * 5, 0, 5),
+    `Many tiny positions (${dust.count})`
+  );
+
+  // Wallet concentration
+  addPenalty(
+    'wallet_concentration',
+    clamp(((topWalletPct - 85) / 15) * 10, 0, 10),
+    `Wallet concentration ${formatPct(topWalletPct)}`
+  );
+
+  // Volatility proxy
+  addPenalty(
+    'volatility',
+    clamp((movePct / 20) * 10, 0, 10),
+    `24h move magnitude ${formatPct(movePct)}`
+  );
+
+  const totalPenalty = penalties.reduce((s, p) => s + p.points, 0);
+  const score = clamp(100 - totalPenalty, 0, 100);
+
+  const label = score >= 85 ? 'Excellent'
+    : score >= 75 ? 'Great'
+      : score >= 65 ? 'Good'
+        : score >= 50 ? 'Fair'
+          : 'Risky';
+
+  penalties.sort((a, b) => b.points - a.points);
+  const topReason = penalties[0]?.reason || 'Balanced portfolio';
+  const meta = `${label} • ${topReason}`;
+
+  return { score, label, meta, penalties };
 }
 
 function formatPct(value, digits = 1) {
@@ -1713,7 +1851,6 @@ function renderAllocationAndRisk() {
   const chainChartEl = $('chainAllocationChart');
   const tokenAllocationEl = $('tokenAllocationList');
   const insightsEl = $('riskInsights');
-  const whatChangedEl = $('whatChangedToday');
   if ((!allocationEl && (!chainChartEl || !tokenAllocationEl)) || !insightsEl) return;
 
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
@@ -1724,7 +1861,6 @@ function renderAllocationAndRisk() {
     if (chainChartEl) chainChartEl.innerHTML = '';
     if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
-    if (whatChangedEl) whatChangedEl.innerHTML = '';
     return;
   }
 
@@ -2017,6 +2153,29 @@ function renderAllocationAndRisk() {
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
   const insights = [];
+
+  // Deterministic "what changed today" highlights (kept compact and non-gimmicky)
+  try {
+    const data = computeWhatChangedToday();
+
+    if (Array.isArray(data?.topTokens) && data.topTokens.length) {
+      const deltaTotal = Number(data.totalDeltaUsd || 0) || 0;
+      const lines = data.topTokens.map((t) => {
+        const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '+';
+        const pct = (deltaTotal !== 0) ? (Math.abs(t.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
+        const pctPart = (pct > 0.05) ? ` · ${formatPct(pct, 1)} of move` : '';
+        return `${escapeHtml(t.symbol)}: <strong>${sign}${formatCurrency(Math.abs(t.deltaUsd))}</strong>${pctPart}`;
+      });
+      insights.push(`<strong>What changed today</strong><br/>${lines.join('<br/>')}`);
+    }
+
+    if (data?.topWallet && data.topWallet.wallet) {
+      const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '+';
+      const label = data.topWallet.chain === 'solana' ? 'Solana' : evmNetworkLabel(data.topWallet.chain);
+      insights.push(`Wallet driving the move: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> (${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))})`);
+    }
+  } catch {}
+
   insights.push(`Top holding concentration: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
   insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> of portfolio`);
   if (topChain) {
@@ -2036,43 +2195,6 @@ function renderAllocationAndRisk() {
     .slice(0, 7)
     .map((t) => `<div class="insight-item">${t}</div>`)
     .join('');
-
-  if (whatChangedEl) {
-    const data = computeWhatChangedToday();
-    const blocks = [];
-
-    if (data.topTokens.length) {
-      const deltaTotal = Number(data.totalDeltaUsd || 0) || 0;
-      const lines = data.topTokens.map((t) => {
-        const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '+';
-        const pct = (deltaTotal !== 0) ? (Math.abs(t.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
-        const pctPart = (pct > 0.05) ? ` · ${formatPct(pct, 1)} of move` : '';
-        return `${escapeHtml(t.symbol)}: <strong>${sign}${formatCurrency(Math.abs(t.deltaUsd))}</strong>${pctPart}`;
-      });
-      blocks.push(`<div class="insight-item"><strong>Top contributors (24h)</strong><div>${lines.join('<br/>')}</div></div>`);
-    }
-
-    if (data.newTokens.length) {
-      const list = data.newTokens
-        .map((id) => {
-          const parts = String(id).split(':');
-          const sym = parts.slice(1).join(':');
-          return escapeHtml(sym);
-        })
-        .join(', ');
-      blocks.push(`<div class="insight-item"><strong>New tokens detected</strong><div>${list}</div></div>`);
-    } else {
-      blocks.push(`<div class="insight-item"><strong>New tokens detected</strong><div>None since last scan</div></div>`);
-    }
-
-    if (data.topWallet && data.topWallet.wallet) {
-      const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '+';
-      const label = data.topWallet.chain === 'solana' ? 'Solana' : evmNetworkLabel(data.topWallet.chain);
-      blocks.push(`<div class="insight-item"><strong>Wallet driving the move</strong><div>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}: <strong>${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))}</strong></div></div>`);
-    }
-
-    whatChangedEl.innerHTML = blocks.join('');
-  }
 }
 
 function renderHoldingsByWallet() {
@@ -2749,10 +2871,6 @@ async function scanWallets({ queueOverride } = {}) {
     showStatus('', 'info');
   } else {
     hapticFeedback('success');
-    try {
-      const ids = (Array.isArray(state.holdings) ? state.holdings : []).map(tokenIdForHolding);
-      saveLastScanTokenSet(ids);
-    } catch {}
   }
 
   updateTelegramMainButton();
