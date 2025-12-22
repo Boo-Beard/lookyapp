@@ -869,6 +869,33 @@ function saveUiSectionState(next) {
   }
 }
 
+function forceCollapseResultsSections() {
+  const holdingsCard = $('holdingsCard');
+  const holdingsToggle = $('holdingsToggle');
+  const holdingsContent = $('holdingsContent');
+
+  const allocRiskCard = $('allocRiskCard');
+  const allocRiskToggle = $('allocRiskToggle');
+  const allocRiskContent = $('allocRiskContent');
+
+  if (holdingsCard && holdingsToggle && holdingsContent) {
+    holdingsCard.classList.add('is-collapsed');
+    holdingsToggle.setAttribute('aria-expanded', 'false');
+    holdingsContent.classList.add('hidden');
+  }
+
+  if (allocRiskCard && allocRiskToggle && allocRiskContent) {
+    allocRiskCard.classList.add('is-collapsed');
+    allocRiskToggle.setAttribute('aria-expanded', 'false');
+    allocRiskContent.classList.add('hidden');
+  }
+
+  const uiSections = loadUiSectionState();
+  uiSections.holdings = false;
+  uiSections.allocRisk = false;
+  saveUiSectionState(uiSections);
+}
+
 function getActiveProfileName() {
   try {
     const v = localStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE);
@@ -2479,6 +2506,7 @@ async function scanWallets({ queueOverride } = {}) {
   state.scanAbortController = null;
 
   scheduleRecomputeAggregatesAndRender();
+  forceCollapseResultsSections();
 
   if (scanButton) {
     scanButton.disabled = false;
