@@ -8,6 +8,7 @@ const STORAGE_KEY_ADDRESSES = 'looky:lastAddresses';
 const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
+const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -1253,7 +1254,7 @@ function renderAllocationAndRisk() {
       const value = Number(segEl.getAttribute('data-value') || 0) || 0;
       tooltipEl.innerHTML = `
         <div class="alloc-chain-tooltip-title">${escapeHtml(name)}</div>
-        <div class="alloc-chain-tooltip-meta">${formatPct(pct)} · ${formatCurrency(value)}</div>
+        <div class="alloc-chain-tooltip-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(value)}</span></div>
       `;
       tooltipEl.classList.remove('hidden');
     };
@@ -1289,7 +1290,7 @@ function renderAllocationAndRisk() {
       <div class="alloc-row" data-key="${escapeHtml(r.key)}">
         <div class="alloc-row-top">
           <div class="alloc-row-name">${escapeHtml(r.name)}</div>
-          <div class="alloc-row-meta">${formatPct(pct)} · ${formatCurrency(r.value)}</div>
+          <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
         </div>
         <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
       </div>
@@ -1360,7 +1361,7 @@ function renderAllocationAndRisk() {
   }
   insights.push(`Stablecoin exposure: <strong>${formatPct(stablePct)}</strong> (est.)`);
   if (dust.count > 0 && dust.value > 0) {
-    insights.push(`Dust exposure: <strong>${formatCurrency(dust.value)}</strong> across <strong>${dust.count}</strong> token${dust.count === 1 ? '' : 's'} (&lt; ${formatCurrency(DUST_USD)})`);
+    insights.push(`Dust exposure: <strong><span class="redacted-field" tabindex="0">${formatCurrency(dust.value)}</span></strong> across <strong>${dust.count}</strong> token${dust.count === 1 ? '' : 's'} (&lt; <span class="redacted-field" tabindex="0">${formatCurrency(DUST_USD)}</span>)`);
   }
   if (topWallet && topWallet.value > 0) {
     insights.push(`Wallet concentration: <strong>${formatPct(topWalletPct)}</strong> in top wallet`);
@@ -1566,11 +1567,11 @@ function renderHoldingsTable() {
           </div>
         </td>
         <td>
-          <strong class="mono">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
+          <strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
         </td>
-        <td class="mono"><strong>${formatNumber(holding.balance)}</strong></td>
-        <td class="mono"><strong>${formatPrice(holding.price)}</strong></td>
-        <td class="mono"><strong>${formatCurrency(holding.value)}</strong></td>
+        <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
+        <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
+        <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
       </tr>
     `).join('') + skeletonRows;
   } else {
@@ -1651,19 +1652,19 @@ function renderHoldingsTable() {
             <div class="holding-card-metrics">
               <div class="holding-metric">
                 <div class="holding-metric-label">Balance</div>
-                <div class="holding-metric-value mono"><strong>${formatNumber(holding.balance)}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Price</div>
-                <div class="holding-metric-value mono"><strong>${formatPrice(holding.price)}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Value</div>
-                <div class="holding-metric-value mono"><strong>${formatCurrency(holding.value)}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">MCap</div>
-                <div class="holding-metric-value mono"><strong>${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
               </div>
             </div>
           </div>
@@ -1674,7 +1675,9 @@ function renderHoldingsTable() {
   }
 
   const progressPart = (state.scanning && scanTotal > 0) ? ` • Scanning ${scanCompleted}/${scanTotal}` : '';
-  $('tableStats') && ($('tableStats').textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filteredTotalValue)}${progressPart}`);
+  if ($('tableStats')) {
+    $('tableStats').innerHTML = `Showing ${totalItems} tokens • Total value: <span class="redacted-field" tabindex="0">${formatCurrency(filteredTotalValue)}</span>${escapeHtml(progressPart)}`;
+  }
 }
 
 function recomputeAggregatesAndRender() {
@@ -2110,6 +2113,44 @@ function setupEventListeners() {
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
     $('inputSection')?.classList.toggle('is-minimized');
+  });
+
+  const applyRedactedMode = (enabled) => {
+    document.body.classList.toggle('is-redacted', !!enabled);
+    try {
+      localStorage.setItem(STORAGE_KEY_REDACTED_MODE, enabled ? '1' : '0');
+    } catch {}
+    const btn = $('redactedToggleBtn');
+    if (btn) {
+      const label = btn.querySelector('span:last-child');
+      if (label) label.textContent = enabled ? 'Reveal' : 'Redact';
+    }
+  };
+
+  const loadRedactedMode = () => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_REDACTED_MODE) === '1';
+    } catch {
+      return false;
+    }
+  };
+
+  applyRedactedMode(loadRedactedMode());
+
+  $('redactedToggleBtn')?.addEventListener('click', () => {
+    const next = !document.body.classList.contains('is-redacted');
+    applyRedactedMode(next);
+    hapticFeedback('light');
+  });
+
+  // Tap to reveal (mobile): temporarily unblur a single field.
+  document.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('is-redacted')) return;
+    if (window.matchMedia('(hover: hover)').matches) return;
+    const el = e.target?.closest?.('.redacted-field');
+    if (!el) return;
+    el.classList.add('is-revealed');
+    window.setTimeout(() => el.classList.remove('is-revealed'), 1500);
   });
 
   $('cancelScanButton')?.addEventListener('click', () => {

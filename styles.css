@@ -370,10 +370,26 @@ body.ui-results .amend-wallets-row {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   padding: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 body.ui-results .amend-wallets-row .btn {
-  width: 100%;
+  width: auto;
+  flex: 1;
+}
+
+body.is-redacted .redacted-field {
+  filter: blur(8px);
+  user-select: none;
+  transition: filter 120ms ease;
+  display: inline-block;
+}
+
+body.is-redacted .redacted-field:hover,
+body.is-redacted .redacted-field:focus,
+body.is-redacted .redacted-field.is-revealed {
+  filter: none;
 }
 
 .summary-grid {

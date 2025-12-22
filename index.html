@@ -118,6 +118,10 @@
             <span class="btn-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span>
             <span>Manage Wallets</span>
           </button>
+          <button id="redactedToggleBtn" class="btn btn-outline" type="button">
+            <span class="btn-icon"><i class="fa-solid fa-user-secret" aria-hidden="true"></i></span>
+            <span>Redact</span>
+          </button>
         </div>
 
         <!-- Summary Cards -->
@@ -127,28 +131,28 @@
             <div class="summary-content">
               <div class="summary-label">Total Value</div>
               <div class="summary-value-row">
-                <div id="totalValue" class="summary-value">$0.00</div>
-                <div id="totalChange" class="summary-sub summary-change hidden">0.00% (24h)</div>
+                <div id="totalValue" class="summary-value redacted-field" tabindex="0">$0.00</div>
+                <div id="totalChange" class="summary-sub summary-change hidden redacted-field" tabindex="0">0.00% (24h)</div>
               </div>
-              <div id="walletCount" class="summary-sub">0 wallets</div>
+              <div id="walletCount" class="summary-sub redacted-field" tabindex="0">0 wallets</div>
             </div>
           </div>
-          
+
           <div class="summary-card tokens">
             <div class="summary-icon"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></div>
             <div class="summary-content">
               <div class="summary-label">Unique Tokens</div>
-              <div id="tokenCount" class="summary-value">0</div>
+              <div id="tokenCount" class="summary-value redacted-field" tabindex="0">0</div>
               <div class="summary-sub">across all wallets</div>
             </div>
           </div>
-          
+
           <div class="summary-card biggest">
             <div class="summary-icon"><i class="fa-solid fa-crown" aria-hidden="true"></i></div>
             <div class="summary-content">
               <div class="summary-label">Largest Holding</div>
               <div id="largestHolding" class="summary-value">—</div>
-              <div id="largestValue" class="summary-sub">$0.00</div>
+              <div id="largestValue" class="summary-sub redacted-field" tabindex="0">$0.00</div>
             </div>
           </div>
         </div>
