@@ -1219,6 +1219,83 @@ function evmExplorerBase(network) {
   }
 }
 
+function dexscreenerChain(chain, network) {
+  if (chain === 'solana') return 'solana';
+  const n = normalizeEvmNetwork(network);
+  switch (n) {
+    case 'ethereum': return 'ethereum';
+    case 'bsc': return 'bsc';
+    case 'arbitrum': return 'arbitrum';
+    case 'optimism': return 'optimism';
+    case 'polygon': return 'polygon';
+    case 'base': return 'base';
+    case 'avalanche': return 'avalanche';
+    case 'fantom': return 'fantom';
+    default: return 'ethereum';
+  }
+}
+
+function dextoolsChain(chain, network) {
+  if (chain === 'solana') return 'solana';
+  const n = normalizeEvmNetwork(network);
+  switch (n) {
+    case 'ethereum': return 'ether';
+    case 'bsc': return 'bsc';
+    case 'arbitrum': return 'arbitrum';
+    case 'optimism': return 'optimism';
+    case 'polygon': return 'polygon';
+    case 'base': return 'base';
+    case 'avalanche': return 'avalanche';
+    case 'fantom': return 'fantom';
+    default: return 'ether';
+  }
+}
+
+function buildDexscreenerTokenUrl({ chain, network, address }) {
+  const c = dexscreenerChain(chain, network);
+  return `https://dexscreener.com/${c}/${address}`;
+}
+
+function buildDextoolsTokenUrl({ chain, network, address }) {
+  const c = dextoolsChain(chain, network);
+  return `https://www.dextools.io/app/en/${c}/token/${address}`;
+}
+
+function buildBirdeyeTokenUrl({ chain, network, address }) {
+  const c = chain === 'solana' ? 'solana' : birdeyeXChain(normalizeEvmNetwork(network));
+  return `https://birdeye.so/token/${address}?chain=${c}`;
+}
+
+function openChartModal({ chain, network, address, symbol, name }) {
+  const modal = $('chartModal');
+  if (!modal) return;
+
+  const subtitle = $('chartModalSubtitle');
+  if (subtitle) {
+    const s = String(symbol || '').trim();
+    const n = String(name || '').trim();
+    const label = s ? `${s}${n ? ` — ${n}` : ''}` : (n || 'Token');
+    subtitle.textContent = label;
+  }
+
+  const dexscreener = $('chartLinkDexscreener');
+  const dextools = $('chartLinkDextools');
+  const birdeye = $('chartLinkBirdeye');
+  if (dexscreener) dexscreener.href = buildDexscreenerTokenUrl({ chain, network, address });
+  if (dextools) dextools.href = buildDextoolsTokenUrl({ chain, network, address });
+  if (birdeye) birdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
+
+  modal.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+}
+
+function closeChartModal() {
+  const modal = $('chartModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+}
+
 async function fetchTokenOverview(address, chain, { signal } = {}) {
   const data = await birdeyeRequest('/defi/token_overview', {
     address,
@@ -2054,7 +2131,7 @@ function renderHoldingsTable() {
         explorerHref = `${evmExplorerBase(holding.network)}/token/${displayAddress}`;
       }
 
-      const chartHref = `https://birdeye.so/token/${holding.address}?chain=${holding.chain === 'solana' ? 'solana' : 'ethereum'}`;
+      const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
 
       const sourceWallet = holding.sources?.[0] || '';
       const walletHref = sourceWallet
@@ -2085,7 +2162,7 @@ function renderHoldingsTable() {
                   <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
                     <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
                   </a>
-                  <a class="holding-action" href="${chartHref}" target="_blank" rel="noopener noreferrer" aria-label="View Chart">
+                  <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
                     <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                   </a>
                   <a class="holding-action ${walletDisabled ? 'disabled' : ''}" href="${walletHref}" target="_blank" rel="noopener noreferrer" aria-label="View Wallet" ${walletDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
@@ -2282,6 +2359,11 @@ async function scanWallets({ queueOverride } = {}) {
     : buildWalletQueue();
 
   if (walletsQueue.length === 0) {
+    clearScanProgress();
+    updateProgress(0);
+    $('cancelScanButton')?.classList.add('hidden');
+    $('retryFailedButton')?.classList.add('hidden');
+    setScanningUi(false);
     showStatus('Please enter at least one valid wallet address', 'error');
     hapticFeedback('error');
     return;
@@ -2639,6 +2721,39 @@ function setupEventListeners() {
 
   $('addWalletBtn')?.addEventListener('click', () => {
     addWalletFromInput();
+  });
+
+  document.addEventListener('click', (e) => {
+    const chart = e.target.closest('a.holding-action[data-action="chart"]');
+    if (chart) {
+      e.preventDefault();
+      openChartModal({
+        chain: chart.dataset.chain || '',
+        network: chart.dataset.network || '',
+        address: chart.dataset.address || '',
+        symbol: chart.dataset.symbol || '',
+        name: chart.dataset.name || '',
+      });
+      return;
+    }
+
+    const modal = $('chartModal');
+    if (modal && !modal.classList.contains('hidden')) {
+      if (e.target === modal) {
+        closeChartModal();
+      }
+    }
+  });
+
+  $('chartModalClose')?.addEventListener('click', () => {
+    closeChartModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = $('chartModal');
+      if (modal && !modal.classList.contains('hidden')) closeChartModal();
+    }
   });
 
   $('scanButton')?.addEventListener('click', scanWallets);
