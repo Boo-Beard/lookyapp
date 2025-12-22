@@ -1710,24 +1710,15 @@ function recomputeAggregatesAndRender() {
     const [chain, wallet] = walletKey.split(':');
     wallets.push({ address: wallet, chain, count: items.length });
 
+    // For Solana, prefer a price/market-based 24h change by summing per-holding 1d deltas.
+    // This tends to match Phantom better than "net worth change" which can include transfers.
+    let solWalletNow = 0;
+    let solWalletChange = 0;
+    let solWalletHasChange = false;
+
     const walletTotalValue = items.reduce((s, h) => s + (Number(h?.value || h?.valueUsd || 0) || 0), 0);
     if (chain === 'solana') totalSolValue += walletTotalValue;
     else totalEvmValue += walletTotalValue;
-
-    if (chain === 'solana') {
-      const ch = state.walletDayChange?.get(walletKey);
-      totalChangeSolUsd += Number(ch?.changeUsd || 0) || 0;
-
-      const solNow = Number(ch?.netWorthUsd || 0) || 0;
-      if (solNow > 0) {
-        totalForChange += solNow;
-        total24hAgo += Math.max(0, solNow - (Number(ch?.changeUsd || 0) || 0));
-      } else {
-        // Fallback: if net worth isn't available, fall back to holdings-derived totals.
-        totalForChange += walletTotalValue;
-        total24hAgo += Math.max(0, walletTotalValue - (Number(ch?.changeUsd || 0) || 0));
-      }
-    }
 
     items.forEach(holding => {
       const rawTokenAddress = holding.address || holding.token_address;
@@ -1738,7 +1729,16 @@ function recomputeAggregatesAndRender() {
       const value = Number(holding.value || holding.valueUsd || 0) || 0;
       const amount = Number(holding.amount || holding.uiAmount || holding.balance || 0) || 0;
       const mcap = Number(holding.market_cap ?? holding.marketCap ?? holding.mc ?? holding.fdv ?? holding.fdv_usd ?? 0) || 0;
-      const changeUsd = Number(holding.changeUsd ?? holding.change_usd ?? holding.change_1d_usd ?? holding.pnlUsd ?? 0) || 0;
+      const changeUsd = Number(
+        holding.changeUsd ??
+        holding.change_usd ??
+        holding.change_1d_usd ??
+        holding.value_change_1d ??
+        holding.value_change_24h ??
+        holding.valueChange1d ??
+        holding.pnlUsd ??
+        0
+      ) || 0;
 
       if (holdingsMap.has(key)) {
         const existing = holdingsMap.get(key);
@@ -1767,12 +1767,39 @@ function recomputeAggregatesAndRender() {
         });
       }
       total += value;
+      if (chain === 'solana') {
+        solWalletNow += value;
+        if (Number.isFinite(changeUsd) && Math.abs(changeUsd) > 0) solWalletHasChange = true;
+        solWalletChange += changeUsd;
+      }
       if (chain === 'evm') {
         totalChangeEvmUsd += changeUsd;
         totalForChange += value;
         total24hAgo += Math.max(0, value - changeUsd);
       }
     });
+
+    if (chain === 'solana') {
+      if (solWalletNow > 0 && solWalletHasChange) {
+        totalChangeSolUsd += solWalletChange;
+        totalForChange += solWalletNow;
+        total24hAgo += Math.max(0, solWalletNow - solWalletChange);
+      } else {
+        // Fallback: use Birdeye wallet net worth change if holdings don't provide 1d deltas.
+        const ch = state.walletDayChange?.get(walletKey);
+        const solNow = Number(ch?.netWorthUsd || 0) || 0;
+        const solDelta = Number(ch?.changeUsd || 0) || 0;
+
+        totalChangeSolUsd += solDelta;
+        if (solNow > 0) {
+          totalForChange += solNow;
+          total24hAgo += Math.max(0, solNow - solDelta);
+        } else {
+          totalForChange += walletTotalValue;
+          total24hAgo += Math.max(0, walletTotalValue - solDelta);
+        }
+      }
+    }
   });
 
   state.holdings = Array.from(holdingsMap.values());
