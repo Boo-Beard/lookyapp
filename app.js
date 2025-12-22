@@ -3583,12 +3583,15 @@ function setupFooterRotator() {
   'No Login!',
   'Multichain',
   'View Value',
-  'View Analytics',
+  'Analytics',
   'Looky!',
   'Just Looking',
   'Eyes On-Chain',
   'Spot The Bags',
   'See It All',
+  'Portfolio',
+  'Scoring',  
+  'Insights',
   ];
 
   let idx = 0;
