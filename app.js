@@ -1885,6 +1885,26 @@ function renderAllocationAndRisk() {
     const per = v / Math.max(1, uniq.length);
     for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
   }
+
+  const walletNetworks = new Map();
+  for (const [walletKey, walletHoldings] of state.walletHoldings.entries()) {
+    const parts = String(walletKey || '').split(':');
+    const chain = parts[0] || '';
+    const wallet = parts.slice(1).join(':') || '';
+    if (!wallet) continue;
+
+    if (!walletNetworks.has(wallet)) walletNetworks.set(wallet, { hasSol: false, evm: new Set() });
+    const info = walletNetworks.get(wallet);
+    if (chain === 'solana') {
+      info.hasSol = true;
+    } else if (chain === 'evm') {
+      const list = Array.isArray(walletHoldings) ? walletHoldings : [];
+      for (const h of list) {
+        const net = normalizeEvmNetwork(h?.network || h?.chain || '');
+        if (net) info.evm.add(net);
+      }
+    }
+  }
   let topWallet = null;
   for (const [wallet, value] of walletTotals.entries()) {
     if (!topWallet || value > topWallet.value) topWallet = { wallet, value };
@@ -1953,10 +1973,29 @@ function renderHoldingsByWallet() {
   walletAllocationEl.innerHTML = walletRows
     .map((r) => {
       const pct = Math.max(0, Math.min(100, r.pct));
+      const info = walletNetworks.get(r.wallet) || { hasSol: false, evm: new Set() };
+      const tags = [];
+      if (info.hasSol) {
+        tags.push(
+          `<a class="chain-badge-small solana wallet-chain-tag" href="https://solscan.io/account/${encodeURIComponent(r.wallet)}" target="_blank" rel="noopener noreferrer">SOL</a>`
+        );
+      }
+      if (info.evm && info.evm.size) {
+        const nets = Array.from(info.evm.values());
+        nets.sort((a, b) => evmNetworkLabel(a).localeCompare(evmNetworkLabel(b)));
+        for (const n of nets) {
+          const label = evmNetworkLabel(n);
+          const href = `${evmExplorerBase(n)}/address/${r.wallet}`;
+          tags.push(
+            `<a class="chain-badge-small evm wallet-chain-tag" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`
+          );
+        }
+      }
+      const tagsHtml = tags.length ? `<span class="wallet-chain-tags">${tags.join('')}</span>` : '';
       return `
         <div class="alloc-row" data-key="wallet:${escapeHtml(r.wallet)}">
           <div class="alloc-row-top">
-            <div class="alloc-row-name mono">${escapeHtml(shortenAddress(r.wallet))}</div>
+            <div class="alloc-row-name mono">${escapeHtml(shortenAddress(r.wallet))}${tagsHtml}</div>
             <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
           </div>
           <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
