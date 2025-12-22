@@ -25,6 +25,9 @@ const DEBUG_SOL_CHANGE = (() => {
   catch { return false; }
 })();
 
+const SOL_CHANGE_ELIGIBLE_LIQUIDITY_USD = 5000;
+const SOL_CHANGE_ELIGIBLE_VOLUME24H_USD = 5000;
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -187,6 +190,16 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       // Be defensive: response schema can differ by package/endpoint version.
       const frame24 = d?.['24h'] || d?.frame_24h || d?.frame24h || d?.frames?.['24h'] || d?.frames?.frame_24h || null;
       const pct = Number(
+        // Some Birdeye responses use priceChange24hPercent.
+        d?.priceChange24hPercent ??
+        d?.price_change_24h_percent ??
+        d?.price_change_24h_percent_value ??
+        v?.priceChange24hPercent ??
+        v?.price_change_24h_percent ??
+        v?.price_change_24h_percent_value ??
+        frame24?.priceChange24hPercent ??
+        frame24?.price_change_24h_percent ??
+
         // Some Birdeye responses put the 24h percent at top-level.
         d?.priceChangePercent ??
         d?.price_change_percent ??
@@ -296,17 +309,65 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
 
   // Keep concurrency conservative.
   const concurrency = 4;
-  let cursor = 0;
   const pctByAddr = new Map();
+  const metaByAddr = new Map();
+  let idx = 0;
+
+  const isNativeSol = (addr) => String(addr) === 'So11111111111111111111111111111111111111111';
+
+  async function fetchSolTokenMeta(addr) {
+    // token_overview (no frames) often includes liquidity/volume stats.
+    const overview = await birdeyeRequest('/defi/token_overview', {
+      address: addr,
+      ui_amount_mode: 'scaled',
+    }, {
+      signal,
+      headers: {
+        'x-chain': 'solana',
+      },
+    });
+
+    const d = overview?.data || {};
+    const liquidityUsd = Number(
+      d?.liquidity ?? 
+      d?.liquidityUsd ?? 
+      d?.liquidity_usd ?? 
+      d?.liquidity_1d ?? 
+      0
+    ) || 0;
+    const volume24hUsd = Number(
+      d?.v24hUSD ?? 
+      d?.v24h ?? 
+      d?.volume24h ?? 
+      d?.volume_24h ?? 
+      d?.volume24hUsd ?? 
+      d?.volume_24h_usd ?? 
+      d?.volume24hUSD ?? 
+      0
+    ) || 0;
+    return { liquidityUsd, volume24hUsd };
+  }
 
   const worker = async () => {
-    while (cursor < uniq.length && !signal?.aborted) {
-      const addr = uniq[cursor++];
+    while (idx < uniq.length) {
+      const addr = uniq[idx++];
+      if (signal?.aborted) return;
       try {
         const pct24h = await fetchSolTokenChangePct24h(addr, { signal });
         pctByAddr.set(addr, pct24h);
       } catch {
         pctByAddr.set(addr, 0);
+      }
+
+      try {
+        if (isNativeSol(addr)) {
+          metaByAddr.set(addr, { liquidityUsd: Infinity, volume24hUsd: Infinity });
+        } else {
+          const meta = await fetchSolTokenMeta(addr);
+          metaByAddr.set(addr, meta);
+        }
+      } catch {
+        metaByAddr.set(addr, { liquidityUsd: 0, volume24hUsd: 0 });
       }
     }
   };
@@ -321,11 +382,17 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
     const pct24h = Number(pctByAddr.get(addr) ?? 0) || 0;
     const valueUsd = Number(h?.value || h?.valueUsd || 0) || 0;
 
+    const meta = metaByAddr.get(addr) || { liquidityUsd: 0, volume24hUsd: 0 };
+    const eligible = isNativeSol(addr) ||
+      (Number(meta?.liquidityUsd || 0) >= SOL_CHANGE_ELIGIBLE_LIQUIDITY_USD) ||
+      (Number(meta?.volume24hUsd || 0) >= SOL_CHANGE_ELIGIBLE_VOLUME24H_USD);
+
     // Overwrite/change fields used by aggregation, so SOL portfolio change becomes price-based.
     const deltaUsd = holdingDeltaUsdFromPct({ valueUsd, pct: pct24h });
     h.changePct = pct24h;
     h.changeUsd = deltaUsd;
     h.change_1d_usd = deltaUsd;
+    h._changeEligible = eligible;
 
     if (DEBUG_SOL_CHANGE && valueUsd > 0 && Math.abs(pct24h) < 1e-9) {
       try {
@@ -333,6 +400,9 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
           address: addr,
           symbol: h?.symbol,
           valueUsd,
+          eligible,
+          liquidityUsd: meta?.liquidityUsd,
+          volume24hUsd: meta?.volume24hUsd,
         });
       } catch {}
 
@@ -2048,6 +2118,8 @@ function recomputeAggregatesAndRender() {
   let totalForChange = 0;
   let total24hAgo = 0;
 
+  const solDebugContrib = [];
+
   state.walletHoldings.forEach((items, walletKey) => {
     const [chain, wallet] = walletKey.split(':');
     wallets.push({ address: wallet, chain, count: items.length });
@@ -2110,11 +2182,27 @@ function recomputeAggregatesAndRender() {
       }
       total += value;
       if (chain === 'solana') {
-        solWalletNow += value;
-        // Treat missing per-token 24h as 0 delta (still price-based). We should not fall back
-        // to wallet net-worth change because transfers can flip the sign vs Phantom.
-        solWalletHasChange = true;
-        solWalletChange += changeUsd;
+        // To match Phantom more closely, only include tokens that appear to have real price discovery
+        // (liquidity/volume), otherwise spam/illiquid tokens can dominate and flip sign.
+        const eligible = holding._changeEligible !== false;
+        if (DEBUG_SOL_CHANGE) {
+          try {
+            solDebugContrib.push({
+              wallet,
+              address: holding.address,
+              symbol: holding.symbol,
+              valueUsd: value,
+              pct24h: Number(holding.changePct || 0) || 0,
+              changeUsd,
+              eligible,
+            });
+          } catch {}
+        }
+        if (eligible) {
+          solWalletNow += value;
+          solWalletHasChange = true;
+          solWalletChange += changeUsd;
+        }
       }
       if (chain === 'evm') {
         totalChangeEvmUsd += changeUsd;
@@ -2141,6 +2229,22 @@ function recomputeAggregatesAndRender() {
   state.totalChangeEvmUsd = totalChangeEvmUsd;
   state.totalValueForChange = totalForChange;
   state.totalValue24hAgo = total24hAgo;
+
+  if (DEBUG_SOL_CHANGE) {
+    try {
+      const absSorted = solDebugContrib
+        .slice()
+        .sort((a, b) => Math.abs(b.changeUsd || 0) - Math.abs(a.changeUsd || 0));
+      const summary = {
+        count: solDebugContrib.length,
+        eligibleCount: solDebugContrib.filter(x => x.eligible).length,
+        ineligibleCount: solDebugContrib.filter(x => !x.eligible).length,
+        topByAbsDelta: absSorted.slice(0, 10),
+      };
+      window.__lookySol24hContrib = summary;
+      console.log('[SOL 24h] contrib summary json', JSON.stringify(summary));
+    } catch {}
+  }
 
   setHoldingsPage(1);
 
