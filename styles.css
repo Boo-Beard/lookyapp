@@ -718,18 +718,30 @@ body.ui-results .input-section.is-minimized {
   width: 100px;
   height: 100px;
   background-color: rgba(255, 255, 255, 0.96);
-  background-image:
-    radial-gradient(circle at 18% 30%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.85)) 0 2px, transparent 3px 100%),
-    radial-gradient(circle at 78% 32%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.75)) 0 2px, transparent 3px 100%),
-    linear-gradient(28deg, transparent 36%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.55)) 37%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.55)) 40%, transparent 41%),
-    linear-gradient(118deg, transparent 42%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.50)) 43%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.50)) 46%, transparent 47%),
-    linear-gradient(72deg, transparent 60%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.45)) 61%, rgb(210 18 18 / calc(var(--eye-tired, 0) * 0.45)) 63%, transparent 64%);
-  background-blend-mode: normal;
   border: 3px solid var(--border);
   border-radius: 50%;
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+}
+
+.logo-lockup .eye::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--eye-tired, 0) * 0.95);
+  background-color: rgb(205 20 20 / 0.95);
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 0.35));
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A//www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cg%20fill='none'%20stroke='%23000'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20stroke-width='3.6'%20d='M18%2038%20C26%2032%2C%2032%2032%2C%2039%2037%20C44%2041%2C%2048%2043%2C%2056%2044%20C63%2045%2C%2070%2048%2C%2078%2057'/%3E%3Cpath%20stroke-width='2.8'%20d='M40%2037%20C36%2045%2C%2031%2049%2C%2024%2054'/%3E%3Cpath%20stroke-width='2.6'%20d='M54%2044%20C52%2052%2C%2048%2057%2C%2041%2062'/%3E%3Cpath%20stroke-width='2.6'%20d='M64%2046%20C67%2053%2C%2071%2058%2C%2078%2062'/%3E%3Cpath%20stroke-width='2.2'%20d='M24%2054%20C22%2059%2C%2019%2063%2C%2015%2066'/%3E%3Cpath%20stroke-width='2.2'%20d='M41%2062%20C40%2067%2C%2037%2071%2C%2032%2074'/%3E%3Cpath%20stroke-width='2.0'%20d='M78%2062%20C82%2064%2C%2086%2068%2C%2088%2072'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A//www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cg%20fill='none'%20stroke='%23000'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20stroke-width='3.6'%20d='M18%2038%20C26%2032%2C%2032%2032%2C%2039%2037%20C44%2041%2C%2048%2043%2C%2056%2044%20C63%2045%2C%2070%2048%2C%2078%2057'/%3E%3Cpath%20stroke-width='2.8'%20d='M40%2037%20C36%2045%2C%2031%2049%2C%2024%2054'/%3E%3Cpath%20stroke-width='2.6'%20d='M54%2044%20C52%2052%2C%2048%2057%2C%2041%2062'/%3E%3Cpath%20stroke-width='2.6'%20d='M64%2046%20C67%2053%2C%2071%2058%2C%2078%2062'/%3E%3Cpath%20stroke-width='2.2'%20d='M24%2054%20C22%2059%2C%2019%2063%2C%2015%2066'/%3E%3Cpath%20stroke-width='2.2'%20d='M41%2062%20C40%2067%2C%2037%2071%2C%2032%2074'/%3E%3Cpath%20stroke-width='2.0'%20d='M78%2062%20C82%2064%2C%2086%2068%2C%2088%2072'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 .logo-lockup .eye::after {
@@ -762,6 +774,10 @@ body.is-redacted .logo-lockup .eye {
   background: transparent;
 }
 
+body.is-redacted .logo-lockup .eye::before {
+  opacity: 0;
+}
+
 body.is-redacted .logo-lockup .pupil {
   opacity: 0;
 }
@@ -788,7 +804,7 @@ body.is-scanning .logo-lockup .pupil {
 }
 
 body.is-scanning .logo-lockup .eye::before {
-  animation: scanEyeSweep 1.2s ease-in-out infinite;
+  animation: none;
 }
 
 @keyframes scanEyePulse {
