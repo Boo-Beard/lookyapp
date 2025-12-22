@@ -740,6 +740,15 @@ body.ui-results .input-section.is-minimized {
 body.is-redacted .logo-lockup .eye::after {
   transform: scaleY(1);
   animation: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(255, 255, 255, 0.96) 44%,
+    rgba(11, 11, 16, 0.88) 44%,
+    rgba(11, 11, 16, 0.88) 56%,
+    rgba(255, 255, 255, 0.96) 56%,
+    rgba(255, 255, 255, 0.96) 100%
+  );
 }
 
 body.is-redacted .logo-lockup .pupil {
