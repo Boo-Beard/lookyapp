@@ -1266,34 +1266,12 @@ function buildBirdeyeTokenUrl({ chain, network, address }) {
   return `https://birdeye.so/token/${address}?chain=${c}`;
 }
 
-function openChartModal({ chain, network, address, symbol, name }) {
-  const modal = $('chartModal');
-  if (!modal) return;
-
-  const subtitle = $('chartModalSubtitle');
-  if (subtitle) {
-    const s = String(symbol || '').trim();
-    const n = String(name || '').trim();
-    const label = s ? `${s}${n ? ` — ${n}` : ''}` : (n || 'Token');
-    subtitle.textContent = label;
-  }
-
-  const dexscreener = $('chartLinkDexscreener');
-  const dextools = $('chartLinkDextools');
-  const birdeye = $('chartLinkBirdeye');
-  if (dexscreener) dexscreener.href = buildDexscreenerTokenUrl({ chain, network, address });
-  if (dextools) dextools.href = buildDextoolsTokenUrl({ chain, network, address });
-  if (birdeye) birdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
-
-  modal.classList.remove('hidden');
-  document.body.classList.add('modal-open');
-}
-
-function closeChartModal() {
-  const modal = $('chartModal');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  document.body.classList.remove('modal-open');
+function closeAllChartPopovers(exceptEl = null) {
+  const popovers = document.querySelectorAll('.chart-popover');
+  popovers.forEach((p) => {
+    if (exceptEl && p === exceptEl) return;
+    p.classList.add('hidden');
+  });
 }
 
 async function fetchTokenOverview(address, chain, { signal } = {}) {
@@ -2165,6 +2143,17 @@ function renderHoldingsTable() {
                   <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
                     <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                   </a>
+                  <div class="chart-popover hidden" aria-label="Chart links">
+                    <a class="chart-popover-link" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
+                      <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64" alt="Dexscreener" />
+                    </a>
+                    <a class="chart-popover-link" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
+                      <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=dextools.io&sz=64" alt="Dextools" />
+                    </a>
+                    <a class="chart-popover-link" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
+                      <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=birdeye.so&sz=64" alt="Birdeye" />
+                    </a>
+                  </div>
                   <a class="holding-action ${walletDisabled ? 'disabled' : ''}" href="${walletHref}" target="_blank" rel="noopener noreferrer" aria-label="View Wallet" ${walletDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
                     <i class="fa-solid fa-wallet" aria-hidden="true"></i>
                   </a>
@@ -2727,32 +2716,41 @@ function setupEventListeners() {
     const chart = e.target.closest('a.holding-action[data-action="chart"]');
     if (chart) {
       e.preventDefault();
-      openChartModal({
-        chain: chart.dataset.chain || '',
-        network: chart.dataset.network || '',
-        address: chart.dataset.address || '',
-        symbol: chart.dataset.symbol || '',
-        name: chart.dataset.name || '',
-      });
+      const actions = chart.closest('.holding-card-actions');
+      if (!actions) return;
+      const popover = actions.querySelector('.chart-popover');
+      if (!popover) return;
+
+      const isOpening = popover.classList.contains('hidden');
+      closeAllChartPopovers(popover);
+      if (!isOpening) {
+        popover.classList.add('hidden');
+        return;
+      }
+
+      const chain = chart.dataset.chain || '';
+      const network = chart.dataset.network || '';
+      const address = chart.dataset.address || '';
+
+      const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
+      const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
+      const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
+      if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
+      if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
+      if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
+
+      popover.classList.remove('hidden');
       return;
     }
 
-    const modal = $('chartModal');
-    if (modal && !modal.classList.contains('hidden')) {
-      if (e.target === modal) {
-        closeChartModal();
-      }
+    if (!e.target.closest('.holding-card-actions')) {
+      closeAllChartPopovers();
     }
-  });
-
-  $('chartModalClose')?.addEventListener('click', () => {
-    closeChartModal();
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      const modal = $('chartModal');
-      if (modal && !modal.classList.contains('hidden')) closeChartModal();
+      closeAllChartPopovers();
     }
   });
 

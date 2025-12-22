@@ -112,105 +112,51 @@ body.modal-open {
   overflow: hidden;
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: var(--bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+.holding-card-actions {
+  position: relative;
 }
 
-.modal-overlay.hidden {
+.chart-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-md);
+  z-index: 20;
+}
+
+.chart-popover.hidden {
   display: none;
 }
 
-.modal-card {
-  width: 100%;
-  max-width: 420px;
-  border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.96);
-  border: 2px solid rgba(0, 0, 0, 0.9);
-  box-shadow: var(--shadow-lg);
-  padding: 14px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.modal-title {
-  font-weight: 800;
-  letter-spacing: 0.3px;
-}
-
-.modal-close {
-  border: 2px solid rgba(0, 0, 0, 0.9);
-  background: rgba(255, 255, 255, 0.65);
-  border-radius: var(--radius-full);
-  width: 36px;
-  height: 36px;
+.chart-popover-link {
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.65);
   box-shadow: var(--shadow-sm);
+  text-decoration: none;
 }
 
-.modal-close:active {
+.chart-popover-link:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 rgba(11, 11, 16, 0.95);
 }
 
-.modal-subtitle {
-  margin-top: 10px;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-}
-
-.chart-links {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-.chart-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-lg);
-  border: 2px solid rgba(0, 0, 0, 0.9);
-  background: rgba(255, 255, 255, 0.65);
-  text-decoration: none;
-  color: var(--text-primary);
-  box-shadow: var(--shadow-md);
-}
-
-.chart-link:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: var(--shadow-lg);
-}
-
-.chart-link:active {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 rgba(11, 11, 16, 0.95);
-}
-
-.chart-link-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-}
-
-.chart-link-text {
-  font-weight: 800;
+.chart-popover-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
 }
 
 .container {
