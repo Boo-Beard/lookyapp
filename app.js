@@ -879,6 +879,10 @@ function forceCollapseResultsSections() {
   const allocRiskToggle = $('allocRiskToggle');
   const allocRiskContent = $('allocRiskContent');
 
+  const walletHoldingsCard = $('walletHoldingsCard');
+  const walletHoldingsToggle = $('walletHoldingsToggle');
+  const walletHoldingsContent = $('walletHoldingsContent');
+
   if (holdingsCard && holdingsToggle && holdingsContent) {
     holdingsCard.classList.add('is-collapsed');
     holdingsToggle.setAttribute('aria-expanded', 'false');
@@ -891,9 +895,16 @@ function forceCollapseResultsSections() {
     allocRiskContent.classList.add('hidden');
   }
 
+  if (walletHoldingsCard && walletHoldingsToggle && walletHoldingsContent) {
+    walletHoldingsCard.classList.add('is-collapsed');
+    walletHoldingsToggle.setAttribute('aria-expanded', 'false');
+    walletHoldingsContent.classList.add('hidden');
+  }
+
   const uiSections = loadUiSectionState();
   uiSections.holdings = false;
   uiSections.allocRisk = false;
+  uiSections.walletHoldings = false;
   saveUiSectionState(uiSections);
 }
 
@@ -1578,7 +1589,6 @@ function renderAllocationAndRisk() {
   const allocationEl = $('allocationBreakdown');
   const chainChartEl = $('chainAllocationChart');
   const tokenAllocationEl = $('tokenAllocationList');
-  const walletAllocationEl = $('walletAllocationList');
   const insightsEl = $('riskInsights');
   if ((!allocationEl && (!chainChartEl || !tokenAllocationEl)) || !insightsEl) return;
 
@@ -1589,7 +1599,6 @@ function renderAllocationAndRisk() {
     if (allocationEl) allocationEl.innerHTML = '';
     if (chainChartEl) chainChartEl.innerHTML = '';
     if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
-    if (walletAllocationEl) walletAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
     return;
   }
@@ -1882,36 +1891,6 @@ function renderAllocationAndRisk() {
   }
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
-  const walletRows = Array.from(walletTotals.entries())
-    .map(([wallet, value]) => {
-      const v = Number(value || 0) || 0;
-      return {
-        wallet,
-        value: v,
-        pct: total > 0 ? (v / total) * 100 : 0,
-      };
-    })
-    .filter(r => r.value > ALLOC_MIN_VALUE)
-    .sort((a, b) => b.value - a.value);
-
-  if (walletAllocationEl) {
-    walletAllocationEl.innerHTML = walletRows
-      .slice(0, 12)
-      .map((r) => {
-        const pct = Math.max(0, Math.min(100, r.pct));
-        return `
-          <div class="alloc-row" data-key="wallet:${escapeHtml(r.wallet)}">
-            <div class="alloc-row-top">
-              <div class="alloc-row-name mono">${escapeHtml(shortenAddress(r.wallet))}</div>
-              <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
-            </div>
-            <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
-          </div>
-        `;
-      })
-      .join('');
-  }
-
   const insights = [];
   insights.push(`Top holding concentration: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
   insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> of portfolio`);
@@ -1931,6 +1910,59 @@ function renderAllocationAndRisk() {
   insightsEl.innerHTML = insights
     .slice(0, 7)
     .map((t) => `<div class="insight-item">${t}</div>`)
+    .join('');
+}
+
+function renderHoldingsByWallet() {
+  const walletAllocationEl = $('walletAllocationList');
+  if (!walletAllocationEl) return;
+
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+  const total = Number(state.totalValue || 0) || 0;
+
+  if (!holdings.length || total <= 0) {
+    walletAllocationEl.innerHTML = '';
+    return;
+  }
+
+  const ALLOC_MIN_VALUE = 0.000001;
+
+  const walletTotals = new Map();
+  for (const h of holdings) {
+    const v = Number(h?.value || 0) || 0;
+    const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean).map(String) : [];
+    if (!sources.length || v <= 0) continue;
+
+    const uniq = Array.from(new Set(sources));
+    const per = v / Math.max(1, uniq.length);
+    for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
+  }
+
+  const walletRows = Array.from(walletTotals.entries())
+    .map(([wallet, value]) => {
+      const v = Number(value || 0) || 0;
+      return {
+        wallet,
+        value: v,
+        pct: total > 0 ? (v / total) * 100 : 0,
+      };
+    })
+    .filter(r => r.value > ALLOC_MIN_VALUE)
+    .sort((a, b) => b.value - a.value);
+
+  walletAllocationEl.innerHTML = walletRows
+    .map((r) => {
+      const pct = Math.max(0, Math.min(100, r.pct));
+      return `
+        <div class="alloc-row" data-key="wallet:${escapeHtml(r.wallet)}">
+          <div class="alloc-row-top">
+            <div class="alloc-row-name mono">${escapeHtml(shortenAddress(r.wallet))}</div>
+            <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
+          </div>
+          <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
+        </div>
+      `;
+    })
     .join('');
 }
 
@@ -2395,6 +2427,7 @@ function recomputeAggregatesAndRender() {
 
   updateSummary();
   renderAllocationAndRisk();
+  renderHoldingsByWallet();
   renderHoldingsTable();
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
@@ -3004,6 +3037,10 @@ function setupEventListeners() {
   const holdingsToggle = $('holdingsToggle');
   const holdingsContent = $('holdingsContent');
 
+  const walletHoldingsCard = $('walletHoldingsCard');
+  const walletHoldingsToggle = $('walletHoldingsToggle');
+  const walletHoldingsContent = $('walletHoldingsContent');
+
   function setCollapsed({ card, toggle, content, key, collapsed }) {
     if (!card || !toggle || !content) return;
     const isCollapsed = !!collapsed;
@@ -3020,6 +3057,9 @@ function setupEventListeners() {
   const holdingsOpen = Object.prototype.hasOwnProperty.call(uiSections, 'holdings') ? !!uiSections.holdings : false;
   setCollapsed({ card: holdingsCard, toggle: holdingsToggle, content: holdingsContent, key: 'holdings', collapsed: !holdingsOpen });
 
+  const walletHoldingsOpen = Object.prototype.hasOwnProperty.call(uiSections, 'walletHoldings') ? !!uiSections.walletHoldings : false;
+  setCollapsed({ card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings', collapsed: !walletHoldingsOpen });
+
   allocRiskToggle?.addEventListener('click', () => {
     const open = !(allocRiskCard?.classList.contains('is-collapsed'));
     setCollapsed({ card: allocRiskCard, toggle: allocRiskToggle, content: allocRiskContent, key: 'allocRisk', collapsed: open });
@@ -3029,6 +3069,12 @@ function setupEventListeners() {
   holdingsToggle?.addEventListener('click', () => {
     const open = !(holdingsCard?.classList.contains('is-collapsed'));
     setCollapsed({ card: holdingsCard, toggle: holdingsToggle, content: holdingsContent, key: 'holdings', collapsed: open });
+    hapticFeedback('light');
+  });
+
+  walletHoldingsToggle?.addEventListener('click', () => {
+    const open = !(walletHoldingsCard?.classList.contains('is-collapsed'));
+    setCollapsed({ card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings', collapsed: open });
     hapticFeedback('light');
   });
 

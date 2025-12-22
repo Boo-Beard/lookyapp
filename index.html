@@ -268,13 +268,27 @@
               </div>
 
               <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Holdings by wallet</div>
-                <div id="walletAllocationList" class="alloc-risk-list"></div>
-              </div>
-
-              <div class="alloc-risk-col full-width">
                 <div class="alloc-risk-section-title">Insights</div>
                 <div id="riskInsights" class="alloc-risk-insights"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card alloc-risk-card is-collapsed" id="walletHoldingsCard">
+          <div class="alloc-risk-header">
+            <div class="collapsible-header-left">
+              <h3 class="table-title">Holdings by Wallet</h3>
+              <div class="table-subtitle">Which wallet holds how much</div>
+            </div>
+            <button id="walletHoldingsToggle" class="collapse-toggle" type="button" aria-label="Toggle Holdings by Wallet" aria-controls="walletHoldingsContent" aria-expanded="false">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="walletHoldingsContent" class="alloc-risk-body collapsible-content hidden">
+            <div class="alloc-risk-cols">
+              <div class="alloc-risk-col full-width">
+                <div id="walletAllocationList" class="alloc-risk-list"></div>
               </div>
             </div>
           </div>
