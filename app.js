@@ -1043,7 +1043,8 @@ function updateSummary() {
       totalChangeEl.classList.toggle('positive', pct > 0);
       totalChangeEl.classList.toggle('negative', pct < 0);
       const arrow = pct > 0 ? '▲' : '▼';
-      totalChangeEl.textContent = `${arrow} ${Math.abs(pct).toFixed(2)}%`;
+      const sign = delta > 0 ? '+' : '-';
+      totalChangeEl.textContent = `${arrow} ${Math.abs(pct).toFixed(2)}% (${sign}${formatCurrency(Math.abs(delta))})`;
     }
   }
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
