@@ -1885,26 +1885,6 @@ function renderAllocationAndRisk() {
     const per = v / Math.max(1, uniq.length);
     for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
   }
-
-  const walletNetworks = new Map();
-  for (const [walletKey, walletHoldings] of state.walletHoldings.entries()) {
-    const parts = String(walletKey || '').split(':');
-    const chain = parts[0] || '';
-    const wallet = parts.slice(1).join(':') || '';
-    if (!wallet) continue;
-
-    if (!walletNetworks.has(wallet)) walletNetworks.set(wallet, { hasSol: false, evm: new Set() });
-    const info = walletNetworks.get(wallet);
-    if (chain === 'solana') {
-      info.hasSol = true;
-    } else if (chain === 'evm') {
-      const list = Array.isArray(walletHoldings) ? walletHoldings : [];
-      for (const h of list) {
-        const net = normalizeEvmNetwork(h?.network || h?.chain || '');
-        if (net) info.evm.add(net);
-      }
-    }
-  }
   let topWallet = null;
   for (const [wallet, value] of walletTotals.entries()) {
     if (!topWallet || value > topWallet.value) topWallet = { wallet, value };
@@ -1946,6 +1926,26 @@ function renderHoldingsByWallet() {
   }
 
   const ALLOC_MIN_VALUE = 0.000001;
+
+  const walletNetworks = new Map();
+  for (const [walletKey, walletHoldings] of state.walletHoldings.entries()) {
+    const parts = String(walletKey || '').split(':');
+    const chain = parts[0] || '';
+    const wallet = parts.slice(1).join(':') || '';
+    if (!wallet) continue;
+
+    if (!walletNetworks.has(wallet)) walletNetworks.set(wallet, { hasSol: false, evm: new Set() });
+    const info = walletNetworks.get(wallet);
+    if (chain === 'solana') {
+      info.hasSol = true;
+    } else if (chain === 'evm') {
+      const list = Array.isArray(walletHoldings) ? walletHoldings : [];
+      for (const h of list) {
+        const net = normalizeEvmNetwork(h?.network || h?.chain || '');
+        if (net) info.evm.add(net);
+      }
+    }
+  }
 
   const walletTotals = new Map();
   for (const h of holdings) {
