@@ -18,6 +18,8 @@ const scanCache = new Map();
 const SOL_CHANGE_CACHE_TTL_MS = 10 * 60 * 1000;
 const solTokenChangeCache = new Map();
 
+const DEBUG_SOL_CHANGE = false;
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -842,8 +844,6 @@ const API = {
   zerion: '/api/zerion',
   birdeye: '/api/birdeye',
 };
-
-const DEBUG_SOL_CHANGE = false;
 
 // Single, correct birdeyeRequest (your file currently has a duplicate nested function)
 async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
@@ -1948,7 +1948,9 @@ function recomputeAggregatesAndRender() {
       total += value;
       if (chain === 'solana') {
         solWalletNow += value;
-        if (Number.isFinite(changeUsd) && Math.abs(changeUsd) > 0) solWalletHasChange = true;
+        // Treat missing per-token 24h as 0 delta (still price-based). We should not fall back
+        // to wallet net-worth change because transfers can flip the sign vs Phantom.
+        solWalletHasChange = true;
         solWalletChange += changeUsd;
       }
       if (chain === 'evm') {
@@ -1963,30 +1965,6 @@ function recomputeAggregatesAndRender() {
         totalChangeSolUsd += solWalletChange;
         totalForChange += solWalletNow;
         total24hAgo += Math.max(0, solWalletNow - solWalletChange);
-      } else {
-        // Fallback: use Birdeye wallet net worth change if holdings don't provide 1d deltas.
-        if (DEBUG_SOL_CHANGE) {
-          try {
-            console.debug('[SOL 24h] wallet fallback to net-worth change', {
-              wallet,
-              solWalletNow,
-              solWalletChange,
-              holdingsCount: Array.isArray(items) ? items.length : 0,
-            });
-          } catch {}
-        }
-        const ch = state.walletDayChange?.get(walletKey);
-        const solNow = Number(ch?.netWorthUsd || 0) || 0;
-        const solDelta = Number(ch?.changeUsd || 0) || 0;
-
-        totalChangeSolUsd += solDelta;
-        if (solNow > 0) {
-          totalForChange += solNow;
-          total24hAgo += Math.max(0, solNow - solDelta);
-        } else {
-          totalForChange += walletTotalValue;
-          total24hAgo += Math.max(0, walletTotalValue - solDelta);
-        }
       }
     }
   });
