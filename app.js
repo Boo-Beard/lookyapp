@@ -1502,6 +1502,15 @@ function showStatus(message, type = 'info') {
 
 function setScanningUi(active) {
   document.body.classList.toggle('is-scanning', !!active);
+
+  if (active) {
+    try {
+      closeAllChartPopovers();
+    } catch {}
+    try {
+      forceCollapseResultsSections();
+    } catch {}
+  }
 }
 
 function updateProgress(percent) {
@@ -1985,6 +1994,7 @@ function renderHoldingsByWallet() {
         nets.sort((a, b) => evmNetworkLabel(a).localeCompare(evmNetworkLabel(b)));
         for (const n of nets) {
           const label = evmNetworkLabel(n);
+          if (label === 'EVM') continue;
           const href = `${evmExplorerBase(n)}/address/${r.wallet}`;
           tags.push(
             `<a class="chain-badge-small evm wallet-chain-tag" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`

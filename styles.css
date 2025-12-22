@@ -108,6 +108,46 @@ body.ui-results::after {
   opacity: 0.06;
 }
 
+.section-scan-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(11, 11, 16, 0.18);
+  border-top-color: rgba(11, 11, 16, 0.85);
+  box-shadow: var(--shadow-sm);
+  display: none;
+  flex: 0 0 auto;
+  animation: looky-spin 0.9s linear infinite;
+}
+
+@keyframes looky-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+body.is-scanning #holdingsCard,
+body.is-scanning #allocRiskCard,
+body.is-scanning #walletHoldingsCard {
+  opacity: 0.55;
+}
+
+body.is-scanning #holdingsCard .collapse-toggle,
+body.is-scanning #allocRiskCard .collapse-toggle,
+body.is-scanning #walletHoldingsCard .collapse-toggle,
+body.is-scanning #holdingsCard input,
+body.is-scanning #holdingsCard select,
+body.is-scanning #holdingsCard button,
+body.is-scanning #allocRiskCard button,
+body.is-scanning #walletHoldingsCard button {
+  pointer-events: none;
+}
+
+body.is-scanning #holdingsCard .section-scan-indicator,
+body.is-scanning #allocRiskCard .section-scan-indicator,
+body.is-scanning #walletHoldingsCard .section-scan-indicator {
+  display: inline-block;
+}
+
 body.modal-open {
   overflow: hidden;
 }
