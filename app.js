@@ -220,6 +220,8 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
 
   await Promise.allSettled(Array.from({ length: Math.min(concurrency, uniq.length) }, () => worker()));
 
+  const missing = [];
+
   out.forEach((h) => {
     const addr = String(h?.address || h?.token_address || '').trim();
     if (!addr) return;
@@ -240,8 +242,26 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
           valueUsd,
         });
       } catch {}
+
+      missing.push({ address: addr, symbol: h?.symbol, valueUsd });
     }
   });
+
+  if (DEBUG_SOL_CHANGE) {
+    try {
+      const missingValue = missing.reduce((s, x) => s + (Number(x?.valueUsd) || 0), 0);
+      const top = missing
+        .slice()
+        .sort((a, b) => (b.valueUsd || 0) - (a.valueUsd || 0))
+        .slice(0, 10);
+      console.debug('[SOL 24h] missing pct24h summary', {
+        holdings: out.length,
+        missing: missing.length,
+        missingValueUsd: missingValue,
+        top,
+      });
+    } catch {}
+  }
 
   return out;
 }
