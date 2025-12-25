@@ -208,7 +208,7 @@ background: var(--paper);
   border-radius: 12px;
   border: 2px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
-  color: rgba(11, 11, 16, 0.82);
+  color: var(--text-secondary);
   text-decoration: none;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-fast), background var(--transition-fast);
@@ -364,13 +364,13 @@ body.ui-landing .scan-status.hidden {
   background: rgba(255, 255, 255, 0.40);
   font-size: 13px;
   font-weight: 800;
-  color: rgba(11, 11, 16, 0.78);
+  color: var(--text-secondary);
 }
 
 .scan-progress-item > div:last-child {
   font-family: var(--mono);
   font-weight: 900;
-  color: rgba(11, 11, 16, 0.68);
+  color: var(--text-tertiary);
   white-space: nowrap;
 }
 
@@ -551,7 +551,7 @@ width: 44px;
     border: 3px solid var(--border);
     background: var(--panel);
     box-shadow: var(--shadow-sm);
-    color: rgba(11, 11, 16, 0.92);
+    color: var(--text-primary);
     position: absolute;
     top: -22px;
     left: 50%;
@@ -576,7 +576,7 @@ width: 44px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-size: 11px;
-  color: rgba(11, 11, 16, 0.72);
+  color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -608,7 +608,7 @@ width: 44px;
   background: var(--panel);
   padding: 10px 12px;
   font-weight: 800;
-  color: rgba(11, 11, 16, 0.82);
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 18px;
   line-height: 1.1;
@@ -641,7 +641,7 @@ width: 44px;
 }
 
 .summary-card .summary-sub {
-  color: rgba(11, 11, 16, 0.70);
+  color: var(--text-secondary);
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1129,7 +1129,7 @@ body.is-scanning .logo-lockup .eye::before {
   border: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.45);
   box-shadow: var(--shadow-md);
-  color: rgba(11, 11, 16, 0.80);
+  color: var(--text-primary);
   font-weight: 700;
   user-select: none;
 }
@@ -1225,7 +1225,7 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #addressInput::placeholder {
-  color: rgba(11, 11, 16, 0.55);
+  color: var(--text-tertiary);
 }
 
 #addressInput::selection {
@@ -1549,7 +1549,7 @@ body.ui-results .table-header {
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 800;
-  color: rgba(11, 11, 16, 0.72);
+  color: var(--text-secondary);
   user-select: none;
   min-width: 92px;
   text-align: center;
@@ -1615,7 +1615,7 @@ body.ui-results .table-header {
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(11, 11, 16, 0.70);
+  color: var(--text-secondary);
   pointer-events: none;
 }
 
@@ -1655,7 +1655,7 @@ body.ui-results .table-header {
     border-radius: var(--radius-xl);
     border: 4px solid var(--border);
     box-shadow: var(--shadow-md);
-    color: rgba(11, 11, 16, 0.80);
+    color: var(--text-primary);
     font-weight: 700;
     user-select: none;
     background: var(--panel);
@@ -1750,7 +1750,7 @@ body.ui-results .table-subtitle {
 }
 
 body.ui-results .holdings-table th {
-  color: rgba(11, 11, 16, 0.78);
+  color: var(--text-secondary);
 }
 
 .holdings-table td {
@@ -1862,7 +1862,7 @@ body.ui-results .holding-row::after {
 }
 
 body.ui-results .token-name {
-  color: rgba(11, 11, 16, 0.68);
+  color: var(--text-tertiary);
 }
 
 body.ui-results .holdings-table td.mono {
@@ -1874,7 +1874,7 @@ body.ui-results .holdings-table td.mono strong {
 }
 
 body.ui-results .holdings-table td:nth-child(5) {
-  color: rgba(11, 11, 16, 0.95);
+  color: var(--text-primary);
 }
 
 @media (max-width: 640px) {
@@ -1977,13 +1977,13 @@ body.ui-results .holdings-table td:nth-child(5) {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-size: 11px;
-    color: rgba(11, 11, 16, 0.65);
+    color: var(--text-tertiary);
     margin-bottom: 6px;
   }
 
   .holding-metric-value {
     font-size: 15px;
-    color: rgba(11, 11, 16, 0.92);
+    color: var(--text-primary);
   }
 
   .holding-metric-value strong {
@@ -2095,7 +2095,7 @@ body.holdings-cards .holding-action {
   border-radius: 12px;
   border: 2px solid var(--border);
   background: var(--panel);
-  color: rgba(11, 11, 16, 0.82);
+  color: var(--text-secondary);
   text-decoration: none;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-fast), background var(--transition-fast);
@@ -2149,13 +2149,13 @@ body.holdings-cards .holding-metric-label {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-size: 11px;
-  color: rgba(11, 11, 16, 0.65);
+  color: var(--text-tertiary);
   margin-bottom: 6px;
 }
 
 body.holdings-cards .holding-metric-value {
   font-size: 15px;
-  color: rgba(11, 11, 16, 0.92);
+  color: var(--text-primary);
 }
 
 body.holdings-cards .holding-metric-value strong {
@@ -2177,7 +2177,7 @@ body.holdings-cards .holding-metric-value strong {
 body.ui-results .chain-badge-small {
   background: var(--panel);
   border: 2px solid var(--border);
-  color: rgba(11, 11, 16, 0.78);
+  color: var(--text-secondary);
 }
 
 .empty-state {
@@ -2247,7 +2247,7 @@ body.ui-results .table-footer {
 }
 
 body.ui-results .table-stats {
-  color: rgba(11, 11, 16, 0.70);
+  color: var(--text-secondary);
 }
 
 
@@ -2372,7 +2372,7 @@ body.ui-results .table-stats {
   border: 3px solid var(--border);
   background: var(--panel);
   box-shadow: var(--shadow-sm);
-  color: rgba(11, 11, 16, 0.82);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: transform var(--transition-fast), background var(--transition-fast);
   flex: 0 0 auto;
@@ -2492,14 +2492,14 @@ body.ui-results .table-stats {
 
 .alloc-chain-tooltip-title {
   font-weight: 950;
-  color: rgba(11, 11, 16, 0.92);
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .alloc-chain-tooltip-meta {
   font-size: 12px;
   font-weight: 900;
-  color: rgba(11, 11, 16, 0.70);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 520px) {
@@ -2536,7 +2536,7 @@ body.ui-results .table-stats {
 .alloc-row-meta {
   font-size: 12px;
   font-weight: 800;
-  color: rgba(11, 11, 16, 0.72);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -2560,7 +2560,7 @@ body.ui-results .table-stats {
   border-radius: var(--radius-lg);
   padding: 10px 12px;
   font-weight: 800;
-  color: rgba(11, 11, 16, 0.82);
+  color: var(--text-secondary);
   background: var(--panel);
 }
 
@@ -2683,7 +2683,7 @@ body.ui-results .table-stats {
   border: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
-  color: rgba(11, 11, 16, 0.92);
+  color: var(--text-primary);
   font-size: 18px;
   line-height: 1;
 }
@@ -3003,7 +3003,7 @@ body.ui-results .wallet-card:hover {
 
 body.ui-results .wallet-count {
   background: rgba(255, 255, 255, 0.45);
-  color: rgba(11, 11, 16, 0.72);
+  color: var(--text-secondary);
 }
 
 .wallet-address {
@@ -3057,7 +3057,7 @@ body.ui-results .wallet-count {
 }
 
 .footer-rotator-sep {
-  color: rgba(11, 11, 16, 0.50);
+  color: var(--text-tertiary);
   user-select: none;
 }
 

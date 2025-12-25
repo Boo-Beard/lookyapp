@@ -7,7 +7,6 @@ const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
-const STORAGE_KEY_THEME = 'looky:theme';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -3266,9 +3265,6 @@ function setupEventListeners() {
   const applyTheme = (theme) => {
     const t = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.dataset.theme = t;
-    try {
-      localStorage.setItem(STORAGE_KEY_THEME, t);
-    } catch {}
 
     const btn = $('themeToggleBtn');
     if (btn) {
@@ -3281,15 +3277,7 @@ function setupEventListeners() {
     }
   };
 
-  const loadTheme = () => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_THEME);
-      if (saved === 'dark' || saved === 'light') return saved;
-    } catch {}
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
-
-  applyTheme(loadTheme());
+  applyTheme('light');
 
   $('themeToggleBtn')?.addEventListener('click', () => {
     const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
