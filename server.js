@@ -10,13 +10,17 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.disable('x-powered-by');app.use((req, res, next) => {
+app.disable('x-powered-by');
+
+app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
-});const apiRateState = new Map();
+});
+
+const apiRateState = new Map();
 function rateLimitApi({ windowMs = 60_000, max = 120 } = {}) {
   return (req, res, next) => {
     const ip = String(req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown')
@@ -40,15 +44,22 @@ function rateLimitApi({ windowMs = 60_000, max = 120 } = {}) {
 
     next();
   };
-}app.use(express.static(__dirname, {
+}
+
+app.use(express.static(__dirname, {
   etag: true,
   lastModified: true,
   index: false,
-}));app.get('/api/birdeye', rateLimitApi(), (req, res) => birdeyeHandler(req, res));
-app.get('/api/zerion', rateLimitApi(), (req, res) => zerionHandler(req, res));app.get('*', (req, res) => {
+}));
+
+app.get('/api/birdeye', rateLimitApi(), (req, res) => birdeyeHandler(req, res));
+app.get('/api/zerion', rateLimitApi(), (req, res) => zerionHandler(req, res));
+
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {  console.log(`Looky listening on http://localhost:${port}`);
+app.listen(port, () => {
+  console.log(`Looky listening on http://localhost:${port}`);
 });

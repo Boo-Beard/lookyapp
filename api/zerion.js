@@ -7,13 +7,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid address.' });
     }
 
-    EXPORT defualt  async function handler (req, res)
-    try {
-
-        cpnt path, address, ... restrtr} = req.query
-        cont addresssrt = { }
-    }
-
     const path = (typeof rawPath === 'string' && rawPath)
       ? String(rawPath)
       : addressStr

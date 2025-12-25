@@ -815,6 +815,8 @@ body.ui-results #resultsSection .card::before {
   top: 14px;
   right: 14px;
   padding: 8px 10px;
+  z-index: 50;
+  pointer-events: auto;
  }
 
 body.ui-results .input-section.is-minimized .input-body {
