@@ -1,6 +1,12 @@
 
 const $ = (id) => document.getElementById(id);
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
 const MAX_ADDRESSES = 20;
 const STORAGE_KEY_ADDRESSES = 'looky:lastAddresses';
 const STORAGE_KEY_PROFILES = 'looky:profiles';
@@ -3260,6 +3266,42 @@ function setupEventListeners() {
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
     $('inputSection')?.classList.toggle('is-minimized');
+  });
+
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const btn = $('installAppBtn');
+    if (btn) btn.classList.remove('hidden');
+  });
+
+  const isIos = () => {
+    const ua = navigator.userAgent || '';
+    return /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  };
+
+  const showIosInstallHint = () => {
+    const el = $('iosInstallHint');
+    if (!el) return;
+    el.classList.remove('hidden');
+    window.setTimeout(() => el.classList.add('hidden'), 6000);
+  };
+
+  $('installAppBtn')?.addEventListener('click', async () => {
+    if (deferredInstallPrompt) {
+      try {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+      } catch {}
+      deferredInstallPrompt = null;
+      return;
+    }
+    if (isIos()) {
+      showIosInstallHint();
+      return;
+    }
+    showStatus('Install is available on supported browsers (Android Chrome).', 'info');
   });
 
   const applyTheme = (theme) => {

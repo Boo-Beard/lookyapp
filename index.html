@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#0A0B14">
   <title>Looky!</title>
 
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/looky-icon.svg" type="image/svg+xml" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
@@ -347,6 +350,13 @@
           </div>
         </div>
         <div class="footer-links">
+          <button id="installAppBtn" class="btn btn-outline btn-sm footer-install" type="button">
+            <span class="btn-icon"><i class="fa-solid fa-download" aria-hidden="true"></i></span>
+            <span>Install</span>
+          </button>
+          <div id="iosInstallHint" class="ios-install-hint hidden" role="status" aria-live="polite">
+            On iPhone: tap <strong>Share</strong> then <strong>Add to Home Screen</strong>.
+          </div>
           <span class="footer-link" aria-label="Twitter" title="Twitter">
             <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
           </span>

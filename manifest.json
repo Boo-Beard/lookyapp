@@ -1,0 +1,17 @@
+{
+  "name": "LOOKY!",
+  "short_name": "LOOKY",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0B1022",
+  "theme_color": "#0B1022",
+  "icons": [
+    {
+      "src": "/looky-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

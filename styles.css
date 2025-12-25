@@ -2671,6 +2671,27 @@ body.ui-results .table-stats {
   justify-content: center;
   align-items: center;
   gap: 12px;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.footer-install {
+  height: 44px;
+}
+
+.ios-install-hint {
+  width: 100%;
+  max-width: 460px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .footer-link {
