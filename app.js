@@ -7,6 +7,7 @@ const STORAGE_KEY_PROFILES = 'looky:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
+const STORAGE_KEY_THEME = 'looky:theme';
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -3260,6 +3261,40 @@ function setupEventListeners() {
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
     $('inputSection')?.classList.toggle('is-minimized');
+  });
+
+  const applyTheme = (theme) => {
+    const t = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+    try {
+      localStorage.setItem(STORAGE_KEY_THEME, t);
+    } catch {}
+
+    const btn = $('themeToggleBtn');
+    if (btn) {
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-moon', t !== 'dark');
+        icon.classList.toggle('fa-sun', t === 'dark');
+      }
+      btn.setAttribute('aria-label', t === 'dark' ? 'Disable dark mode' : 'Enable dark mode');
+    }
+  };
+
+  const loadTheme = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_THEME);
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {}
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  applyTheme(loadTheme());
+
+  $('themeToggleBtn')?.addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+    hapticFeedback('light');
   });
 
   const applyRedactedMode = (enabled) => {

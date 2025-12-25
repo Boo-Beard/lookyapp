@@ -53,6 +53,31 @@
   --transition-slow: 500ms ease;
 }
 
+ :root[data-theme="dark"] {
+  --bg-primary: #0B1022;
+  --bg-secondary: #0E1630;
+  --bg-card: rgba(16, 22, 42, 0.92);
+  --bg-overlay: rgba(0, 0, 0, 0.72);
+
+  --ink: #F7F3E8;
+  --paper: #0B1022;
+  --panel: #121C38;
+  --accent: #FF4D7A;
+  --accent-2: #42D4FF;
+  --accent-3: #FFD400;
+
+  --text-primary: rgba(247, 243, 232, 0.92);
+  --text-secondary: rgba(247, 243, 232, 0.72);
+  --text-tertiary: rgba(247, 243, 232, 0.52);
+
+  --border: rgba(247, 243, 232, 0.92);
+  --border-hover: rgba(247, 243, 232, 1);
+
+  --shadow-sm: 3px 3px 0 rgba(0, 0, 0, 0.65);
+  --shadow-md: 6px 6px 0 rgba(0, 0, 0, 0.65);
+  --shadow-lg: 9px 9px 0 rgba(0, 0, 0, 0.65);
+ }
+
 @media (max-width: 420px) {
   .summary-grid {
     grid-template-columns: 1fr;
@@ -785,7 +810,15 @@ body.ui-results #resultsSection .card::before {
 .card-header {
   padding: 32px 32px 24px;
   text-align: center;
+  position: relative;
 }
+
+ .theme-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 8px 10px;
+ }
 
 body.ui-results .input-section.is-minimized .input-body {
   display: none;

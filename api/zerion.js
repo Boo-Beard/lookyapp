@@ -7,6 +7,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid address.' });
     }
 
+    EXPORT defualt  async function handler (req, res)
+    try {
+
+        cpnt path, address, ... restrtr} = req.query
+        cont addresssrt = { }
+    }
+
     const path = (typeof rawPath === 'string' && rawPath)
       ? String(rawPath)
       : addressStr
@@ -17,7 +24,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, message: 'Missing ?path= or ?address=' });
     }
 
-    const normalizedPath = String(path).trim();    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/positions\/$/i.test(normalizedPath);
+    const normalizedPath = String(path).trim();
+    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/positions\/$/i.test(normalizedPath);
     if (!allowedPath) {
       return res.status(400).json({ success: false, message: 'Invalid Zerion path.' });
     }
