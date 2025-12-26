@@ -1,4 +1,4 @@
-const CACHE_NAME = 'looky-cache-v1';
+const CACHE_NAME = 'looky-cache-v2';
 
 const ASSETS = [
   '/',
@@ -32,6 +32,27 @@ self.addEventListener('fetch', (event) => {
   // Only handle same-origin requests.
   if (url.origin !== self.location.origin) return;
 
+  const isRuntimeFreshAsset = url.pathname === '/styles.css' || url.pathname === '/app.js';
+
+  // For CSS/JS, prefer the network so updates apply immediately.
+  if (isRuntimeFreshAsset) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          try {
+            if (res && res.status === 200 && res.type === 'basic') {
+              const copy = res.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+            }
+          } catch {}
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Default: cache-first for everything else.
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
