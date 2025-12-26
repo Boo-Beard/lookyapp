@@ -2501,6 +2501,10 @@ body.ui-results .table-stats {
   text-align: center;
 }
 
+ :root[data-theme="dark"] .alloc-chain-tooltip {
+  background: rgba(18, 28, 56, 0.96);
+ }
+
 .alloc-chain-tooltip-title {
   font-weight: 950;
   color: var(--text-primary);
