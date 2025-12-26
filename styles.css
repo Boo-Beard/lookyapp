@@ -1392,6 +1392,11 @@ body.is-scanning .logo-lockup .eye::before {
   box-shadow: var(--shadow-md);
 }
 
+ :root[data-theme="dark"] .btn-primary {
+  background: var(--gradient-primary);
+  color: rgba(11, 11, 16, 0.95);
+ }
+
 .btn-primary:hover {
   transform: translateY(-3px) rotate(-0.2deg);
   box-shadow: var(--shadow-lg);
