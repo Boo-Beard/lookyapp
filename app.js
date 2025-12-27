@@ -16,6 +16,7 @@ const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
 
 const STORAGE_KEY_LAST_SCAN_AT = 'looky:lastScanAt';
 const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
+const DISABLE_SCAN_COOLDOWN = true;
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -136,6 +137,16 @@ function updateScanCooldownUi() {
   if (state?.scanning) return;
   const btn = $('scanButton');
   if (!btn) return;
+
+  if (DISABLE_SCAN_COOLDOWN) {
+    if (scanCooldownTimer) {
+      window.clearInterval(scanCooldownTimer);
+      scanCooldownTimer = null;
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<span>Lets Looky!</span>';
+    return;
+  }
 
   const last = getLastScanAt();
   const remaining = SCAN_COOLDOWN_MS - (Date.now() - last);
@@ -3040,13 +3051,15 @@ function recomputeAggregatesAndRender() {
 async function scanWallets({ queueOverride } = {}) {
   if (state.scanning) return;
 
-  const last = getLastScanAt();
-  const remaining = SCAN_COOLDOWN_MS - (Date.now() - last);
-  if (remaining > 0) {
-    updateScanCooldownUi();
-    showStatus(`You can scan again in ${formatCooldownMs(remaining)}.`, 'info');
-    hapticFeedback('light');
-    return;
+  if (!DISABLE_SCAN_COOLDOWN) {
+    const last = getLastScanAt();
+    const remaining = SCAN_COOLDOWN_MS - (Date.now() - last);
+    if (remaining > 0) {
+      updateScanCooldownUi();
+      showStatus(`You can scan again in ${formatCooldownMs(remaining)}.`, 'info');
+      hapticFeedback('light');
+      return;
+    }
   }
 
   const walletsQueue = Array.isArray(queueOverride) && queueOverride.length
@@ -3072,8 +3085,10 @@ async function scanWallets({ queueOverride } = {}) {
 
   $('resultsSection')?.classList.remove('hidden');
 
-  setLastScanAt(Date.now());
-  updateScanCooldownUi();
+  if (!DISABLE_SCAN_COOLDOWN) {
+    setLastScanAt(Date.now());
+    updateScanCooldownUi();
+  }
 
   state.scanning = true;
   setScanningUi(true);
