@@ -1,4 +1,4 @@
-const CACHE_NAME = 'looky-cache-v2';
+const CACHE_NAME = 'looky-cache-v3';
 
 const ASSETS = [
   '/',
@@ -31,6 +31,12 @@ self.addEventListener('fetch', (event) => {
 
   // Only handle same-origin requests.
   if (url.origin !== self.location.origin) return;
+
+  // Never cache API responses. Always go to network so portfolio scans reflect the latest on-chain state.
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(req));
+    return;
+  }
 
   const isRuntimeFreshAsset = url.pathname === '/styles.css' || url.pathname === '/app.js';
 
