@@ -3495,17 +3495,50 @@ function setupEventListeners() {
   });
 
   let deferredInstallPrompt = null;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    const btn = $('installAppBtn');
-    if (btn) btn.classList.remove('hidden');
-  });
+  const installBtn = $('installAppBtn');
+  if (installBtn) installBtn.classList.add('hidden');
 
   const isIos = () => {
     const ua = navigator.userAgent || '';
     return /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
   };
+
+  const isStandalone = () => {
+    try {
+      return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    } catch {}
+    try {
+      return !!window.navigator.standalone;
+    } catch {}
+    return false;
+  };
+
+  const updateInstallButtonVisibility = () => {
+    if (!installBtn) return;
+
+    if (isStandalone()) {
+      installBtn.classList.add('hidden');
+      return;
+    }
+
+    if (isIos()) {
+      installBtn.classList.remove('hidden');
+      return;
+    }
+
+    installBtn.classList.toggle('hidden', !deferredInstallPrompt);
+  };
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    updateInstallButtonVisibility();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    updateInstallButtonVisibility();
+  });
 
   const showIosInstallHint = () => {
     const el = $('iosInstallHint');
@@ -3521,6 +3554,7 @@ function setupEventListeners() {
         await deferredInstallPrompt.userChoice;
       } catch {}
       deferredInstallPrompt = null;
+      updateInstallButtonVisibility();
       return;
     }
     if (isIos()) {
@@ -3529,6 +3563,8 @@ function setupEventListeners() {
     }
     showStatus('Install is available on supported browsers (Android Chrome).', 'info');
   });
+
+  updateInstallButtonVisibility();
 
   const applyTheme = (theme) => {
     const t = theme === 'dark' ? 'dark' : 'light';
