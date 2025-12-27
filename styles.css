@@ -569,6 +569,7 @@ width: 44px;
   z-index: 2;
   align-items: center;
   width: 100%;
+  overflow: hidden;
 }
 
 .summary-card .summary-label {
@@ -628,7 +629,8 @@ width: 44px;
     line-height: 1;
     font-family: var(--mono);
     font-weight: 900;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
     letter-spacing: 0.01em;
     min-width: 0;
     max-width: 100%;
