@@ -146,6 +146,17 @@
             </div>
           </div>
 
+          <div class="summary-card pnl">
+            <div class="summary-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></div>
+            <div class="summary-content">
+              <div class="summary-label">PnL (All-time)</div>
+              <div class="summary-value-row">
+                <div id="pnlTotal" class="summary-value redacted-field" tabindex="0">—</div>
+              </div>
+              <div id="pnlBreakdown" class="summary-sub redacted-field" tabindex="0">—</div>
+            </div>
+          </div>
+
           <div class="summary-card tokens">
             <div class="summary-icon"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></div>
             <div class="summary-content">
@@ -251,11 +262,12 @@
                     <th class="balance-col">Balance</th>
                     <th class="price-col">Price</th>
                     <th class="value-col">Value</th>
+                    <th class="pnl-col">PnL (24h)</th>
                   </tr>
                 </thead>
                 <tbody id="tableBody">
                   <tr class="empty-row">
-                    <td colspan="5">
+                    <td colspan="6">
                       <div class="empty-state">
                         <div class="empty-text">Paste addresses above to see holdings</div>
                       </div>

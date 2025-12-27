@@ -14,6 +14,9 @@ const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
 
+const STORAGE_KEY_LAST_SCAN_AT = 'looky:lastScanAt';
+const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
+
 const HOLDINGS_PAGE_SIZE = 5;
 
 const SCAN_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -26,6 +29,11 @@ const SOL_OVERVIEW_CACHE_TTL_MS = 10 * 60 * 1000;
 const solTokenOverviewCache = new Map();
 
 const SOL_CHANGE_CACHE_TTL_ZERO_MS = 30 * 1000;
+
+let scanCooldownTimer = null;
+
+const WALLET_PNL_CACHE_TTL_MS = 2 * 60 * 1000;
+const walletPnlCache = new Map();
 
 const DEBUG_SOL_CHANGE = (() => {
   try { return localStorage.getItem('looky:debugSolChange') === '1'; }
@@ -83,6 +91,70 @@ function setSolTokenOverviewCache(address, data) {
   const key = String(address || '').trim();
   if (!key) return;
   solTokenOverviewCache.set(key, { ts: Date.now(), data });
+}
+
+function getWalletPnlCache(chain, wallet) {
+  const key = `${String(chain || '')}:${String(wallet || '').trim()}`;
+  const entry = walletPnlCache.get(key);
+  if (!entry) return null;
+  if ((Date.now() - entry.ts) > WALLET_PNL_CACHE_TTL_MS) {
+    walletPnlCache.delete(key);
+    return null;
+  }
+  return entry.data || null;
+}
+
+function setWalletPnlCache(chain, wallet, data) {
+  const key = `${String(chain || '')}:${String(wallet || '').trim()}`;
+  walletPnlCache.set(key, { ts: Date.now(), data });
+}
+
+function getLastScanAt() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_LAST_SCAN_AT);
+    const n = raw ? Number(raw) : 0;
+    return Number.isFinite(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function setLastScanAt(ts) {
+  try {
+    localStorage.setItem(STORAGE_KEY_LAST_SCAN_AT, String(Number(ts) || Date.now()));
+  } catch {}
+}
+
+function formatCooldownMs(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function updateScanCooldownUi() {
+  if (state?.scanning) return;
+  const btn = $('scanButton');
+  if (!btn) return;
+
+  const last = getLastScanAt();
+  const remaining = SCAN_COOLDOWN_MS - (Date.now() - last);
+
+  if (remaining > 0) {
+    btn.disabled = true;
+    btn.innerHTML = `<span>Cooldown: ${formatCooldownMs(remaining)}</span>`;
+    if (!scanCooldownTimer) {
+      scanCooldownTimer = window.setInterval(updateScanCooldownUi, 1000);
+    }
+    return;
+  }
+
+  if (scanCooldownTimer) {
+    window.clearInterval(scanCooldownTimer);
+    scanCooldownTimer = null;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<span>Lets Looky!</span>';
 }
 
 async function fetchSolTokenOverview(addr, { signal } = {}) {
@@ -1221,6 +1293,70 @@ async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
   return data;
 }
 
+async function fetchEvmWalletPnl(wallet, { signal } = {}) {
+  const cached = getWalletPnlCache('evm', wallet);
+  if (cached) return cached;
+
+  const url = new URL(API.zerion, window.location.origin);
+  url.searchParams.set('path', `/v1/wallets/${String(wallet).trim()}/pnl`);
+  url.searchParams.set('currency', 'usd');
+
+  const response = await fetch(url.toString(), signal ? { signal } : undefined);
+  const text = await response.text();
+  let data;
+  try { data = JSON.parse(text); }
+  catch { data = null; }
+
+  if (!response.ok) {
+    const msg = data?.errors?.[0]?.detail || data?.message || `Zerion error: ${response.status}`;
+    throw new Error(msg);
+  }
+
+  const attrs = data?.data?.attributes || {};
+  const realized = Number(attrs?.realized_gain ?? 0) || 0;
+  const unrealized = Number(attrs?.unrealized_gain ?? 0) || 0;
+  const fees = Number(attrs?.total_fee ?? 0) || 0;
+
+  const normalized = {
+    realizedUsd: realized,
+    unrealizedUsd: unrealized,
+    feesUsd: fees,
+    totalUsd: realized + unrealized,
+  };
+  setWalletPnlCache('evm', wallet, normalized);
+  return normalized;
+}
+
+async function fetchSolanaWalletPnl(wallet, { signal } = {}) {
+  const cached = getWalletPnlCache('solana', wallet);
+  if (cached) return cached;
+
+  const data = await birdeyeRequest('/wallet/v2/pnl/summary', {
+    wallet: wallet,
+    duration: 'all',
+  }, {
+    signal,
+    headers: {
+      'x-chain': 'solana',
+    },
+  });
+
+  const summary = data?.data?.summary || {};
+  const pnl = summary?.pnl || {};
+  const realized = Number(pnl?.realized_profit_usd ?? 0) || 0;
+  const unrealized = Number(pnl?.unrealized_usd ?? 0) || 0;
+  const total = Number(pnl?.total_usd ?? (realized + unrealized)) || (realized + unrealized);
+
+  const normalized = {
+    realizedUsd: realized,
+    unrealizedUsd: unrealized,
+    feesUsd: 0,
+    totalUsd: total,
+  };
+  setWalletPnlCache('solana', wallet, normalized);
+  return normalized;
+}
+
 function birdeyeXChain(chain) {
   return chain === 'solana' ? 'solana' : 'ethereum';
 }
@@ -1637,6 +1773,24 @@ function updateSummary() {
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
+
+  const pnlTotalEl = $('pnlTotal');
+  const pnlBreakdownEl = $('pnlBreakdown');
+  if (pnlTotalEl && pnlBreakdownEl) {
+    const realized = Number(state.pnlRealizedUsd || 0) || 0;
+    const unrealized = Number(state.pnlUnrealizedUsd || 0) || 0;
+    const fees = Number(state.pnlFeesUsd || 0) || 0;
+    const total = Number(state.pnlTotalUsd || 0) || 0;
+
+    if (total === 0 && realized === 0 && unrealized === 0) {
+      pnlTotalEl.textContent = '—';
+      pnlBreakdownEl.textContent = '—';
+    } else {
+      const totalSign = total > 0.0001 ? '+' : total < -0.0001 ? '-' : '+';
+      pnlTotalEl.textContent = `${totalSign}${formatCurrency(Math.abs(total))}`;
+      pnlBreakdownEl.textContent = `Realized ${formatCurrency(realized)} • Unrealized ${formatCurrency(unrealized)}${fees ? ` • Fees ${formatCurrency(fees)}` : ''}`;
+    }
+  }
 
   renderAiScoreSection();
 }
@@ -2399,6 +2553,13 @@ function renderHoldingsTable() {
   const useCardRows = isTelegram() || window.matchMedia('(max-width: 640px)').matches;
   document.body.classList.toggle('holdings-cards', useCardRows);
 
+  const formatPnlCell = (pnlUsd) => {
+    const v = Number(pnlUsd || 0) || 0;
+    const cls = v > 0.0001 ? 'pnl-positive' : v < -0.0001 ? 'pnl-negative' : 'pnl-flat';
+    const sign = v > 0.0001 ? '+' : v < -0.0001 ? '-' : '+';
+    return `<strong class="mono redacted-field ${cls}" tabindex="0">${sign}${formatCurrency(Math.abs(v))}</strong>`;
+  };
+
   const showSkeleton = state.scanning && state.walletHoldings.size === 0;
   if (showSkeleton) {
     const rows = Array.from({ length: 6 }).map(() => {
@@ -2410,13 +2571,14 @@ function renderHoldingsTable() {
             <td><div class="skeleton-line w-40"></div></td>
             <td><div class="skeleton-line w-40"></div></td>
             <td><div class="skeleton-line w-50"></div></td>
+            <td><div class="skeleton-line w-40"></div></td>
           </tr>
         `;
       }
 
       return `
         <tr class="skeleton-row holding-card-row">
-          <td colspan="5">
+          <td colspan="6">
             <div class="holding-card">
               <div class="holding-card-header">
                 <div class="token-cell">
@@ -2425,6 +2587,7 @@ function renderHoldingsTable() {
                 <div class="skeleton-line w-30"></div>
               </div>
               <div class="holding-card-metrics">
+                <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                 <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                 <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                 <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
@@ -2480,13 +2643,14 @@ function renderHoldingsTable() {
               <td><div class="skeleton-line w-40"></div></td>
               <td><div class="skeleton-line w-40"></div></td>
               <td><div class="skeleton-line w-50"></div></td>
+              <td><div class="skeleton-line w-40"></div></td>
             </tr>
           `;
         }
 
         return `
           <tr class="skeleton-row holding-card-row">
-            <td colspan="5">
+            <td colspan="6">
               <div class="holding-card">
                 <div class="holding-card-header">
                   <div class="token-cell">
@@ -2495,6 +2659,7 @@ function renderHoldingsTable() {
                   <div class="skeleton-line w-30"></div>
                 </div>
                 <div class="holding-card-metrics">
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                   <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                   <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                   <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
@@ -2518,7 +2683,7 @@ function renderHoldingsTable() {
 
     tbody.innerHTML = `
       <tr class="empty-row">
-        <td colspan="5">
+        <td colspan="6">
           <div class="empty-state">
             <div class="empty-text">No holdings match your filters</div>
           </div>
@@ -2561,6 +2726,7 @@ function renderHoldingsTable() {
             <td><div class="skeleton-line w-40"></div></td>
             <td><div class="skeleton-line w-40"></div></td>
             <td><div class="skeleton-line w-50"></div></td>
+            <td><div class="skeleton-line w-40"></div></td>
           </tr>
         `).join('')
       : '';
@@ -2583,13 +2749,14 @@ function renderHoldingsTable() {
         <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
         <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
         <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
+        <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
       </tr>
     `).join('') + skeletonRows;
   } else {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
       ? Array.from({ length: scanSkeletonCount }).map(() => `
           <tr class="skeleton-row holding-card-row">
-            <td colspan="5">
+            <td colspan="6">
               <div class="holding-card">
                 <div class="holding-card-header">
                   <div class="token-cell">
@@ -2598,6 +2765,7 @@ function renderHoldingsTable() {
                   <div class="skeleton-line w-30"></div>
                 </div>
                 <div class="holding-card-metrics">
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                   <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                   <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
                   <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
@@ -2633,7 +2801,7 @@ function renderHoldingsTable() {
 
       return `
       <tr class="holding-row holding-card-row" data-key="${holding.key}">
-        <td colspan="5">
+        <td colspan="6">
           <div class="holding-card">
             <div class="holding-card-header">
               <div class="token-cell">
@@ -2688,6 +2856,10 @@ function renderHoldingsTable() {
                 <div class="holding-metric-label">MCap</div>
                 <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
               </div>
+              <div class="holding-metric">
+                <div class="holding-metric-label">PnL (24h)</div>
+                <div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div>
+              </div>
             </div>
           </div>
         </td>
@@ -2712,6 +2884,10 @@ function recomputeAggregatesAndRender() {
   let totalChangeEvmUsd = 0;
   let totalForChange = 0;
   let total24hAgo = 0;
+
+  let pnlRealizedUsd = 0;
+  let pnlUnrealizedUsd = 0;
+  let pnlFeesUsd = 0;
 
   const solDebugContrib = [];
 
@@ -2820,6 +2996,21 @@ function recomputeAggregatesAndRender() {
   state.totalValueForChange = totalForChange;
   state.totalValue24hAgo = total24hAgo;
 
+  try {
+    if (state.walletPnl && typeof state.walletPnl.forEach === 'function') {
+      state.walletPnl.forEach((p) => {
+        pnlRealizedUsd += Number(p?.realizedUsd || 0) || 0;
+        pnlUnrealizedUsd += Number(p?.unrealizedUsd || 0) || 0;
+        pnlFeesUsd += Number(p?.feesUsd || 0) || 0;
+      });
+    }
+  } catch {}
+
+  state.pnlRealizedUsd = pnlRealizedUsd;
+  state.pnlUnrealizedUsd = pnlUnrealizedUsd;
+  state.pnlFeesUsd = pnlFeesUsd;
+  state.pnlTotalUsd = pnlRealizedUsd + pnlUnrealizedUsd;
+
   if (DEBUG_SOL_CHANGE) {
     try {
       const absSorted = solDebugContrib
@@ -2849,6 +3040,15 @@ function recomputeAggregatesAndRender() {
 async function scanWallets({ queueOverride } = {}) {
   if (state.scanning) return;
 
+  const last = getLastScanAt();
+  const remaining = SCAN_COOLDOWN_MS - (Date.now() - last);
+  if (remaining > 0) {
+    updateScanCooldownUi();
+    showStatus(`You can scan again in ${formatCooldownMs(remaining)}.`, 'info');
+    hapticFeedback('light');
+    return;
+  }
+
   const walletsQueue = Array.isArray(queueOverride) && queueOverride.length
     ? queueOverride.map((q, i) => ({ wallet: q.wallet, chain: q.chain, index: Number.isFinite(q.index) ? q.index : i }))
     : buildWalletQueue();
@@ -2872,10 +3072,14 @@ async function scanWallets({ queueOverride } = {}) {
 
   $('resultsSection')?.classList.remove('hidden');
 
+  setLastScanAt(Date.now());
+  updateScanCooldownUi();
+
   state.scanning = true;
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
+  state.walletPnl = new Map();
   state.lastScanFailedQueue = [];
   state.scanMeta = { completed: 0, total: walletsQueue.length };
   state.scanAbortController = new AbortController();
@@ -2951,6 +3155,13 @@ async function scanWallets({ queueOverride } = {}) {
         }
         state.walletHoldings.set(walletKey, holdings);
 
+        try {
+          const pnl = chain === 'solana'
+            ? await fetchSolanaWalletPnl(wallet, { signal })
+            : await fetchEvmWalletPnl(wallet, { signal });
+          state.walletPnl.set(walletKey, pnl);
+        } catch {}
+
         let dayChange = null;
         if (chain === 'solana') {
           try {
@@ -2984,13 +3195,12 @@ async function scanWallets({ queueOverride } = {}) {
   setScanningUi(false);
   state.scanAbortController = null;
 
+  updateScanCooldownUi();
+
   scheduleRecomputeAggregatesAndRender();
   forceCollapseResultsSections();
 
-  if (scanButton) {
-    scanButton.disabled = false;
-    scanButton.innerHTML = '<span>Lets Looky!</span>';
-  }
+  updateScanCooldownUi();
 
   $('cancelScanButton')?.classList.add('hidden');
   $('retryFailedButton')?.classList.add('hidden');
@@ -3262,6 +3472,7 @@ function setupEventListeners() {
   });
 
   $('scanButton')?.addEventListener('click', scanWallets);
+  updateScanCooldownUi();
 
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;

@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     }
 
     const normalizedPath = String(path).trim();
-    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/positions\/$/i.test(normalizedPath);
+    const allowedPath = /^\/v1\/wallets\/[a-z0-9\.\-]+\/(positions\/|pnl)$/i.test(normalizedPath);
     if (!allowedPath) {
       return res.status(400).json({ success: false, message: 'Invalid Zerion path.' });
     }

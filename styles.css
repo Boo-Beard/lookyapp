@@ -640,6 +640,18 @@ width: 44px;
   color: rgb(154, 22, 22);
 }
 
+.pnl-positive {
+  color: rgb(4, 130, 48);
+}
+
+.pnl-negative {
+  color: rgb(154, 22, 22);
+}
+
+.pnl-flat {
+  color: var(--text-secondary);
+}
+
 .summary-card .summary-sub {
   color: var(--text-secondary);
   font-size: 11px;
