@@ -1821,24 +1821,6 @@ function updateSummary() {
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
 
-  const pnlTotalEl = $('pnlTotal');
-  const pnlBreakdownEl = $('pnlBreakdown');
-  if (pnlTotalEl && pnlBreakdownEl) {
-    const realized = Number(state.pnlRealizedUsd || 0) || 0;
-    const unrealized = Number(state.pnlUnrealizedUsd || 0) || 0;
-    const fees = Number(state.pnlFeesUsd || 0) || 0;
-    const total = Number(state.pnlTotalUsd || 0) || 0;
-
-    if (total === 0 && realized === 0 && unrealized === 0) {
-      pnlTotalEl.textContent = '—';
-      pnlBreakdownEl.textContent = '—';
-    } else {
-      const totalSign = total > 0.0001 ? '+' : total < -0.0001 ? '-' : '+';
-      pnlTotalEl.textContent = `${totalSign}${formatCurrency(Math.abs(total))}`;
-      pnlBreakdownEl.textContent = `Realized ${formatCurrency(realized)} • Unrealized ${formatCurrency(unrealized)}${fees ? ` • Fees ${formatCurrency(fees)}` : ''}`;
-    }
-  }
-
   renderAiScoreSection();
 }
 
@@ -2932,9 +2914,6 @@ function recomputeAggregatesAndRender() {
   let totalForChange = 0;
   let total24hAgo = 0;
 
-  let pnlRealizedUsd = 0;
-  let pnlUnrealizedUsd = 0;
-  let pnlFeesUsd = 0;
 
   const solDebugContrib = [];
 
@@ -3043,21 +3022,6 @@ function recomputeAggregatesAndRender() {
   state.totalValueForChange = totalForChange;
   state.totalValue24hAgo = total24hAgo;
 
-  try {
-    if (state.walletPnl && typeof state.walletPnl.forEach === 'function') {
-      state.walletPnl.forEach((p) => {
-        pnlRealizedUsd += Number(p?.realizedUsd || 0) || 0;
-        pnlUnrealizedUsd += Number(p?.unrealizedUsd || 0) || 0;
-        pnlFeesUsd += Number(p?.feesUsd || 0) || 0;
-      });
-    }
-  } catch {}
-
-  state.pnlRealizedUsd = pnlRealizedUsd;
-  state.pnlUnrealizedUsd = pnlUnrealizedUsd;
-  state.pnlFeesUsd = pnlFeesUsd;
-  state.pnlTotalUsd = pnlRealizedUsd + pnlUnrealizedUsd;
-
   if (DEBUG_SOL_CHANGE) {
     try {
       const absSorted = solDebugContrib
@@ -3130,7 +3094,6 @@ async function scanWallets({ queueOverride } = {}) {
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
-  state.walletPnl = new Map();
   state.lastScanFailedQueue = [];
   state.scanMeta = { completed: 0, total: walletsQueue.length };
   state.scanAbortController = new AbortController();
@@ -3205,13 +3168,6 @@ async function scanWallets({ queueOverride } = {}) {
           }
         }
         state.walletHoldings.set(walletKey, holdings);
-
-        try {
-          const pnl = chain === 'solana'
-            ? await fetchSolanaWalletPnl(wallet, { signal })
-            : await fetchEvmWalletPnl(wallet, { signal });
-          state.walletPnl.set(walletKey, pnl);
-        } catch {}
 
         let dayChange = null;
         if (chain === 'solana') {

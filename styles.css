@@ -265,6 +265,18 @@ body.ui-landing .input-section {
   gap: 16px;
 }
 
+@supports (height: 100svh) {
+  body.ui-landing .input-section {
+    min-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
+@supports (height: 100dvh) {
+  body.ui-landing .input-section {
+    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
 body.ui-landing .input-section.card {
   background: transparent;
   border-color: transparent;
