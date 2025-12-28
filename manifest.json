@@ -1,6 +1,6 @@
 {
-  "name": "PEEPO!",
-  "short_name": "PEEPO",
+  "name": "PEEK!",
+  "short_name": "PEEK",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -8,7 +8,7 @@
   "theme_color": "#0B1022",
   "icons": [
     {
-      "src": "/looky-icon.svg",
+      "src": "/peek-icon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

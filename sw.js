@@ -1,4 +1,4 @@
-const CACHE_NAME = 'looky-cache-v3';
+const CACHE_NAME = 'peek-cache-v1';
 
 const ASSETS = [
   '/',
@@ -6,7 +6,7 @@ const ASSETS = [
   '/styles.css',
   '/app.js',
   '/manifest.json',
-  '/looky-icon.svg',
+  '/peek-icon.svg',
 ];
 
 self.addEventListener('install', (event) => {

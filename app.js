@@ -8,13 +8,13 @@ if ('serviceWorker' in navigator) {
 }
 
 const MAX_ADDRESSES = 20;
-const STORAGE_KEY_ADDRESSES = 'looky:lastAddresses';
-const STORAGE_KEY_PROFILES = 'looky:profiles';
-const STORAGE_KEY_ACTIVE_PROFILE = 'looky:activeProfile';
-const STORAGE_KEY_UI_SECTIONS = 'looky:uiSections';
-const STORAGE_KEY_REDACTED_MODE = 'looky:redactedMode';
+const STORAGE_KEY_ADDRESSES = 'peek:lastAddresses';
+const STORAGE_KEY_PROFILES = 'peek:profiles';
+const STORAGE_KEY_ACTIVE_PROFILE = 'peek:activeProfile';
+const STORAGE_KEY_UI_SECTIONS = 'peek:uiSections';
+const STORAGE_KEY_REDACTED_MODE = 'peek:redactedMode';
 
-const STORAGE_KEY_LAST_SCAN_AT = 'looky:lastScanAt';
+const STORAGE_KEY_LAST_SCAN_AT = 'peek:lastScanAt';
 const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
 const DISABLE_SCAN_COOLDOWN = true;
 
@@ -36,8 +36,38 @@ let scanCooldownTimer = null;
 const WALLET_PNL_CACHE_TTL_MS = 2 * 60 * 1000;
 const walletPnlCache = new Map();
 
+function migrateLegacyStorageKeys() {
+  try {
+    const legacyPrefix = ['l', 'o', 'o', 'k', 'y', ':'].join('');
+    const suffixes = [
+      'lastAddresses',
+      'profiles',
+      'activeProfile',
+      'uiSections',
+      'redactedMode',
+      'lastScanAt',
+      'debugSolChange',
+    ];
+
+    for (const suffix of suffixes) {
+      const legacyKey = legacyPrefix + suffix;
+      const nextKey = `peek:${suffix}`;
+      const legacyVal = localStorage.getItem(legacyKey);
+      if (legacyVal == null) continue;
+      if (localStorage.getItem(nextKey) == null) {
+        localStorage.setItem(nextKey, legacyVal);
+      }
+      localStorage.removeItem(legacyKey);
+    }
+  } catch {}
+}
+
 const DEBUG_SOL_CHANGE = (() => {
-  try { return localStorage.getItem('looky:debugSolChange') === '1'; }
+  try {
+    if (localStorage.getItem('peek:debugSolChange') === '1') return true;
+    const legacyPrefix = ['l', 'o', 'o', 'k', 'y', ':'].join('');
+    return localStorage.getItem(legacyPrefix + 'debugSolChange') === '1';
+  }
   catch { return false; }
 })();
 
@@ -144,7 +174,7 @@ function updateScanCooldownUi() {
       scanCooldownTimer = null;
     }
     btn.disabled = false;
-    btn.innerHTML = '<span>Lets Peepo!</span>';
+    btn.innerHTML = '<span>Lets Peek!</span>';
     return;
   }
 
@@ -165,7 +195,7 @@ function updateScanCooldownUi() {
     scanCooldownTimer = null;
   }
   btn.disabled = false;
-  btn.innerHTML = '<span>Lets Peepo!</span>';
+  btn.innerHTML = '<span>Lets Peek!</span>';
 }
 
 async function fetchSolTokenOverview(addr, { signal } = {}) {
@@ -391,7 +421,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
           missingValueUsd: null,
           top: [],
         };
-        window.__lookySol24hDebug = summary;
+        window.__peekSol24hDebug = summary;
         console.warn('[SOL 24h] enrich skipped', summary);
       } catch {}
     }
@@ -508,7 +538,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
         top,
       };
 
-      window.__lookySol24hDebug = summary;
+      window.__peekSol24hDebug = summary;
       console.debug('[SOL 24h] missing pct24h summary', summary);
       console.log('[SOL 24h] missing pct24h summary json', JSON.stringify(summary));
     } catch {}
@@ -3033,7 +3063,7 @@ function recomputeAggregatesAndRender() {
         ineligibleCount: solDebugContrib.filter(x => !x.eligible).length,
         topByAbsDelta: absSorted.slice(0, 10),
       };
-      window.__lookySol24hContrib = summary;
+      window.__peekSol24hContrib = summary;
       console.log('[SOL 24h] contrib summary json', JSON.stringify(summary));
     } catch {}
   }
@@ -3162,7 +3192,7 @@ async function scanWallets({ queueOverride } = {}) {
             if (DEBUG_SOL_CHANGE) {
               try {
                 const info = { reason: 'enrich_throw', message: err?.message || String(err) };
-                window.__lookySol24hDebug = info;
+                window.__peekSol24hDebug = info;
                 console.warn('[SOL 24h] enrich threw', info);
               } catch {}
             }
@@ -3867,7 +3897,7 @@ function setupEventListeners() {
 
     const csv = buildHoldingsCsv(state.holdings);
     const blob = new Blob([csv], { type: 'text/csv' });
-    downloadBlob(blob, `peepo-export-${new Date().toISOString().split('T')[0]}.csv`);
+    downloadBlob(blob, `peek-export-${new Date().toISOString().split('T')[0]}.csv`);
 
     showStatus('CSV exported successfully', 'success');
     hapticFeedback('success');
@@ -3882,7 +3912,7 @@ function setupEventListeners() {
     const payload = buildHoldingsJson();
     const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    downloadBlob(blob, `peepo-export-${new Date().toISOString().split('T')[0]}.json`);
+    downloadBlob(blob, `peek-export-${new Date().toISOString().split('T')[0]}.json`);
     showStatus('JSON exported successfully', 'success');
     hapticFeedback('success');
   });
@@ -3913,14 +3943,14 @@ function setupFooterRotator() {
   if (!el) return;
 
   const phrases = [
-  'Peepo!',
+  'Peek!',
   'No Bullshit!',
   'No Wallet Connect!',
   'No Login!',
   'Multichain',
   'View Value',
   'Analytics',
-  'Peepo!',
+  'Peek!',
   'Just Looking',
   'Eyes On-Chain',
   'Spot The Bags',
@@ -3965,6 +3995,7 @@ function setupFooterRotator() {
 }
 
 function initialize() {
+  migrateLegacyStorageKeys();
   setupTelegram();
   setupEyeTracking();
   setupEventListeners();

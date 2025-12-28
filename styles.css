@@ -129,18 +129,18 @@ body.ui-results::after {
 }
 
 .section-scan-indicator {
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  border: 2px solid rgba(11, 11, 16, 0.18);
-  border-top-color: rgba(11, 11, 16, 0.85);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.6);
   box-shadow: var(--shadow-sm);
   display: none;
   flex: 0 0 auto;
-  animation: looky-spin 0.9s linear infinite;
+  animation: peek-spin 0.9s linear infinite;
 }
 
-@keyframes looky-spin {
+@keyframes peek-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
@@ -275,7 +275,7 @@ body.ui-landing .card-header {
   padding: 18px 0 4px;
 }
 
-body.ui-landing .looky-eyes {
+body.ui-landing .peek-eyes {
   margin: 0;
 }
 
@@ -867,7 +867,7 @@ body.ui-results .input-section.is-minimized {
   transform-origin: 50% 50%;
 }
 
-.logo-lockup .looky-eyes {
+.logo-lockup .peek-eyes {
   display: flex;
   justify-content: center;
   gap: 14px;
@@ -921,11 +921,11 @@ body.ui-results .input-section.is-minimized {
   mask-position: center;
 }
 
-.logo-lockup .looky-eyes .eye:first-child::before {
+.logo-lockup .peek-eyes .eye:first-child::before {
   transform: rotate(-10deg) scaleX(-1);
 }
 
-.logo-lockup .looky-eyes .eye:last-child::before {
+.logo-lockup .peek-eyes .eye:last-child::before {
   transform: rotate(6deg);
 }
 
@@ -3018,7 +3018,7 @@ body.ui-results .table-stats {
     z-index: 2;
   }
   
-  .looky-eyes {
+  .peek-eyes {
     display: flex;
     justify-content: center;
     margin-bottom: 16px;
