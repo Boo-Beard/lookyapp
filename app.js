@@ -144,7 +144,7 @@ function updateScanCooldownUi() {
       scanCooldownTimer = null;
     }
     btn.disabled = false;
-    btn.innerHTML = '<span>Lets Looky!</span>';
+    btn.innerHTML = '<span>Lets Peepo!</span>';
     return;
   }
 
@@ -165,7 +165,7 @@ function updateScanCooldownUi() {
     scanCooldownTimer = null;
   }
   btn.disabled = false;
-  btn.innerHTML = '<span>Lets Looky!</span>';
+  btn.innerHTML = '<span>Lets Peepo!</span>';
 }
 
 async function fetchSolTokenOverview(addr, { signal } = {}) {
@@ -3858,7 +3858,7 @@ function setupEventListeners() {
 
     const csv = buildHoldingsCsv(state.holdings);
     const blob = new Blob([csv], { type: 'text/csv' });
-    downloadBlob(blob, `looky-export-${new Date().toISOString().split('T')[0]}.csv`);
+    downloadBlob(blob, `peepo-export-${new Date().toISOString().split('T')[0]}.csv`);
 
     showStatus('CSV exported successfully', 'success');
     hapticFeedback('success');
@@ -3873,7 +3873,7 @@ function setupEventListeners() {
     const payload = buildHoldingsJson();
     const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    downloadBlob(blob, `looky-export-${new Date().toISOString().split('T')[0]}.json`);
+    downloadBlob(blob, `peepo-export-${new Date().toISOString().split('T')[0]}.json`);
     showStatus('JSON exported successfully', 'success');
     hapticFeedback('success');
   });
@@ -3904,14 +3904,14 @@ function setupFooterRotator() {
   if (!el) return;
 
   const phrases = [
-  'Looky!',
+  'Peepo!',
   'No Bullshit!',
   'No Wallet Connect!',
   'No Login!',
   'Multichain',
   'View Value',
   'Analytics',
-  'Looky!',
+  'Peepo!',
   'Just Looking',
   'Eyes On-Chain',
   'Spot The Bags',
