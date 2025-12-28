@@ -1,4 +1,4 @@
-const CACHE_NAME = 'peeek-cache-v1';
+const CACHE_NAME = 'peeek-cache-v2';
 
 const ASSETS = [
   '/',
@@ -39,9 +39,10 @@ self.addEventListener('fetch', (event) => {
   }
 
   const isRuntimeFreshAsset = url.pathname === '/styles.css' || url.pathname === '/app.js';
+  const isHtmlShell = url.pathname === '/' || url.pathname === '/index.html';
 
-  // For CSS/JS, prefer the network so updates apply immediately.
-  if (isRuntimeFreshAsset) {
+  // For CSS/JS/HTML shell, prefer the network so updates apply immediately.
+  if (isRuntimeFreshAsset || isHtmlShell) {
     event.respondWith(
       fetch(req)
         .then((res) => {
@@ -53,7 +54,7 @@ self.addEventListener('fetch', (event) => {
           } catch {}
           return res;
         })
-        .catch(() => caches.match(req))
+        .catch(() => caches.match(req).then((c) => c || caches.match('/index.html')))
     );
     return;
   }
