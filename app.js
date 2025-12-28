@@ -180,7 +180,7 @@ function updateScanCooldownUi() {
       scanCooldownTimer = null;
     }
     btn.disabled = false;
-    btn.innerHTML = '<span>PEEEK!</span>';
+    btn.innerHTML = '<span>Scan</span>';
     return;
   }
 
@@ -201,7 +201,7 @@ function updateScanCooldownUi() {
     scanCooldownTimer = null;
   }
   btn.disabled = false;
-  btn.innerHTML = '<span>PEEEK!</span>';
+  btn.innerHTML = '<span>Scan</span>';
 }
 
 async function fetchSolTokenOverview(addr, { signal } = {}) {
