@@ -75,6 +75,28 @@
   --shadow-lg: 9px 9px 0 rgba(0, 0, 0, 0.65);
  }
 
+ body.banksy {
+  --paper: #f3f3f3;
+  --panel: #ffffff;
+  --bg-primary: #f3f3f3;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --ink: #0b0b10;
+  --text-primary: rgba(11, 11, 16, 0.96);
+  --text-secondary: rgba(11, 11, 16, 0.72);
+  --text-tertiary: rgba(11, 11, 16, 0.56);
+  --border: rgba(11, 11, 16, 0.92);
+  --border-hover: rgba(11, 11, 16, 1);
+  --accent: #0b0b10;
+  --accent-2: #0b0b10;
+  --accent-3: #0b0b10;
+  --gradient-primary: linear-gradient(135deg, #0b0b10 0%, #0b0b10 100%);
+  --gradient-card: linear-gradient(135deg, rgba(11, 11, 16, 0.08), rgba(11, 11, 16, 0.04));
+  --shadow-sm: 2px 2px 0 rgba(11, 11, 16, 0.95);
+  --shadow-md: 5px 5px 0 rgba(11, 11, 16, 0.95);
+  --shadow-lg: 8px 8px 0 rgba(11, 11, 16, 0.95);
+ }
+
 @media (max-width: 420px) {
   .summary-grid {
     grid-template-columns: 1fr;
@@ -121,6 +143,15 @@ body::after {
       rgba(0, 0, 0, 0) 6px
     );
   mix-blend-mode: overlay;
+}
+
+body.banksy::after {
+  opacity: 0.10;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 18px),
+    radial-gradient(circle at 60% 70%, rgba(0, 0, 0, 0.10) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, rgba(0, 0, 0, 0) 1px 8px);
+  mix-blend-mode: multiply;
 }
 
 body.ui-landing::after,
@@ -190,9 +221,9 @@ body.modal-open {
   padding: 6px;
   border-radius: 10px;
   border: 2px solid rgba(0, 0, 0, 0.9);
-background: var(--paper);
+  background: var(--paper);
   box-shadow: var(--shadow-md);
-  z-index: 20;
+  z-index: 2;
 }
 
 .chart-popover.hidden {
