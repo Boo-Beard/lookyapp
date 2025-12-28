@@ -884,7 +884,7 @@ body.ui-results .input-section.is-minimized {
     radial-gradient(120px 50px at 50% 8px, rgb(0 0 0 / calc(var(--eye-tired, 0) * 0.14)) 0%, transparent 58%),
     linear-gradient(to bottom, rgb(0 0 0 / calc(var(--eye-tired, 0) * 0.12)) 0%, transparent 32%);
   border: 3px solid var(--border);
-  border-radius: 62% 62% 46% 46% / 54% 54% 64% 64%;
+  border-radius: 72% 72% 44% 44% / 46% 46% 74% 74%;
   position: relative;
   overflow: hidden;
   box-shadow:
@@ -892,6 +892,14 @@ body.ui-results .input-section.is-minimized {
     inset 0 2px 0 rgb(255 255 255 / calc(var(--eye-tired, 0) * 0.35)),
     inset 0 10px 0 rgba(11, 11, 16, 0.18),
     var(--shadow-sm);
+}
+
+.logo-lockup .eye {
+  background-image:
+    radial-gradient(120px 70px at 50% -10px, rgb(11 11 16 / calc(var(--eye-tired, 0) * 0.26)) 0%, transparent 62%),
+    radial-gradient(120px 50px at 50% 8px, rgb(0 0 0 / calc(var(--eye-tired, 0) * 0.14)) 0%, transparent 58%),
+    linear-gradient(to bottom, rgba(11, 11, 16, 0.18) 0%, rgba(11, 11, 16, 0.05) 10%, transparent 38%),
+    radial-gradient(120px 32px at 50% 12px, rgba(11, 11, 16, 0.38) 0%, rgba(11, 11, 16, 0.0) 70%);
 }
 
 .logo-lockup .eye::before {
@@ -971,7 +979,31 @@ body.is-redacted .logo-lockup .pupil {
   left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.1s linear;
-  box-shadow: 0 0 0 2px rgba(11, 11, 16, 0.92);
+  box-shadow:
+    0 0 0 2px rgba(11, 11, 16, 0.92),
+    inset 0 0 0 6px rgba(255, 255, 255, 0.10),
+    inset 0 -10px 16px rgba(0, 0, 0, 0.18);
+}
+
+.logo-lockup .pupil::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 10px 14px 0 rgba(255, 255, 255, 0.35);
+}
+
+.logo-lockup .pupil::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 58%, rgba(5, 6, 10, 0.98) 0%, rgba(5, 6, 10, 0.98) 40%, rgba(5, 6, 10, 0) 41%);
+  opacity: 0.95;
 }
 
 body.is-scanning .logo-lockup .eye {
