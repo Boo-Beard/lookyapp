@@ -2,28 +2,28 @@
 
 :root {
   
-  --bg-primary: #F6F7FB;
-  --bg-secondary: #EEF2FF;
+  --bg-primary: #F3FFF9;
+  --bg-secondary: #E9FFF4;
   --bg-card: rgba(255, 255, 255, 0.94);
-  --bg-overlay: rgba(8, 10, 20, 0.72);
+  --bg-overlay: rgba(6, 12, 10, 0.72);
 
-  --ink: #0B1022;
-  --paper: #F6F7FB;
+  --ink: #06120F;
+  --paper: #F3FFF9;
   --panel: #FFFFFF;
-  --accent: #00D5FF;
-  --accent-2: #7C3AED;
-  --accent-3: #FF2D55;
+  --accent: #2AFEB7;
+  --accent-2: #00D5FF;
+  --accent-3: #7C3AED;
 
-  --text-primary: rgba(11, 16, 34, 0.95);
-  --text-secondary: rgba(11, 16, 34, 0.72);
-  --text-tertiary: rgba(11, 16, 34, 0.55);
+  --text-primary: rgba(6, 18, 15, 0.95);
+  --text-secondary: rgba(6, 18, 15, 0.72);
+  --text-tertiary: rgba(6, 18, 15, 0.55);
   --text-accent: var(--accent);
 
-  --border: rgba(11, 16, 34, 0.14);
-  --border-hover: rgba(11, 16, 34, 0.22);
+  --border: rgba(6, 18, 15, 0.16);
+  --border-hover: rgba(6, 18, 15, 0.26);
 
   --gradient-primary: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 55%, var(--accent-3) 100%);
-  --gradient-card: linear-gradient(135deg, rgba(0, 213, 255, 0.10), rgba(124, 58, 237, 0.08));
+  --gradient-card: linear-gradient(135deg, rgba(42, 254, 183, 0.10), rgba(0, 213, 255, 0.08));
   --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
 
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
@@ -54,28 +54,28 @@
 }
 
  :root[data-theme="dark"] {
-  --bg-primary: #070A12;
-  --bg-secondary: #0B1022;
-  --bg-card: rgba(13, 19, 38, 0.92);
+  --bg-primary: #07120F;
+  --bg-secondary: #0B1A15;
+  --bg-card: rgba(11, 26, 21, 0.92);
   --bg-overlay: rgba(0, 0, 0, 0.72);
 
-  --ink: #EAF0FF;
-  --paper: #070A12;
-  --panel: #0D1326;
+  --ink: #EAFEF7;
+  --paper: #07120F;
+  --panel: #0D221B;
 
-  --accent: #00D5FF;
-  --accent-2: #B14CFF;
-  --accent-3: #FF2D55;
+  --accent: #2AFEB7;
+  --accent-2: #00D5FF;
+  --accent-3: #7C3AED;
 
-  --text-primary: rgba(234, 240, 255, 0.92);
-  --text-secondary: rgba(234, 240, 255, 0.72);
-  --text-tertiary: rgba(234, 240, 255, 0.52);
+  --text-primary: rgba(234, 254, 247, 0.92);
+  --text-secondary: rgba(234, 254, 247, 0.72);
+  --text-tertiary: rgba(234, 254, 247, 0.52);
 
-  --border: rgba(234, 240, 255, 0.14);
-  --border-hover: rgba(234, 240, 255, 0.22);
+  --border: rgba(234, 254, 247, 0.14);
+  --border-hover: rgba(234, 254, 247, 0.22);
 
   --gradient-primary: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 55%, var(--accent-3) 100%);
-  --gradient-card: linear-gradient(135deg, rgba(0, 213, 255, 0.14), rgba(177, 76, 255, 0.10));
+  --gradient-card: linear-gradient(135deg, rgba(42, 254, 183, 0.14), rgba(0, 213, 255, 0.10));
 
   --shadow-sm: 3px 3px 0 rgba(0, 0, 0, 0.65);
   --shadow-md: 6px 6px 0 rgba(0, 0, 0, 0.65);
