@@ -7,7 +7,30 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+window.addEventListener('error', (e) => {
+  try {
+    const msg = e?.error?.message || e?.message || 'Unknown error';
+    document.body?.setAttribute('data-js-error', '1');
+    const status = document.getElementById('statusContent');
+    if (status) status.textContent = `Error: ${String(msg).slice(0, 140)}`;
+    const scanStatus = document.getElementById('scanStatus');
+    scanStatus?.classList.remove('hidden');
+  } catch {}
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+  try {
+    const msg = e?.reason?.message || String(e?.reason || 'Unhandled rejection');
+    document.body?.setAttribute('data-js-error', '1');
+    const status = document.getElementById('statusContent');
+    if (status) status.textContent = `Error: ${String(msg).slice(0, 140)}`;
+    const scanStatus = document.getElementById('scanStatus');
+    scanStatus?.classList.remove('hidden');
+  } catch {}
+});
+
 const MAX_ADDRESSES = 20;
+const APP_VERSION = 'v0.002';
 const STORAGE_KEY_ADDRESSES = 'peeek:lastAddresses';
 const STORAGE_KEY_PROFILES = 'peeek:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'peeek:activeProfile';
@@ -916,7 +939,7 @@ function getAddressItemsFromText(text) {
 
   const items = kept.map(line => {
     const classified = classifyAddress(line);
-    const isValid = classified.type === 'solana' || classified.type === 'evm';
+    const isValid = classified.type === 'solana' || classified.type === 'evm' || classified.type === 'solana-domain';
     return {
       raw: line,
       type: isValid ? classified.type : 'invalid',
@@ -1178,8 +1201,8 @@ function renderAddressChips() {
   }
 
   chips.innerHTML = state.addressItems.map((item, idx) => {
-    const badge = item.type === 'solana' ? 'SOL' : item.type === 'evm' ? 'EVM' : 'Invalid';
-    const cls = item.type === 'solana' ? 'solana' : item.type === 'evm' ? 'evm' : 'invalid';
+    const badge = (item.type === 'solana' || item.type === 'solana-domain') ? 'SOL' : item.type === 'evm' ? 'EVM' : 'Invalid';
+    const cls = (item.type === 'solana' || item.type === 'solana-domain') ? 'solana' : item.type === 'evm' ? 'evm' : 'invalid';
     const isNew = !!state._lastAddedNormalized && (item.normalized || item.raw) === state._lastAddedNormalized;
     return `
       <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}" data-idx="${idx}" role="button" tabindex="0">
@@ -1251,7 +1274,7 @@ function addWalletFromInput() {
   }
 
   const classified = classifyAddress(raw);
-  const isValid = classified.type === 'solana' || classified.type === 'evm';
+  const isValid = classified.type === 'solana' || classified.type === 'evm' || classified.type === 'solana-domain';
   if (!isValid) {
     wrap?.classList.remove('shake');
     void wrap?.offsetWidth;
@@ -1275,6 +1298,11 @@ function addWalletFromInput() {
   state._lastAddedNormalized = normalized;
   state.addressItems.push({ raw, type: classified.type, normalized });
   $('inputWarning')?.classList.add('hidden');
+
+  if (classified.type === 'solana-domain') {
+    showInputHint('Solana .sol domains are saved but not scannable yet (ignored on scan).', 'info');
+  }
+
   persistAddressItems();
   renderAddressChips();
   updateAddressStats();
@@ -3986,6 +4014,8 @@ function setupFooterRotator() {
 function initialize() {
   migrateLegacyStorageKeys();
 
+  try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
+
   const verEl = $('appVersion');
   if (verEl) verEl.textContent = APP_VERSION;
 
@@ -4020,8 +4050,26 @@ function initialize() {
   updateTelegramMainButton();
 }
 
+function safeInitialize() {
+  try {
+    initialize();
+  } catch (err) {
+    try {
+      console.error('Initialize failed', err);
+    } catch {}
+    try {
+      document.body?.setAttribute('data-js-error', '1');
+      const msg = err?.message || String(err);
+      const status = document.getElementById('statusContent');
+      if (status) status.textContent = `Init failed: ${String(msg).slice(0, 140)}`;
+      const scanStatus = document.getElementById('scanStatus');
+      scanStatus?.classList.remove('hidden');
+    } catch {}
+  }
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initialize);
+  document.addEventListener('DOMContentLoaded', safeInitialize);
 } else {
-  initialize();
+  safeInitialize();
 }
