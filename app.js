@@ -3400,15 +3400,24 @@ function setupEyeTracking() {
       const dx = targetX - eyeX;
       const dy = targetY - eyeY;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const maxMove = shouldRunIntro ? 16 : 8;
-      const moveFactor = shouldRunIntro ? 1 : Math.min(distance / 100, 1);
+      const maxMove = shouldRunIntro ? 16 : 10;
+      const moveFactor = shouldRunIntro ? 1 : Math.min(distance / 85, 1);
       const moveDistance = maxMove * moveFactor;
       const jitter = shouldRunIntro ? 0 : (isTyping ? 0.1 : 0.3);
       const jitterX = (Math.random() - 0.5) * jitter;
       const jitterY = (Math.random() - 0.5) * jitter;
       const angle = Math.atan2(dy, dx);
-      const moveX = Math.cos(angle) * moveDistance + jitterX;
-      const moveY = Math.sin(angle) * moveDistance + jitterY;
+      const moveXRaw = Math.cos(angle) * moveDistance + jitterX;
+      const moveYRaw = Math.sin(angle) * moveDistance + jitterY;
+
+      const maxX = shouldRunIntro ? 16 : 9;
+      const maxUp = shouldRunIntro ? 16 : 7;
+      const maxDown = shouldRunIntro ? 16 : 14;
+
+      const moveX = Math.max(-maxX, Math.min(maxX, moveXRaw));
+      const moveY = moveYRaw < 0
+        ? Math.max(-maxUp, moveYRaw)
+        : Math.min(maxDown, moveYRaw);
 
       pupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
     });
