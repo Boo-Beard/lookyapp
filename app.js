@@ -30,7 +30,7 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 const MAX_ADDRESSES = 20;
-const APP_VERSION = 'v0.002';
+const APP_VERSION = 'v0.003';
 const STORAGE_KEY_ADDRESSES = 'peeek:lastAddresses';
 const STORAGE_KEY_PROFILES = 'peeek:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'peeek:activeProfile';
@@ -3618,32 +3618,9 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  const applyBanksyMode = (enabled) => {
-    document.body.classList.toggle('banksy', !!enabled);
-    try {
-      localStorage.setItem(['p','e','e','e','k',':','b','a','n','k','s','y','M','o','d','e'].join(''), enabled ? '1' : '0');
-    } catch {}
-    const btn = $('banksyToggleBtn');
-    if (btn) {
-      btn.setAttribute('aria-label', enabled ? 'Disable Banksy mode' : 'Enable Banksy mode');
-    }
-  };
-
-  const loadBanksyMode = () => {
-    try {
-      return localStorage.getItem(['p','e','e','e','k',':','b','a','n','k','s','y','M','o','d','e'].join('')) === '1';
-    } catch {
-      return false;
-    }
-  };
-
-  applyBanksyMode(loadBanksyMode());
-
-  $('banksyToggleBtn')?.addEventListener('click', () => {
-    const next = !document.body.classList.contains('banksy');
-    applyBanksyMode(next);
-    hapticFeedback('light');
-  });
+  try {
+    localStorage.removeItem(['p','e','e','e','k',':','b','a','n','k','s','y','M','o','d','e'].join(''));
+  } catch {}
 
   const applyRedactedMode = (enabled) => {
     document.body.classList.toggle('is-redacted', !!enabled);
