@@ -5,7 +5,7 @@
   height="100"
 >
   <defs>
-    <radialGradient id="peekIris" cx="40%" cy="35%" r="75%">
+    <radialGradient id="peeekIris" cx="40%" cy="35%" r="75%">
       <stop offset="0%" stop-color="#9fe6ff" />
       <stop offset="55%" stop-color="#2aa8ff" />
       <stop offset="100%" stop-color="#0b2a6d" />
@@ -23,8 +23,8 @@
   <path d="M12 44 C19 32, 39 31, 46 42" fill="none" stroke="#0b0b10" stroke-width="4" stroke-linecap="round" />
   <path d="M54 42 C61 31, 81 32, 88 44" fill="none" stroke="#0b0b10" stroke-width="4" stroke-linecap="round" />
 
-  <circle cx="30" cy="48" r="9" fill="url(#peekIris)" />
-  <circle cx="70" cy="48" r="9" fill="url(#peekIris)" />
+  <circle cx="30" cy="48" r="9" fill="url(#peeekIris)" />
+  <circle cx="70" cy="48" r="9" fill="url(#peeekIris)" />
   <circle cx="30" cy="49" r="4.5" fill="#05060a" />
   <circle cx="70" cy="49" r="4.5" fill="#05060a" />
 

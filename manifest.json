@@ -1,6 +1,6 @@
 {
-  "name": "PEEK!",
-  "short_name": "PEEK",
+  "name": "PEEEK!",
+  "short_name": "PEEEK",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -8,7 +8,7 @@
   "theme_color": "#0B1022",
   "icons": [
     {
-      "src": "/peek-icon.svg",
+      "src": "/peeek-icon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

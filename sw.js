@@ -1,4 +1,4 @@
-const CACHE_NAME = 'peek-cache-v1';
+const CACHE_NAME = 'peeek-cache-v1';
 
 const ASSETS = [
   '/',
@@ -6,7 +6,7 @@ const ASSETS = [
   '/styles.css',
   '/app.js',
   '/manifest.json',
-  '/peek-icon.svg',
+  '/peeek-icon.svg',
 ];
 
 self.addEventListener('install', (event) => {

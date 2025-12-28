@@ -8,13 +8,13 @@ if ('serviceWorker' in navigator) {
 }
 
 const MAX_ADDRESSES = 20;
-const STORAGE_KEY_ADDRESSES = 'peek:lastAddresses';
-const STORAGE_KEY_PROFILES = 'peek:profiles';
-const STORAGE_KEY_ACTIVE_PROFILE = 'peek:activeProfile';
-const STORAGE_KEY_UI_SECTIONS = 'peek:uiSections';
-const STORAGE_KEY_REDACTED_MODE = 'peek:redactedMode';
+const STORAGE_KEY_ADDRESSES = 'peeek:lastAddresses';
+const STORAGE_KEY_PROFILES = 'peeek:profiles';
+const STORAGE_KEY_ACTIVE_PROFILE = 'peeek:activeProfile';
+const STORAGE_KEY_UI_SECTIONS = 'peeek:uiSections';
+const STORAGE_KEY_REDACTED_MODE = 'peeek:redactedMode';
 
-const STORAGE_KEY_LAST_SCAN_AT = 'peek:lastScanAt';
+const STORAGE_KEY_LAST_SCAN_AT = 'peeek:lastScanAt';
 const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
 const DISABLE_SCAN_COOLDOWN = true;
 
@@ -38,7 +38,8 @@ const walletPnlCache = new Map();
 
 function migrateLegacyStorageKeys() {
   try {
-    const legacyPrefix = ['l', 'o', 'o', 'k', 'y', ':'].join('');
+    const legacyPrefixA = ['l', 'o', 'o', 'k', 'y', ':'].join('');
+    const legacyPrefixB = ['p', 'e', 'e', 'k', ':'].join('');
     const suffixes = [
       'lastAddresses',
       'profiles',
@@ -50,23 +51,28 @@ function migrateLegacyStorageKeys() {
     ];
 
     for (const suffix of suffixes) {
-      const legacyKey = legacyPrefix + suffix;
-      const nextKey = `peek:${suffix}`;
-      const legacyVal = localStorage.getItem(legacyKey);
-      if (legacyVal == null) continue;
-      if (localStorage.getItem(nextKey) == null) {
-        localStorage.setItem(nextKey, legacyVal);
+      const nextKey = `peeek:${suffix}`;
+
+      for (const prefix of [legacyPrefixA, legacyPrefixB]) {
+        const legacyKey = prefix + suffix;
+        const legacyVal = localStorage.getItem(legacyKey);
+        if (legacyVal == null) continue;
+        if (localStorage.getItem(nextKey) == null) {
+          localStorage.setItem(nextKey, legacyVal);
+        }
+        localStorage.removeItem(legacyKey);
       }
-      localStorage.removeItem(legacyKey);
     }
   } catch {}
 }
 
 const DEBUG_SOL_CHANGE = (() => {
   try {
-    if (localStorage.getItem('peek:debugSolChange') === '1') return true;
-    const legacyPrefix = ['l', 'o', 'o', 'k', 'y', ':'].join('');
-    return localStorage.getItem(legacyPrefix + 'debugSolChange') === '1';
+    if (localStorage.getItem('peeek:debugSolChange') === '1') return true;
+    const legacyPrefixA = ['l', 'o', 'o', 'k', 'y', ':'].join('');
+    const legacyPrefixB = ['p', 'e', 'e', 'k', ':'].join('');
+    return localStorage.getItem(legacyPrefixA + 'debugSolChange') === '1'
+      || localStorage.getItem(legacyPrefixB + 'debugSolChange') === '1';
   }
   catch { return false; }
 })();
@@ -174,7 +180,7 @@ function updateScanCooldownUi() {
       scanCooldownTimer = null;
     }
     btn.disabled = false;
-    btn.innerHTML = '<span>Lets Peek!</span>';
+    btn.innerHTML = '<span>PEEEK!</span>';
     return;
   }
 
@@ -195,7 +201,7 @@ function updateScanCooldownUi() {
     scanCooldownTimer = null;
   }
   btn.disabled = false;
-  btn.innerHTML = '<span>Lets Peek!</span>';
+  btn.innerHTML = '<span>PEEEK!</span>';
 }
 
 async function fetchSolTokenOverview(addr, { signal } = {}) {
@@ -3897,7 +3903,7 @@ function setupEventListeners() {
 
     const csv = buildHoldingsCsv(state.holdings);
     const blob = new Blob([csv], { type: 'text/csv' });
-    downloadBlob(blob, `peek-export-${new Date().toISOString().split('T')[0]}.csv`);
+    downloadBlob(blob, `peeek-export-${new Date().toISOString().split('T')[0]}.csv`);
 
     showStatus('CSV exported successfully', 'success');
     hapticFeedback('success');
@@ -3912,7 +3918,7 @@ function setupEventListeners() {
     const payload = buildHoldingsJson();
     const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    downloadBlob(blob, `peek-export-${new Date().toISOString().split('T')[0]}.json`);
+    downloadBlob(blob, `peeek-export-${new Date().toISOString().split('T')[0]}.json`);
     showStatus('JSON exported successfully', 'success');
     hapticFeedback('success');
   });
@@ -3943,14 +3949,14 @@ function setupFooterRotator() {
   if (!el) return;
 
   const phrases = [
-  'Peek!',
+  'Peeek!',
   'No Bullshit!',
   'No Wallet Connect!',
   'No Login!',
   'Multichain',
   'View Value',
   'Analytics',
-  'Peek!',
+  'Peeek!',
   'Just Looking',
   'Eyes On-Chain',
   'Spot The Bags',
