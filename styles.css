@@ -933,6 +933,17 @@ body.ui-results .input-section.is-minimized {
   transform-origin: 50% 50%;
 }
 
+.app-version {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  user-select: none;
+  margin-top: -4px;
+}
+
 .logo-lockup .peeek-eyes {
   display: flex;
   justify-content: center;

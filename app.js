@@ -3985,6 +3985,10 @@ function setupFooterRotator() {
 
 function initialize() {
   migrateLegacyStorageKeys();
+
+  const verEl = $('appVersion');
+  if (verEl) verEl.textContent = APP_VERSION;
+
   setupTelegram();
   setupEyeTracking();
   setupEventListeners();
