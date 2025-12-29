@@ -841,6 +841,13 @@ body.ui-results #resultsSection .card::before {
   position: relative;
 }
 
+#inputHeaderBar {
+  position: sticky;
+  top: env(safe-area-inset-top);
+  z-index: 60;
+  background: var(--bg-card);
+}
+
  .theme-toggle {
   position: absolute;
   top: 14px;
