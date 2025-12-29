@@ -111,6 +111,14 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function escapeAttribute(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function getSolTokenChangeCache(address) {
   const key = String(address || '').trim();
   if (!key) return null;
@@ -3583,13 +3591,14 @@ function renderSearchTokenCard(model) {
   const subtitle = subtitleParts.join(' · ');
   const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(model?.logoUrl), model?.symbol || model?.name);
   const chainBadge = String(model?.chainShort || '').trim();
+  const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
 
   root.innerHTML = `
     <div class="card table-section search-token-card">
       <div class="table-header">
         <div class="collapsible-header-left">
           <div class="search-token-title-row">
-            <img class="search-token-icon" src="${escapeHtml(iconUrl)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(model?.symbol || model?.name)}'" alt="" />
+            <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
             <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
           </div>
           <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
@@ -3669,7 +3678,7 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
     chainShort: 'SOL',
     name: data?.name || data?.symbol || 'Token',
     symbol: data?.symbol || '',
-    logoUrl: data?.logoURI ?? data?.logo ?? data?.logo_url ?? null,
+    logoUrl: data?.logoURI ?? data?.logoUri ?? data?.logo_uri ?? data?.logo ?? data?.image ?? data?.imageUrl ?? data?.image_url ?? data?.logo_url ?? null,
     priceUsd: data?.price ?? null,
     marketCapUsd: data?.marketCap ?? data?.fdv ?? null,
     liquidityUsd: data?.liquidity ?? null,
@@ -3734,7 +3743,10 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
         chainShort: String(best?.chainId || 'EVM').toUpperCase(),
         name: o?.name || best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
         symbol: o?.symbol || best?.baseToken?.symbol || '',
-        logoUrl: o?.logoURI ?? best?.baseToken?.logoURI ?? best?.info?.imageUrl ?? null,
+        logoUrl: o?.logoURI ?? o?.logoUri ?? o?.logo_uri ?? o?.logo ?? o?.image ?? o?.imageUrl ?? o?.image_url
+          ?? best?.baseToken?.logoURI ?? best?.baseToken?.logoUri ?? best?.baseToken?.logo_uri
+          ?? best?.info?.imageUrl ?? best?.info?.image_url ?? best?.info?.image
+          ?? null,
         priceUsd: o?.price ?? best?.priceUsd ?? null,
         marketCapUsd: o?.marketCap ?? o?.fdv ?? best?.marketCap ?? best?.fdv ?? null,
         liquidityUsd: o?.liquidity ?? best?.liquidity?.usd ?? null,
@@ -3755,7 +3767,9 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
     chainShort: String(best?.chainId || 'EVM').toUpperCase(),
     name: best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
     symbol: best?.baseToken?.symbol || '',
-    logoUrl: best?.baseToken?.logoURI || best?.info?.imageUrl || null,
+    logoUrl: best?.baseToken?.logoURI || best?.baseToken?.logoUri || best?.baseToken?.logo_uri
+      || best?.info?.imageUrl || best?.info?.image_url || best?.info?.image
+      || null,
     priceUsd: best?.priceUsd ?? null,
     marketCapUsd: best?.marketCap ?? best?.fdv ?? null,
     liquidityUsd: best?.liquidity?.usd ?? null,

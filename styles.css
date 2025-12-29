@@ -1508,6 +1508,8 @@ body.is-scanning .logo-lockup .eye::before {
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
   flex: 0 0 auto;
+  display: block;
+  object-fit: cover;
 }
 
 :root[data-theme="dark"] #searchResults .search-token-icon {
