@@ -1511,7 +1511,27 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #searchResults .search-token-actions .holding-action {
-  background: rgba(255, 255, 255, 0.55);
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--text-secondary);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+#searchResults .search-token-actions .holding-action:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+#searchResults .search-token-actions .holding-action.disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 :root[data-theme="dark"] #searchResults .search-token-actions .holding-action {
