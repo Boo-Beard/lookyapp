@@ -1,12 +1,15 @@
-const CACHE_NAME = 'peeek-cache-v3';
+const CACHE_NAME = 'peeek-cache-v4';
 
 const ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
   '/app.js',
-  '/manifest.json?v=4',
-  '/peeek-icon.svg?v=4',
+  '/manifest.json?v=5',
+  '/peeek-icon.png?v=5',
+  '/icons/icon-192.png?v=5',
+  '/icons/icon-512.png?v=5',
+  '/icons/apple-touch-icon.png?v=5',
 ];
 
 self.addEventListener('install', (event) => {
