@@ -25,6 +25,7 @@
   <div class="container">
     <main class="main">
       
+      <div id="portfolioView">
       <section class="card input-section" id="inputSection">
         <div class="card-header" id="inputHeaderBar">
           <div class="header-toggles" aria-label="Display toggles">
@@ -42,7 +43,10 @@
               </div>
             </div>
             <h1 class="logo-title">PEEEK!</h1>
-            <div id="appVersion" class="app-version" aria-label="App version">v0.001</div>
+            <div class="view-toggle" role="tablist" aria-label="Mode selector">
+              <button id="portfolioModeBtn" class="view-toggle-btn is-active" type="button" role="tab" aria-selected="true">Portfolio</button>
+              <button id="searchModeBtn" class="view-toggle-btn" type="button" role="tab" aria-selected="false">Search</button>
+            </div>
           </div>
         </div>
 
@@ -345,6 +349,44 @@
           </div>
         </div>
       </div>
+      </div>
+
+      <section id="searchView" class="card input-section hidden" aria-label="Token search">
+        <div class="card-header">
+          <div class="logo-lockup">
+            <h2 class="section-title" style="margin: 0;">Find a token</h2>
+            <p class="section-subtitle">Paste a token contract address (EVM) or mint (Solana)</p>
+          </div>
+        </div>
+
+        <div class="input-body">
+          <div class="input-container">
+            <div class="input-warning hidden" id="tokenSearchHint"></div>
+
+            <div class="textarea-wrapper address-entry">
+              <input
+                id="tokenAddressInput"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="Paste token address (SOL or EVM)"
+              />
+              <button id="findTokenBtn" class="btn btn-outline" type="button">
+                <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                <span>Find token</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="scan-status hidden" id="tokenSearchStatus">
+            <div class="status-content" id="tokenSearchStatusContent">Ready</div>
+          </div>
+
+          <div id="tokenResult" class="hidden"></div>
+        </div>
+      </section>
     </main>
 
     

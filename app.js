@@ -1336,6 +1336,249 @@ function showInputHint(message, type = 'info') {
     hint.classList.remove('error');
   }, 2400);
 }
+
+function showTokenSearchHint(message, type = 'info') {
+  const hint = $('tokenSearchHint');
+  if (!hint) return;
+
+  const msg = String(message || '').trim();
+  if (!msg) {
+    hint.textContent = '';
+    hint.classList.add('hidden');
+    hint.classList.remove('error');
+    return;
+  }
+
+  hint.textContent = msg;
+  hint.classList.toggle('error', type === 'error');
+  hint.classList.remove('hidden');
+
+  window.clearTimeout(showTokenSearchHint._t);
+  showTokenSearchHint._t = window.setTimeout(() => {
+    hint.textContent = '';
+    hint.classList.add('hidden');
+    hint.classList.remove('error');
+  }, 2400);
+}
+
+function setTokenSearchStatus(text, { show = true } = {}) {
+  const wrap = $('tokenSearchStatus');
+  const el = $('tokenSearchStatusContent');
+  if (el) el.textContent = String(text || '');
+  if (wrap) wrap.classList.toggle('hidden', !show);
+}
+
+function formatPct(pct) {
+  const n = Number(pct);
+  if (!Number.isFinite(n) || Math.abs(n) < 1e-9) return '0.00%';
+  const sign = n > 0 ? '+' : '';
+  return `${sign}${n.toFixed(2)}%`;
+}
+
+function renderTokenResultCard({ chain, address, data }) {
+  const root = $('tokenResult');
+  if (!root) return;
+  const d = data || {};
+
+  const name = String(d?.name || d?.tokenName || d?.baseToken?.name || 'Unknown token');
+  const symbol = String(d?.symbol || d?.tokenSymbol || d?.baseToken?.symbol || '').trim();
+  const logo = String(d?.logoURI || d?.logo_uri || d?.logo || d?.icon || '').trim();
+  const logoUrl = getTokenIconUrl(logo, symbol || name);
+
+  const price = Number(
+    d?.price ??
+    d?.priceUsd ??
+    d?.price_usd ??
+    d?.lastPrice ??
+    0
+  ) || 0;
+  const mcap = Number(
+    d?.mc ??
+    d?.mcap ??
+    d?.marketCap ??
+    d?.market_cap ??
+    d?.market_cap_usd ??
+    0
+  ) || 0;
+  const liquidity = Number(
+    d?.liquidity ??
+    d?.liquidityUsd ??
+    d?.liquidity_usd ??
+    0
+  ) || 0;
+  const vol24h = Number(
+    d?.v24hUSD ??
+    d?.v24h ??
+    d?.volume24h ??
+    d?.volume_24h ??
+    d?.volume24hUsd ??
+    d?.volume_24h_usd ??
+    d?.volume24hUSD ??
+    0
+  ) || 0;
+  const holders = Number(
+    d?.holder ??
+    d?.holders ??
+    d?.holder_count ??
+    d?.holdersCount ??
+    0
+  ) || 0;
+  const supply = Number(
+    d?.supply ??
+    d?.totalSupply ??
+    d?.total_supply ??
+    d?.circulatingSupply ??
+    d?.circulating_supply ??
+    0
+  ) || 0;
+  const change24h = Number(
+    d?.priceChange24hPercent ??
+    d?.price_change_24h_percent ??
+    d?.priceChangePercent24h ??
+    d?.price_change_percent_24h ??
+    d?.changePct24h ??
+    d?.change_percent_24h ??
+    (d?.['24h']?.priceChangePercent ?? d?.['24h']?.price_change_percent ?? 0) ??
+    0
+  ) || 0;
+
+  const addrShort = shortenAddress(address);
+  const chainLabel = chain === 'solana' ? 'SOL' : 'EVM';
+
+  root.innerHTML = `
+    <div class="token-card">
+      <div class="token-card-header">
+        <img class="token-logo" src="${escapeHtml(logoUrl)}" alt="${escapeHtml(symbol || name)}" />
+        <div>
+          <div class="token-name">${escapeHtml(name)}${symbol ? ` <span style=\"opacity:0.72\">(${escapeHtml(symbol)})</span>` : ''}</div>
+          <div class="token-sub">${escapeHtml(chainLabel)} • ${escapeHtml(addrShort)}</div>
+        </div>
+      </div>
+
+      <div class="token-stats-grid">
+        <div class="token-stat">
+          <div class="token-stat-label">Price</div>
+          <div class="token-stat-value">${escapeHtml(formatPrice(price))}</div>
+        </div>
+        <div class="token-stat">
+          <div class="token-stat-label">Market Cap</div>
+          <div class="token-stat-value">${escapeHtml(formatCurrency(mcap))}</div>
+        </div>
+        <div class="token-stat">
+          <div class="token-stat-label">24h Change</div>
+          <div class="token-stat-value">${escapeHtml(formatPct(change24h))}</div>
+        </div>
+        <div class="token-stat">
+          <div class="token-stat-label">Liquidity</div>
+          <div class="token-stat-value">${escapeHtml(formatCurrency(liquidity))}</div>
+        </div>
+        <div class="token-stat">
+          <div class="token-stat-label">24h Volume</div>
+          <div class="token-stat-value">${escapeHtml(formatCurrency(vol24h))}</div>
+        </div>
+        <div class="token-stat">
+          <div class="token-stat-label">Holders</div>
+          <div class="token-stat-value">${escapeHtml(formatNumber(holders))}</div>
+        </div>
+        <div class="token-stat">
+          <div class="token-stat-label">Total Supply</div>
+          <div class="token-stat-value">${escapeHtml(formatNumber(supply))}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  root.classList.remove('hidden');
+}
+
+let tokenSearchAbortController = null;
+async function searchTokenFromInput() {
+  const input = $('tokenAddressInput');
+  const btn = $('findTokenBtn');
+  const root = $('tokenResult');
+  if (!input) return;
+
+  const raw = String(input.value || '').trim();
+  if (!raw) {
+    showTokenSearchHint('Paste a token address', 'error');
+    hapticFeedback('light');
+    return;
+  }
+
+  const classified = classifyAddress(raw);
+  if (!(classified.type === 'solana' || classified.type === 'evm')) {
+    showTokenSearchHint('Invalid token address (must be SOL mint or 0x...)', 'error');
+    hapticFeedback('error');
+    return;
+  }
+
+  const chain = classified.type === 'solana' ? 'solana' : 'evm';
+  const address = classified.value || raw;
+
+  try {
+    tokenSearchAbortController?.abort();
+  } catch {}
+  tokenSearchAbortController = new AbortController();
+
+  if (root) {
+    root.innerHTML = '';
+    root.classList.add('hidden');
+  }
+
+  showTokenSearchHint('');
+  setTokenSearchStatus('Searching…', { show: true });
+  if (btn) btn.disabled = true;
+
+  try {
+    const resp = await birdeyeRequest('/defi/token_overview', {
+      address,
+      ui_amount_mode: 'scaled',
+    }, {
+      signal: tokenSearchAbortController.signal,
+      headers: {
+        'x-chain': chain === 'solana' ? 'solana' : 'ethereum',
+      },
+    });
+
+    const data = resp?.data || null;
+    if (!data) throw new Error('No token data returned');
+
+    renderTokenResultCard({ chain, address, data });
+    setTokenSearchStatus('Done', { show: false });
+    hapticFeedback('success');
+  } catch (err) {
+    const msg = err?.message || String(err);
+    setTokenSearchStatus(`Error: ${msg}`, { show: true });
+    showTokenSearchHint(msg, 'error');
+    hapticFeedback('error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function setViewMode(mode) {
+  const m = mode === 'search' ? 'search' : 'portfolio';
+  const portfolio = $('portfolioView');
+  const search = $('searchView');
+  const pBtn = $('portfolioModeBtn');
+  const sBtn = $('searchModeBtn');
+
+  if (portfolio) portfolio.classList.toggle('hidden', m !== 'portfolio');
+  if (search) search.classList.toggle('hidden', m !== 'search');
+
+  if (pBtn) {
+    pBtn.classList.toggle('is-active', m === 'portfolio');
+    pBtn.setAttribute('aria-selected', m === 'portfolio' ? 'true' : 'false');
+  }
+  if (sBtn) {
+    sBtn.classList.toggle('is-active', m === 'search');
+    sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
+  }
+
+  try {
+    if (m === 'search') $('tokenAddressInput')?.focus();
+    else $('addressInput')?.focus();
+  } catch {}
+}
 const API = {
   zerion: '/api/zerion',
   birdeye: '/api/birdeye',
@@ -3473,6 +3716,32 @@ function setupEventListeners() {
     addWalletFromInput();
   });
 
+  $('portfolioModeBtn')?.addEventListener('click', () => {
+    setViewMode('portfolio');
+    hapticFeedback('light');
+  });
+  $('searchModeBtn')?.addEventListener('click', () => {
+    setViewMode('search');
+    hapticFeedback('light');
+  });
+
+  const tokenInput = $('tokenAddressInput');
+  if (tokenInput) {
+    tokenInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchTokenFromInput();
+      }
+    });
+    tokenInput.addEventListener('input', () => {
+      const wrap = tokenInput.closest('.address-entry');
+      wrap?.classList.remove('shake');
+    });
+  }
+  $('findTokenBtn')?.addEventListener('click', () => {
+    searchTokenFromInput();
+  });
+
   document.addEventListener('click', (e) => {
     const chart = e.target.closest('a.holding-action[data-action="chart"]');
     if (chart) {
@@ -3993,8 +4262,10 @@ function initialize() {
 
   try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
 
-  const verEl = $('appVersion');
-  if (verEl) verEl.textContent = APP_VERSION;
+  try {
+    const pBtn = $('portfolioModeBtn');
+    if (pBtn) pBtn.setAttribute('title', APP_VERSION);
+  } catch {}
 
   setupTelegram();
   setupEyeTracking();
@@ -4025,6 +4296,8 @@ function initialize() {
 
   updateAddressStats();
   updateTelegramMainButton();
+
+  setViewMode('portfolio');
 }
 
 function safeInitialize() {
