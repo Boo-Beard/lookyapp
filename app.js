@@ -3500,24 +3500,23 @@ function renderSearchTokenLoading() {
   const root = $('searchResults');
   if (!root) return;
   root.innerHTML = `
-    <div class="holding-card">
-      <div class="holding-card-header">
-        <div class="token-cell">
-          <div class="token-info">
-            <div class="token-symbol">Loading…</div>
-            <div class="token-name">Fetching token metrics</div>
-          </div>
+    <div class="card table-section search-token-card">
+      <div class="table-header">
+        <div class="collapsible-header-left">
+          <h3 class="table-title">Loading…</h3>
+          <p class="table-subtitle">Fetching token metrics</p>
         </div>
       </div>
-      <div class="holding-card-metrics">
-        <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono">—</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono">—</div></div>
+
+      <div class="search-token-metrics">
+        <div class="search-token-metric"><div class="search-token-metric-label">Market Cap</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Price</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">24h Change</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Liquidity</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">24h Volume</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Holders</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Circulating Supply</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Trades (24h)</div><div class="search-token-metric-value mono">—</div></div>
       </div>
     </div>
   `;
@@ -3527,13 +3526,11 @@ function renderSearchTokenError(message) {
   const root = $('searchResults');
   if (!root) return;
   root.innerHTML = `
-    <div class="holding-card">
-      <div class="holding-card-header">
-        <div class="token-cell">
-          <div class="token-info">
-            <div class="token-symbol">Could not load token</div>
-            <div class="token-name">${escapeHtml(String(message || 'Unknown error'))}</div>
-          </div>
+    <div class="card table-section search-token-card">
+      <div class="table-header">
+        <div class="collapsible-header-left">
+          <h3 class="table-title">Could not load token</h3>
+          <p class="table-subtitle">${escapeHtml(String(message || 'Unknown error'))}</p>
         </div>
       </div>
     </div>
@@ -3569,25 +3566,23 @@ function renderSearchTokenCard(model) {
   const subtitle = subtitleParts.join(' · ');
 
   root.innerHTML = `
-    <div class="holding-card">
-      <div class="holding-card-header">
-        <div class="token-cell">
-          <div class="token-info">
-            <div class="token-symbol">${escapeHtml(symbol || name)}</div>
-            <div class="token-name">${escapeHtml(subtitle || name)}</div>
-          </div>
+    <div class="card table-section search-token-card">
+      <div class="table-header">
+        <div class="collapsible-header-left">
+          <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
+          <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
         </div>
       </div>
 
-      <div class="holding-card-metrics">
-        <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono">${escapeHtml(mcap)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono">${escapeHtml(price)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono ${changeClass}">${escapeHtml(changeText)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono">${escapeHtml(liq)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono">${escapeHtml(vol)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono">${escapeHtml(holders)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono">${escapeHtml(circ)}</div></div>
-        <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono">${escapeHtml(trades)}</div></div>
+      <div class="search-token-metrics">
+        <div class="search-token-metric"><div class="search-token-metric-label">Market Cap</div><div class="search-token-metric-value mono">${escapeHtml(mcap)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Price</div><div class="search-token-metric-value mono">${escapeHtml(price)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">24h Change</div><div class="search-token-metric-value mono ${changeClass}">${escapeHtml(changeText)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Liquidity</div><div class="search-token-metric-value mono">${escapeHtml(liq)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">24h Volume</div><div class="search-token-metric-value mono">${escapeHtml(vol)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Holders</div><div class="search-token-metric-value mono">${escapeHtml(holders)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Circulating Supply</div><div class="search-token-metric-value mono">${escapeHtml(circ)}</div></div>
+        <div class="search-token-metric"><div class="search-token-metric-label">Trades (24h)</div><div class="search-token-metric-value mono">${escapeHtml(trades)}</div></div>
       </div>
     </div>
   `;

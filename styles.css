@@ -1448,65 +1448,51 @@ body.is-scanning .logo-lockup .eye::before {
   margin-top: 16px;
 }
 
-#searchResults .holding-card {
-  width: 100%;
-  position: relative;
-  left: auto;
-  transform: none;
-  border-radius: var(--radius-xl);
+#searchResults .search-token-card {
   border: 4px solid var(--border);
   box-shadow: var(--shadow-md);
-  overflow: hidden;
 }
 
-#searchResults .holding-card-header {
-  padding: 16px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  background: rgba(255, 255, 255, 0.55);
+#searchResults .search-token-card .table-header {
+  padding: 16px 16px 14px;
 }
 
-:root[data-theme="dark"] #searchResults .holding-card-header {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-#searchResults .holding-card-metrics {
-  padding: 16px;
+#searchResults .search-token-metrics {
+  padding: 0 16px 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.35);
 }
 
-:root[data-theme="dark"] #searchResults .holding-card-metrics {
-  background: rgba(255, 255, 255, 0.04);
+@media (min-width: 640px) {
+  #searchResults .search-token-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-#searchResults .holding-metric {
+#searchResults .search-token-metric {
   border-radius: 16px;
   border: 2px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   padding: 10px;
 }
 
-:root[data-theme="dark"] #searchResults .holding-metric {
+:root[data-theme="dark"] #searchResults .search-token-metric {
   background: rgba(255, 255, 255, 0.06);
 }
 
-#searchResults .holding-metric-label {
+#searchResults .search-token-metric-label {
   font-family: var(--mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
 }
 
-@media (min-width: 640px) {
-  #searchResults .holding-card-metrics {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+#searchResults .search-token-metric-value {
+  font-weight: 900;
+  color: var(--ink);
 }
 
 .token-metrics-card {
