@@ -1494,7 +1494,6 @@ let tokenSearchAbortController = null;
 async function searchTokenFromInput() {
   const input = $('tokenAddressInput');
   const btn = $('findTokenBtn');
-  const chainSelect = $('tokenChainSelect');
   const root = $('tokenResult');
   if (!input) return;
 
@@ -1512,18 +1511,10 @@ async function searchTokenFromInput() {
     return;
   }
 
-  const selectedChain = String(chainSelect?.value || 'ethereum').trim().toLowerCase();
-
-  if (classified.type === 'solana') {
-    if (chainSelect) chainSelect.value = 'solana';
-  }
-
-  if (classified.type === 'evm' && selectedChain === 'solana') {
-    if (chainSelect) chainSelect.value = 'ethereum';
-  }
-
-  const chain = String(chainSelect?.value || (classified.type === 'solana' ? 'solana' : 'ethereum')).trim().toLowerCase();
   const address = classified.value || raw;
+  const candidates = classified.type === 'solana'
+    ? ['solana']
+    : ['ethereum', 'base', 'arbitrum', 'optimism', 'bsc', 'polygon', 'avalanche', 'fantom'];
 
   try {
     tokenSearchAbortController?.abort();
@@ -1540,20 +1531,38 @@ async function searchTokenFromInput() {
   if (btn) btn.disabled = true;
 
   try {
-    const resp = await birdeyeRequest('/defi/token_overview', {
-      address,
-      ui_amount_mode: 'scaled',
-    }, {
-      signal: tokenSearchAbortController.signal,
-      headers: {
-        'x-chain': chain,
-      },
-    });
+    let lastErr = null;
+    let found = null;
 
-    const data = resp?.data || null;
-    if (!data) throw new Error('No token data returned');
+    for (const chain of candidates) {
+      if (tokenSearchAbortController.signal.aborted) throw new Error('Search cancelled');
+      try {
+        const resp = await birdeyeRequest('/defi/token_overview', {
+          address,
+          ui_amount_mode: 'scaled',
+        }, {
+          signal: tokenSearchAbortController.signal,
+          headers: {
+            'x-chain': chain,
+          },
+        });
 
-    renderTokenResultCard({ chain, address, data });
+        const data = resp?.data || null;
+        if (data) {
+          found = { chain, data };
+          break;
+        }
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+
+    if (!found) {
+      const msg = lastErr?.message || 'Token not found on supported chains.';
+      throw new Error(msg);
+    }
+
+    renderTokenResultCard({ chain: found.chain, address, data: found.data });
     setTokenSearchStatus('Done', { show: false });
     hapticFeedback('success');
   } catch (err) {
@@ -1574,6 +1583,8 @@ function setViewMode(mode) {
   const pBtn = $('portfolioModeBtn');
   const sBtn = $('searchModeBtn');
 
+  const scrollY = window.scrollY;
+
   if (portfolioPanel) portfolioPanel.classList.toggle('hidden', m !== 'portfolio');
   if (searchPanel) searchPanel.classList.toggle('hidden', m !== 'search');
   if (results) results.classList.toggle('hidden', m !== 'portfolio');
@@ -1587,10 +1598,10 @@ function setViewMode(mode) {
     sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
   }
 
-  try {
-    if (m === 'search') $('tokenAddressInput')?.focus();
-    else $('addressInput')?.focus();
-  } catch {}
+  requestAnimationFrame(() => {
+    try { window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' }); }
+    catch { try { window.scrollTo(0, scrollY); } catch {} }
+  });
 }
 const API = {
   zerion: '/api/zerion',
