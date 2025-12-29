@@ -1322,7 +1322,8 @@ body.is-scanning .logo-lockup .eye::before {
   user-select: none;
 }
 
-#addressInput {
+#addressInput,
+#searchAddressInput {
   width: 100%;
   height: 48px;
   min-height: 48px;
@@ -1339,22 +1340,26 @@ body.is-scanning .logo-lockup .eye::before {
   caret-color: var(--accent);
 }
 
-.textarea-wrapper.address-entry #addressInput {
+.textarea-wrapper.address-entry #addressInput,
+.textarea-wrapper.address-entry #searchAddressInput {
   flex: 1;
 }
 
-.textarea-wrapper.address-entry #addWalletBtn {
+.textarea-wrapper.address-entry #addWalletBtn,
+.textarea-wrapper.address-entry #searchFindBtn {
   height: 48px;
   padding: 0 16px;
   white-space: nowrap;
   width: 100%;
 }
 
-#addressInput::placeholder {
+#addressInput::placeholder,
+#searchAddressInput::placeholder {
   color: var(--text-tertiary);
 }
 
-#addressInput::selection {
+#addressInput::selection,
+#searchAddressInput::selection {
   background: rgba(255, 212, 0, 0.55);
 }
 
@@ -1377,7 +1382,8 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 @media (max-width: 640px) {
-  #addressInput {
+  #addressInput,
+  #searchAddressInput {
     height: 46px;
     min-height: 46px;
   }
@@ -1388,7 +1394,8 @@ body.is-scanning .logo-lockup .eye::before {
     gap: 10px;
   }
 
-  .textarea-wrapper.address-entry #addWalletBtn {
+  .textarea-wrapper.address-entry #addWalletBtn,
+  .textarea-wrapper.address-entry #searchFindBtn {
     width: 100%;
   }
 }
