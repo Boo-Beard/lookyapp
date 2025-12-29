@@ -3503,7 +3503,10 @@ function renderSearchTokenLoading() {
     <div class="card table-section search-token-card">
       <div class="table-header">
         <div class="collapsible-header-left">
-          <h3 class="table-title">Loading…</h3>
+          <div class="search-token-title-row">
+            <img class="search-token-icon" src="${tokenIconDataUri('...')}" alt="" />
+            <h3 class="table-title">Loading…</h3>
+          </div>
           <p class="table-subtitle">Fetching token metrics</p>
         </div>
       </div>
@@ -3529,7 +3532,10 @@ function renderSearchTokenError(message) {
     <div class="card table-section search-token-card">
       <div class="table-header">
         <div class="collapsible-header-left">
-          <h3 class="table-title">Could not load token</h3>
+          <div class="search-token-title-row">
+            <img class="search-token-icon" src="${tokenIconDataUri('!')}" alt="" />
+            <h3 class="table-title">Could not load token</h3>
+          </div>
           <p class="table-subtitle">${escapeHtml(String(message || 'Unknown error'))}</p>
         </div>
       </div>
@@ -3564,12 +3570,16 @@ function renderSearchTokenCard(model) {
     model?.address ? shortenAddress(model.address) : '',
   ].filter(Boolean);
   const subtitle = subtitleParts.join(' · ');
+  const iconUrl = getTokenIconUrl(model?.logoUrl, model?.symbol || model?.name);
 
   root.innerHTML = `
     <div class="card table-section search-token-card">
       <div class="table-header">
         <div class="collapsible-header-left">
-          <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
+          <div class="search-token-title-row">
+            <img class="search-token-icon" src="${escapeHtml(iconUrl)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(model?.symbol || model?.name)}'" alt="" />
+            <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
+          </div>
           <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
         </div>
       </div>
@@ -3613,6 +3623,7 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
     chainLabel: 'Solana',
     name: data?.name || data?.symbol || 'Token',
     symbol: data?.symbol || '',
+    logoUrl: data?.logoURI || data?.logo || data?.logo_url || null,
     priceUsd: data?.price ?? data?.priceUsd ?? null,
     marketCapUsd: data?.mc ?? data?.marketCap ?? data?.market_cap ?? null,
     liquidityUsd: data?.liquidity ?? data?.liquidityUsd ?? null,
@@ -3623,12 +3634,23 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
     trades24h: null,
   };
 
+  const pickFirstNumber = (obj, keys) => {
+    if (!obj || typeof obj !== 'object') return null;
+    for (const k of keys) {
+      const v = obj[k];
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  };
+
   try {
     const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
       signal,
       headers: { 'x-chain': 'solana' },
     });
-    model.holders = holderResp?.data?.total || holderResp?.data?.totalHolders || holderResp?.data?.total_holder || holderResp?.data?.count || null;
+    const d = holderResp?.data || {};
+    model.holders = pickFirstNumber(d, ['total', 'totalHolders', 'total_holder', 'holder', 'holders', 'count']);
   } catch {}
 
   try {
@@ -3637,7 +3659,12 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
       headers: { 'x-chain': 'solana' },
     });
     const t = tradeResp?.data || {};
-    model.trades24h = t?.txns24h || t?.trade24h || t?.trades24h || t?.txns?.h24 || null;
+    const direct = pickFirstNumber(t, ['txns24h', 'trade24h', 'trades24h', 'txns_24h', 'trades_24h']);
+    const nested = pickFirstNumber(t?.txns || {}, ['h24', '24h', 'h_24']);
+    const buySell = (t?.txns?.h24 && typeof t.txns.h24 === 'object')
+      ? (Number(t.txns.h24.buys || 0) || 0) + (Number(t.txns.h24.sells || 0) || 0)
+      : null;
+    model.trades24h = direct ?? nested ?? (Number.isFinite(buySell) ? buySell : null);
   } catch {}
 
   try {
@@ -3668,19 +3695,51 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
   const txns24h = best?.txns?.h24;
   const trades24h = (Number(txns24h?.buys || 0) || 0) + (Number(txns24h?.sells || 0) || 0);
 
+  const chainId = String(best?.chainId || '').toLowerCase();
+  const birdeyeChainByDex = {
+    ethereum: 'ethereum',
+    bsc: 'bsc',
+    polygon: 'polygon',
+    arbitrum: 'arbitrum',
+    optimism: 'optimism',
+    base: 'base',
+    avalanche: 'avalanche',
+    avax: 'avalanche',
+    cronos: 'cronos',
+    fantom: 'fantom',
+    linea: 'linea',
+    celo: 'celo',
+  };
+  const birdeyeChain = birdeyeChainByDex[chainId] || null;
+  let holders = null;
+  if (birdeyeChain) {
+    try {
+      const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
+        signal,
+        headers: { 'x-chain': birdeyeChain },
+      });
+      const d = holderResp?.data || {};
+      for (const k of ['total', 'totalHolders', 'total_holder', 'holder', 'holders', 'count']) {
+        const n = Number(d[k]);
+        if (Number.isFinite(n)) { holders = n; break; }
+      }
+    } catch {}
+  }
+
   return {
     address,
     chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
     name: best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
     symbol: best?.baseToken?.symbol || '',
+    logoUrl: best?.baseToken?.logoURI || best?.info?.imageUrl || null,
     priceUsd: best?.priceUsd ?? null,
     marketCapUsd: best?.marketCap ?? best?.fdv ?? null,
     liquidityUsd: best?.liquidity?.usd ?? null,
     volume24hUsd: best?.volume?.h24 ?? null,
     change24hPct: best?.priceChange?.h24 ?? null,
-    holders: null,
+    holders,
     circulatingSupply: null,
-    trades24h: Number.isFinite(trades24h) && trades24h > 0 ? trades24h : null,
+    trades24h: Number.isFinite(trades24h) ? trades24h : null,
   };
 }
 

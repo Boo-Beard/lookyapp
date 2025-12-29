@@ -1466,6 +1466,26 @@ body.is-scanning .logo-lockup .eye::before {
   padding: 16px 16px 14px;
 }
 
+#searchResults .search-token-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#searchResults .search-token-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-sm);
+  flex: 0 0 auto;
+}
+
+:root[data-theme="dark"] #searchResults .search-token-icon {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 #searchResults .search-token-metrics {
   padding: 0 16px 16px;
   display: grid;
