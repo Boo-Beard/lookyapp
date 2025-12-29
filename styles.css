@@ -865,8 +865,20 @@ body.ui-results .input-section.is-minimized .input-body {
   position: relative;
 }
 
-#portfolioPanel,
-#watchlistPanel,
+#portfolioPanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+#watchlistPanel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
 #searchPanel {
   position: absolute;
   top: 0;
