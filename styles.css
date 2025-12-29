@@ -75,6 +75,7 @@
   --shadow-lg: 9px 9px 0 rgba(0, 0, 0, 0.65);
  }
 
+
 @media (max-width: 420px) {
   .summary-grid {
     grid-template-columns: 1fr;
@@ -963,6 +964,15 @@ body.ui-results .input-section.is-minimized {
   animation: blink 5.2s infinite;
   pointer-events: none;
 }
+
+ :root[data-theme="dark"] .logo-lockup .eye::after {
+   animation: none;
+   transform: scaleY(1);
+ }
+
+ :root[data-theme="dark"] .logo-lockup .pupil {
+   opacity: 0;
+ }
 
 body.is-redacted .logo-lockup .eye::after {
   animation: none;
