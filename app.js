@@ -30,7 +30,6 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 const MAX_ADDRESSES = 20;
-const APP_VERSION = 'v0.003';
 const STORAGE_KEY_ADDRESSES = 'peeek:lastAddresses';
 const STORAGE_KEY_PROFILES = 'peeek:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'peeek:activeProfile';
@@ -3448,6 +3447,38 @@ function setupEyeTracking() {
   animateEyes();
 }
 
+function setMode(mode) {
+  const m = mode === 'watchlist' ? 'watchlist' : mode === 'search' ? 'search' : 'portfolio';
+
+  const watchlistPanel = $('watchlistPanel');
+  const portfolioPanel = $('portfolioPanel');
+  const searchPanel = $('searchPanel');
+  const results = $('resultsSection');
+
+  const wBtn = $('watchlistModeBtn');
+  const pBtn = $('portfolioModeBtn');
+  const sBtn = $('searchModeBtn');
+
+  if (watchlistPanel) watchlistPanel.classList.toggle('hidden', m !== 'watchlist');
+  if (portfolioPanel) portfolioPanel.classList.toggle('hidden', m !== 'portfolio');
+  if (searchPanel) searchPanel.classList.toggle('hidden', m !== 'search');
+
+  if (results) results.classList.toggle('hidden', m !== 'portfolio');
+
+  if (wBtn) {
+    wBtn.classList.toggle('is-active', m === 'watchlist');
+    wBtn.setAttribute('aria-selected', m === 'watchlist' ? 'true' : 'false');
+  }
+  if (pBtn) {
+    pBtn.classList.toggle('is-active', m === 'portfolio');
+    pBtn.setAttribute('aria-selected', m === 'portfolio' ? 'true' : 'false');
+  }
+  if (sBtn) {
+    sBtn.classList.toggle('is-active', m === 'search');
+    sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
+  }
+}
+
 function setupEventListeners() {
   const addressInput = $('addressInput');
   if (addressInput) {
@@ -3471,6 +3502,19 @@ function setupEventListeners() {
 
   $('addWalletBtn')?.addEventListener('click', () => {
     addWalletFromInput();
+  });
+
+  $('watchlistModeBtn')?.addEventListener('click', () => {
+    setMode('watchlist');
+    hapticFeedback('light');
+  });
+  $('portfolioModeBtn')?.addEventListener('click', () => {
+    setMode('portfolio');
+    hapticFeedback('light');
+  });
+  $('searchModeBtn')?.addEventListener('click', () => {
+    setMode('search');
+    hapticFeedback('light');
   });
 
   document.addEventListener('click', (e) => {
@@ -3993,9 +4037,6 @@ function initialize() {
 
   try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
 
-  const verEl = $('appVersion');
-  if (verEl) verEl.textContent = APP_VERSION;
-
   setupTelegram();
   setupEyeTracking();
   setupEventListeners();
@@ -4025,6 +4066,8 @@ function initialize() {
 
   updateAddressStats();
   updateTelegramMainButton();
+
+  setMode('portfolio');
 }
 
 function safeInitialize() {

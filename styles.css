@@ -880,6 +880,47 @@ body.ui-results .input-section.is-minimized {
   transform-origin: 50% 50%;
 }
 
+.mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-top: -4px;
+}
+
+:root[data-theme="dark"] .mode-toggle {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mode-toggle-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 8px 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.mode-toggle-btn:active {
+  transform: translateY(1px);
+}
+
+.mode-toggle-btn.is-active {
+  background: var(--panel);
+  color: var(--ink);
+}
+
 .app-version {
   font-family: var(--mono);
   font-size: 12px;
