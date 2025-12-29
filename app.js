@@ -3254,7 +3254,10 @@ async function scanWallets({ queueOverride } = {}) {
 }
 
 function setupEyeTracking() {
-  const pupils = document.querySelectorAll('.pupil');
+  const pupils = [
+    $('pupil1'),
+    $('pupil2'),
+  ].filter(Boolean);
   if (!pupils.length) return;
 
   let cursorX = window.innerWidth / 2;
@@ -3447,8 +3450,32 @@ function setupEyeTracking() {
   animateEyes();
 }
 
+function lockInputBodyHeight() {
+  const body = $('inputBody');
+  if (!body) return;
+
+  const panels = [
+    $('portfolioPanel'),
+    $('watchlistPanel'),
+    $('searchPanel'),
+  ].filter(Boolean);
+
+  const measure = (el) => {
+    const wasHidden = el.classList.contains('hidden');
+    if (wasHidden) el.classList.remove('hidden');
+    const h = el.scrollHeight || 0;
+    if (wasHidden) el.classList.add('hidden');
+    return h;
+  };
+
+  const maxH = panels.reduce((m, el) => Math.max(m, measure(el)), 0);
+  if (maxH > 0) body.style.minHeight = `${maxH}px`;
+}
+
 function setMode(mode) {
   const m = mode === 'watchlist' ? 'watchlist' : mode === 'search' ? 'search' : 'portfolio';
+
+  const scrollY = window.scrollY;
 
   const watchlistPanel = $('watchlistPanel');
   const portfolioPanel = $('portfolioPanel');
@@ -3465,6 +3492,12 @@ function setMode(mode) {
 
   const shouldShowResults = m === 'portfolio' && document.body.classList.contains('ui-results');
   if (results) results.classList.toggle('hidden', !shouldShowResults);
+
+  requestAnimationFrame(() => {
+    lockInputBodyHeight();
+    try { window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' }); }
+    catch { try { window.scrollTo(0, scrollY); } catch {} }
+  });
 
   if (wBtn) {
     wBtn.classList.toggle('is-active', m === 'watchlist');

@@ -1323,7 +1323,8 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #addressInput,
-#searchAddressInput {
+#searchAddressInput,
+#watchlistInput {
   width: 100%;
   height: 48px;
   min-height: 48px;
@@ -1341,12 +1342,14 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .textarea-wrapper.address-entry #addressInput,
-.textarea-wrapper.address-entry #searchAddressInput {
+.textarea-wrapper.address-entry #searchAddressInput,
+.textarea-wrapper.address-entry #watchlistInput {
   flex: 1;
 }
 
 .textarea-wrapper.address-entry #addWalletBtn,
-.textarea-wrapper.address-entry #searchFindBtn {
+.textarea-wrapper.address-entry #searchFindBtn,
+.textarea-wrapper.address-entry #watchlistAddBtn {
   height: 48px;
   padding: 0 16px;
   white-space: nowrap;
@@ -1354,12 +1357,14 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #addressInput::placeholder,
-#searchAddressInput::placeholder {
+#searchAddressInput::placeholder,
+#watchlistInput::placeholder {
   color: var(--text-tertiary);
 }
 
 #addressInput::selection,
-#searchAddressInput::selection {
+#searchAddressInput::selection,
+#watchlistInput::selection {
   background: rgba(255, 212, 0, 0.55);
 }
 
@@ -1383,7 +1388,8 @@ body.is-scanning .logo-lockup .eye::before {
 
 @media (max-width: 640px) {
   #addressInput,
-  #searchAddressInput {
+  #searchAddressInput,
+  #watchlistInput {
     height: 46px;
     min-height: 46px;
   }
@@ -1395,7 +1401,8 @@ body.is-scanning .logo-lockup .eye::before {
   }
 
   .textarea-wrapper.address-entry #addWalletBtn,
-  .textarea-wrapper.address-entry #searchFindBtn {
+  .textarea-wrapper.address-entry #searchFindBtn,
+  .textarea-wrapper.address-entry #watchlistAddBtn {
     width: 100%;
   }
 }

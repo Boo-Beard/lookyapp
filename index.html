@@ -128,7 +128,24 @@
 
           <div id="watchlistPanel" class="hidden" aria-label="Watchlist panel">
             <div class="input-container">
-              <div class="input-warning">Watchlist coming soon.</div>
+              <div class="input-warning hidden" id="watchlistHint"></div>
+
+              <div class="textarea-wrapper address-entry">
+                <input
+                  id="watchlistInput"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Watchlist coming soon"
+                  disabled
+                />
+                <button id="watchlistAddBtn" class="btn btn-outline" type="button" disabled>
+                  <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                  <span>Add</span>
+                </button>
+              </div>
             </div>
           </div>
 
