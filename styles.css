@@ -963,33 +963,7 @@ body.ui-results .input-section.is-minimized {
   transform-origin: 50% 50%;
   animation: blink 5.2s infinite;
   pointer-events: none;
- }
-
- :root[data-theme="dark"] .logo-lockup .eye {
-   background: transparent;
- }
-
- :root[data-theme="dark"] .logo-lockup .eye::before {
-   opacity: 0;
- }
-
- :root[data-theme="dark"] .logo-lockup .pupil {
-   opacity: 0;
- }
-
- :root[data-theme="dark"] .logo-lockup .eye::after {
-   animation: none;
-   transform: none;
-   inset: auto;
-   left: 12%;
-   right: 12%;
-   top: 52%;
-   height: 0;
-   background: transparent;
-   border-top: 6px solid rgba(11, 11, 16, 0.92);
-   border-radius: 999px;
-   box-shadow: 0 3px 0 rgba(11, 11, 16, 0.25);
- }
+}
 
 body.is-redacted .logo-lockup .eye::after {
   animation: none;
