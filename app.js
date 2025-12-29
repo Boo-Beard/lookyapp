@@ -917,8 +917,37 @@ const IPFS_GATEWAYS = [
   'https://cloudflare-ipfs.com/ipfs/',
   'https://gateway.pinata.cloud/ipfs/',
   'https://dweb.link/ipfs/',
-  'https://ipfs.io/ipfs/',
 ];
+
+async function probeUrl(url, timeoutMs) {
+  const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), Math.max(250, Number(timeoutMs) || 1500)) : null;
+  try {
+    // no-cors avoids CORS issues on some gateways; a resolved promise is enough to indicate reachability.
+    await fetch(url, {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'force-cache',
+      ...(controller ? { signal: controller.signal } : {}),
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+async function resolveIpfsLogoUrl(cid, { timeoutMs = 1500 } = {}) {
+  const cleanCid = String(cid || '').trim();
+  if (!cleanCid) return null;
+
+  // Race all gateways; take the first reachable.
+  const candidates = IPFS_GATEWAYS.map((base, idx) => ({ idx, url: `${base}${cleanCid}` }));
+  const results = await Promise.all(candidates.map(async (c) => ({ ...c, ok: await probeUrl(c.url, timeoutMs) })));
+  const winner = results.find(r => r.ok) || results[0];
+  return winner ? { url: winner.url, idx: winner.idx } : null;
+}
 
 function extractIpfsCid(url) {
   const raw = String(url || '').trim();
@@ -3605,6 +3634,18 @@ function renderSearchTokenLoading() {
       </div>
     </div>
   `;
+
+  // If the logo is IPFS-hosted, pick the fastest reachable gateway up-front to avoid long stalls.
+  if (ipfsCid) {
+    const img = root.querySelector('.search-token-icon');
+    if (img) {
+      resolveIpfsLogoUrl(ipfsCid, { timeoutMs: 1200 }).then((resolved) => {
+        if (!resolved?.url) return;
+        img.dataset.gatewayIdx = String(resolved.idx || 0);
+        img.src = resolved.url;
+      }).catch(() => {});
+    }
+  }
 }
 
 function renderSearchTokenError(message) {
