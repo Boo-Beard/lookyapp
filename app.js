@@ -3634,18 +3634,6 @@ function renderSearchTokenLoading() {
       </div>
     </div>
   `;
-
-  // If the logo is IPFS-hosted, pick the fastest reachable gateway up-front to avoid long stalls.
-  if (ipfsCid) {
-    const img = root.querySelector('.search-token-icon');
-    if (img) {
-      resolveIpfsLogoUrl(ipfsCid, { timeoutMs: 1200 }).then((resolved) => {
-        if (!resolved?.url) return;
-        img.dataset.gatewayIdx = String(resolved.idx || 0);
-        img.src = resolved.url;
-      }).catch(() => {});
-    }
-  }
 }
 
 function renderSearchTokenError(message) {
@@ -3728,6 +3716,18 @@ function renderSearchTokenCard(model) {
       </div>
     </div>
   `;
+
+  // If the logo is IPFS-hosted, pick the fastest reachable gateway up-front to avoid long stalls.
+  if (ipfsCid) {
+    const img = root.querySelector('.search-token-icon');
+    if (img) {
+      resolveIpfsLogoUrl(ipfsCid, { timeoutMs: 1200 }).then((resolved) => {
+        if (!resolved?.url) return;
+        img.dataset.gatewayIdx = String(resolved.idx || 0);
+        img.src = resolved.url;
+      }).catch(() => {});
+    }
+  }
 }
 
 function normalizeEvmAddress(raw) {
