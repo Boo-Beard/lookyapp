@@ -3463,7 +3463,8 @@ function setMode(mode) {
   if (portfolioPanel) portfolioPanel.classList.toggle('hidden', m !== 'portfolio');
   if (searchPanel) searchPanel.classList.toggle('hidden', m !== 'search');
 
-  if (results) results.classList.toggle('hidden', m !== 'portfolio');
+  const shouldShowResults = m === 'portfolio' && document.body.classList.contains('ui-results');
+  if (results) results.classList.toggle('hidden', !shouldShowResults);
 
   if (wBtn) {
     wBtn.classList.toggle('is-active', m === 'watchlist');
