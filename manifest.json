@@ -8,7 +8,7 @@
   "theme_color": "#0B1022",
   "icons": [
     {
-      "src": "/peeek-icon.svg",
+      "src": "/peeek-icon.svg?v=4",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
