@@ -3709,6 +3709,7 @@ function setMode(mode) {
   const portfolioPanel = $('portfolioPanel');
   const searchPanel = $('searchPanel');
   const results = $('resultsSection');
+  const inputSection = $('inputSection');
 
   const wBtn = $('watchlistModeBtn');
   const pBtn = $('portfolioModeBtn');
@@ -3717,6 +3718,10 @@ function setMode(mode) {
   if (watchlistPanel) watchlistPanel.classList.toggle('hidden', m !== 'watchlist');
   if (portfolioPanel) portfolioPanel.classList.toggle('hidden', m !== 'portfolio');
   if (searchPanel) searchPanel.classList.toggle('hidden', m !== 'search');
+
+  if (inputSection && m !== 'portfolio') {
+    inputSection.classList.remove('is-minimized');
+  }
 
   const shouldShowResults = m === 'portfolio' && document.body.classList.contains('ui-results');
   if (results) results.classList.toggle('hidden', !shouldShowResults);
