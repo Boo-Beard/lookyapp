@@ -327,9 +327,10 @@ body.ui-landing .tips-section {
 
 body.ui-landing .textarea-wrapper {
     order: 2;
-    
-    
-    
+}
+
+body.ui-landing #searchResults {
+  order: 3;
 }
 
 body.ui-landing .scan-status {
