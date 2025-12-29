@@ -1449,20 +1449,28 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #searchResults .holding-card {
+  width: 100%;
+  position: relative;
+  left: auto;
+  transform: none;
   border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
+  border: 4px solid var(--border);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
 #searchResults .holding-card-header {
-  padding: 16px 16px 14px;
+  padding: 16px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+:root[data-theme="dark"] #searchResults .holding-card-header {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 #searchResults .holding-card-metrics {
@@ -1470,14 +1478,22 @@ body.is-scanning .logo-lockup .eye::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+:root[data-theme="dark"] #searchResults .holding-card-metrics {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 #searchResults .holding-metric {
   border-radius: 16px;
   border: 2px solid var(--border);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.55);
   padding: 10px;
+}
+
+:root[data-theme="dark"] #searchResults .holding-metric {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 #searchResults .holding-metric-label {
