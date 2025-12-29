@@ -1368,6 +1368,19 @@ function setTokenSearchStatus(text, { show = true } = {}) {
   if (wrap) wrap.classList.toggle('hidden', !show);
 }
 
+function lockInputBodyHeight() {
+  const body = $('inputBody');
+  if (!body) return;
+
+  const portfolioPanel = $('portfolioPanel');
+  const searchPanel = $('searchPanel');
+
+  const pH = portfolioPanel ? portfolioPanel.scrollHeight : 0;
+  const sH = searchPanel ? searchPanel.scrollHeight : 0;
+  const min = Math.max(pH, sH, 0);
+  if (min > 0) body.style.minHeight = `${min}px`;
+}
+
 function formatPct(pct) {
   const n = Number(pct);
   if (!Number.isFinite(n) || Math.abs(n) < 1e-9) return '0.00%';
@@ -1601,6 +1614,7 @@ function setViewMode(mode) {
   requestAnimationFrame(() => {
     try { window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' }); }
     catch { try { window.scrollTo(0, scrollY); } catch {} }
+    lockInputBodyHeight();
   });
 }
 const API = {
@@ -4287,6 +4301,14 @@ function initialize() {
   try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
 
   try {
+    document.body.classList.remove('ui-results');
+    document.body.classList.add('ui-landing');
+    document.body.classList.remove('ui-reveal');
+    $('resultsSection')?.classList.add('hidden');
+    $('inputSection')?.classList.remove('is-minimized');
+  } catch {}
+
+  try {
     const pBtn = $('portfolioModeBtn');
     if (pBtn) pBtn.setAttribute('title', APP_VERSION);
   } catch {}
@@ -4322,6 +4344,10 @@ function initialize() {
   updateTelegramMainButton();
 
   setViewMode('portfolio');
+
+  requestAnimationFrame(() => {
+    lockInputBodyHeight();
+  });
 }
 
 function safeInitialize() {
