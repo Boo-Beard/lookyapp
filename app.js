@@ -3505,6 +3505,40 @@ function setupEventListeners() {
     addWalletFromInput();
   });
 
+  const searchAddressInput = $('searchAddressInput');
+  if (searchAddressInput) {
+    searchAddressInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        $('searchFindBtn')?.click();
+      }
+    });
+    searchAddressInput.addEventListener('input', () => {
+      const hint = $('searchHint');
+      hint?.classList.add('hidden');
+      hint?.classList.remove('error');
+      const wrap = searchAddressInput.closest('.address-entry');
+      wrap?.classList.remove('shake');
+    });
+  }
+  $('searchFindBtn')?.addEventListener('click', () => {
+    const hint = $('searchHint');
+    const raw = String($('searchAddressInput')?.value || '').trim();
+    if (!hint) return;
+    if (!raw) {
+      hint.textContent = 'Paste a token address first.';
+      hint.classList.remove('hidden');
+      hint.classList.add('error');
+      $('searchAddressInput')?.closest('.address-entry')?.classList.add('shake');
+      hapticFeedback('error');
+      return;
+    }
+    hint.textContent = 'Search is not wired yet.';
+    hint.classList.remove('hidden');
+    hint.classList.remove('error');
+    hapticFeedback('light');
+  });
+
   $('watchlistModeBtn')?.addEventListener('click', () => {
     setMode('watchlist');
     hapticFeedback('light');

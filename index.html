@@ -134,7 +134,23 @@
 
           <div id="searchPanel" class="hidden" aria-label="Search panel">
             <div class="input-container">
-              <div class="input-warning">Search coming soon.</div>
+              <div class="input-warning hidden" id="searchHint"></div>
+
+              <div class="textarea-wrapper address-entry">
+                <input
+                  id="searchAddressInput"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Paste a token address (SOL or EVM)"
+                />
+                <button id="searchFindBtn" class="btn btn-outline" type="button">
+                  <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                  <span>Find</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

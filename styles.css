@@ -846,7 +846,6 @@ body.ui-results #resultsSection .card::before {
   position: sticky;
   top: env(safe-area-inset-top);
   z-index: 60;
-  background: var(--bg-card);
 }
 
  .theme-toggle {
