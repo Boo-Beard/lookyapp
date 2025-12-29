@@ -889,6 +889,17 @@ function getTokenIconUrl(logoUrl, symbol) {
   return url ? url : tokenIconDataUri(symbol);
 }
 
+function normalizeTokenLogoUrl(url) {
+  const raw = String(url || '').trim();
+  if (!raw) return '';
+  if (raw.startsWith('ipfs://')) {
+    const cid = raw.slice('ipfs://'.length).replace(/^ipfs\//, '');
+    return `https://ipfs.io/ipfs/${cid}`;
+  }
+  if (raw.startsWith('//')) return `https:${raw}`;
+  return raw;
+}
+
 function formatNumber(num) {
   const n = Number(num);
   if (!isFinite(n)) return '0';
@@ -3570,7 +3581,8 @@ function renderSearchTokenCard(model) {
     model?.address ? shortenAddress(model.address) : '',
   ].filter(Boolean);
   const subtitle = subtitleParts.join(' · ');
-  const iconUrl = getTokenIconUrl(model?.logoUrl, model?.symbol || model?.name);
+  const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(model?.logoUrl), model?.symbol || model?.name);
+  const chainBadge = String(model?.chainShort || '').trim();
 
   root.innerHTML = `
     <div class="card table-section search-token-card">
@@ -3583,6 +3595,8 @@ function renderSearchTokenCard(model) {
           <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
         </div>
       </div>
+
+      ${chainBadge ? `<div class="search-chain-badge">${escapeHtml(chainBadge)}</div>` : ''}
 
       <div class="search-token-metrics">
         <div class="search-token-metric"><div class="search-token-metric-label">Market Cap</div><div class="search-token-metric-value mono">${escapeHtml(mcap)}</div></div>
@@ -3652,6 +3666,7 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
   const model = {
     address,
     chainLabel: 'Solana',
+    chainShort: 'SOL',
     name: data?.name || data?.symbol || 'Token',
     symbol: data?.symbol || '',
     logoUrl: data?.logoURI ?? data?.logo ?? data?.logo_url ?? null,
@@ -3716,6 +3731,7 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
       return {
         address,
         chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
+        chainShort: String(best?.chainId || 'EVM').toUpperCase(),
         name: o?.name || best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
         symbol: o?.symbol || best?.baseToken?.symbol || '',
         logoUrl: o?.logoURI ?? best?.baseToken?.logoURI ?? best?.info?.imageUrl ?? null,
@@ -3736,6 +3752,7 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
   return {
     address,
     chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
+    chainShort: String(best?.chainId || 'EVM').toUpperCase(),
     name: best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
     symbol: best?.baseToken?.symbol || '',
     logoUrl: best?.baseToken?.logoURI || best?.info?.imageUrl || null,

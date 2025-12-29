@@ -900,6 +900,12 @@ body.ui-results .input-section.is-minimized .input-body {
   right: 0;
 }
 
+body.ui-results #searchPanel,
+body.ui-results #watchlistPanel {
+  position: relative;
+  top: auto;
+}
+
 body.ui-results .input-section.is-minimized {
   padding-bottom: 0;
 }
@@ -1460,6 +1466,28 @@ body.is-scanning .logo-lockup .eye::before {
 #searchResults .search-token-card {
   border: 4px solid var(--border);
   box-shadow: var(--shadow-md);
+}
+
+#searchResults .search-chain-badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.70);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+:root[data-theme="dark"] #searchResults .search-chain-badge {
+  background: rgba(255, 255, 255, 0.10);
 }
 
 #searchResults .search-token-card .table-header {
