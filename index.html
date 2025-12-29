@@ -51,77 +51,118 @@
         </div>
 
         <div class="input-body" id="inputBody">
-          <div class="input-container">
-            <div class="input-warning hidden" id="inputWarning">
-              Only the first 20 addresses were kept.
+          <div id="portfolioPanel">
+            <div class="input-container">
+              <div class="input-warning hidden" id="inputWarning">
+                Only the first 20 addresses were kept.
+              </div>
+
+              <div class="input-warning hidden" id="inputHint"></div>
+
+              <div class="textarea-wrapper address-entry">
+                <input
+                  id="addressInput"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Paste a wallet address (SOL or EVM)"
+                />
+                <button id="addWalletBtn" class="btn btn-outline" type="button">
+                  <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
+                  <span>Add wallet</span>
+                </button>
+              </div>
+
+              <div class="address-chips" id="addressChips"></div>
+
+              <div class="profiles-bar" id="profilesBar">
+                <select id="profileSelect" class="select select-sm" aria-label="Profiles">
+                  <option value="">Select profile</option>
+                </select>
+                <button id="saveProfileBtn" class="btn btn-outline btn-sm hidden" type="button">Save Profile</button>
+                <button id="deleteProfileBtn" class="btn btn-outline btn-sm hidden" type="button">Delete Profile</button>
+                <button id="shareLinkBtn" class="btn btn-outline btn-sm hidden" type="button">Share Link</button>
+              </div>
             </div>
+            <div class="action-buttons">
+              <div class="input-header hidden" id="inputHeader">
+                <div class="chain-badges hidden" id="chainBadges">
+                  <div class="chain-badge sol">
+                    <span class="chain-dot"></span>
+                    <span class="chain-count" id="solCount">0</span>
+                    <span>Solana</span>
+                  </div>
+                  <div class="chain-badge evm">
+                    <span class="chain-dot"></span>
+                    <span class="chain-count" id="evmCount">0</span>
+                    <span>EVM</span>
+                  </div>
+                </div>
 
-            <div class="input-warning hidden" id="inputHint"></div>
-
-            <div class="textarea-wrapper address-entry">
-              <input
-                id="addressInput"
-                type="text"
-                inputmode="text"
-                autocomplete="off"
-                autocapitalize="off"
-                spellcheck="false"
-                placeholder="Paste a wallet address (SOL or EVM)"
-              />
-              <button id="addWalletBtn" class="btn btn-outline" type="button">
-                <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
-                <span>Add wallet</span>
+                <div class="address-counter hidden" id="addressCounter">0 / 20</div>
+              </div>
+              <button id="scanButton" class="btn btn-primary btn-lg">
+                <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                <span>Scan</span>
               </button>
-            </div>
 
-            <div class="address-chips" id="addressChips"></div>
+              <div class="scan-status hidden" id="scanStatus">
+                <div class="status-content" id="statusContent">
+                  Ready to scan
+                </div>
+                <div class="progress-bar" id="progressBar">
+                  <div class="progress-fill"></div>
+                </div>
 
-            <div class="profiles-bar" id="profilesBar">
-              <select id="profileSelect" class="select select-sm" aria-label="Profiles">
-                <option value="">Select profile</option>
-              </select>
-              <button id="saveProfileBtn" class="btn btn-outline btn-sm hidden" type="button">Save Profile</button>
-              <button id="deleteProfileBtn" class="btn btn-outline btn-sm hidden" type="button">Delete Profile</button>
-              <button id="shareLinkBtn" class="btn btn-outline btn-sm hidden" type="button">Share Link</button>
+                <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
+
+                <div class="scan-actions">
+                  <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
+                  <button id="retryFailedButton" class="btn btn-outline btn-sm hidden" type="button">Retry failed</button>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="action-buttons">
-            <div class="input-header hidden" id="inputHeader">
-              <div class="chain-badges hidden" id="chainBadges">
-                <div class="chain-badge sol">
-                  <span class="chain-dot"></span>
-                  <span class="chain-count" id="solCount">0</span>
-                  <span>Solana</span>
-                </div>
-                <div class="chain-badge evm">
-                  <span class="chain-dot"></span>
-                  <span class="chain-count" id="evmCount">0</span>
-                  <span>EVM</span>
-                </div>
-              </div>
 
-              <div class="address-counter hidden" id="addressCounter">0 / 20</div>
-            </div>
-            <button id="scanButton" class="btn btn-primary btn-lg">
-              <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
-              <span>Scan</span>
-            </button>
+          <div id="searchPanel" class="hidden" aria-label="Token search">
+            <div class="input-container">
+              <div class="input-warning hidden" id="tokenSearchHint"></div>
 
-            <div class="scan-status hidden" id="scanStatus">
-              <div class="status-content" id="statusContent">
-                Ready to scan
-              </div>
-              <div class="progress-bar" id="progressBar">
-                <div class="progress-fill"></div>
-              </div>
-
-              <div class="scan-progress" id="scanProgress" aria-live="polite"></div>
-
-              <div class="scan-actions">
-                <button id="cancelScanButton" class="btn btn-outline btn-sm hidden">Cancel</button>
-                <button id="retryFailedButton" class="btn btn-outline btn-sm hidden" type="button">Retry failed</button>
+              <div class="textarea-wrapper address-entry">
+                <select id="tokenChainSelect" class="select token-chain-select" aria-label="Token chain">
+                  <option value="solana">Solana</option>
+                  <option value="ethereum" selected>Ethereum</option>
+                  <option value="base">Base</option>
+                  <option value="arbitrum">Arbitrum</option>
+                  <option value="optimism">Optimism</option>
+                  <option value="bsc">BSC</option>
+                  <option value="polygon">Polygon</option>
+                  <option value="avalanche">Avalanche</option>
+                  <option value="fantom">Fantom</option>
+                </select>
+                <input
+                  id="tokenAddressInput"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Paste token address (SOL or EVM)"
+                />
+                <button id="findTokenBtn" class="btn btn-outline" type="button">
+                  <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                  <span>Find token</span>
+                </button>
               </div>
             </div>
+
+            <div class="scan-status hidden" id="tokenSearchStatus">
+              <div class="status-content" id="tokenSearchStatusContent">Ready</div>
+            </div>
+
+            <div id="tokenResult" class="hidden"></div>
           </div>
         </div>
       </section>
@@ -350,44 +391,6 @@
         </div>
       </div>
       </div>
-
-      <section id="searchView" class="card input-section hidden" aria-label="Token search">
-        <div class="card-header">
-          <div class="logo-lockup">
-            <h2 class="section-title" style="margin: 0;">Find a token</h2>
-            <p class="section-subtitle">Paste a token contract address (EVM) or mint (Solana)</p>
-          </div>
-        </div>
-
-        <div class="input-body">
-          <div class="input-container">
-            <div class="input-warning hidden" id="tokenSearchHint"></div>
-
-            <div class="textarea-wrapper address-entry">
-              <input
-                id="tokenAddressInput"
-                type="text"
-                inputmode="text"
-                autocomplete="off"
-                autocapitalize="off"
-                spellcheck="false"
-                placeholder="Paste token address (SOL or EVM)"
-              />
-              <button id="findTokenBtn" class="btn btn-outline" type="button">
-                <span class="btn-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
-                <span>Find token</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="scan-status hidden" id="tokenSearchStatus">
-            <div class="status-content" id="tokenSearchStatusContent">Ready</div>
-          </div>
-
-          <div id="tokenResult" class="hidden"></div>
-        </div>
-      </section>
-    </main>
 
     
     <footer class="footer">

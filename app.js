@@ -1443,7 +1443,7 @@ function renderTokenResultCard({ chain, address, data }) {
   ) || 0;
 
   const addrShort = shortenAddress(address);
-  const chainLabel = chain === 'solana' ? 'SOL' : 'EVM';
+  const chainLabel = String(chain || '').toUpperCase();
 
   root.innerHTML = `
     <div class="token-card">
@@ -1494,6 +1494,7 @@ let tokenSearchAbortController = null;
 async function searchTokenFromInput() {
   const input = $('tokenAddressInput');
   const btn = $('findTokenBtn');
+  const chainSelect = $('tokenChainSelect');
   const root = $('tokenResult');
   if (!input) return;
 
@@ -1511,7 +1512,17 @@ async function searchTokenFromInput() {
     return;
   }
 
-  const chain = classified.type === 'solana' ? 'solana' : 'evm';
+  const selectedChain = String(chainSelect?.value || 'ethereum').trim().toLowerCase();
+
+  if (classified.type === 'solana') {
+    if (chainSelect) chainSelect.value = 'solana';
+  }
+
+  if (classified.type === 'evm' && selectedChain === 'solana') {
+    if (chainSelect) chainSelect.value = 'ethereum';
+  }
+
+  const chain = String(chainSelect?.value || (classified.type === 'solana' ? 'solana' : 'ethereum')).trim().toLowerCase();
   const address = classified.value || raw;
 
   try {
@@ -1535,7 +1546,7 @@ async function searchTokenFromInput() {
     }, {
       signal: tokenSearchAbortController.signal,
       headers: {
-        'x-chain': chain === 'solana' ? 'solana' : 'ethereum',
+        'x-chain': chain,
       },
     });
 
@@ -1557,13 +1568,15 @@ async function searchTokenFromInput() {
 
 function setViewMode(mode) {
   const m = mode === 'search' ? 'search' : 'portfolio';
-  const portfolio = $('portfolioView');
-  const search = $('searchView');
+  const portfolioPanel = $('portfolioPanel');
+  const searchPanel = $('searchPanel');
+  const results = $('resultsSection');
   const pBtn = $('portfolioModeBtn');
   const sBtn = $('searchModeBtn');
 
-  if (portfolio) portfolio.classList.toggle('hidden', m !== 'portfolio');
-  if (search) search.classList.toggle('hidden', m !== 'search');
+  if (portfolioPanel) portfolioPanel.classList.toggle('hidden', m !== 'portfolio');
+  if (searchPanel) searchPanel.classList.toggle('hidden', m !== 'search');
+  if (results) results.classList.toggle('hidden', m !== 'portfolio');
 
   if (pBtn) {
     pBtn.classList.toggle('is-active', m === 'portfolio');
