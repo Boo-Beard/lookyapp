@@ -3500,13 +3500,24 @@ function renderSearchTokenLoading() {
   const root = $('searchResults');
   if (!root) return;
   root.innerHTML = `
-    <div class="card token-metrics-card">
-      <div class="token-metrics-title">Loading…</div>
-      <div class="token-metrics-grid">
-        <div class="token-metric"><div class="token-metric-label">Price</div><div class="token-metric-value mono">—</div></div>
-        <div class="token-metric"><div class="token-metric-label">Market Cap</div><div class="token-metric-value mono">—</div></div>
-        <div class="token-metric"><div class="token-metric-label">24h Change</div><div class="token-metric-value mono">—</div></div>
-        <div class="token-metric"><div class="token-metric-label">Liquidity</div><div class="token-metric-value mono">—</div></div>
+    <div class="holding-card">
+      <div class="holding-card-header">
+        <div class="token-cell">
+          <div class="token-info">
+            <div class="token-symbol">Loading…</div>
+            <div class="token-name">Fetching token metrics</div>
+          </div>
+        </div>
+      </div>
+      <div class="holding-card-metrics">
+        <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono">—</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono">—</div></div>
       </div>
     </div>
   `;
@@ -3516,9 +3527,15 @@ function renderSearchTokenError(message) {
   const root = $('searchResults');
   if (!root) return;
   root.innerHTML = `
-    <div class="card token-metrics-card">
-      <div class="token-metrics-title">Could not load token</div>
-      <div class="token-metrics-subtitle">${escapeHtml(String(message || 'Unknown error'))}</div>
+    <div class="holding-card">
+      <div class="holding-card-header">
+        <div class="token-cell">
+          <div class="token-info">
+            <div class="token-symbol">Could not load token</div>
+            <div class="token-name">${escapeHtml(String(message || 'Unknown error'))}</div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -3542,23 +3559,35 @@ function renderSearchTokenCard(model) {
   const changePct = Number(model?.change24hPct);
   const changeText = Number.isFinite(changePct) ? formatPct(changePct, 2) : '—';
   const changeClass = Number.isFinite(changePct)
-    ? (changePct > 0 ? 'is-up' : changePct < 0 ? 'is-down' : '')
+    ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : '')
     : '';
 
-  root.innerHTML = `
-    <div class="card token-metrics-card">
-      <div class="token-metrics-title">${escapeHtml(name)}${symbol ? ` <span class=\"token-metrics-symbol\">${escapeHtml(symbol)}</span>` : ''}</div>
-      <div class="token-metrics-subtitle">${chainLabel ? escapeHtml(chainLabel) : ''}${model?.address ? ` · <span class=\"mono\">${escapeHtml(shortenAddress(model.address))}</span>` : ''}</div>
+  const subtitleParts = [
+    chainLabel ? String(chainLabel) : '',
+    model?.address ? shortenAddress(model.address) : '',
+  ].filter(Boolean);
+  const subtitle = subtitleParts.join(' · ');
 
-      <div class="token-metrics-grid">
-        <div class="token-metric"><div class="token-metric-label">Market Cap</div><div class="token-metric-value mono">${escapeHtml(mcap)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">Price</div><div class="token-metric-value mono">${escapeHtml(price)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">24h Change</div><div class="token-metric-value mono ${changeClass}">${escapeHtml(changeText)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">Liquidity</div><div class="token-metric-value mono">${escapeHtml(liq)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">24h Volume</div><div class="token-metric-value mono">${escapeHtml(vol)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">Holders</div><div class="token-metric-value mono">${escapeHtml(holders)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">Circulating Supply</div><div class="token-metric-value mono">${escapeHtml(circ)}</div></div>
-        <div class="token-metric"><div class="token-metric-label">Trades (24h)</div><div class="token-metric-value mono">${escapeHtml(trades)}</div></div>
+  root.innerHTML = `
+    <div class="holding-card">
+      <div class="holding-card-header">
+        <div class="token-cell">
+          <div class="token-info">
+            <div class="token-symbol">${escapeHtml(symbol || name)}</div>
+            <div class="token-name">${escapeHtml(subtitle || name)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="holding-card-metrics">
+        <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono">${escapeHtml(mcap)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono">${escapeHtml(price)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono ${changeClass}">${escapeHtml(changeText)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono">${escapeHtml(liq)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono">${escapeHtml(vol)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono">${escapeHtml(holders)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono">${escapeHtml(circ)}</div></div>
+        <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono">${escapeHtml(trades)}</div></div>
       </div>
     </div>
   `;
