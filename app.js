@@ -3611,8 +3611,39 @@ function looksLikeSolanaMint(raw) {
   return /^[1-9A-HJ-NP-Za-km-z]+$/.test(s);
 }
 
+function birdeyeChainFromDexscreenerChainId(chainId) {
+  const id = String(chainId || '').toLowerCase();
+  const map = {
+    ethereum: 'ethereum',
+    eth: 'ethereum',
+    bsc: 'bsc',
+    polygon: 'polygon',
+    matic: 'polygon',
+    arbitrum: 'arbitrum',
+    optimism: 'optimism',
+    base: 'base',
+    avalanche: 'avalanche',
+    avax: 'avalanche',
+    fantom: 'fantom',
+    cronos: 'cronos',
+    linea: 'linea',
+    celo: 'celo',
+  };
+  return map[id] || null;
+}
+
+function pickFirstNumber(obj, keys) {
+  if (!obj || typeof obj !== 'object') return null;
+  for (const k of keys) {
+    const v = obj[k];
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
 async function fetchSolanaTokenMetrics(address, { signal } = {}) {
-  const overview = await birdeyeRequest('/defi/token_overview', { address }, {
+  const overview = await birdeyeRequest('/defi/token_overview', { address, ui_amount_mode: 'scaled' }, {
     signal,
     headers: { 'x-chain': 'solana' },
   });
@@ -3623,58 +3654,39 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
     chainLabel: 'Solana',
     name: data?.name || data?.symbol || 'Token',
     symbol: data?.symbol || '',
-    logoUrl: data?.logoURI || data?.logo || data?.logo_url || null,
-    priceUsd: data?.price ?? data?.priceUsd ?? null,
-    marketCapUsd: data?.mc ?? data?.marketCap ?? data?.market_cap ?? null,
-    liquidityUsd: data?.liquidity ?? data?.liquidityUsd ?? null,
-    volume24hUsd: data?.v24hUSD ?? data?.volume24hUSD ?? data?.volume24h ?? data?.volume_24h ?? null,
-    change24hPct: data?.priceChange24hPercent ?? data?.priceChange24h ?? data?.price_change_24h ?? null,
-    holders: null,
-    circulatingSupply: null,
-    trades24h: null,
+    logoUrl: data?.logoURI ?? data?.logo ?? data?.logo_url ?? null,
+    priceUsd: data?.price ?? null,
+    marketCapUsd: data?.marketCap ?? data?.fdv ?? null,
+    liquidityUsd: data?.liquidity ?? null,
+    volume24hUsd: data?.v24hUSD ?? data?.v24hUsd ?? data?.v24h ?? null,
+    change24hPct: data?.priceChange24hPercent ?? null,
+    holders: pickFirstNumber(data, ['holder', 'holders', 'totalHolders', 'total_holder']),
+    circulatingSupply: data?.circulatingSupply ?? data?.totalSupply ?? null,
+    trades24h: pickFirstNumber(data, ['trade24h', 'trade_24h', 'txns24h', 'trades24h']),
   };
 
-  const pickFirstNumber = (obj, keys) => {
-    if (!obj || typeof obj !== 'object') return null;
-    for (const k of keys) {
-      const v = obj[k];
-      const n = Number(v);
-      if (Number.isFinite(n)) return n;
-    }
-    return null;
-  };
+  if (model.holders == null) {
+    try {
+      const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
+        signal,
+        headers: { 'x-chain': 'solana' },
+      });
+      model.holders = pickFirstNumber(holderResp?.data || {}, ['total', 'totalHolders', 'total_holder', 'holder', 'holders', 'count']);
+    } catch {}
+  }
 
-  try {
-    const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
-      signal,
-      headers: { 'x-chain': 'solana' },
-    });
-    const d = holderResp?.data || {};
-    model.holders = pickFirstNumber(d, ['total', 'totalHolders', 'total_holder', 'holder', 'holders', 'count']);
-  } catch {}
-
-  try {
-    const tradeResp = await birdeyeRequest('/defi/v3/token/trade-data/single', { address, frames: '24h' }, {
-      signal,
-      headers: { 'x-chain': 'solana' },
-    });
-    const t = tradeResp?.data || {};
-    const direct = pickFirstNumber(t, ['txns24h', 'trade24h', 'trades24h', 'txns_24h', 'trades_24h']);
-    const nested = pickFirstNumber(t?.txns || {}, ['h24', '24h', 'h_24']);
-    const buySell = (t?.txns?.h24 && typeof t.txns.h24 === 'object')
-      ? (Number(t.txns.h24.buys || 0) || 0) + (Number(t.txns.h24.sells || 0) || 0)
-      : null;
-    model.trades24h = direct ?? nested ?? (Number.isFinite(buySell) ? buySell : null);
-  } catch {}
-
-  try {
-    const marketResp = await birdeyeRequest('/defi/v3/token/market-data', { address }, {
-      signal,
-      headers: { 'x-chain': 'solana' },
-    });
-    const m = marketResp?.data || {};
-    model.circulatingSupply = m?.circulatingSupply || m?.circulating_supply || m?.supply || null;
-  } catch {}
+  if (model.trades24h == null) {
+    try {
+      const tradeResp = await birdeyeRequest('/defi/v3/token/trade-data/single', { address, frames: '24h' }, {
+        signal,
+        headers: { 'x-chain': 'solana' },
+      });
+      const t = tradeResp?.data || {};
+      const direct = pickFirstNumber(t, ['txns24h', 'trade24h', 'trades24h', 'txns_24h', 'trades_24h']);
+      const nested = pickFirstNumber(t?.txns || {}, ['h24', '24h', 'h_24']);
+      model.trades24h = direct ?? nested ?? null;
+    } catch {}
+  }
 
   return model;
 }
@@ -3692,40 +3704,35 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
     .slice()
     .sort((a, b) => (Number(b?.liquidity?.usd || 0) || 0) - (Number(a?.liquidity?.usd || 0) || 0))[0];
 
-  const txns24h = best?.txns?.h24;
-  const trades24h = (Number(txns24h?.buys || 0) || 0) + (Number(txns24h?.sells || 0) || 0);
-
   const chainId = String(best?.chainId || '').toLowerCase();
-  const birdeyeChainByDex = {
-    ethereum: 'ethereum',
-    bsc: 'bsc',
-    polygon: 'polygon',
-    arbitrum: 'arbitrum',
-    optimism: 'optimism',
-    base: 'base',
-    avalanche: 'avalanche',
-    avax: 'avalanche',
-    cronos: 'cronos',
-    fantom: 'fantom',
-    linea: 'linea',
-    celo: 'celo',
-  };
-  const birdeyeChain = birdeyeChainByDex[chainId] || null;
-  let holders = null;
+  const birdeyeChain = birdeyeChainFromDexscreenerChainId(chainId);
   if (birdeyeChain) {
     try {
-      const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
+      const overview = await birdeyeRequest('/defi/token_overview', { address, ui_amount_mode: 'scaled' }, {
         signal,
         headers: { 'x-chain': birdeyeChain },
       });
-      const d = holderResp?.data || {};
-      for (const k of ['total', 'totalHolders', 'total_holder', 'holder', 'holders', 'count']) {
-        const n = Number(d[k]);
-        if (Number.isFinite(n)) { holders = n; break; }
-      }
+      const o = overview?.data || {};
+      return {
+        address,
+        chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
+        name: o?.name || best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
+        symbol: o?.symbol || best?.baseToken?.symbol || '',
+        logoUrl: o?.logoURI ?? best?.baseToken?.logoURI ?? best?.info?.imageUrl ?? null,
+        priceUsd: o?.price ?? best?.priceUsd ?? null,
+        marketCapUsd: o?.marketCap ?? o?.fdv ?? best?.marketCap ?? best?.fdv ?? null,
+        liquidityUsd: o?.liquidity ?? best?.liquidity?.usd ?? null,
+        volume24hUsd: o?.v24hUSD ?? best?.volume?.h24 ?? null,
+        change24hPct: o?.priceChange24hPercent ?? best?.priceChange?.h24 ?? null,
+        holders: pickFirstNumber(o, ['holder', 'holders', 'totalHolders', 'total_holder']),
+        circulatingSupply: o?.circulatingSupply ?? o?.totalSupply ?? null,
+        trades24h: pickFirstNumber(o, ['trade24h', 'trade_24h', 'txns24h', 'trades24h']),
+      };
     } catch {}
   }
 
+  const txns24h = best?.txns?.h24;
+  const trades24h = (Number(txns24h?.buys || 0) || 0) + (Number(txns24h?.sells || 0) || 0);
   return {
     address,
     chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
@@ -3737,7 +3744,7 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
     liquidityUsd: best?.liquidity?.usd ?? null,
     volume24hUsd: best?.volume?.h24 ?? null,
     change24hPct: best?.priceChange?.h24 ?? null,
-    holders,
+    holders: null,
     circulatingSupply: null,
     trades24h: Number.isFinite(trades24h) ? trades24h : null,
   };
