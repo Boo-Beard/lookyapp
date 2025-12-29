@@ -847,6 +847,15 @@ function formatCurrency(value) {
   return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function formatCompactNumber(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+  try {
+    return n.toLocaleString('en-US', { notation: 'compact', maximumFractionDigits: 2 });
+  } catch {
+    return String(Math.round(n));
+  }
+}
 function formatPrice(value) {
   const v = Number(value || 0);
   if (!Number.isFinite(v)) return '$0.00';
@@ -3472,6 +3481,201 @@ function lockInputBodyHeight() {
   if (maxH > 0) body.style.minHeight = `${maxH}px`;
 }
 
+function setSearchHint(message, type = 'info') {
+  const hint = $('searchHint');
+  if (!hint) return;
+  const msg = String(message || '').trim();
+  if (!msg) {
+    hint.textContent = '';
+    hint.classList.add('hidden');
+    hint.classList.remove('error');
+    return;
+  }
+  hint.textContent = msg;
+  hint.classList.toggle('error', type === 'error');
+  hint.classList.remove('hidden');
+}
+
+function renderSearchTokenLoading() {
+  const root = $('searchResults');
+  if (!root) return;
+  root.innerHTML = `
+    <div class="card token-metrics-card">
+      <div class="token-metrics-title">Loading…</div>
+      <div class="token-metrics-grid">
+        <div class="token-metric"><div class="token-metric-label">Price</div><div class="token-metric-value mono">—</div></div>
+        <div class="token-metric"><div class="token-metric-label">Market Cap</div><div class="token-metric-value mono">—</div></div>
+        <div class="token-metric"><div class="token-metric-label">24h Change</div><div class="token-metric-value mono">—</div></div>
+        <div class="token-metric"><div class="token-metric-label">Liquidity</div><div class="token-metric-value mono">—</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSearchTokenError(message) {
+  const root = $('searchResults');
+  if (!root) return;
+  root.innerHTML = `
+    <div class="card token-metrics-card">
+      <div class="token-metrics-title">Could not load token</div>
+      <div class="token-metrics-subtitle">${escapeHtml(String(message || 'Unknown error'))}</div>
+    </div>
+  `;
+}
+
+function renderSearchTokenCard(model) {
+  const root = $('searchResults');
+  if (!root) return;
+
+  const name = model?.name || model?.symbol || 'Token';
+  const symbol = model?.symbol ? String(model.symbol) : '';
+  const chainLabel = model?.chainLabel ? String(model.chainLabel) : '';
+
+  const mcap = model?.marketCapUsd != null ? `$${formatCompactNumber(model.marketCapUsd)}` : '—';
+  const price = model?.priceUsd != null ? formatPrice(model.priceUsd) : '—';
+  const liq = model?.liquidityUsd != null ? `$${formatCompactNumber(model.liquidityUsd)}` : '—';
+  const vol = model?.volume24hUsd != null ? `$${formatCompactNumber(model.volume24hUsd)}` : '—';
+  const holders = model?.holders != null ? formatCompactNumber(model.holders) : '—';
+  const circ = model?.circulatingSupply != null ? formatCompactNumber(model.circulatingSupply) : '—';
+  const trades = model?.trades24h != null ? formatCompactNumber(model.trades24h) : '—';
+
+  const changePct = Number(model?.change24hPct);
+  const changeText = Number.isFinite(changePct) ? formatPct(changePct, 2) : '—';
+  const changeClass = Number.isFinite(changePct)
+    ? (changePct > 0 ? 'is-up' : changePct < 0 ? 'is-down' : '')
+    : '';
+
+  root.innerHTML = `
+    <div class="card token-metrics-card">
+      <div class="token-metrics-title">${escapeHtml(name)}${symbol ? ` <span class=\"token-metrics-symbol\">${escapeHtml(symbol)}</span>` : ''}</div>
+      <div class="token-metrics-subtitle">${chainLabel ? escapeHtml(chainLabel) : ''}${model?.address ? ` · <span class=\"mono\">${escapeHtml(shortenAddress(model.address))}</span>` : ''}</div>
+
+      <div class="token-metrics-grid">
+        <div class="token-metric"><div class="token-metric-label">Market Cap</div><div class="token-metric-value mono">${escapeHtml(mcap)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">Price</div><div class="token-metric-value mono">${escapeHtml(price)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">24h Change</div><div class="token-metric-value mono ${changeClass}">${escapeHtml(changeText)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">Liquidity</div><div class="token-metric-value mono">${escapeHtml(liq)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">24h Volume</div><div class="token-metric-value mono">${escapeHtml(vol)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">Holders</div><div class="token-metric-value mono">${escapeHtml(holders)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">Circulating Supply</div><div class="token-metric-value mono">${escapeHtml(circ)}</div></div>
+        <div class="token-metric"><div class="token-metric-label">Trades (24h)</div><div class="token-metric-value mono">${escapeHtml(trades)}</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function normalizeEvmAddress(raw) {
+  const s = String(raw || '').trim();
+  if (!/^0x[a-f0-9]{40}$/i.test(s)) return null;
+  return s;
+}
+
+function looksLikeSolanaMint(raw) {
+  const s = String(raw || '').trim();
+  if (!s || s.startsWith('0x')) return false;
+  if (s.length < 32 || s.length > 48) return false;
+  return /^[1-9A-HJ-NP-Za-km-z]+$/.test(s);
+}
+
+async function fetchSolanaTokenMetrics(address, { signal } = {}) {
+  const overview = await birdeyeRequest('/defi/token_overview', { address }, {
+    signal,
+    headers: { 'x-chain': 'solana' },
+  });
+
+  const data = overview?.data || {};
+  const model = {
+    address,
+    chainLabel: 'Solana',
+    name: data?.name || data?.symbol || 'Token',
+    symbol: data?.symbol || '',
+    priceUsd: data?.price ?? data?.priceUsd ?? null,
+    marketCapUsd: data?.mc ?? data?.marketCap ?? data?.market_cap ?? null,
+    liquidityUsd: data?.liquidity ?? data?.liquidityUsd ?? null,
+    volume24hUsd: data?.v24hUSD ?? data?.volume24hUSD ?? data?.volume24h ?? data?.volume_24h ?? null,
+    change24hPct: data?.priceChange24hPercent ?? data?.priceChange24h ?? data?.price_change_24h ?? null,
+    holders: null,
+    circulatingSupply: null,
+    trades24h: null,
+  };
+
+  try {
+    const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
+      signal,
+      headers: { 'x-chain': 'solana' },
+    });
+    model.holders = holderResp?.data?.total || holderResp?.data?.totalHolders || holderResp?.data?.total_holder || holderResp?.data?.count || null;
+  } catch {}
+
+  try {
+    const tradeResp = await birdeyeRequest('/defi/v3/token/trade-data/single', { address, frames: '24h' }, {
+      signal,
+      headers: { 'x-chain': 'solana' },
+    });
+    const t = tradeResp?.data || {};
+    model.trades24h = t?.txns24h || t?.trade24h || t?.trades24h || t?.txns?.h24 || null;
+  } catch {}
+
+  try {
+    const marketResp = await birdeyeRequest('/defi/v3/token/market-data', { address }, {
+      signal,
+      headers: { 'x-chain': 'solana' },
+    });
+    const m = marketResp?.data || {};
+    model.circulatingSupply = m?.circulatingSupply || m?.circulating_supply || m?.supply || null;
+  } catch {}
+
+  return model;
+}
+
+async function fetchEvmTokenMetrics(address, { signal } = {}) {
+  const url = `https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(address)}`;
+  const resp = await fetch(url, signal ? { signal } : undefined);
+  if (!resp.ok) throw new Error(`Dexscreener error: ${resp.status}`);
+  const data = await resp.json();
+
+  const pairs = Array.isArray(data?.pairs) ? data.pairs : [];
+  if (!pairs.length) throw new Error('No pairs found for that token on Dexscreener.');
+
+  const best = pairs
+    .slice()
+    .sort((a, b) => (Number(b?.liquidity?.usd || 0) || 0) - (Number(a?.liquidity?.usd || 0) || 0))[0];
+
+  const txns24h = best?.txns?.h24;
+  const trades24h = (Number(txns24h?.buys || 0) || 0) + (Number(txns24h?.sells || 0) || 0);
+
+  return {
+    address,
+    chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
+    name: best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
+    symbol: best?.baseToken?.symbol || '',
+    priceUsd: best?.priceUsd ?? null,
+    marketCapUsd: best?.marketCap ?? best?.fdv ?? null,
+    liquidityUsd: best?.liquidity?.usd ?? null,
+    volume24hUsd: best?.volume?.h24 ?? null,
+    change24hPct: best?.priceChange?.h24 ?? null,
+    holders: null,
+    circulatingSupply: null,
+    trades24h: Number.isFinite(trades24h) && trades24h > 0 ? trades24h : null,
+  };
+}
+
+async function runTokenSearch(raw, { signal } = {}) {
+  const addr = String(raw || '').trim();
+  if (!addr) throw new Error('Paste a token address first.');
+
+  const evm = normalizeEvmAddress(addr);
+  if (evm) {
+    return await fetchEvmTokenMetrics(evm, { signal });
+  }
+
+  if (looksLikeSolanaMint(addr)) {
+    return await fetchSolanaTokenMetrics(addr, { signal });
+  }
+
+  throw new Error('Unrecognized token address format. Paste a SOL mint or an EVM 0x… address.');
+}
+
 function setMode(mode) {
   const m = mode === 'watchlist' ? 'watchlist' : mode === 'search' ? 'search' : 'portfolio';
 
@@ -3566,10 +3770,24 @@ function setupEventListeners() {
       hapticFeedback('error');
       return;
     }
-    hint.textContent = 'Search is not wired yet.';
-    hint.classList.remove('hidden');
-    hint.classList.remove('error');
-    hapticFeedback('light');
+    setSearchHint('', 'info');
+    renderSearchTokenLoading();
+
+    const controller = new AbortController();
+    runTokenSearch(raw, { signal: controller.signal })
+      .then((model) => {
+        setSearchHint('', 'info');
+        renderSearchTokenCard(model);
+        try { lockInputBodyHeight(); } catch {}
+        hapticFeedback('light');
+      })
+      .catch((err) => {
+        const msg = err?.message || String(err || 'Unknown error');
+        setSearchHint(msg, 'error');
+        renderSearchTokenError(msg);
+        try { lockInputBodyHeight(); } catch {}
+        hapticFeedback('error');
+      });
   });
 
   $('watchlistModeBtn')?.addEventListener('click', () => {
