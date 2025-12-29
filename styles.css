@@ -865,6 +865,10 @@ body.ui-results .input-section.is-minimized .input-body {
   position: relative;
 }
 
+#inputBody {
+  --panel-offset-top: 25px;
+}
+
 #portfolioPanel {
   position: absolute;
   top: 0;
@@ -873,17 +877,17 @@ body.ui-results .input-section.is-minimized .input-body {
 }
 
 #watchlistPanel {
-    position: absolute;
-    top: 25px;
-    left: 0;
-    right: 0;
+  position: absolute;
+  top: var(--panel-offset-top);
+  left: 0;
+  right: 0;
 }
 
 #searchPanel {
-    position: absolute;
-    top: 25px;
-    left: 0;
-    right: 0;
+  position: absolute;
+  top: var(--panel-offset-top);
+  left: 0;
+  right: 0;
 }
 
 body.ui-results .input-section.is-minimized {
