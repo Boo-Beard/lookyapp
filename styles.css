@@ -1470,9 +1470,7 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #searchResults .search-chain-badge {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
+  position: static;
   padding: 6px 10px;
   border-radius: 999px;
   border: 2px solid var(--border);
@@ -1493,6 +1491,31 @@ body.is-scanning .logo-lockup .eye::before {
 
 #searchResults .search-token-card .table-header {
   padding: 16px 16px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#searchResults .search-token-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+#searchResults .search-token-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#searchResults .search-token-actions .holding-action {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+:root[data-theme="dark"] #searchResults .search-token-actions .holding-action {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 #searchResults .search-token-title-row {

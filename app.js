@@ -186,6 +186,167 @@ function getLastScanAt() {
   }
 }
 
+function sanitizeUrl(url) {
+  const raw = String(url || '').trim();
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return '';
+}
+
+function safeSocialHandleUrl(platform, handleOrUrl) {
+  const raw = String(handleOrUrl || '').trim();
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  const clean = raw.replace(/^@/, '');
+  if (!clean) return '';
+  if (platform === 'twitter') return `https://x.com/${clean}`;
+  if (platform === 'telegram') return `https://t.me/${clean}`;
+  return '';
+}
+
+function getExplorerTokenUrl(model) {
+  const address = String(model?.address || '').trim();
+  if (!address) return '#';
+
+  const chain = String(model?.chain || '').toLowerCase();
+  if (chain === 'solana' || String(model?.chainShort || '').toUpperCase() === 'SOL') {
+    return `https://solscan.io/token/${address}`;
+  }
+
+  const network = String(model?.network || model?.chainId || '').toLowerCase();
+  if (isValidEvmContractAddress(address)) {
+    const base = evmExplorerBase(network);
+    return `${base}/token/${address}`;
+  }
+
+  return '#';
+}
+
+function normalizeExtensions(ext) {
+  const e = (ext && typeof ext === 'object') ? ext : {};
+  const description = String(e.description || e.desc || '').trim();
+
+  const website = sanitizeUrl(e.website || e.site || e.url);
+  const twitter = safeSocialHandleUrl('twitter', e.twitter || e.x || e.twitter_handle);
+  const telegram = safeSocialHandleUrl('telegram', e.telegram || e.tg || e.telegram_handle);
+  const discord = sanitizeUrl(e.discord);
+
+  return {
+    description,
+    links: {
+      website,
+      twitter,
+      telegram,
+      discord,
+    },
+  };
+}
+
+function extractDexscreenerExtensions(bestPair) {
+  const info = (bestPair && typeof bestPair === 'object') ? bestPair.info || {} : {};
+  const socials = Array.isArray(info.socials) ? info.socials : [];
+  const websites = Array.isArray(info.websites) ? info.websites : [];
+
+  const out = {
+    description: String(info.description || '').trim(),
+    links: {
+      website: '',
+      twitter: '',
+      telegram: '',
+      discord: '',
+    },
+  };
+
+  for (const w of websites) {
+    const href = sanitizeUrl(w?.url);
+    if (href) { out.links.website = href; break; }
+  }
+
+  for (const s of socials) {
+    const type = String(s?.type || '').toLowerCase();
+    const href = sanitizeUrl(s?.url) || safeSocialHandleUrl(type, s?.url || s?.handle);
+    if (!href) continue;
+    if (type === 'twitter' || type === 'x') out.links.twitter = href;
+    if (type === 'telegram') out.links.telegram = href;
+    if (type === 'discord') out.links.discord = href;
+  }
+
+  return out;
+}
+
+function renderSearchTokenActions(model) {
+  const ext = normalizeExtensions(model?.extensions);
+  const explorerHref = getExplorerTokenUrl(model);
+  const explorerDisabled = explorerHref === '#';
+
+  const links = {
+    website: sanitizeUrl(ext?.links?.website),
+    twitter: sanitizeUrl(ext?.links?.twitter),
+    telegram: sanitizeUrl(ext?.links?.telegram),
+    discord: sanitizeUrl(ext?.links?.discord),
+  };
+
+  const items = [];
+  items.push({
+    key: 'explorer',
+    href: explorerHref,
+    iconHtml: '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>',
+    label: 'View on Explorer',
+    disabled: explorerDisabled,
+  });
+
+  if (links.website) {
+    items.push({
+      key: 'website',
+      href: links.website,
+      iconHtml: '<i class="fa-solid fa-globe" aria-hidden="true"></i>',
+      label: 'Website',
+      disabled: false,
+    });
+  }
+  if (links.twitter) {
+    items.push({
+      key: 'twitter',
+      href: links.twitter,
+      iconHtml: '<i class="fa-brands fa-x-twitter" aria-hidden="true"></i>',
+      label: 'X (Twitter)',
+      disabled: false,
+    });
+  }
+  if (links.telegram) {
+    items.push({
+      key: 'telegram',
+      href: links.telegram,
+      iconHtml: '<i class="fa-brands fa-telegram" aria-hidden="true"></i>',
+      label: 'Telegram',
+      disabled: false,
+    });
+  }
+  if (links.discord) {
+    items.push({
+      key: 'discord',
+      href: links.discord,
+      iconHtml: '<i class="fa-brands fa-discord" aria-hidden="true"></i>',
+      label: 'Discord',
+      disabled: false,
+    });
+  }
+
+  if (!items.length) return '';
+  return `
+    <div class="holding-card-actions search-token-actions" aria-label="Token links">
+      ${items.map((it) => {
+        const disabled = !!it.disabled || !it.href || it.href === '#';
+        return `
+          <a class="holding-action ${disabled ? 'disabled' : ''}" href="${escapeAttribute(it.href || '#')}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttribute(it.label)}" ${disabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
+            ${it.iconHtml}
+          </a>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
 function setLastScanAt(ts) {
   try {
     localStorage.setItem(STORAGE_KEY_LAST_SCAN_AT, String(Number(ts) || Date.now()));
@@ -3660,7 +3821,6 @@ function renderSearchTokenCard(model) {
 
   const name = model?.name || model?.symbol || 'Token';
   const symbol = model?.symbol ? String(model.symbol) : '';
-  const chainLabel = model?.chainLabel ? String(model.chainLabel) : '';
 
   const mcap = model?.marketCapUsd != null ? `$${formatCompactNumber(model.marketCapUsd)}` : '—';
   const price = model?.priceUsd != null ? formatPrice(model.priceUsd) : '—';
@@ -3676,16 +3836,15 @@ function renderSearchTokenCard(model) {
     ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : '')
     : '';
 
-  const subtitleParts = [
-    chainLabel ? String(chainLabel) : '',
-    model?.address ? shortenAddress(model.address) : '',
-  ].filter(Boolean);
-  const subtitle = subtitleParts.join(' · ');
+  const ext = normalizeExtensions(model?.extensions);
+  const subtitle = ext?.description || '';
   const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(model?.logoUrl), model?.symbol || model?.name);
   const chainBadge = String(model?.chainShort || '').trim();
   const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
   const ipfsCid = extractIpfsCid(model?.logoUrl) || extractIpfsCid(iconUrl);
   const iconText = tokenIconLabel(model?.symbol || model?.name);
+  const actionsHtml = renderSearchTokenActions(model);
+  const titleText = symbol && name ? `${name} (${symbol})` : (name || symbol || 'Token');
 
   root.innerHTML = `
     <div class="card table-section search-token-card">
@@ -3696,13 +3855,16 @@ function renderSearchTokenCard(model) {
               <span class="search-token-icon-fallback">${escapeHtml(iconText)}</span>
               <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsCid ? `data-ipfs-cid=\"${escapeAttribute(ipfsCid)}\" data-gateway-idx=\"0\"` : ''} onload="this.previousElementSibling && (this.previousElementSibling.style.opacity='0')" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
             </span>
-            <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
+            <h3 class="table-title">${escapeHtml(titleText)}</h3>
           </div>
-          <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
+          ${subtitle ? `<p class=\"table-subtitle\">${escapeHtml(subtitle)}</p>` : ''}
+        </div>
+
+        <div class="search-token-header-right">
+          ${chainBadge ? `<div class=\"search-chain-badge\">${escapeHtml(chainBadge)}</div>` : ''}
+          ${actionsHtml}
         </div>
       </div>
-
-      ${chainBadge ? `<div class="search-chain-badge">${escapeHtml(chainBadge)}</div>` : ''}
 
       <div class="search-token-metrics">
         <div class="search-token-metric"><div class="search-token-metric-label">Market Cap</div><div class="search-token-metric-value mono">${escapeHtml(mcap)}</div></div>
@@ -3783,11 +3945,14 @@ async function fetchSolanaTokenMetrics(address, { signal } = {}) {
   const data = overview?.data || {};
   const model = {
     address,
+    chain: 'solana',
+    network: 'solana',
     chainLabel: 'Solana',
     chainShort: 'SOL',
     name: data?.name || data?.symbol || 'Token',
     symbol: data?.symbol || '',
     logoUrl: data?.logoURI ?? data?.logoUri ?? data?.logo_uri ?? data?.logo ?? data?.image ?? data?.imageUrl ?? data?.image_url ?? data?.logo_url ?? null,
+    extensions: data?.extensions || null,
     priceUsd: data?.price ?? null,
     marketCapUsd: data?.marketCap ?? data?.fdv ?? null,
     liquidityUsd: data?.liquidity ?? null,
@@ -3846,8 +4011,11 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
         headers: { 'x-chain': birdeyeChain },
       });
       const o = overview?.data || {};
+      const dexExt = extractDexscreenerExtensions(best);
       return {
         address,
+        chain: 'evm',
+        network: chainId,
         chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
         chainShort: String(best?.chainId || 'EVM').toUpperCase(),
         name: o?.name || best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
@@ -3856,6 +4024,7 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
           ?? best?.baseToken?.logoURI ?? best?.baseToken?.logoUri ?? best?.baseToken?.logo_uri
           ?? best?.info?.imageUrl ?? best?.info?.image_url ?? best?.info?.image
           ?? null,
+        extensions: o?.extensions || dexExt || null,
         priceUsd: o?.price ?? best?.priceUsd ?? null,
         marketCapUsd: o?.marketCap ?? o?.fdv ?? best?.marketCap ?? best?.fdv ?? null,
         liquidityUsd: o?.liquidity ?? best?.liquidity?.usd ?? null,
@@ -3870,8 +4039,11 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
 
   const txns24h = best?.txns?.h24;
   const trades24h = (Number(txns24h?.buys || 0) || 0) + (Number(txns24h?.sells || 0) || 0);
+  const dexExt = extractDexscreenerExtensions(best);
   return {
     address,
+    chain: 'evm',
+    network: chainId,
     chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
     chainShort: String(best?.chainId || 'EVM').toUpperCase(),
     name: best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
@@ -3879,6 +4051,7 @@ async function fetchEvmTokenMetrics(address, { signal } = {}) {
     logoUrl: best?.baseToken?.logoURI || best?.baseToken?.logoUri || best?.baseToken?.logo_uri
       || best?.info?.imageUrl || best?.info?.image_url || best?.info?.image
       || null,
+    extensions: dexExt || null,
     priceUsd: best?.priceUsd ?? null,
     marketCapUsd: best?.marketCap ?? best?.fdv ?? null,
     liquidityUsd: best?.liquidity?.usd ?? null,
