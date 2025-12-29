@@ -892,6 +892,11 @@ function tokenIconDataUri(symbol) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
+function tokenIconLabel(symbol) {
+  const s = String(symbol || '').trim().toUpperCase();
+  return (s.match(/[A-Z0-9]/g) || []).slice(0, 3).join('') || '•';
+}
+
 function getTokenIconUrl(logoUrl, symbol) {
   const url = String(logoUrl || '').trim();
   return url ? url : tokenIconDataUri(symbol);
@@ -3651,13 +3656,17 @@ function renderSearchTokenCard(model) {
   const chainBadge = String(model?.chainShort || '').trim();
   const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
   const ipfsCid = extractIpfsCid(model?.logoUrl) || extractIpfsCid(iconUrl);
+  const iconText = tokenIconLabel(model?.symbol || model?.name);
 
   root.innerHTML = `
     <div class="card table-section search-token-card">
       <div class="table-header">
         <div class="collapsible-header-left">
           <div class="search-token-title-row">
-            <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsCid ? `data-ipfs-cid="${escapeAttribute(ipfsCid)}" data-gateway-idx="0"` : ''} onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
+            <span class="search-token-icon-wrap" aria-hidden="true">
+              <span class="search-token-icon-fallback">${escapeHtml(iconText)}</span>
+              <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsCid ? `data-ipfs-cid=\"${escapeAttribute(ipfsCid)}\" data-gateway-idx=\"0\"` : ''} onload="this.previousElementSibling && (this.previousElementSibling.style.opacity='0')" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
+            </span>
             <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
           </div>
           <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
