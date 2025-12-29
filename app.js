@@ -902,10 +902,68 @@ function normalizeTokenLogoUrl(url) {
   if (!raw) return '';
   if (raw.startsWith('ipfs://')) {
     const cid = raw.slice('ipfs://'.length).replace(/^ipfs\//, '');
-    return `https://ipfs.io/ipfs/${cid}`;
+    return ipfsGatewayUrl(cid, 0);
   }
   if (raw.startsWith('//')) return `https:${raw}`;
   return raw;
+}
+
+const IPFS_GATEWAYS = [
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://gateway.pinata.cloud/ipfs/',
+  'https://dweb.link/ipfs/',
+  'https://ipfs.io/ipfs/',
+];
+
+function extractIpfsCid(url) {
+  const raw = String(url || '').trim();
+  if (!raw) return null;
+  if (raw.startsWith('ipfs://')) return raw.slice('ipfs://'.length).replace(/^ipfs\//, '') || null;
+
+  for (const prefix of IPFS_GATEWAYS) {
+    if (raw.startsWith(prefix)) {
+      const cid = raw.slice(prefix.length);
+      return cid || null;
+    }
+  }
+
+  const m = raw.match(/^https?:\/\/[^/]+\/ipfs\/(.+)$/i);
+  if (m && m[1]) return m[1];
+  return null;
+}
+
+function ipfsGatewayUrl(cid, idx) {
+  const i = Number(idx) || 0;
+  const base = IPFS_GATEWAYS[Math.max(0, Math.min(IPFS_GATEWAYS.length - 1, i))];
+  return `${base}${cid}`;
+}
+
+function handleSearchTokenIconError(imgEl, fallbackDataUri) {
+  try {
+    const cid = imgEl?.dataset?.ipfsCid;
+    if (!cid) {
+      imgEl.onerror = null;
+      imgEl.src = fallbackDataUri;
+      return;
+    }
+
+    const current = Number(imgEl.dataset.gatewayIdx || '0') || 0;
+    const next = current + 1;
+
+    if (next < IPFS_GATEWAYS.length) {
+      imgEl.dataset.gatewayIdx = String(next);
+      imgEl.src = ipfsGatewayUrl(cid, next);
+      return;
+    }
+
+    imgEl.onerror = null;
+    imgEl.src = fallbackDataUri;
+  } catch {
+    try {
+      imgEl.onerror = null;
+      imgEl.src = fallbackDataUri;
+    } catch {}
+  }
 }
 
 function formatNumber(num) {
@@ -3592,13 +3650,14 @@ function renderSearchTokenCard(model) {
   const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(model?.logoUrl), model?.symbol || model?.name);
   const chainBadge = String(model?.chainShort || '').trim();
   const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
+  const ipfsCid = extractIpfsCid(model?.logoUrl) || extractIpfsCid(iconUrl);
 
   root.innerHTML = `
     <div class="card table-section search-token-card">
       <div class="table-header">
         <div class="collapsible-header-left">
           <div class="search-token-title-row">
-            <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
+            <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsCid ? `data-ipfs-cid="${escapeAttribute(ipfsCid)}" data-gateway-idx="0"` : ''} onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
             <h3 class="table-title">${escapeHtml(symbol || name)}</h3>
           </div>
           <p class="table-subtitle">${escapeHtml(subtitle || name)}</p>
