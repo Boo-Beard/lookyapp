@@ -868,15 +868,16 @@ function setWatchlistHint(text, tone = 'info') {
 }
 
 function renderWatchlist() {
-  const tbody = $('watchlistBody');
-  if (!tbody) return;
+  const body = $('watchlistBody');
+  if (!body) return;
   const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
   if (!list.length) {
-    tbody.innerHTML = '';
+    body.innerHTML = '';
+    try { lockInputBodyHeight(); } catch {}
     return;
   }
 
-  tbody.innerHTML = list.map((t) => {
+  body.innerHTML = list.map((t) => {
     const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
     const explorerHref = (t.chain === 'solana')
@@ -894,8 +895,8 @@ function renderWatchlist() {
       : '';
 
     return `
-      <tr class="holding-row" data-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}">
-        <td class="token-col">
+      <div class="watchlist-row" data-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}">
+        <div class="wl-col wl-token">
           <div class="token-cell">
             <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
             <div class="token-info">
@@ -903,22 +904,24 @@ function renderWatchlist() {
               <div class="token-name">${escapeHtml(t.name || '')}</div>
             </div>
           </div>
-        </td>
-        <td class="price-col mono"><strong class="redacted-field" tabindex="0">${escapeHtml(price)}</strong></td>
-        <td class="mcap-col mono"><strong class="redacted-field" tabindex="0">${escapeHtml(mcap)}</strong></td>
-        <td class="pnl-col mono"><strong class="redacted-field ${changeClass}" tabindex="0">${escapeHtml(changeText)}</strong></td>
-        <td class="value-col mono"><strong class="redacted-field" tabindex="0">${escapeHtml(vol)}</strong></td>
-        <td class="actions-col">
-          <a class="watchlist-action-btn" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
+        </div>
+        <div class="wl-col wl-price mono"><strong class="redacted-field" tabindex="0">${escapeHtml(price)}</strong></div>
+        <div class="wl-col wl-mcap mono"><strong class="redacted-field" tabindex="0">${escapeHtml(mcap)}</strong></div>
+        <div class="wl-col wl-change mono"><strong class="redacted-field ${changeClass}" tabindex="0">${escapeHtml(changeText)}</strong></div>
+        <div class="wl-col wl-vol mono"><strong class="redacted-field" tabindex="0">${escapeHtml(vol)}</strong></div>
+        <div class="wl-col wl-actions">
+          <a class="wl-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
             <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
           </a>
-          <a class="watchlist-action-btn" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}" aria-label="Remove from Watchlist">
+          <a class="wl-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}" aria-label="Remove from Watchlist">
             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </a>
-        </td>
-      </tr>
+        </div>
+      </div>
     `;
   }).join('');
+
+  try { lockInputBodyHeight(); } catch {}
 }
 
 let watchlistRefreshInFlight = false;
@@ -1014,7 +1017,6 @@ function removeTokenFromWatchlistByKey(key) {
   state.watchlistTokens = next;
   saveWatchlistTokens(next);
   renderWatchlist();
-  try { lockInputBodyHeight(); } catch {}
   setWatchlistHint('Removed from watchlist.', 'info');
   hapticFeedback('light');
 }
@@ -4503,46 +4505,6 @@ function setupEventListeners() {
   $('searchModeBtn')?.addEventListener('click', () => {
     setMode('search');
     hapticFeedback('light');
-  });
-
-  const watchlistInput = $('watchlistInput');
-  if (watchlistInput) {
-    watchlistInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        $('watchlistAddBtn')?.click();
-      }
-    });
-    watchlistInput.addEventListener('input', () => {
-      setWatchlistHint('', 'info');
-      const wrap = watchlistInput.closest('.address-entry');
-      wrap?.classList.remove('shake');
-    });
-  }
-
-  $('watchlistAddBtn')?.addEventListener('click', async () => {
-    const raw = String($('watchlistInput')?.value || '').trim();
-    if (!raw) {
-      setWatchlistHint('Paste a token address first.', 'error');
-      $('watchlistInput')?.closest('.address-entry')?.classList.add('shake');
-      hapticFeedback('error');
-      return;
-    }
-
-    try {
-      setWatchlistHint('', 'info');
-      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-      const model = await runTokenSearch(raw, controller ? { signal: controller.signal } : undefined);
-      const ok = addTokenToWatchlist({ ...model, updatedAt: Date.now() });
-      if (ok) {
-        const input = $('watchlistInput');
-        if (input) input.value = '';
-      }
-    } catch (err) {
-      const msg = err?.message || String(err || 'Unknown error');
-      setWatchlistHint(msg, 'error');
-      hapticFeedback('error');
-    }
   });
 
   document.addEventListener('click', (e) => {

@@ -135,38 +135,16 @@
             <div class="input-container">
               <div class="input-warning hidden" id="watchlistHint"></div>
 
-              <div class="watchlist-input">
-                <div class="address-input-row">
-                  <input
-                    id="watchlistInput"
-                    type="text"
-                    inputmode="text"
-                    autocomplete="off"
-                    autocapitalize="off"
-                    spellcheck="false"
-                    placeholder="Paste a token address (SOL or EVM)"
-                  />
+              <div class="watchlist-list" id="watchlistList">
+                <div class="watchlist-list-header" aria-hidden="true">
+                  <div class="wl-col wl-token">Token</div>
+                  <div class="wl-col wl-price">Price</div>
+                  <div class="wl-col wl-mcap">MCap</div>
+                  <div class="wl-col wl-change">24h</div>
+                  <div class="wl-col wl-vol">Vol (24h)</div>
+                  <div class="wl-col wl-actions"></div>
                 </div>
-                <button id="watchlistAddBtn" class="btn btn-outline" type="button">
-                  <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
-                  <span>Add</span>
-                </button>
-              </div>
-
-              <div class="table-container watchlist-table-container">
-                <table class="holdings-table watchlist-table" id="watchlistTable">
-                  <thead>
-                    <tr>
-                      <th class="token-col">Token</th>
-                      <th class="price-col">Price</th>
-                      <th class="mcap-col">MCap</th>
-                      <th class="pnl-col">24h</th>
-                      <th class="value-col">Vol (24h)</th>
-                      <th class="actions-col"></th>
-                    </tr>
-                  </thead>
-                  <tbody id="watchlistBody"></tbody>
-                </table>
+                <div class="watchlist-list-body" id="watchlistBody"></div>
               </div>
             </div>
           </div>

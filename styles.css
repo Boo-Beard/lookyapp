@@ -1493,70 +1493,60 @@ body.is-scanning .logo-lockup .eye::before {
   margin-top: 16px;
 }
 
-.watchlist-table-container {
+.watchlist-list {
   margin-top: 16px;
+  border-radius: var(--radius-xl);
+  border: 3px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
 
-.watchlist-table {
-  table-layout: fixed;
+.watchlist-list-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 0.7fr 0.7fr 0.6fr 0.8fr 88px;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 3px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-secondary);
 }
 
-.watchlist-table th.token-col,
-.watchlist-table td.token-col {
-  width: 44%;
-}
-
-.watchlist-table th.price-col,
-.watchlist-table td.price-col {
-  width: 14%;
-}
-
-.watchlist-table th.mcap-col,
-.watchlist-table td.mcap-col {
-  width: 16%;
-}
-
-.watchlist-table th.pnl-col,
-.watchlist-table td.pnl-col {
-  width: 12%;
-}
-
-.watchlist-table th.value-col,
-.watchlist-table td.value-col {
-  width: 14%;
-}
-
-.watchlist-table th.actions-col,
-.watchlist-table td.actions-col {
-  width: 100px;
-}
-
-.watchlist-table td.actions-col {
-  white-space: nowrap;
-}
-
-.watchlist-table td.actions-col {
-  text-align: right;
-}
-
-.watchlist-table td.actions-col .watchlist-action-btn + .watchlist-action-btn {
-  margin-left: 8px;
-}
-
-body.holdings-cards .watchlist-table thead {
-  display: table-header-group;
-}
-
-body.holdings-cards .watchlist-table {
-  border-spacing: 5px;
-}
-
-body.holdings-cards .watchlist-table td {
-  border-bottom: 2px solid var(--border);
+.watchlist-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 0.7fr 0.7fr 0.6fr 0.8fr 88px;
+  gap: 10px;
+  align-items: center;
   padding: 14px 14px;
+  border-bottom: 2px solid var(--border);
 }
 
-.watchlist-table .watchlist-action-btn {
+.watchlist-row:last-child {
+  border-bottom: none;
+}
+
+.watchlist-row .wl-col {
+  min-width: 0;
+}
+
+.watchlist-row .wl-price,
+.watchlist-row .wl-mcap,
+.watchlist-row .wl-change,
+.watchlist-row .wl-vol {
+  text-align: center;
+}
+
+.watchlist-row .wl-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wl-action {
   width: 34px;
   height: 34px;
   display: inline-flex;
@@ -1564,26 +1554,43 @@ body.holdings-cards .watchlist-table td {
   justify-content: center;
   border-radius: 12px;
   border: 2px solid var(--border);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.45);
+  box-shadow: var(--shadow-sm);
   color: var(--text-secondary);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
 }
 
-.watchlist-table .watchlist-action-btn:active {
+.wl-action:active {
   transform: translateY(1px) scale(0.99);
 }
 
-.watchlist-input {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  padding: 10px;
-}
+@media (max-width: 720px) {
+  .watchlist-list-header {
+    display: none;
+  }
 
-.watchlist-input #watchlistInput {
-  flex: 1;
+  .watchlist-row {
+    grid-template-columns: minmax(0, 1fr) 96px;
+    grid-template-areas:
+      "token actions"
+      "price actions"
+      "mcap actions"
+      "change actions"
+      "vol actions";
+    row-gap: 8px;
+  }
+
+  .watchlist-row .wl-token { grid-area: token; }
+  .watchlist-row .wl-actions { grid-area: actions; align-self: start; }
+  .watchlist-row .wl-price { grid-area: price; text-align: left; }
+  .watchlist-row .wl-mcap { grid-area: mcap; text-align: left; }
+  .watchlist-row .wl-change { grid-area: change; text-align: left; }
+  .watchlist-row .wl-vol { grid-area: vol; text-align: left; }
+
+  .watchlist-row .wl-price::before { content: 'Price '; color: var(--text-tertiary); font-weight: 800; }
+  .watchlist-row .wl-mcap::before { content: 'MCap '; color: var(--text-tertiary); font-weight: 800; }
+  .watchlist-row .wl-change::before { content: '24h '; color: var(--text-tertiary); font-weight: 800; }
+  .watchlist-row .wl-vol::before { content: 'Vol '; color: var(--text-tertiary); font-weight: 800; }
 }
 
 #searchResults .holding-card {
