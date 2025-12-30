@@ -881,6 +881,7 @@ function renderWatchlist() {
     const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
     const key = normalizeWatchlistTokenKey(t);
+    const ipfsCid = extractIpfsCid(t?.logoUrl) || extractIpfsCid(iconUrl);
 
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
@@ -905,7 +906,7 @@ function renderWatchlist() {
         <div class="holding-card">
           <div class="holding-card-header">
             <div class="token-cell">
-              <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
+              <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" ${ipfsCid ? `data-ipfs-cid="${escapeAttribute(ipfsCid)}" data-gateway-idx="0"` : ''} alt="" />
               <div class="token-info">
                 <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
                 <div class="token-name">${escapeHtml(t.name || '')}</div>
@@ -935,6 +936,20 @@ function renderWatchlist() {
       </div>
     `;
   }).join('');
+
+  try {
+    const imgs = body.querySelectorAll('img.token-icon[data-ipfs-cid]');
+    imgs.forEach((img) => {
+      const cid = img?.dataset?.ipfsCid;
+      if (!cid) return;
+      img.dataset.gatewayIdx = img.dataset.gatewayIdx || '0';
+      resolveIpfsLogoUrl(cid, { timeoutMs: 1200 }).then((resolved) => {
+        if (!resolved?.url) return;
+        img.dataset.gatewayIdx = String(resolved.idx || 0);
+        img.src = resolved.url;
+      }).catch(() => {});
+    });
+  } catch {}
 
   try { lockInputBodyHeight(); } catch {}
 }
