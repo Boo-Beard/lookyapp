@@ -1571,8 +1571,7 @@ body.is-scanning .logo-lockup .eye::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  background: var(--panel);
-}
+  background: var(--paper);}
 
 #searchResults .holding-metric {
   border-radius: 16px;
