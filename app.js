@@ -4682,7 +4682,16 @@ function setupEventListeners() {
 
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
           const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
-          const added = addTokenToWatchlist({ ...model, updatedAt: Date.now() });
+          const added = addTokenToWatchlist({
+            ...model,
+            chain,
+            network,
+            address: addr,
+            symbol: model?.symbol || wlAdd.dataset.symbol,
+            name: model?.name || wlAdd.dataset.name,
+            logoUrl: model?.logoUrl || wlAdd.dataset.logoUrl,
+            updatedAt: Date.now(),
+          });
           if (added) showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} added to watchlist`);
         } catch {
           const chain = String(wlAdd.dataset.chain || '');
