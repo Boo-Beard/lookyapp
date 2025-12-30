@@ -910,11 +910,34 @@ function normalizeWatchlistTokenKey(t) {
   return `${chain}:${network}:${address}`.toLowerCase();
 }
 
+function getWatchlistMatchKey(t) {
+  try {
+    const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+    if (!list.length) return null;
+
+    const chain = String(t?.chain || '').toLowerCase();
+    const address = String(t?.address || '').trim().toLowerCase();
+    if (!chain || !address) return null;
+
+    const key = normalizeWatchlistTokenKey(t);
+    const exact = list.find((x) => normalizeWatchlistTokenKey(x) === key);
+    if (exact) return normalizeWatchlistTokenKey(exact);
+
+    if (chain === 'evm') {
+      const byAddr = list.find((x) => String(x?.chain || '').toLowerCase() === 'evm'
+        && String(x?.address || '').trim().toLowerCase() === address);
+      if (byAddr) return normalizeWatchlistTokenKey(byAddr);
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function isTokenInWatchlist(t) {
   try {
-    const key = normalizeWatchlistTokenKey(t);
-    const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
-    return list.some((x) => normalizeWatchlistTokenKey(x) === key);
+    return !!getWatchlistMatchKey(t);
   } catch {
     return false;
   }
@@ -4740,9 +4763,9 @@ function setupEventListeners() {
 
           const chain = String(wlAdd.dataset.chain || '');
           const network = String(wlAdd.dataset.network || '');
-          const key = normalizeWatchlistTokenKey({ chain, network, address: addr });
-          if (isTokenInWatchlist({ chain, network, address: addr })) {
-            removeTokenFromWatchlistByKey(key);
+          const matchKey = getWatchlistMatchKey({ chain, network, address: addr });
+          if (matchKey) {
+            removeTokenFromWatchlistByKey(matchKey);
             showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} removed from watchlist`);
             return;
           }
