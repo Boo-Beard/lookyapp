@@ -885,7 +885,72 @@ const state = {
 };
 
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
+const STORAGE_KEY_WATCHLIST_SORT = 'looky_watchlist_sort_v1';
 const WATCHLIST_MAX_TOKENS = 5;
+
+function getWatchlistSortPreference() {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY_WATCHLIST_SORT);
+    const s = String(v || '').trim();
+    if (s === 'name' || s === 'marketcap' || s === 'volume' || s === 'change24h') return s;
+    return 'change24h';
+  } catch {
+    return 'change24h';
+  }
+}
+
+function setWatchlistSortPreference(next) {
+  const s = String(next || '').trim();
+  const v = (s === 'name' || s === 'marketcap' || s === 'volume' || s === 'change24h') ? s : 'change24h';
+  try { localStorage.setItem(STORAGE_KEY_WATCHLIST_SORT, v); } catch {}
+}
+
+function compareWatchlistTokens(a, b, sortKey) {
+  const key = sortKey || 'change24h';
+
+  if (key === 'name') {
+    const an = String(a?.symbol || a?.name || '').toLowerCase();
+    const bn = String(b?.symbol || b?.name || '').toLowerCase();
+    if (an < bn) return -1;
+    if (an > bn) return 1;
+  }
+
+  if (key === 'marketcap') {
+    const av = Number(a?.marketCapUsd);
+    const bv = Number(b?.marketCapUsd);
+    const af = Number.isFinite(av);
+    const bf = Number.isFinite(bv);
+    if (af && bf && av !== bv) return bv - av;
+    if (af && !bf) return -1;
+    if (!af && bf) return 1;
+  }
+
+  if (key === 'volume') {
+    const av = Number(a?.volume24hUsd);
+    const bv = Number(b?.volume24hUsd);
+    const af = Number.isFinite(av);
+    const bf = Number.isFinite(bv);
+    if (af && bf && av !== bv) return bv - av;
+    if (af && !bf) return -1;
+    if (!af && bf) return 1;
+  }
+
+  if (key === 'change24h') {
+    const av = Number(a?.change24hPct);
+    const bv = Number(b?.change24hPct);
+    const af = Number.isFinite(av);
+    const bf = Number.isFinite(bv);
+    if (af && bf && av !== bv) return bv - av;
+    if (af && !bf) return -1;
+    if (!af && bf) return 1;
+  }
+
+  const an = String(a?.symbol || a?.name || '').toLowerCase();
+  const bn = String(b?.symbol || b?.name || '').toLowerCase();
+  if (an < bn) return -1;
+  if (an > bn) return 1;
+  return 0;
+}
 
 function canonicalizeChainForKey(chain) {
   const c = String(chain || '').toLowerCase().trim();
@@ -1072,7 +1137,8 @@ function setWatchlistHint(text, tone = 'info') {
 function renderWatchlist() {
   const body = $('watchlistBody');
   if (!body) return;
-  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  const sortKey = getWatchlistSortPreference();
+  const list = Array.isArray(state.watchlistTokens) ? [...state.watchlistTokens].sort((a, b) => compareWatchlistTokens(a, b, sortKey)) : [];
   if (!list.length) {
     body.innerHTML = `
       <div class="empty-state">
@@ -4758,6 +4824,18 @@ function setupEventListeners() {
     setMode('watchlist');
     hapticFeedback('light');
   });
+
+  const watchlistSortSelect = $('watchlistSortSelect');
+  if (watchlistSortSelect) {
+    try {
+      watchlistSortSelect.value = getWatchlistSortPreference();
+    } catch {}
+    watchlistSortSelect.addEventListener('change', () => {
+      setWatchlistSortPreference(String(watchlistSortSelect.value || 'change24h'));
+      renderWatchlist();
+      hapticFeedback('light');
+    });
+  }
   $('portfolioModeBtn')?.addEventListener('click', () => {
     setMode('portfolio');
     hapticFeedback('light');

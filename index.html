@@ -135,6 +135,16 @@
             <div class="input-container">
               <div class="input-warning hidden" id="watchlistHint"></div>
 
+              <div class="watchlist-controls">
+                <label class="control-label" for="watchlistSortSelect">Sort</label>
+                <select id="watchlistSortSelect" class="select select-sm" aria-label="Sort watchlist">
+                  <option value="change24h">24h Change</option>
+                  <option value="name">Name</option>
+                  <option value="marketcap">Market Cap</option>
+                  <option value="volume">Volume (24h)</option>
+                </select>
+              </div>
+
               <div class="watchlist-list" id="watchlistList">
                 <div class="watchlist-list-body" id="watchlistBody"></div>
               </div>

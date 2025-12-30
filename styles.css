@@ -1587,6 +1587,38 @@ body.is-scanning .logo-lockup .eye::before {
   overflow: visible;
 }
 
+.watchlist-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.watchlist-controls .control-label {
+  font-family: var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  user-select: none;
+}
+
+.watchlist-controls .select {
+  width: auto;
+  min-width: 200px;
+}
+
+@media (max-width: 420px) {
+  .watchlist-controls {
+    justify-content: space-between;
+  }
+  .watchlist-controls .select {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+}
+
 .watchlist-list-body {
   margin-top: 16px;
   display: flex;
