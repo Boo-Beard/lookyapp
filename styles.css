@@ -1494,7 +1494,7 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 #searchResults .holding-card {
-  width: min(calc(100vw - 32px), calc(100% + 40%));
+  width: min(calc(100vw - 32px), calc(80% + 40%));
   position: relative;
   left: 50%;
   transform: translateX(-50%);
@@ -1506,7 +1506,7 @@ body.is-scanning .logo-lockup .eye::before {
 
 @media (min-width: 641px) {
   #searchResults .holding-card {
-    width: min(calc(100vw - 32px), calc(100% + 35%));
+    width: min(calc(100vw - 32px), calc(80% + 35%));
   }
 }
 
