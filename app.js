@@ -3519,7 +3519,7 @@ function renderHoldingsTable() {
       const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
       const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
 
-      const wlActive = isTokenInWatchlist({
+      const wlActive = !!getWatchlistMatchKey({
         chain: String(holding.chain || ''),
         network: String(holding.network || ''),
         address: String(chartAddress || ''),
@@ -3599,7 +3599,7 @@ function renderHoldingsTable() {
       const explorerDisabled = explorerHref === '#';
       const walletDisabled = walletHref === '#';
 
-      const wlActive = isTokenInWatchlist({
+      const wlActive = !!getWatchlistMatchKey({
         chain: String(holding.chain || ''),
         network: String(holding.network || ''),
         address: String(chartAddress || ''),
