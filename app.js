@@ -335,6 +335,9 @@ function renderSearchTokenActions(model) {
   if (!items.length) return '';
   return `
     <div class="holding-card-actions search-token-actions" aria-label="Token links">
+      <a class="holding-action" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="Add to Watchlist">
+        <i class="fa-solid fa-star" aria-hidden="true"></i>
+      </a>
       ${items.map((it) => {
         const disabled = !!it.disabled || !it.href || it.href === '#';
         return `
@@ -790,7 +793,168 @@ const state = {
   walletDayChange: new Map(),
   holdingsPage: 1,
   lastScanFailedQueue: [],
+  watchlistTokens: [],
 };
+
+const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
+const WATCHLIST_MAX_TOKENS = 5;
+
+function normalizeWatchlistTokenKey(t) {
+  const chain = String(t?.chain || '').toLowerCase();
+  const network = String(t?.network || '').toLowerCase();
+  const address = String(t?.address || '').trim();
+  return `${chain}:${network}:${address}`.toLowerCase();
+}
+
+function sanitizeWatchlistToken(raw) {
+  const t = (raw && typeof raw === 'object') ? raw : {};
+  const chain = String(t.chain || '').toLowerCase();
+  const network = String(t.network || '').toLowerCase();
+  const address = String(t.address || '').trim();
+  if (!chain || !address) return null;
+
+  return {
+    chain,
+    network,
+    address,
+    symbol: String(t.symbol || '').trim(),
+    name: String(t.name || '').trim(),
+    logoUrl: String(t.logoUrl || '').trim(),
+    extensions: t.extensions || null,
+  };
+}
+
+function loadWatchlistTokens() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_WATCHLIST_TOKENS);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const out = [];
+    const seen = new Set();
+    for (const item of parsed) {
+      const t = sanitizeWatchlistToken(item);
+      if (!t) continue;
+      const key = normalizeWatchlistTokenKey(t);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(t);
+      if (out.length >= WATCHLIST_MAX_TOKENS) break;
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+function saveWatchlistTokens(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY_WATCHLIST_TOKENS, JSON.stringify(Array.isArray(list) ? list : []));
+  } catch {}
+}
+
+function setWatchlistHint(text, tone = 'info') {
+  const hint = $('watchlistHint');
+  if (!hint) return;
+  const msg = String(text || '').trim();
+  hint.textContent = msg;
+  hint.classList.toggle('hidden', !msg);
+  hint.classList.toggle('error', tone === 'error');
+}
+
+function renderWatchlist() {
+  const root = $('watchlistResults');
+  if (!root) return;
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  if (!list.length) {
+    root.innerHTML = '';
+    return;
+  }
+
+  root.innerHTML = list.map((t) => {
+    const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
+    const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
+    const ext = normalizeExtensions(t.extensions);
+    const subtitle = ext?.description || '';
+    const chainBadge = t.chain === 'solana' ? 'SOL' : evmNetworkLabel(t.network);
+    const explorerHref = (t.chain === 'solana')
+      ? `https://solscan.io/token/${t.address}`
+      : `${evmExplorerBase(t.network)}/token/${t.address}`;
+
+    return `
+      <div class="holding-card">
+        <div class="holding-card-header">
+          <div class="token-cell">
+            <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
+            <div class="token-info">
+              <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
+              <div class="token-name">${escapeHtml(t.name || '')}</div>
+              ${subtitle ? `<div class=\"table-subtitle\">${escapeHtml(subtitle)}</div>` : ''}
+            </div>
+          </div>
+
+          <div class="holding-card-header-right">
+            <span class="chain-badge-small ${escapeAttribute(t.chain)}">${escapeHtml(chainBadge)}</span>
+            <div class="holding-card-actions" aria-label="Watchlist actions">
+              <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
+                <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+              </a>
+              <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}" aria-label="Remove from Watchlist">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addTokenToWatchlist(token) {
+  const t = sanitizeWatchlistToken(token);
+  if (!t) {
+    setWatchlistHint('Invalid token.', 'error');
+    hapticFeedback('error');
+    return false;
+  }
+
+  const key = normalizeWatchlistTokenKey(t);
+  const list = Array.isArray(state.watchlistTokens) ? [...state.watchlistTokens] : [];
+  const exists = list.some((x) => normalizeWatchlistTokenKey(x) === key);
+  if (exists) {
+    setWatchlistHint('Already in watchlist.', 'info');
+    hapticFeedback('light');
+    return true;
+  }
+
+  if (list.length >= WATCHLIST_MAX_TOKENS) {
+    setWatchlistHint(`Watchlist limit reached (${WATCHLIST_MAX_TOKENS}). Remove one first.`, 'error');
+    hapticFeedback('error');
+    return false;
+  }
+
+  list.unshift(t);
+  state.watchlistTokens = list;
+  saveWatchlistTokens(list);
+  renderWatchlist();
+  try { lockInputBodyHeight(); } catch {}
+  setWatchlistHint('Added to watchlist.', 'info');
+  hapticFeedback('success');
+  return true;
+}
+
+function removeTokenFromWatchlistByKey(key) {
+  const k = String(key || '').toLowerCase();
+  if (!k) return;
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  const next = list.filter((t) => normalizeWatchlistTokenKey(t) !== k);
+  state.watchlistTokens = next;
+  saveWatchlistTokens(next);
+  renderWatchlist();
+  try { lockInputBodyHeight(); } catch {}
+  setWatchlistHint('Removed from watchlist.', 'info');
+  hapticFeedback('light');
+}
 
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
@@ -3152,6 +3316,9 @@ function renderHoldingsTable() {
               <div class="holding-card-header-right">
                 <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                 <div class="holding-card-actions" aria-label="Holding actions">
+                  <a class="holding-action" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="Add to Watchlist">
+                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                  </a>
                   <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
                     <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
                   </a>
@@ -4271,7 +4438,68 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
+  const watchlistInput = $('watchlistInput');
+  if (watchlistInput) {
+    watchlistInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        $('watchlistAddBtn')?.click();
+      }
+    });
+    watchlistInput.addEventListener('input', () => {
+      setWatchlistHint('', 'info');
+      const wrap = watchlistInput.closest('.address-entry');
+      wrap?.classList.remove('shake');
+    });
+  }
+
+  $('watchlistAddBtn')?.addEventListener('click', async () => {
+    const raw = String($('watchlistInput')?.value || '').trim();
+    if (!raw) {
+      setWatchlistHint('Paste a token address first.', 'error');
+      $('watchlistInput')?.closest('.address-entry')?.classList.add('shake');
+      hapticFeedback('error');
+      return;
+    }
+
+    try {
+      setWatchlistHint('', 'info');
+      const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const model = await runTokenSearch(raw, controller ? { signal: controller.signal } : undefined);
+      const ok = addTokenToWatchlist(model);
+      if (ok) {
+        const input = $('watchlistInput');
+        if (input) input.value = '';
+      }
+    } catch (err) {
+      const msg = err?.message || String(err || 'Unknown error');
+      setWatchlistHint(msg, 'error');
+      hapticFeedback('error');
+    }
+  });
+
   document.addEventListener('click', (e) => {
+    const wlAdd = e.target.closest('a.holding-action[data-action="watchlist-add"]');
+    if (wlAdd) {
+      e.preventDefault();
+      addTokenToWatchlist({
+        chain: wlAdd.dataset.chain,
+        network: wlAdd.dataset.network,
+        address: wlAdd.dataset.address,
+        symbol: wlAdd.dataset.symbol,
+        name: wlAdd.dataset.name,
+        logoUrl: wlAdd.dataset.logoUrl,
+      });
+      return;
+    }
+
+    const wlRemove = e.target.closest('a.holding-action[data-action="watchlist-remove"]');
+    if (wlRemove) {
+      e.preventDefault();
+      removeTokenFromWatchlistByKey(wlRemove.dataset.watchlistKey);
+      return;
+    }
+
     const chart = e.target.closest('a.holding-action[data-action="chart"]');
     if (chart) {
       e.preventDefault();
@@ -4824,6 +5052,9 @@ function initialize() {
 
   updateAddressStats();
   updateTelegramMainButton();
+
+  state.watchlistTokens = loadWatchlistTokens();
+  renderWatchlist();
 
   setMode('portfolio');
 }

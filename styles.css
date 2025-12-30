@@ -1493,7 +1493,22 @@ body.is-scanning .logo-lockup .eye::before {
   margin-top: 16px;
 }
 
+#watchlistResults {
+  margin-top: 16px;
+}
+
 #searchResults .holding-card {
+  width: min(calc(100vw - 32px), calc(80% + 40%));
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: var(--radius-xl);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+#watchlistResults .holding-card {
   width: min(calc(100vw - 32px), calc(80% + 40%));
   position: relative;
   left: 50%;
@@ -1506,6 +1521,10 @@ body.is-scanning .logo-lockup .eye::before {
 
 @media (min-width: 641px) {
   #searchResults .holding-card {
+    width: min(calc(100vw - 32px), calc(80% + 35%));
+  }
+
+  #watchlistResults .holding-card {
     width: min(calc(100vw - 32px), calc(80% + 35%));
   }
 }

@@ -136,21 +136,24 @@
               <div class="input-warning hidden" id="watchlistHint"></div>
 
               <div class="textarea-wrapper address-entry">
-                <input
-                  id="watchlistInput"
-                  type="text"
-                  inputmode="text"
-                  autocomplete="off"
-                  autocapitalize="off"
-                  spellcheck="false"
-                  placeholder="Watchlist coming soon"
-                  disabled
-                />
-                <button id="watchlistAddBtn" class="btn btn-outline" type="button" disabled>
+                <div class="address-input-row">
+                  <input
+                    id="watchlistInput"
+                    type="text"
+                    inputmode="text"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    placeholder="Paste a token address (SOL or EVM)"
+                  />
+                </div>
+                <button id="watchlistAddBtn" class="btn btn-outline" type="button">
                   <span class="btn-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                   <span>Add</span>
                 </button>
               </div>
+
+              <div id="watchlistResults"></div>
             </div>
           </div>
 
