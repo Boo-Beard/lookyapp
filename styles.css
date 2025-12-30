@@ -1238,6 +1238,11 @@ body.is-scanning .logo-lockup .eye::before {
   padding: 0 32px 24px;
 }
 
+ body.ui-results #portfolioPanel .input-container {
+  display: flex;
+  flex-direction: column;
+ }
+
 .input-header {
   display: flex;
   justify-content: space-between;
@@ -1310,6 +1315,11 @@ body.is-scanning .logo-lockup .eye::before {
   justify-content: center;
   width: 100%;
 }
+
+ body.ui-results #portfolioPanel .profiles-bar {
+  order: 2;
+  margin-top: 0;
+ }
 
  .profiles-bar .btn {
   padding-left: 16px;
@@ -1522,6 +1532,11 @@ body.is-scanning .logo-lockup .eye::before {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
+
+ body.ui-results #portfolioPanel .address-chips {
+  order: 3;
+  margin-top: 0;
+ }
 
  @media (max-width: 360px) {
   .profiles-bar {
