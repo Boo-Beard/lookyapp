@@ -2510,11 +2510,17 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
 
   let idx = 0;
   let renderQueued = false;
+  let mcapChanged = false;
   const queueRender = () => {
     if (renderQueued) return;
     renderQueued = true;
     window.setTimeout(() => {
       renderQueued = false;
+      if (mcapChanged) {
+        mcapChanged = false;
+        holdingsDataVersion++;
+        invalidateHoldingsTableCache();
+      }
       scheduleRenderHoldingsTable();
     }, 150);
   };
@@ -2530,6 +2536,7 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
 
       if (mcap && mcap > 0) {
         current.mcap = mcap;
+        mcapChanged = true;
         queueRender();
       }
     }
