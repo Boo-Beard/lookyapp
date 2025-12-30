@@ -2875,7 +2875,7 @@ body.holdings-cards .holding-card-row:hover::after {
 }
 
 body.holdings-cards .holding-card {
-  width: min(calc(100vw - 32px), calc(100% + 40%));
+  width: min(calc(100vw - 40px), 100%);
   position: relative;
   left: 50%;
   transform: translateX(-50%);
@@ -2887,7 +2887,7 @@ body.holdings-cards .holding-card {
 
 @media (min-width: 641px) {
   body.holdings-cards .holding-card {
-    width: min(calc(100vw - 32px), calc(100% + 35%));
+    width: min(calc(100vw - 48px), 100%);
   }
 }
 

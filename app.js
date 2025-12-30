@@ -3615,15 +3615,7 @@ function renderHoldingsTable() {
 
       const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
 
-      const sourceWallet = holding.sources?.[0] || '';
-      const walletHref = sourceWallet
-        ? (holding.chain === 'solana'
-          ? `https://solscan.io/account/${sourceWallet}`
-          : `${evmExplorerBase(holding.network)}/address/${sourceWallet}`)
-        : '#';
-
       const explorerDisabled = explorerHref === '#';
-      const walletDisabled = walletHref === '#';
 
       const wlActive = !!getWatchlistMatchKey({
         chain: String(holding.chain || ''),
@@ -3667,9 +3659,6 @@ function renderHoldingsTable() {
                       <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=birdeye.so&sz=64" alt="Birdeye" />
                     </a>
                   </div>
-                  <a class="holding-action ${walletDisabled ? 'disabled' : ''}" href="${walletHref}" target="_blank" rel="noopener noreferrer" aria-label="View Wallet" ${walletDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
-                    <i class="fa-solid fa-wallet" aria-hidden="true"></i>
-                  </a>
                 </div>
               </div>
             </div>
