@@ -88,6 +88,89 @@ function migrateLegacyStorageKeys() {
   } catch {}
 }
 
+function renderSearchTokenActions(model) {
+  const ext = normalizeExtensions(model?.extensions);
+  const explorerHref = getExplorerTokenUrl(model);
+  const explorerDisabled = explorerHref === '#';
+
+  const links = {
+    website: sanitizeUrl(ext?.links?.website),
+    twitter: sanitizeUrl(ext?.links?.twitter),
+    telegram: sanitizeUrl(ext?.links?.telegram),
+    discord: sanitizeUrl(ext?.links?.discord),
+  };
+
+  const items = [];
+  items.push({
+    key: 'explorer',
+    href: explorerHref,
+    iconHtml: '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>',
+    label: 'View on Explorer',
+    disabled: explorerDisabled,
+  });
+
+  if (links.website) {
+    items.push({
+      key: 'website',
+      href: links.website,
+      iconHtml: '<i class="fa-solid fa-globe" aria-hidden="true"></i>',
+      label: 'Website',
+      disabled: false,
+    });
+  }
+  if (links.twitter) {
+    items.push({
+      key: 'twitter',
+      href: links.twitter,
+      iconHtml: '<i class="fa-brands fa-x-twitter" aria-hidden="true"></i>',
+      label: 'X (Twitter)',
+      disabled: false,
+    });
+  }
+  if (links.telegram) {
+    items.push({
+      key: 'telegram',
+      href: links.telegram,
+      iconHtml: '<i class="fa-brands fa-telegram" aria-hidden="true"></i>',
+      label: 'Telegram',
+      disabled: false,
+    });
+  }
+  if (links.discord) {
+    items.push({
+      key: 'discord',
+      href: links.discord,
+      iconHtml: '<i class="fa-brands fa-discord" aria-hidden="true"></i>',
+      label: 'Discord',
+      disabled: false,
+    });
+  }
+
+  if (!items.length) return '';
+
+  const wlActive = isTokenInWatchlist({
+    chain: String(model?.chain || ''),
+    network: String(model?.network || ''),
+    address: String(model?.address || ''),
+  });
+
+  return `
+    <div class="holding-card-actions search-token-actions" aria-label="Token links">
+      <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+        <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+      </a>
+      ${items.map((it) => {
+        const disabled = !!it.disabled || !it.href || it.href === '#';
+        return `
+          <a class="holding-action ${disabled ? 'disabled' : ''}" href="${escapeAttribute(it.href || '#')}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttribute(it.label)}" ${disabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
+            ${it.iconHtml}
+          </a>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
 const DEBUG_SOL_CHANGE = (() => {
   try {
     if (localStorage.getItem('peeek:debugSolChange') === '1') return true;
