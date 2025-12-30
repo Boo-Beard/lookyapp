@@ -1681,7 +1681,6 @@ body.is-scanning .logo-lockup .eye::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  background: var(--paper);
 }
 
 #watchlistBody .holding-metric {
@@ -2883,6 +2882,12 @@ body.holdings-cards .holding-card {
   border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  body.holdings-cards .holding-card {
+    width: min(calc(100vw - 12px), 135%);
+  }
 }
 
 @media (min-width: 641px) {
