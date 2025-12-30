@@ -2451,6 +2451,11 @@ body.ui-results .table-header {
   font-family: inherit;
 }
 
+ .search-input:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
+ }
+
 .search-input:focus {
   background: rgba(255, 255, 255, 0.75);
 }
@@ -2468,6 +2473,11 @@ body.ui-results .table-header {
   font-family: inherit;
 }
 
+ .select:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
+ }
+
 .checkbox {
     display: flex;
     align-items: center;
@@ -2482,6 +2492,11 @@ body.ui-results .table-header {
     background: var(--panel);
     font-family: inherit;
 }
+
+ .checkbox:focus-within {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
+ }
 
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -2518,7 +2533,7 @@ body.ui-results .table-subtitle {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
-  border-spacing: 5px;
+  border-spacing: 4px;
 }
 
 .holdings-table th.token-col,
