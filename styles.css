@@ -1504,7 +1504,7 @@ body.is-scanning .logo-lockup .eye::before {
 
 .watchlist-list-header {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) 0.7fr 0.7fr 0.6fr 0.8fr 88px;
+  grid-template-columns: minmax(0, 2fr) minmax(92px, 1fr) minmax(92px, 1fr) minmax(72px, 0.9fr) minmax(92px, 1fr) 88px;
   gap: 10px;
   align-items: center;
   padding: 12px 14px;
@@ -1518,7 +1518,7 @@ body.is-scanning .logo-lockup .eye::before {
 
 .watchlist-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) 0.7fr 0.7fr 0.6fr 0.8fr 88px;
+  grid-template-columns: minmax(0, 2fr) minmax(92px, 1fr) minmax(92px, 1fr) minmax(72px, 0.9fr) minmax(92px, 1fr) 88px;
   gap: 10px;
   align-items: center;
   padding: 14px 14px;
@@ -1531,6 +1531,29 @@ body.is-scanning .logo-lockup .eye::before {
 
 .watchlist-row .wl-col {
   min-width: 0;
+}
+
+.watchlist-row .wl-col,
+.watchlist-list-header .wl-col {
+  overflow: hidden;
+}
+
+.watchlist-row .wl-price strong,
+.watchlist-row .wl-mcap strong,
+.watchlist-row .wl-change strong,
+.watchlist-row .wl-vol strong {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watchlist-row .wl-token .token-symbol,
+.watchlist-row .wl-token .token-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .watchlist-row .wl-price,
