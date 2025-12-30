@@ -4779,6 +4779,14 @@ function setupEventListeners() {
             if (resolvedChain) wlAdd.dataset.chain = resolvedChain;
             if (resolvedNetwork) wlAdd.dataset.network = resolvedNetwork;
           } catch {}
+
+          const resolvedMatchKey = getWatchlistMatchKey({ chain: resolvedChain, network: resolvedNetwork, address: addr });
+          if (resolvedMatchKey) {
+            try { syncWatchlistStars(); } catch {}
+            showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} already in watchlist`);
+            return;
+          }
+
           const added = addTokenToWatchlist({
             ...model,
             chain: resolvedChain,
