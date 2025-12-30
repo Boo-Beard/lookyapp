@@ -3431,7 +3431,17 @@ function renderHoldingsTable() {
         `).join('')
       : '';
 
-    tbody.innerHTML = pageItems.map(holding => `
+    tbody.innerHTML = pageItems.map((holding) => {
+      const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
+      const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
+
+      const wlActive = isTokenInWatchlist({
+        chain: String(holding.chain || ''),
+        network: String(holding.network || ''),
+        address: String(chartAddress || ''),
+      });
+
+      return `
       <tr class="holding-row" data-key="${holding.key}">
         <td>
           <div class="token-cell">
@@ -3441,6 +3451,11 @@ function renderHoldingsTable() {
               <div class="token-name">${holding.name}</div>
             </div>
             <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+            <div class="holding-card-actions" aria-label="Holding actions">
+              <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+              </a>
+            </div>
           </div>
         </td>
         <td>
@@ -3451,7 +3466,8 @@ function renderHoldingsTable() {
         <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
         <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
       </tr>
-    `).join('') + skeletonRows;
+    `;
+    }).join('') + skeletonRows;
   } else {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
       ? Array.from({ length: scanSkeletonCount }).map(() => `
