@@ -841,8 +841,8 @@ body.ui-landing .logo-title {
 }
 
 body.ui-results #resultsSection .card {
-  border: 4px solid var(--border);
-  box-shadow: var(--shadow-lg);
+  border: 5px solid var(--border);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-lg);
 }
 
 body.ui-results #resultsSection .card:hover {
@@ -1008,6 +1008,35 @@ body.ui-results .input-section.is-minimized {
 .mode-toggle-btn.is-active {
   background: var(--panel);
   color: var(--ink);
+}
+
+.mode-toggle-btn.is-active {
+  position: relative;
+}
+
+.mode-toggle-btn.is-active::after {
+  content: '';
+  position: absolute;
+  top: -9px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background:
+    conic-gradient(from 45deg,
+      transparent 0 12%, rgba(0, 194, 255, 0.85) 12% 18%, transparent 18% 38%,
+      rgba(255, 45, 85, 0.85) 38% 44%, transparent 44% 64%,
+      rgba(255, 255, 255, 0.92) 64% 70%, transparent 70% 88%,
+      rgba(0, 194, 255, 0.75) 88% 94%, transparent 94% 100%);
+  border-radius: 50%;
+  opacity: 0.0;
+  transform: rotate(-8deg) scale(0.85);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  pointer-events: none;
+}
+
+.mode-toggle-btn.is-active:hover::after {
+  opacity: 0.95;
+  transform: rotate(0deg) scale(1);
 }
 
  .mode-toggle-btn.is-active:hover {
@@ -2255,6 +2284,7 @@ body.is-scanning .logo-lockup .eye::before {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  position: relative;
   padding: 0 24px;
   height: 48px;
   border: 4px solid var(--border);
@@ -2266,12 +2296,12 @@ body.is-scanning .logo-lockup .eye::before {
   transition: all var(--transition-fast);
   outline: none;
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
 }
 
 .btn:hover {
   transform: translateY(-2px) rotate(-0.6deg);
-  box-shadow: var(--shadow-md);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
 }
 
 .btn:active {
@@ -2283,6 +2313,31 @@ body.is-scanning .logo-lockup .eye::before {
   background: var(--accent-3);
   color: var(--ink);
   box-shadow: var(--shadow-md);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 26px;
+  height: 26px;
+  background:
+    conic-gradient(from 45deg,
+      transparent 0 10%, rgba(255, 255, 255, 0.95) 10% 15%, transparent 15% 35%,
+      rgba(255, 255, 255, 0.95) 35% 40%, transparent 40% 60%,
+      rgba(255, 255, 255, 0.95) 60% 65%, transparent 65% 85%,
+      rgba(255, 255, 255, 0.95) 85% 90%, transparent 90% 100%);
+  border-radius: 50%;
+  opacity: 0.0;
+  transform: rotate(6deg) scale(0.8);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  pointer-events: none;
+}
+
+.btn-primary:hover::after {
+  opacity: 0.9;
+  transform: rotate(12deg) scale(1);
 }
 
  :root[data-theme="dark"] .btn-primary {
