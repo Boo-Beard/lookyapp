@@ -1493,16 +1493,67 @@ body.is-scanning .logo-lockup .eye::before {
   margin-top: 16px;
 }
 
-#watchlistResults {
-  margin-top: 16px;
-}
-
 .watchlist-table-container {
   margin-top: 16px;
 }
 
-.watchlist-table .actions-col {
-  width: 52px;
+.watchlist-table {
+  table-layout: fixed;
+}
+
+.watchlist-table th.token-col,
+.watchlist-table td.token-col {
+  width: 44%;
+}
+
+.watchlist-table th.price-col,
+.watchlist-table td.price-col {
+  width: 14%;
+}
+
+.watchlist-table th.mcap-col,
+.watchlist-table td.mcap-col {
+  width: 16%;
+}
+
+.watchlist-table th.pnl-col,
+.watchlist-table td.pnl-col {
+  width: 12%;
+}
+
+.watchlist-table th.value-col,
+.watchlist-table td.value-col {
+  width: 14%;
+}
+
+.watchlist-table th.actions-col,
+.watchlist-table td.actions-col {
+  width: 100px;
+}
+
+.watchlist-table td.actions-col {
+  white-space: nowrap;
+}
+
+.watchlist-table td.actions-col {
+  text-align: right;
+}
+
+.watchlist-table td.actions-col .watchlist-action-btn + .watchlist-action-btn {
+  margin-left: 8px;
+}
+
+body.holdings-cards .watchlist-table thead {
+  display: table-header-group;
+}
+
+body.holdings-cards .watchlist-table {
+  border-spacing: 5px;
+}
+
+body.holdings-cards .watchlist-table td {
+  border-bottom: 2px solid var(--border);
+  padding: 14px 14px;
 }
 
 .watchlist-table .watchlist-action-btn {
@@ -1523,18 +1574,19 @@ body.is-scanning .logo-lockup .eye::before {
   transform: translateY(1px) scale(0.99);
 }
 
-#searchResults .holding-card {
-  width: min(calc(100vw - 32px), calc(80% + 40%));
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+.watchlist-input {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 10px;
 }
 
-#watchlistResults .holding-card {
+.watchlist-input #watchlistInput {
+  flex: 1;
+}
+
+#searchResults .holding-card {
   width: min(calc(100vw - 32px), calc(80% + 40%));
   position: relative;
   left: 50%;
@@ -1547,10 +1599,6 @@ body.is-scanning .logo-lockup .eye::before {
 
 @media (min-width: 641px) {
   #searchResults .holding-card {
-    width: min(calc(100vw - 32px), calc(80% + 35%));
-  }
-
-  #watchlistResults .holding-card {
     width: min(calc(100vw - 32px), calc(80% + 35%));
   }
 }
