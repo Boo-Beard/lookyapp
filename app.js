@@ -5097,6 +5097,40 @@ function setupEventListeners() {
       return;
     }
 
+    try {
+      if (state.scanning) state.scanAbortController?.abort();
+    } catch {}
+    try {
+      state.scanning = false;
+      state.scanAbortController = null;
+      state.walletHoldings = new Map();
+      state.walletDayChange = new Map();
+      state.lastScanFailedQueue = [];
+      state.scanMeta = { completed: 0, total: 0 };
+      state.holdings = [];
+      state.totalValue = 0;
+      state.totalSolValue = 0;
+      state.totalEvmValue = 0;
+      state.totalChangeSolUsd = 0;
+      state.totalChangeEvmUsd = 0;
+      state.totalValueForChange = 0;
+      state.totalValue24hAgo = 0;
+    } catch {}
+
+    try {
+      document.body.classList.remove('ui-results');
+      document.body.classList.add('ui-landing');
+      $('resultsSection')?.classList.add('hidden');
+      $('inputSection')?.classList.remove('is-minimized');
+      setPortfolioMinimizedPreference(false);
+      setScanningUi(false);
+      clearScanProgress();
+      updateProgress(0);
+      $('cancelScanButton')?.classList.add('hidden');
+      $('retryFailedButton')?.classList.add('hidden');
+      updateTelegramMainButton();
+    } catch {}
+
     const profiles = loadProfiles();
     const rawList = Array.isArray(profiles?.[name]?.addresses) ? profiles[name].addresses : [];
     const parsed = getAddressItemsFromText(rawList.join('\n'));
@@ -5104,6 +5138,19 @@ function setupEventListeners() {
     setActiveProfileName(name);
     showStatus(`Loaded profile: ${name}`, 'success');
     hapticFeedback('light');
+
+    try {
+      updateSummary();
+      renderAllocationAndRisk();
+      renderHoldingsByWallet();
+      scheduleRenderHoldingsTable();
+    } catch {}
+    try {
+      requestAnimationFrame(() => {
+        lockInputBodyHeight();
+        try { syncWatchlistStars(); } catch {}
+      });
+    } catch {}
   });
 
   saveProfileBtn?.addEventListener('click', () => {
