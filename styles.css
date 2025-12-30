@@ -1590,7 +1590,7 @@ body.is-scanning .logo-lockup .eye::before {
 .watchlist-controls {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
   margin-top: 6px;
 }
@@ -1611,11 +1611,12 @@ body.is-scanning .logo-lockup .eye::before {
 
 @media (max-width: 420px) {
   .watchlist-controls {
-    justify-content: space-between;
+    justify-content: center;
   }
   .watchlist-controls .select {
     min-width: 0;
-    flex: 1 1 auto;
+    width: 100%;
+    max-width: 340px;
   }
 }
 
