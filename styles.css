@@ -1734,12 +1734,24 @@ body.is-scanning .logo-lockup .eye::before {
   background: var(--panel);
   color: var(--text-secondary);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+#watchlistBody .holding-action:hover {
+  transform: translateY(-2px) rotate(-0.6deg);
+  background: rgba(0, 194, 255, 0.10);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
+}
+
+#watchlistBody .holding-action:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
 }
 
 #watchlistBody .holding-action:active {
-  transform: translateY(1px) scale(0.99);
+  transform: translateY(2px) scale(0.985);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.50), var(--shadow-sm);
 }
 
 #watchlistBody .holding-action.disabled {
@@ -1872,12 +1884,24 @@ body.is-scanning .logo-lockup .eye::before {
   background: var(--panel);
   color: var(--text-secondary);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+#searchResults .holding-action:hover {
+  transform: translateY(-2px) rotate(-0.6deg);
+  background: rgba(0, 194, 255, 0.10);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
+}
+
+#searchResults .holding-action:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
 }
 
 #searchResults .holding-action:active {
-  transform: translateY(1px) scale(0.99);
+  transform: translateY(2px) scale(0.985);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.50), var(--shadow-sm);
 }
 
 #searchResults .holding-action.disabled {
@@ -3074,12 +3098,24 @@ body.holdings-cards .holding-action {
   background: var(--panel);
   color: var(--text-secondary);
   text-decoration: none;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+body.holdings-cards .holding-action:hover {
+  transform: translateY(-2px) rotate(-0.6deg);
+  background: rgba(0, 194, 255, 0.10);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
+}
+
+body.holdings-cards .holding-action:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
 }
 
 body.holdings-cards .holding-action:active {
-  transform: translateY(1px) scale(0.99);
+  transform: translateY(2px) scale(0.985);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.50), var(--shadow-sm);
 }
 
 body.holdings-cards .holding-action.disabled {
