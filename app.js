@@ -909,6 +909,7 @@ function canonicalizeChainForKey(chain) {
 function canonicalizeNetworkForKey(chain, network) {
   const c = canonicalizeChainForKey(chain);
   const n = String(network || '').toLowerCase();
+  if (c === 'solana') return '';
   if (c !== 'evm') return n;
 
   if (!n) return '';
@@ -941,6 +942,12 @@ function getWatchlistMatchKey(t) {
     const key = normalizeWatchlistTokenKey(t);
     const exact = list.find((x) => normalizeWatchlistTokenKey(x) === key);
     if (exact) return normalizeWatchlistTokenKey(exact);
+
+    if (chain === 'solana') {
+      const byAddr = list.find((x) => canonicalizeChainForKey(x?.chain) === 'solana'
+        && String(x?.address || '').trim().toLowerCase() === address);
+      if (byAddr) return normalizeWatchlistTokenKey(byAddr);
+    }
 
     if (chain === 'evm') {
       const byAddr = list.find((x) => String(x?.chain || '').toLowerCase() === 'evm'
