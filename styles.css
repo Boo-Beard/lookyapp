@@ -19,8 +19,8 @@
   --text-tertiary: rgba(11, 11, 16, 0.55);
   --text-accent: var(--accent);
 
-  --border: rgba(11, 11, 16, 0.14);
-  --border-hover: rgba(11, 11, 16, 0.22);
+  --border: rgba(11, 11, 16, 0.92);
+  --border-hover: rgba(11, 11, 16, 1);
 
   --gradient-primary: linear-gradient(135deg, var(--accent-3) 0%, var(--accent) 55%, var(--accent-2) 100%);
   --gradient-card: linear-gradient(135deg, rgba(255, 45, 85, 0.10), rgba(0, 194, 255, 0.08));
@@ -42,9 +42,9 @@
   --radius-full: 9999px;
 
   
-  --shadow-sm: 0 1px 2px rgba(11, 11, 16, 0.08), 0 1px 1px rgba(11, 11, 16, 0.06);
-  --shadow-md: 0 6px 16px rgba(11, 11, 16, 0.12), 0 2px 6px rgba(11, 11, 16, 0.08);
-  --shadow-lg: 0 14px 32px rgba(11, 11, 16, 0.16), 0 6px 14px rgba(11, 11, 16, 0.10);
+  --shadow-sm: 3px 3px 0 rgba(11, 11, 16, 0.95);
+  --shadow-md: 6px 6px 0 rgba(11, 11, 16, 0.95);
+  --shadow-lg: 9px 9px 0 rgba(11, 11, 16, 0.95);
   --shadow-glow: none;
 
   
@@ -67,12 +67,12 @@
   --text-secondary: rgba(247, 243, 232, 0.72);
   --text-tertiary: rgba(247, 243, 232, 0.52);
 
-  --border: rgba(247, 243, 232, 0.14);
-  --border-hover: rgba(247, 243, 232, 0.22);
+  --border: rgba(247, 243, 232, 0.78);
+  --border-hover: rgba(247, 243, 232, 0.92);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 1px rgba(0, 0, 0, 0.22);
-  --shadow-md: 0 8px 18px rgba(0, 0, 0, 0.40), 0 3px 8px rgba(0, 0, 0, 0.22);
-  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.46), 0 8px 18px rgba(0, 0, 0, 0.28);
+  --shadow-sm: 3px 3px 0 rgba(0, 0, 0, 0.65);
+  --shadow-md: 6px 6px 0 rgba(0, 0, 0, 0.65);
+  --shadow-lg: 9px 9px 0 rgba(0, 0, 0, 0.65);
  }
 
 
@@ -91,7 +91,7 @@
 
 html, body {
   height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+  font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--paper);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -190,7 +190,7 @@ body.modal-open {
   gap: 6px;
   padding: 6px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+  border: 2px solid rgba(0, 0, 0, 0.9);
   background: var(--paper);
   box-shadow: var(--shadow-md);
   z-index: 2;
@@ -207,7 +207,7 @@ body.modal-open {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   color: var(--text-secondary);
   text-decoration: none;
@@ -306,7 +306,7 @@ body.ui-landing .input-header {
     padding: 10px 12px;
     border-radius: var(--radius-lg);
     background: rgba(255, 255, 255, 0.45);
-    border: 1px solid var(--border);
+    border: 2px solid rgb(0 0 0);
     gap: 10px;
     align-items: center;
     margin-top: 4px;
@@ -537,7 +537,7 @@ body.is-redacted .redacted-field.is-revealed {
   padding: 34px 12px 14px;
   overflow: visible;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
+  border: 4px solid var(--border);
   backdrop-filter: none;
   box-shadow: var(--shadow-lg);
   margin-bottom: 0;
@@ -548,7 +548,7 @@ body.is-redacted .redacted-field.is-revealed {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.30;
+  opacity: 0.18;
   z-index: 0;
   background:
     radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.14) 0 1px, transparent 1px 14px),
@@ -817,7 +817,7 @@ body.ui-landing .logo-title {
 }
 
 body.ui-results #resultsSection .card {
-  border: 1px solid var(--border);
+  border: 4px solid var(--border);
   box-shadow: var(--shadow-lg);
 }
 
@@ -826,7 +826,7 @@ body.ui-results #resultsSection .card:hover {
 }
 
 body.ui-results #resultsSection .card::before {
-  opacity: 0.22;
+  opacity: 0.14;
   background:
     radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.12) 0 1px, transparent 1px 14px),
     radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.10) 0 1px, transparent 1px 16px);
@@ -936,7 +936,7 @@ body.ui-results .input-section.is-minimized {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
@@ -1317,7 +1317,7 @@ body.is-scanning .logo-lockup .eye::before {
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   background: rgba(255, 255, 255, 0.45);
   box-shadow: var(--shadow-md);
 }
@@ -1344,7 +1344,7 @@ body.is-scanning .logo-lockup .eye::before {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
   color: var(--text-secondary);
@@ -1369,7 +1369,7 @@ body.is-scanning .logo-lockup .eye::before {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.20;
   background:
     radial-gradient(circle at 20% 20%, rgba(11, 11, 16, 0.14) 0 1px, transparent 1px 14px),
     radial-gradient(circle at 60% 60%, rgba(11, 11, 16, 0.12) 0 1px, transparent 1px 16px);
@@ -1514,7 +1514,7 @@ body.is-scanning .logo-lockup .eye::before {
   left: 50%;
   transform: translateX(-50%);
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
@@ -1532,7 +1532,7 @@ body.is-scanning .logo-lockup .eye::before {
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--border);
   background: var(--panel);
 }
 
@@ -1565,7 +1565,7 @@ body.is-scanning .logo-lockup .eye::before {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: var(--panel);
   color: var(--text-secondary);
   text-decoration: none;
@@ -1600,7 +1600,7 @@ body.is-scanning .logo-lockup .eye::before {
 
 #watchlistBody .holding-metric {
   border-radius: 16px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: var(--panel);
   padding: 10px;
 }
@@ -1649,7 +1649,7 @@ body.is-scanning .logo-lockup .eye::before {
   left: 50%;
   transform: translateX(-50%);
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
@@ -1667,7 +1667,7 @@ body.is-scanning .logo-lockup .eye::before {
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--border);
   background: var(--panel);
 }
 
@@ -1704,7 +1704,7 @@ body.is-scanning .logo-lockup .eye::before {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   background: var(--panel);
   color: var(--text-secondary);
   text-decoration: none;
@@ -2117,7 +2117,7 @@ body.is-scanning .logo-lockup .eye::before {
   gap: 8px;
   padding: 0 24px;
   height: 48px;
-  border: 1px solid var(--border);
+  border: 4px solid var(--border);
   border-radius: var(--radius-lg);
   font-family: inherit;
   font-size: 15px;
@@ -2130,8 +2130,8 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .btn:active {
-  transform: translateY(1px) scale(0.995);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(3px) scale(0.992);
+  box-shadow: 1px 1px 0 rgba(11, 11, 16, 0.95);
 }
 
 .btn-primary {
@@ -2152,7 +2152,7 @@ body.is-scanning .logo-lockup .eye::before {
  }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
@@ -2164,7 +2164,7 @@ body.is-scanning .logo-lockup .eye::before {
 .btn-outline {
   background: var(--panel);
   color: var(--ink);
-  border: 1px solid var(--border);
+  border: 4px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
 
@@ -2250,7 +2250,7 @@ body.ui-results .table-header {
     justify-content: stretch;
     padding: 12px;
     border-radius: var(--radius-xl);
-    border: 1px solid var(--border);
+    border: 3px solid var(--border);
     background: var(--panel);
     box-shadow: var(--shadow-sm);
   }
@@ -2350,7 +2350,7 @@ body.ui-results .table-header {
   width: 100%;
   padding: 12px 14px 12px 42px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
+  border: 4px solid var(--border);
   box-shadow: var(--shadow-md);
   color: var(--ink);
   font-size: 14px;
@@ -2366,7 +2366,7 @@ body.ui-results .table-header {
   width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
+  border: 4px solid var(--border);
   background: var(--panel);
   box-shadow: var(--shadow-md);
   color: var(--ink);
@@ -2380,7 +2380,7 @@ body.ui-results .table-header {
     gap: 10px;
     padding: 3px 11px;
     border-radius: var(--radius-xl);
-    border: 1px solid var(--border);
+    border: 4px solid var(--border);
     box-shadow: var(--shadow-md);
     color: var(--text-primary);
     font-weight: 700;
@@ -2466,7 +2466,7 @@ body.ui-results .table-subtitle {
   font-weight: 700;
   color: var(--text-secondary);
   background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -2482,7 +2482,7 @@ body.ui-results .holdings-table th {
 
 .holdings-table td {
   padding: 14px 14px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   text-align: center;
   transition: background var(--transition-fast);
 }
@@ -2493,7 +2493,7 @@ body.ui-results .holdings-table th {
 }
 
 .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.10);
 }
 
 body.ui-results .holdings-table td {
@@ -2556,7 +2556,7 @@ body.ui-results .holding-row::after {
 }
 
 .holding-row:hover::after {
-  opacity: 1;
+  opacity: 0.55;
 }
 
 .token-cell {
