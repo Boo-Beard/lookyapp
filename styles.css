@@ -3764,6 +3764,11 @@ body.ui-results .table-stats {
     padding-left: 24px;
     padding-right: 24px;
   }
+
+  body.holdings-cards .table-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
 }
 
 @media (max-width: 480px) {
