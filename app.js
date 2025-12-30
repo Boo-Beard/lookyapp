@@ -3772,26 +3772,28 @@ function renderSearchTokenLoading() {
   const root = $('searchResults');
   if (!root) return;
   root.innerHTML = `
-    <div class="card table-section search-token-card">
-      <div class="table-header">
-        <div class="collapsible-header-left">
-          <div class="search-token-title-row">
-            <img class="search-token-icon" src="${tokenIconDataUri('...')}" alt="" />
-            <h3 class="table-title">Loading…</h3>
+    <div class="search-token-card">
+      <div class="holding-card">
+        <div class="holding-card-header">
+          <div class="token-cell">
+            <img class="token-icon" src="${tokenIconDataUri('...')}" alt="" />
+            <div class="token-info">
+              <div class="token-symbol">Loading…</div>
+              <div class="token-name">Fetching token metrics</div>
+            </div>
           </div>
-          <p class="table-subtitle">Fetching token metrics</p>
         </div>
-      </div>
 
-      <div class="search-token-metrics">
-        <div class="search-token-metric"><div class="search-token-metric-label">Market Cap</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Price</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">24h Change</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Liquidity</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">24h Volume</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Holders</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Circulating Supply</div><div class="search-token-metric-value mono">—</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Trades (24h)</div><div class="search-token-metric-value mono">—</div></div>
+        <div class="holding-card-metrics">
+          <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono"><strong>—</strong></div></div>
+        </div>
       </div>
     </div>
   `;
@@ -3801,14 +3803,16 @@ function renderSearchTokenError(message) {
   const root = $('searchResults');
   if (!root) return;
   root.innerHTML = `
-    <div class="card table-section search-token-card">
-      <div class="table-header">
-        <div class="collapsible-header-left">
-          <div class="search-token-title-row">
-            <img class="search-token-icon" src="${tokenIconDataUri('!')}" alt="" />
-            <h3 class="table-title">Could not load token</h3>
+    <div class="search-token-card">
+      <div class="holding-card">
+        <div class="holding-card-header">
+          <div class="token-cell">
+            <img class="token-icon" src="${tokenIconDataUri('!')}" alt="" />
+            <div class="token-info">
+              <div class="token-symbol">Could not load token</div>
+              <div class="token-name">${escapeHtml(String(message || 'Unknown error'))}</div>
+            </div>
           </div>
-          <p class="table-subtitle">${escapeHtml(String(message || 'Unknown error'))}</p>
         </div>
       </div>
     </div>
@@ -3842,47 +3846,48 @@ function renderSearchTokenCard(model) {
   const chainBadge = String(model?.chainShort || '').trim();
   const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
   const ipfsCid = extractIpfsCid(model?.logoUrl) || extractIpfsCid(iconUrl);
-  const iconText = tokenIconLabel(model?.symbol || model?.name);
   const actionsHtml = renderSearchTokenActions(model);
-  const titleText = symbol && name ? `${name} (${symbol})` : (name || symbol || 'Token');
+  const titleSymbol = symbol || tokenIconLabel(name);
+  const titleName = name || '';
 
   root.innerHTML = `
-    <div class="card table-section search-token-card">
-      <div class="table-header">
-        <div class="collapsible-header-left">
-          <div class="search-token-title-row">
-            <span class="search-token-icon-wrap" aria-hidden="true">
-              <span class="search-token-icon-fallback">${escapeHtml(iconText)}</span>
-              <img class="search-token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsCid ? `data-ipfs-cid=\"${escapeAttribute(ipfsCid)}\" data-gateway-idx=\"0\"` : ''} onload="this.previousElementSibling && (this.previousElementSibling.style.opacity='0')" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
-            </span>
-            <h3 class="table-title">${escapeHtml(titleText)}</h3>
+    <div class="search-token-card">
+      <div class="holding-card">
+        <div class="holding-card-header">
+          <div class="token-cell">
+            <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
+            <div class="token-info">
+              <div class="token-symbol">${escapeHtml(titleSymbol)}</div>
+              <div class="token-name">${escapeHtml(titleName)}</div>
+              ${subtitle ? `<div class=\"table-subtitle\">${escapeHtml(subtitle)}</div>` : ''}
+            </div>
           </div>
-          ${subtitle ? `<p class=\"table-subtitle\">${escapeHtml(subtitle)}</p>` : ''}
+
+          <div class="holding-card-header-right">
+            ${chainBadge ? `<span class=\"chain-badge-small ${String(model?.chain || '')}\">${escapeHtml(chainBadge)}</span>` : ''}
+            ${actionsHtml}
+          </div>
         </div>
 
-        <div class="search-token-header-right">
-          ${chainBadge ? `<div class=\"search-chain-badge\">${escapeHtml(chainBadge)}</div>` : ''}
-          ${actionsHtml}
+        <div class="holding-card-metrics">
+          <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong>${escapeHtml(mcap)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong>${escapeHtml(price)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="${changeClass}">${escapeHtml(changeText)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong>${escapeHtml(liq)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono"><strong>${escapeHtml(vol)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono"><strong>${escapeHtml(holders)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono"><strong>${escapeHtml(circ)}</strong></div></div>
+          <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono"><strong>${escapeHtml(trades)}</strong></div></div>
         </div>
-      </div>
-
-      <div class="search-token-metrics">
-        <div class="search-token-metric"><div class="search-token-metric-label">Market Cap</div><div class="search-token-metric-value mono">${escapeHtml(mcap)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Price</div><div class="search-token-metric-value mono">${escapeHtml(price)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">24h Change</div><div class="search-token-metric-value mono ${changeClass}">${escapeHtml(changeText)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Liquidity</div><div class="search-token-metric-value mono">${escapeHtml(liq)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">24h Volume</div><div class="search-token-metric-value mono">${escapeHtml(vol)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Holders</div><div class="search-token-metric-value mono">${escapeHtml(holders)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Circulating Supply</div><div class="search-token-metric-value mono">${escapeHtml(circ)}</div></div>
-        <div class="search-token-metric"><div class="search-token-metric-label">Trades (24h)</div><div class="search-token-metric-value mono">${escapeHtml(trades)}</div></div>
       </div>
     </div>
   `;
 
-  // If the logo is IPFS-hosted, pick the fastest reachable gateway up-front to avoid long stalls.
   if (ipfsCid) {
-    const img = root.querySelector('.search-token-icon');
+    const img = root.querySelector('.token-icon');
     if (img) {
+      img.dataset.ipfsCid = ipfsCid;
+      img.dataset.gatewayIdx = '0';
       resolveIpfsLogoUrl(ipfsCid, { timeoutMs: 1200 }).then((resolved) => {
         if (!resolved?.url) return;
         img.dataset.gatewayIdx = String(resolved.idx || 0);
@@ -3890,6 +3895,7 @@ function renderSearchTokenCard(model) {
       }).catch(() => {});
     }
   }
+
 }
 
 function normalizeEvmAddress(raw) {
