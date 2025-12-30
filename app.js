@@ -5040,6 +5040,99 @@ function setupEventListeners() {
 
   updateInstallButtonVisibility();
 
+  const settingsBtn = $('settingsBtn');
+  const settingsMenu = $('settingsMenu');
+  const resetAppBtn = $('resetAppBtn');
+
+  const setSettingsOpen = (open) => {
+    if (!settingsBtn || !settingsMenu) return;
+    settingsMenu.classList.toggle('hidden', !open);
+    settingsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  const isSettingsOpen = () => {
+    if (!settingsMenu) return false;
+    return !settingsMenu.classList.contains('hidden');
+  };
+
+  const resetAppData = async () => {
+    try {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k) keys.push(k);
+      }
+
+      for (const k of keys) {
+        if (
+          k.startsWith('peeek:') ||
+          k.startsWith('looky:') ||
+          k.startsWith('looky_')
+        ) {
+          try { localStorage.removeItem(k); } catch {}
+        }
+      }
+
+      try { localStorage.removeItem('looky_watchlist_tokens_v1'); } catch {}
+      try { localStorage.removeItem('looky_watchlist_sort_v1'); } catch {}
+
+      try {
+        const legacyPrefixA = ['l', 'o', 'o', 'k', 'y', ':'].join('');
+        const legacyPrefixB = ['p', 'e', 'e', 'k', ':'].join('');
+        for (const suffix of ['lastAddresses', 'profiles', 'activeProfile', 'uiSections', 'redactedMode', 'lastScanAt']) {
+          try { localStorage.removeItem(legacyPrefixA + suffix); } catch {}
+          try { localStorage.removeItem(legacyPrefixB + suffix); } catch {}
+        }
+      } catch {}
+    } catch {}
+
+    try { sessionStorage.clear(); } catch {}
+
+    try {
+      if (typeof caches !== 'undefined' && caches?.keys) {
+        const names = await caches.keys();
+        await Promise.all(names.map((n) => caches.delete(n)));
+      }
+    } catch {}
+
+    try {
+      if (navigator?.serviceWorker?.getRegistrations) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+    } catch {}
+
+    try { location.reload(); } catch {}
+  };
+
+  settingsBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    setSettingsOpen(!isSettingsOpen());
+    hapticFeedback('light');
+  });
+
+  resetAppBtn?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    setSettingsOpen(false);
+    const ok = confirm('Reset Peeek? This will remove profiles, wallets, scans, and watchlist data.');
+    if (!ok) return;
+    hapticFeedback('error');
+    await resetAppData();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!isSettingsOpen()) return;
+    const hit = e.target?.closest?.('#settingsMenu') || e.target?.closest?.('#settingsBtn');
+    if (hit) return;
+    setSettingsOpen(false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!isSettingsOpen()) return;
+    setSettingsOpen(false);
+  });
+
   const applyTheme = (theme) => {
     const t = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.dataset.theme = t;
