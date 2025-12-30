@@ -1508,8 +1508,130 @@ body.is-scanning .logo-lockup .eye::before {
   gap: 12px;
 }
 
-.watchlist-card .holding-card {
-  width: 100%;
+#watchlistBody .holding-card {
+  width: min(calc(100vw - 32px), calc(80% + 40%));
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: var(--radius-xl);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+@media (min-width: 641px) {
+  #watchlistBody .holding-card {
+    width: min(calc(100vw - 32px), calc(80% + 35%));
+  }
+}
+
+#watchlistBody .holding-card-header {
+  padding: 16px 16px 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-bottom: 3px solid var(--border);
+  background: var(--panel);
+}
+
+#watchlistBody .holding-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  #watchlistBody .holding-card-header-right {
+    width: 100%;
+    justify-content: space-between;
+    flex: 1 1 auto;
+  }
+}
+
+#watchlistBody .holding-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#watchlistBody .holding-action {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--text-secondary);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+#watchlistBody .holding-action:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+#watchlistBody .holding-action.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+#watchlistBody .holding-card-metrics {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: var(--paper);
+}
+
+#watchlistBody .holding-metric {
+  border-radius: 16px;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  padding: 10px;
+}
+
+#watchlistBody .holding-metric-label {
+  font-family: var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+#watchlistBody .holding-metric-value {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+#watchlistBody .holding-metric-value strong {
+  font-weight: 900;
+}
+
+#watchlistBody .holding-card-header .token-cell {
+  min-width: 0;
+}
+
+#watchlistBody .holding-card-header .token-info {
+  min-width: 0;
+}
+
+#watchlistBody .holding-card-header .token-symbol {
+  font-size: 17px;
+}
+
+#watchlistBody .holding-card-header .token-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: none;
 }
 
 #searchResults .holding-card {

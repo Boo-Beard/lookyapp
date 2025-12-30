@@ -901,7 +901,7 @@ function renderWatchlist() {
       : evmNetworkLabel(t.network);
 
     return `
-      <div class="watchlist-card" data-key="${escapeAttribute(key)}">
+      <div class="holding-row holding-card-row" data-key="${escapeAttribute(key)}">
         <div class="holding-card">
           <div class="holding-card-header">
             <div class="token-cell">
