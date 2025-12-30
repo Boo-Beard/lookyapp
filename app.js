@@ -887,9 +887,25 @@ const state = {
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
 const WATCHLIST_MAX_TOKENS = 5;
 
+function canonicalizeNetworkForKey(chain, network) {
+  const c = String(chain || '').toLowerCase();
+  const n = String(network || '').toLowerCase();
+  if (c !== 'evm') return n;
+
+  if (!n) return '';
+  if (n === 'eth' || n === 'ethereum' || n === 'mainnet' || n === 'ethereum-mainnet') return 'ethereum';
+  if (n === 'arb' || n === 'arbitrum' || n === 'arbitrum-one') return 'arbitrum';
+  if (n === 'op' || n === 'optimism') return 'optimism';
+  if (n === 'base') return 'base';
+  if (n === 'poly' || n === 'polygon' || n === 'matic') return 'polygon';
+  if (n === 'bsc' || n === 'binance' || n === 'bnb' || n === 'bnbchain' || n === 'bnb-chain') return 'bsc';
+  if (n === 'avax' || n === 'avalanche' || n === 'avalanche-c' || n === 'avax-c') return 'avalanche';
+  return n;
+}
+
 function normalizeWatchlistTokenKey(t) {
   const chain = String(t?.chain || '').toLowerCase();
-  const network = String(t?.network || '').toLowerCase();
+  const network = canonicalizeNetworkForKey(chain, String(t?.network || ''));
   const address = String(t?.address || '').trim();
   return `${chain}:${network}:${address}`.toLowerCase();
 }
@@ -927,7 +943,7 @@ function syncWatchlistStars() {
 function sanitizeWatchlistToken(raw) {
   const t = (raw && typeof raw === 'object') ? raw : {};
   const chain = String(t.chain || '').toLowerCase();
-  const network = String(t.network || '').toLowerCase();
+  const network = canonicalizeNetworkForKey(chain, String(t.network || ''));
   const address = String(t.address || '').trim();
   if (!chain || !address) return null;
 
