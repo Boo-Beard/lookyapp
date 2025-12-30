@@ -1238,7 +1238,7 @@ body.is-scanning .logo-lockup .eye::before {
   padding: 0 32px 24px;
 }
 
- body.ui-results #portfolioPanel .input-container {
+ #portfolioPanel .input-container {
   display: flex;
   flex-direction: column;
  }
@@ -1316,9 +1316,8 @@ body.is-scanning .logo-lockup .eye::before {
   width: 100%;
 }
 
- body.ui-results #portfolioPanel .profiles-bar {
-  order: 2;
-  margin-top: 0;
+ #portfolioPanel .profiles-bar {
+  order: 1;
  }
 
  .profiles-bar .btn {
@@ -1368,6 +1367,10 @@ body.is-scanning .logo-lockup .eye::before {
   gap: 10px;
   padding: 10px;
 }
+
+ #portfolioPanel .textarea-wrapper.address-entry {
+  order: 2;
+ }
 
 .textarea-wrapper.address-entry .address-input-row {
   display: flex;
@@ -1533,9 +1536,8 @@ body.is-scanning .logo-lockup .eye::before {
   gap: 8px;
 }
 
- body.ui-results #portfolioPanel .address-chips {
+ #portfolioPanel .address-chips {
   order: 3;
-  margin-top: 0;
  }
 
  @media (max-width: 360px) {
