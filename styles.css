@@ -22,7 +22,7 @@
   --border: rgba(11, 11, 16, 0.92);
   --border-hover: rgba(11, 11, 16, 1);
 
-  --gradient-primary: linear-gradient(135deg, var(--accent-3) 0%, var(--accent) 55%, var(--accent-2) 100%);
+  --gradient-primary: linear-gradient(135deg, var(--accent-3) 0%, #FF7A00 28%, var(--accent) 60%, var(--accent-2) 100%);
   --gradient-card: linear-gradient(135deg, rgba(255, 45, 85, 0.10), rgba(0, 194, 255, 0.08));
   --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
 
@@ -42,9 +42,9 @@
   --radius-full: 9999px;
 
   
-  --shadow-sm: 3px 3px 0 rgba(11, 11, 16, 0.95);
-  --shadow-md: 6px 6px 0 rgba(11, 11, 16, 0.95);
-  --shadow-lg: 9px 9px 0 rgba(11, 11, 16, 0.95);
+  --shadow-sm: 3px 3px 0 rgba(11, 11, 16, 0.95), 5px 5px 0 rgba(0, 194, 255, 0.22);
+  --shadow-md: 6px 6px 0 rgba(11, 11, 16, 0.95), 9px 9px 0 rgba(255, 45, 85, 0.16);
+  --shadow-lg: 9px 9px 0 rgba(11, 11, 16, 0.95), 13px 13px 0 rgba(0, 194, 255, 0.18);
   --shadow-glow: none;
 
   
@@ -92,11 +92,28 @@
 html, body {
   height: 100%;
   font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--paper);
+  background:
+    radial-gradient(1400px 900px at 18% 10%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.00) 60%),
+    radial-gradient(1100px 760px at 82% 0%, rgba(0, 194, 255, 0.16) 0%, rgba(0, 194, 255, 0.00) 58%),
+    radial-gradient(920px 720px at 50% 110%, rgba(255, 45, 85, 0.14) 0%, rgba(255, 45, 85, 0.00) 62%),
+    var(--paper);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.12;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(11, 11, 16, 0.22) 0 1px, rgba(0, 0, 0, 0) 2px);
+  background-size: 10px 10px;
+  mix-blend-mode: multiply;
 }
 
  button,
@@ -2250,6 +2267,11 @@ body.is-scanning .logo-lockup .eye::before {
   outline: none;
   text-decoration: none;
   box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+  transform: translateY(-2px) rotate(-0.6deg);
+  box-shadow: var(--shadow-md);
 }
 
 .btn:active {
