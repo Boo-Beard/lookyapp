@@ -971,6 +971,19 @@ body.ui-results .input-section.is-minimized {
   transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
+ .mode-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+ }
+
+ :root[data-theme="dark"] .mode-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+ }
+
+ .mode-toggle-btn:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: -2px;
+ }
+
 .mode-toggle-btn:active {
   transform: translateY(1px);
 }
@@ -979,6 +992,10 @@ body.ui-results .input-section.is-minimized {
   background: var(--panel);
   color: var(--ink);
 }
+
+ .mode-toggle-btn.is-active:hover {
+  background: var(--panel);
+ }
 
 .app-version {
   font-family: var(--mono);
@@ -1186,7 +1203,7 @@ body.is-scanning .logo-lockup .eye::before {
     transform: translateY(0) rotate(-0.3deg);
   }
   50% {
-    transform: translateY(-4px) rotate(0.3deg);
+    transform: translateY(-2px) rotate(0.2deg);
   }
 }
 
@@ -1195,7 +1212,7 @@ body.is-scanning .logo-lockup .eye::before {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(1px);
+    transform: translateY(0.5px);
   }
 }
 
@@ -1293,6 +1310,11 @@ body.is-scanning .logo-lockup .eye::before {
   justify-content: center;
   width: 100%;
 }
+
+ .profiles-bar .btn {
+  padding-left: 16px;
+  padding-right: 16px;
+ }
 
 .select.select-sm {
   height: 38px;
@@ -1495,6 +1517,16 @@ body.is-scanning .logo-lockup .eye::before {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
+
+ @media (max-width: 360px) {
+  .profiles-bar {
+    gap: 8px;
+  }
+
+  .profiles-bar .btn {
+    width: 100%;
+  }
+ }
 
 #searchResults {
   margin-top: 16px;
