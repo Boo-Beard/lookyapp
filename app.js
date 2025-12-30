@@ -53,6 +53,9 @@ const solTokenOverviewCache = new Map();
 
 const SOL_CHANGE_CACHE_TTL_ZERO_MS = 30 * 1000;
 
+let progressRaf = null;
+let progressPending = null;
+
 let scanCooldownTimer = null;
 
 const WALLET_PNL_CACHE_TTL_MS = 2 * 60 * 1000;
@@ -1619,6 +1622,8 @@ const IPFS_GATEWAYS = [
   'https://dweb.link/ipfs/',
 ];
 
+const ipfsLogoResolveCache = new Map();
+
 async function probeUrl(url, timeoutMs) {
   const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
   const timer = controller ? setTimeout(() => controller.abort(), Math.max(250, Number(timeoutMs) || 1500)) : null;
@@ -1642,11 +1647,27 @@ async function resolveIpfsLogoUrl(cid, { timeoutMs = 1500 } = {}) {
   const cleanCid = String(cid || '').trim();
   if (!cleanCid) return null;
 
+  try {
+    const cached = ipfsLogoResolveCache.get(cleanCid);
+    if (cached && cached.expiresAt && Date.now() < cached.expiresAt && cached.value) {
+      return cached.value;
+    }
+  } catch {}
+
   // Race all gateways; take the first reachable.
   const candidates = IPFS_GATEWAYS.map((base, idx) => ({ idx, url: `${base}${cleanCid}` }));
   const results = await Promise.all(candidates.map(async (c) => ({ ...c, ok: await probeUrl(c.url, timeoutMs) })));
   const winner = results.find(r => r.ok) || results[0];
-  return winner ? { url: winner.url, idx: winner.idx } : null;
+  const resolved = winner ? { url: winner.url, idx: winner.idx } : null;
+
+  try {
+    ipfsLogoResolveCache.set(cleanCid, {
+      value: resolved,
+      expiresAt: Date.now() + (30 * 60 * 1000),
+    });
+  } catch {}
+
+  return resolved;
 }
 
 function extractIpfsCid(url) {
@@ -2588,8 +2609,15 @@ function setScanningUi(active) {
 }
 
 function updateProgress(percent) {
-  const fill = $('progressBar')?.querySelector('.progress-fill');
-  if (fill) fill.style.width = `${percent}%`;
+  const p = Math.max(0, Math.min(100, Number(percent) || 0));
+  progressPending = p;
+  if (progressRaf) return;
+
+  progressRaf = requestAnimationFrame(() => {
+    progressRaf = null;
+    const fill = $('progressBar')?.querySelector('.progress-fill');
+    if (fill && progressPending != null) fill.style.width = `${progressPending}%`;
+  });
 }
 
 function clearScanProgress() {
@@ -4283,25 +4311,29 @@ function setupEyeTracking() {
 }
 
 function lockInputBodyHeight() {
-  const body = $('inputBody');
-  if (!body) return;
+  if (lockInputBodyHeight._raf) return;
+  lockInputBodyHeight._raf = requestAnimationFrame(() => {
+    lockInputBodyHeight._raf = null;
+    const body = $('inputBody');
+    if (!body) return;
 
-  const panels = [
-    $('portfolioPanel'),
-    $('watchlistPanel'),
-    $('searchPanel'),
-  ].filter(Boolean);
+    const panels = [
+      $('portfolioPanel'),
+      $('watchlistPanel'),
+      $('searchPanel'),
+    ].filter(Boolean);
 
-  const measure = (el) => {
-    const wasHidden = el.classList.contains('hidden');
-    if (wasHidden) el.classList.remove('hidden');
-    const h = el.scrollHeight || 0;
-    if (wasHidden) el.classList.add('hidden');
-    return h;
-  };
+    const measure = (el) => {
+      const wasHidden = el.classList.contains('hidden');
+      if (wasHidden) el.classList.remove('hidden');
+      const h = el.scrollHeight || 0;
+      if (wasHidden) el.classList.add('hidden');
+      return h;
+    };
 
-  const maxH = panels.reduce((m, el) => Math.max(m, measure(el)), 0);
-  if (maxH > 0) body.style.minHeight = `${maxH}px`;
+    const maxH = panels.reduce((m, el) => Math.max(m, measure(el)), 0);
+    if (maxH > 0) body.style.minHeight = `${maxH}px`;
+  });
 }
 
 function setSearchHint(message, type = 'info') {
