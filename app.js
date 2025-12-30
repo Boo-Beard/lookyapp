@@ -3597,6 +3597,8 @@ function renderHoldingsTable() {
   if ($('tableStats')) {
     $('tableStats').innerHTML = `Showing ${totalItems} tokens • Total value: <span class="redacted-field" tabindex="0">${formatCurrency(filteredTotalValue)}</span>${escapeHtml(progressPart)}`;
   }
+
+  try { syncWatchlistStars(); } catch {}
 }
 
 function recomputeAggregatesAndRender() {
@@ -4283,6 +4285,8 @@ function renderSearchTokenCard(model) {
       }).catch(() => {});
     }
   }
+
+  try { syncWatchlistStars(); } catch {}
 
 }
 
