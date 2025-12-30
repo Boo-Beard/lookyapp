@@ -821,6 +821,11 @@ function sanitizeWatchlistToken(raw) {
     name: String(t.name || '').trim(),
     logoUrl: String(t.logoUrl || '').trim(),
     extensions: t.extensions || null,
+    priceUsd: (t.priceUsd == null ? null : Number(t.priceUsd)),
+    marketCapUsd: (t.marketCapUsd == null ? null : Number(t.marketCapUsd)),
+    change24hPct: (t.change24hPct == null ? null : Number(t.change24hPct)),
+    volume24hUsd: (t.volume24hUsd == null ? null : Number(t.volume24hUsd)),
+    updatedAt: (t.updatedAt == null ? null : Number(t.updatedAt)),
   };
 }
 
@@ -863,51 +868,109 @@ function setWatchlistHint(text, tone = 'info') {
 }
 
 function renderWatchlist() {
-  const root = $('watchlistResults');
-  if (!root) return;
+  const tbody = $('watchlistBody');
+  if (!tbody) return;
   const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
   if (!list.length) {
-    root.innerHTML = '';
+    tbody.innerHTML = '';
     return;
   }
 
-  root.innerHTML = list.map((t) => {
+  tbody.innerHTML = list.map((t) => {
     const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
-    const ext = normalizeExtensions(t.extensions);
-    const subtitle = ext?.description || '';
-    const chainBadge = t.chain === 'solana' ? 'SOL' : evmNetworkLabel(t.network);
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
       : `${evmExplorerBase(t.network)}/token/${t.address}`;
 
+    const price = t.priceUsd != null && Number.isFinite(Number(t.priceUsd)) ? formatPrice(Number(t.priceUsd)) : '—';
+    const mcap = t.marketCapUsd != null && Number.isFinite(Number(t.marketCapUsd)) ? `$${formatCompactNumber(Number(t.marketCapUsd))}` : '—';
+    const vol = t.volume24hUsd != null && Number.isFinite(Number(t.volume24hUsd)) ? `$${formatCompactNumber(Number(t.volume24hUsd))}` : '—';
+
+    const changePct = Number(t.change24hPct);
+    const changeText = Number.isFinite(changePct) ? formatPct(changePct, 2) : '—';
+    const changeClass = Number.isFinite(changePct)
+      ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
+      : '';
+
     return `
-      <div class="holding-card">
-        <div class="holding-card-header">
+      <tr class="holding-row" data-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}">
+        <td class="token-col">
           <div class="token-cell">
             <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
             <div class="token-info">
               <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
               <div class="token-name">${escapeHtml(t.name || '')}</div>
-              ${subtitle ? `<div class=\"table-subtitle\">${escapeHtml(subtitle)}</div>` : ''}
             </div>
           </div>
-
-          <div class="holding-card-header-right">
-            <span class="chain-badge-small ${escapeAttribute(t.chain)}">${escapeHtml(chainBadge)}</span>
-            <div class="holding-card-actions" aria-label="Watchlist actions">
-              <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
-                <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
-              </a>
-              <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}" aria-label="Remove from Watchlist">
-                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
+        </td>
+        <td class="price-col mono"><strong class="redacted-field" tabindex="0">${escapeHtml(price)}</strong></td>
+        <td class="mcap-col mono"><strong class="redacted-field" tabindex="0">${escapeHtml(mcap)}</strong></td>
+        <td class="pnl-col mono"><strong class="redacted-field ${changeClass}" tabindex="0">${escapeHtml(changeText)}</strong></td>
+        <td class="value-col mono"><strong class="redacted-field" tabindex="0">${escapeHtml(vol)}</strong></td>
+        <td class="actions-col">
+          <a class="watchlist-action-btn" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
+            <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+          </a>
+          <a class="watchlist-action-btn" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}" aria-label="Remove from Watchlist">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </a>
+        </td>
+      </tr>
     `;
   }).join('');
+}
+
+let watchlistRefreshInFlight = false;
+async function refreshWatchlistMetrics({ force } = {}) {
+  if (watchlistRefreshInFlight) return;
+
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  if (!list.length) return;
+
+  const now = Date.now();
+  const STALE_MS = 2 * 60 * 1000;
+  const needsRefresh = force
+    ? list
+    : list.filter(t => !t.updatedAt || (now - Number(t.updatedAt || 0)) > STALE_MS);
+
+  if (!needsRefresh.length) return;
+
+  watchlistRefreshInFlight = true;
+  try {
+    const next = [...list];
+    for (let i = 0; i < next.length; i++) {
+      const t = next[i];
+      const should = force || !t.updatedAt || (now - Number(t.updatedAt || 0)) > STALE_MS;
+      if (!should) continue;
+
+      try {
+        const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const model = await runTokenSearch(t.address, controller ? { signal: controller.signal } : undefined);
+        const merged = sanitizeWatchlistToken({
+          ...t,
+          chain: model?.chain || t.chain,
+          network: model?.network || t.network,
+          symbol: model?.symbol || t.symbol,
+          name: model?.name || t.name,
+          logoUrl: model?.logoUrl || t.logoUrl,
+          extensions: model?.extensions || t.extensions,
+          priceUsd: model?.priceUsd ?? t.priceUsd,
+          marketCapUsd: model?.marketCapUsd ?? t.marketCapUsd,
+          change24hPct: model?.change24hPct ?? t.change24hPct,
+          volume24hUsd: model?.volume24hUsd ?? t.volume24hUsd,
+          updatedAt: Date.now(),
+        });
+        if (merged) next[i] = merged;
+      } catch {}
+    }
+
+    state.watchlistTokens = next;
+    saveWatchlistTokens(next);
+    renderWatchlist();
+  } finally {
+    watchlistRefreshInFlight = false;
+  }
 }
 
 function addTokenToWatchlist(token) {
@@ -4309,6 +4372,10 @@ function setMode(mode) {
     sBtn.classList.toggle('is-active', m === 'search');
     sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
   }
+
+  if (m === 'watchlist') {
+    refreshWatchlistMetrics();
+  }
 }
 
 function setupEventListeners() {
@@ -4466,7 +4533,7 @@ function setupEventListeners() {
       setWatchlistHint('', 'info');
       const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
       const model = await runTokenSearch(raw, controller ? { signal: controller.signal } : undefined);
-      const ok = addTokenToWatchlist(model);
+      const ok = addTokenToWatchlist({ ...model, updatedAt: Date.now() });
       if (ok) {
         const input = $('watchlistInput');
         if (input) input.value = '';
@@ -4482,14 +4549,25 @@ function setupEventListeners() {
     const wlAdd = e.target.closest('a.holding-action[data-action="watchlist-add"]');
     if (wlAdd) {
       e.preventDefault();
-      addTokenToWatchlist({
-        chain: wlAdd.dataset.chain,
-        network: wlAdd.dataset.network,
-        address: wlAdd.dataset.address,
-        symbol: wlAdd.dataset.symbol,
-        name: wlAdd.dataset.name,
-        logoUrl: wlAdd.dataset.logoUrl,
-      });
+      (async () => {
+        try {
+          const addr = String(wlAdd.dataset.address || '').trim();
+          if (!addr) return;
+          const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+          const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
+          addTokenToWatchlist({ ...model, updatedAt: Date.now() });
+        } catch {
+          addTokenToWatchlist({
+            chain: wlAdd.dataset.chain,
+            network: wlAdd.dataset.network,
+            address: wlAdd.dataset.address,
+            symbol: wlAdd.dataset.symbol,
+            name: wlAdd.dataset.name,
+            logoUrl: wlAdd.dataset.logoUrl,
+            updatedAt: Date.now(),
+          });
+        }
+      })();
       return;
     }
 
@@ -5055,6 +5133,7 @@ function initialize() {
 
   state.watchlistTokens = loadWatchlistTokens();
   renderWatchlist();
+  refreshWatchlistMetrics();
 
   setMode('portfolio');
 }

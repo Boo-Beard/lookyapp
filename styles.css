@@ -1497,6 +1497,32 @@ body.is-scanning .logo-lockup .eye::before {
   margin-top: 16px;
 }
 
+.watchlist-table-container {
+  margin-top: 16px;
+}
+
+.watchlist-table .actions-col {
+  width: 52px;
+}
+
+.watchlist-table .watchlist-action-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--text-secondary);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.watchlist-table .watchlist-action-btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+
 #searchResults .holding-card {
   width: min(calc(100vw - 32px), calc(80% + 40%));
   position: relative;

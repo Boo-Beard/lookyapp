@@ -153,7 +153,21 @@
                 </button>
               </div>
 
-              <div id="watchlistResults"></div>
+              <div class="table-container watchlist-table-container">
+                <table class="holdings-table watchlist-table" id="watchlistTable">
+                  <thead>
+                    <tr>
+                      <th class="token-col">Token</th>
+                      <th class="price-col">Price</th>
+                      <th class="mcap-col">MCap</th>
+                      <th class="pnl-col">24h</th>
+                      <th class="value-col">Vol (24h)</th>
+                      <th class="actions-col"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="watchlistBody"></tbody>
+                </table>
+              </div>
             </div>
           </div>
 
