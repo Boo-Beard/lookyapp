@@ -880,6 +880,8 @@ function renderWatchlist() {
   body.innerHTML = list.map((t) => {
     const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
+    const key = normalizeWatchlistTokenKey(t);
+
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
       : `${evmExplorerBase(t.network)}/token/${t.address}`;
@@ -894,28 +896,41 @@ function renderWatchlist() {
       ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
       : '';
 
+    const chainBadge = t.chain === 'solana'
+      ? 'SOL'
+      : evmNetworkLabel(t.network);
+
     return `
-      <div class="watchlist-row" data-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}">
-        <div class="wl-col wl-token">
-          <div class="token-cell">
-            <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
-            <div class="token-info">
-              <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
-              <div class="token-name">${escapeHtml(t.name || '')}</div>
+      <div class="watchlist-card" data-key="${escapeAttribute(key)}">
+        <div class="holding-card">
+          <div class="holding-card-header">
+            <div class="token-cell">
+              <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="this.onerror=null;this.src='${escapeAttribute(fallbackIcon)}'" alt="" />
+              <div class="token-info">
+                <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
+                <div class="token-name">${escapeHtml(t.name || '')}</div>
+              </div>
+            </div>
+
+            <div class="holding-card-header-right">
+              ${chainBadge ? `<span class=\"chain-badge-small ${escapeAttribute(String(t.chain || ''))}\">${escapeHtml(chainBadge)}</span>` : ''}
+              <div class="holding-card-actions" aria-label="Watchlist actions">
+                <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
+                  <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+                </a>
+                <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Watchlist">
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="wl-col wl-price mono"><strong class="redacted-field" tabindex="0">${escapeHtml(price)}</strong></div>
-        <div class="wl-col wl-mcap mono"><strong class="redacted-field" tabindex="0">${escapeHtml(mcap)}</strong></div>
-        <div class="wl-col wl-change mono"><strong class="redacted-field ${changeClass}" tabindex="0">${escapeHtml(changeText)}</strong></div>
-        <div class="wl-col wl-vol mono"><strong class="redacted-field" tabindex="0">${escapeHtml(vol)}</strong></div>
-        <div class="wl-col wl-actions">
-          <a class="wl-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
-            <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
-          </a>
-          <a class="wl-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(normalizeWatchlistTokenKey(t))}" aria-label="Remove from Watchlist">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </a>
+
+          <div class="holding-card-metrics">
+            <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(mcap)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(price)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="redacted-field ${changeClass}" tabindex="0">${escapeHtml(changeText)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Vol (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(vol)}</strong></div></div>
+          </div>
         </div>
       </div>
     `;

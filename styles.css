@@ -1495,161 +1495,21 @@ body.is-scanning .logo-lockup .eye::before {
 
 .watchlist-list {
   margin-top: 16px;
-  border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
-  background: var(--panel);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
-.watchlist-list-header {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(92px, 1fr) minmax(92px, 1fr) minmax(72px, 0.9fr) minmax(92px, 1fr) 88px;
-  gap: 10px;
-  align-items: center;
-  padding: 12px 14px;
-  border-bottom: 3px solid var(--border);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--text-secondary);
-}
-
-.watchlist-row {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(92px, 1fr) minmax(92px, 1fr) minmax(72px, 0.9fr) minmax(92px, 1fr) 88px;
-  gap: 10px;
-  align-items: center;
-  padding: 14px 14px;
-  border-bottom: 2px solid var(--border);
-}
-
-.watchlist-row:last-child {
-  border-bottom: none;
-}
-
-.watchlist-row .wl-col {
-  min-width: 0;
-}
-
-.watchlist-row .wl-col,
-.watchlist-list-header .wl-col {
-  overflow: hidden;
-}
-
-.watchlist-row .wl-token,
-.watchlist-list-header .wl-token {
+  background: transparent;
+  border: none;
+  box-shadow: none;
   overflow: visible;
-  min-width: 200px;
 }
 
-.watchlist-row .wl-token .token-cell {
-  min-width: 0;
-}
-
-.watchlist-row .wl-price strong,
-.watchlist-row .wl-mcap strong,
-.watchlist-row .wl-change strong,
-.watchlist-row .wl-vol strong {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.watchlist-row .wl-token .token-symbol,
-.watchlist-row .wl-token .token-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.watchlist-row .wl-price,
-.watchlist-row .wl-mcap,
-.watchlist-row .wl-change,
-.watchlist-row .wl-vol {
-  text-align: center;
-}
-
-.watchlist-row .wl-actions {
+.watchlist-list-body {
+  margin-top: 16px;
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.wl-action {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  background: rgba(255, 255, 255, 0.45);
-  box-shadow: var(--shadow-sm);
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-
-.wl-action:active {
-  transform: translateY(1px) scale(0.99);
-}
-
-@media (max-width: 720px) {
-  .watchlist-list {
-    border: none;
-    box-shadow: none;
-    background: transparent;
-    overflow: visible;
-  }
-
-  .watchlist-list-header {
-    display: none;
-  }
-
-  .watchlist-row {
-    margin: 0 0 12px 0;
-    border: 3px solid var(--border);
-    border-radius: var(--radius-xl);
-    background: var(--panel);
-    box-shadow: var(--shadow-md);
-    overflow: hidden;
-
-    grid-template-columns: minmax(0, 1fr) 96px;
-    grid-template-areas:
-      "token actions"
-      "price actions"
-      "mcap actions"
-      "change actions"
-      "vol actions";
-    row-gap: 8px;
-  }
-
-  .watchlist-row:last-child {
-    margin-bottom: 0;
-  }
-
-  .watchlist-row .wl-token { grid-area: token; }
-  .watchlist-row .wl-actions { grid-area: actions; align-self: start; }
-  .watchlist-row .wl-price { grid-area: price; text-align: left; }
-  .watchlist-row .wl-mcap { grid-area: mcap; text-align: left; }
-  .watchlist-row .wl-change { grid-area: change; text-align: left; }
-  .watchlist-row .wl-vol { grid-area: vol; text-align: left; }
-
-  .watchlist-row .wl-token {
-    min-width: 0;
-  }
-
-  .watchlist-row .wl-actions {
-    justify-content: flex-end;
-  }
-
-  .watchlist-row .wl-price::before { content: 'Price '; color: var(--text-tertiary); font-weight: 800; }
-  .watchlist-row .wl-mcap::before { content: 'MCap '; color: var(--text-tertiary); font-weight: 800; }
-  .watchlist-row .wl-change::before { content: '24h '; color: var(--text-tertiary); font-weight: 800; }
-  .watchlist-row .wl-vol::before { content: 'Vol '; color: var(--text-tertiary); font-weight: 800; }
+.watchlist-card .holding-card {
+  width: 100%;
 }
 
 #searchResults .holding-card {
