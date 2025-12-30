@@ -5273,7 +5273,7 @@ function setupEventListeners() {
   resetAppBtn?.addEventListener('click', async (e) => {
     e.preventDefault();
     setSettingsOpen(false);
-    const ok = confirm('Reset Peeek? This will remove profiles, wallets, scans, and watchlist data.');
+    const ok = confirm('Reset Peeek!? This will remove profiles, wallets, scans, and watchlist data.');
     if (!ok) return;
     hapticFeedback('error');
     await resetAppData();
@@ -5688,7 +5688,9 @@ function setupFooterRotator() {
   'No Wallet Connect!',
   'No Login!',
   'Multichain',
-  'View Value',
+  'Search Tokens',
+  'Watchlist',
+  'Portfolio',
   'Analytics',
   'Peeek!',
   'Just Looking',
