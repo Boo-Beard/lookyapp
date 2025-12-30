@@ -1555,6 +1555,7 @@ body.is-scanning .logo-lockup .eye::before {
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 #watchlistBody .holding-action {
@@ -1689,6 +1690,11 @@ body.is-scanning .logo-lockup .eye::before {
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+}
+
+#holdingsTable .holding-card-actions {
+  position: relative;
 }
 
 #searchResults .holding-action {
@@ -2805,6 +2811,32 @@ body.holdings-cards .holding-card-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
+}
+
+.inline-star-toast {
+  position: absolute;
+  right: 0;
+  top: -10px;
+  transform: translateY(-6px);
+  opacity: 0;
+  pointer-events: none;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow-md);
+  font-weight: 900;
+  font-size: 12px;
+  color: var(--text-primary);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.inline-star-toast.show {
+  opacity: 1;
+  transform: translateY(-12px);
 }
 
 body.holdings-cards .holding-action {

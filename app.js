@@ -88,6 +88,42 @@ function migrateLegacyStorageKeys() {
   } catch {}
 }
 
+function watchlistStarLabelFromEl(el) {
+  try {
+    const sym = String(el?.dataset?.symbol || '').trim();
+    if (sym) return sym;
+    const name = String(el?.dataset?.name || '').trim();
+    if (name) return name;
+    return 'Token';
+  } catch {
+    return 'Token';
+  }
+}
+
+function showInlineStarToast(anchorEl, message) {
+  try {
+    const a = anchorEl;
+    if (!a) return;
+    const root = a.closest('.holding-card-actions') || a.parentElement;
+    if (!root) return;
+
+    const existing = root.querySelector('.inline-star-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'inline-star-toast';
+    toast.textContent = String(message || '').trim();
+    root.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    window.setTimeout(() => {
+      try { toast.classList.remove('show'); } catch {}
+      window.setTimeout(() => { try { toast.remove(); } catch {} }, 250);
+    }, 1600);
+  } catch {}
+}
+
 function renderSearchTokenActions(model) {
   const ext = normalizeExtensions(model?.extensions);
   const explorerHref = getExplorerTokenUrl(model);
@@ -1097,7 +1133,8 @@ function addTokenToWatchlist(token) {
   renderWatchlist();
   try { syncWatchlistStars(); } catch {}
   try { lockInputBodyHeight(); } catch {}
-  setWatchlistHint('Added to watchlist.', 'info');
+  const addedName = (t?.symbol || t?.name || 'Token').toString().trim();
+  setWatchlistHint(`${addedName} added to watchlist`, 'info');
   hapticFeedback('success');
   return true;
 }
@@ -4623,12 +4660,14 @@ function setupEventListeners() {
           const key = normalizeWatchlistTokenKey({ chain, network, address: addr });
           if (isTokenInWatchlist({ chain, network, address: addr })) {
             removeTokenFromWatchlistByKey(key);
+            showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} removed from watchlist`);
             return;
           }
 
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
           const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
-          addTokenToWatchlist({ ...model, updatedAt: Date.now() });
+          const added = addTokenToWatchlist({ ...model, updatedAt: Date.now() });
+          if (added) showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} added to watchlist`);
         } catch {
           const chain = String(wlAdd.dataset.chain || '');
           const network = String(wlAdd.dataset.network || '');
@@ -4636,10 +4675,11 @@ function setupEventListeners() {
           const key = normalizeWatchlistTokenKey({ chain, network, address: addr });
           if (addr && isTokenInWatchlist({ chain, network, address: addr })) {
             removeTokenFromWatchlistByKey(key);
+            showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} removed from watchlist`);
             return;
           }
 
-          addTokenToWatchlist({
+          const added = addTokenToWatchlist({
             chain,
             network,
             address: addr,
@@ -4648,6 +4688,7 @@ function setupEventListeners() {
             logoUrl: wlAdd.dataset.logoUrl,
             updatedAt: Date.now(),
           });
+          if (added) showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} added to watchlist`);
         }
       })();
       return;
