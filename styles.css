@@ -848,14 +848,14 @@ body.ui-results #resultsSection .card::before {
 }
 
 #inputHeaderBar {
-  position: sticky;
-  top: env(safe-area-inset-top);
+  position: relative;
+  top: auto;
   z-index: 60;
 }
 
-body.ui-results #inputHeaderBar {
-  position: relative;
-  top: auto;
+body.ui-landing #inputHeaderBar {
+  position: sticky;
+  top: env(safe-area-inset-top);
 }
 
  .theme-toggle {
