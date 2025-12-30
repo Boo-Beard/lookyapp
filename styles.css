@@ -1338,8 +1338,8 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .textarea-wrapper.address-entry .input-clear-btn {
-  width: 44px;
-  height: 48px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

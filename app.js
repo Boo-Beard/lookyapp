@@ -3388,6 +3388,7 @@ async function scanWallets({ queueOverride } = {}) {
   document.body.classList.remove('ui-landing');
   document.body.classList.add('ui-results');
   $('inputSection')?.classList.add('is-minimized');
+  setPortfolioMinimizedPreference(true);
   document.body.classList.add('ui-reveal');
   window.setTimeout(() => document.body.classList.remove('ui-reveal'), 520);
 
@@ -4085,6 +4086,14 @@ async function runTokenSearch(raw, { signal } = {}) {
   throw new Error('Unrecognized token address format. Paste a SOL mint or an EVM 0x… address.');
 }
 
+function setPortfolioMinimizedPreference(isMinimized) {
+  document.body.dataset.portfolioMinimized = isMinimized ? '1' : '0';
+}
+
+function getPortfolioMinimizedPreference() {
+  return document.body.dataset.portfolioMinimized === '1';
+}
+
 function setMode(mode) {
   const m = mode === 'watchlist' ? 'watchlist' : mode === 'search' ? 'search' : 'portfolio';
 
@@ -4104,8 +4113,12 @@ function setMode(mode) {
   if (portfolioPanel) portfolioPanel.classList.toggle('hidden', m !== 'portfolio');
   if (searchPanel) searchPanel.classList.toggle('hidden', m !== 'search');
 
-  if (inputSection && m !== 'portfolio') {
-    inputSection.classList.remove('is-minimized');
+  if (inputSection) {
+    if (m !== 'portfolio') {
+      inputSection.classList.remove('is-minimized');
+    } else if (document.body.classList.contains('ui-results')) {
+      inputSection.classList.toggle('is-minimized', getPortfolioMinimizedPreference());
+    }
   }
 
   const shouldShowResults = m === 'portfolio' && document.body.classList.contains('ui-results');
@@ -4305,7 +4318,9 @@ function setupEventListeners() {
 
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
-    $('inputSection')?.classList.toggle('is-minimized');
+    const inputSection = $('inputSection');
+    inputSection?.classList.toggle('is-minimized');
+    if (inputSection) setPortfolioMinimizedPreference(inputSection.classList.contains('is-minimized'));
   });
 
   let deferredInstallPrompt = null;
@@ -4712,7 +4727,9 @@ function setupTelegram() {
 
   if (tgIsAtLeast('6.1')) {
     TG.BackButton.onClick(() => {
-      $('inputSection')?.classList.toggle('is-minimized');
+      const inputSection = $('inputSection');
+      inputSection?.classList.toggle('is-minimized');
+      if (inputSection) setPortfolioMinimizedPreference(inputSection.classList.contains('is-minimized'));
     });
   }
 }
