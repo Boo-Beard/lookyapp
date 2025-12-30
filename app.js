@@ -2060,13 +2060,6 @@ function updateAddressStats() {
     counter.classList.toggle('hidden', !hasAny);
     counter.textContent = `${state.addressItems.length} / ${MAX_ADDRESSES}`;
   }
-  const count = state.addressItems.length;
-  const startAt = 3;
-  const maxAt = MAX_ADDRESSES;
-  const t = (count < startAt)
-    ? 0
-    : Math.min(1, Math.max(0, (count - startAt) / Math.max(1, (maxAt - startAt))));
-  document.body.style.setProperty('--eye-tired', String(t));
 }
 
 function addWalletFromInput() {

@@ -1038,53 +1038,15 @@ body.ui-results .input-section.is-minimized {
   height: 100px;
   background-color: rgba(255, 255, 255, 0.96);
   background-image:
-    radial-gradient(120px 70px at 50% -10px, rgb(11 11 16 / calc(var(--eye-tired, 0) * 0.26)) 0%, transparent 62%),
-    radial-gradient(120px 50px at 50% 8px, rgb(0 0 0 / calc(var(--eye-tired, 0) * 0.14)) 0%, transparent 58%),
-    linear-gradient(to bottom, rgb(0 0 0 / calc(var(--eye-tired, 0) * 0.12)) 0%, transparent 32%);
+    linear-gradient(to bottom, rgba(11, 11, 16, 0.18) 0%, rgba(11, 11, 16, 0.05) 10%, transparent 38%),
+    radial-gradient(120px 32px at 50% 12px, rgba(11, 11, 16, 0.38) 0%, rgba(11, 11, 16, 0.0) 70%);
   border: 3px solid var(--border);
   border-radius: 72% 72% 44% 44% / 46% 46% 74% 74%;
   position: relative;
   overflow: hidden;
   box-shadow:
-    inset 0 10px 0 rgb(11 11 16 / calc(var(--eye-tired, 0) * 0.10)),
-    inset 0 2px 0 rgb(255 255 255 / calc(var(--eye-tired, 0) * 0.35)),
     inset 0 10px 0 rgba(11, 11, 16, 0.18),
     var(--shadow-sm);
-}
-
-.logo-lockup .eye {
-  background-image:
-    radial-gradient(120px 70px at 50% -10px, rgb(11 11 16 / calc(var(--eye-tired, 0) * 0.26)) 0%, transparent 62%),
-    radial-gradient(120px 50px at 50% 8px, rgb(0 0 0 / calc(var(--eye-tired, 0) * 0.14)) 0%, transparent 58%),
-    linear-gradient(to bottom, rgba(11, 11, 16, 0.18) 0%, rgba(11, 11, 16, 0.05) 10%, transparent 38%),
-    radial-gradient(120px 32px at 50% 12px, rgba(11, 11, 16, 0.38) 0%, rgba(11, 11, 16, 0.0) 70%);
-}
-
-.logo-lockup .eye::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: calc(var(--eye-tired, 0) * 0.70);
-  background-color: rgb(170 36 36 / 0.70);
-  transform: rotate(-4deg);
-  filter: blur(0.3px);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A//www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cg%20fill='none'%20stroke='%23000'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20stroke-width='2.0'%20d='M14%2042%20C22%2038%2C%2028%2037%2C%2036%2040%20C44%2043%2C%2051%2044%2C%2058%2043%20C66%2041%2C%2073%2044%2C%2084%2054'/%3E%3Cpath%20stroke-width='1.6'%20d='M36%2040%20C33%2046%2C%2028%2050%2C%2021%2055'/%3E%3Cpath%20stroke-width='1.5'%20d='M50%2044%20C49%2050%2C%2046%2055%2C%2041%2059'/%3E%3Cpath%20stroke-width='1.5'%20d='M61%2043%20C64%2049%2C%2068%2054%2C%2074%2058'/%3E%3Cpath%20stroke-width='1.2'%20d='M21%2055%20C19%2059%2C%2016%2063%2C%2012%2066'/%3E%3Cpath%20stroke-width='1.2'%20d='M41%2059%20C39%2063%2C%2036%2066%2C%2031%2069'/%3E%3Cpath%20stroke-width='1.1'%20d='M74%2058%20C79%2061%2C%2083%2066%2C%2086%2070'/%3E%3C/g%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A//www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cg%20fill='none'%20stroke='%23000'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20stroke-width='2.0'%20d='M14%2042%20C22%2038%2C%2028%2037%2C%2036%2040%20C44%2043%2C%2051%2044%2C%2058%2043%20C66%2041%2C%2073%2044%2C%2084%2054'/%3E%3Cpath%20stroke-width='1.6'%20d='M36%2040%20C33%2046%2C%2028%2050%2C%2021%2055'/%3E%3Cpath%20stroke-width='1.5'%20d='M50%2044%20C49%2050%2C%2046%2055%2C%2041%2059'/%3E%3Cpath%20stroke-width='1.5'%20d='M61%2043%20C64%2049%2C%2068%2054%2C%2074%2058'/%3E%3Cpath%20stroke-width='1.2'%20d='M21%2055%20C19%2059%2C%2016%2063%2C%2012%2066'/%3E%3Cpath%20stroke-width='1.2'%20d='M41%2059%20C39%2063%2C%2036%2066%2C%2031%2069'/%3E%3Cpath%20stroke-width='1.1'%20d='M74%2058%20C79%2061%2C%2083%2066%2C%2086%2070'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-}
-
-.logo-lockup .peeek-eyes .eye:first-child::before {
-  transform: rotate(-10deg) scaleX(-1);
-}
-
-.logo-lockup .peeek-eyes .eye:last-child::before {
-  transform: rotate(6deg);
 }
 
 .logo-lockup .eye::after {
