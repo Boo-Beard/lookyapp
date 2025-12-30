@@ -652,6 +652,24 @@ function holdingDeltaUsdFromPct({ valueUsd, pct }) {
   return v * (r / denom);
 }
 
+function normalizeSolHoldingTokenAddress(h) {
+  const raw = String(
+    h?.address ||
+    h?.token_address ||
+    h?.mint ||
+    h?.mintAddress ||
+    h?.mint_address ||
+    h?.tokenAddress ||
+    ''
+  ).trim();
+
+  const sym = String(h?.symbol || '').trim().toUpperCase();
+  const looksLikeNative = !raw || raw.toLowerCase() === 'sol' || raw.toLowerCase() === 'native';
+  if (sym === 'SOL' && looksLikeNative) return 'So11111111111111111111111111111111111111111';
+  if (raw.toLowerCase() === 'sol') return 'So11111111111111111111111111111111111111111';
+  return raw;
+}
+
 async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
   if (!Array.isArray(holdings) || holdings.length === 0) {
     if (DEBUG_SOL_CHANGE) {
@@ -673,15 +691,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
 
   const out = holdings.map((h) => ({ ...h }));
   const uniq = Array.from(new Set(out
-    .map((h) => String(
-      h?.address ||
-      h?.token_address ||
-      h?.mint ||
-      h?.mintAddress ||
-      h?.mint_address ||
-      h?.tokenAddress ||
-      ''
-    ).trim())
+    .map((h) => normalizeSolHoldingTokenAddress(h))
     .filter(Boolean)));
 
   if (uniq.length === 0) return out;
@@ -743,15 +753,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
   const missing = [];
 
   out.forEach((h) => {
-    const addr = String(
-      h?.address ||
-      h?.token_address ||
-      h?.mint ||
-      h?.mintAddress ||
-      h?.mint_address ||
-      h?.tokenAddress ||
-      ''
-    ).trim();
+    const addr = normalizeSolHoldingTokenAddress(h);
     if (!addr) return;
     const pct24h = Number(pctByAddr.get(addr) ?? 0) || 0;
     const valueUsd = Number(h?.value || h?.valueUsd || 0) || 0;
@@ -3643,7 +3645,9 @@ function recomputeAggregatesAndRender() {
     else totalEvmValue += walletTotalValue;
 
     items.forEach(holding => {
-      const rawTokenAddress = holding.address || holding.token_address || holding.mint || holding.mintAddress || holding.mint_address || holding.tokenAddress;
+      const rawTokenAddress = (chain === 'solana')
+        ? normalizeSolHoldingTokenAddress(holding)
+        : (holding.address || holding.token_address || holding.mint || holding.mintAddress || holding.mint_address || holding.tokenAddress);
       const contractAddress = holding.contract_address || holding.contractAddress || (chain === 'evm' ? extractEvmContractAddress(rawTokenAddress) : '');
       const tokenAddress = contractAddress || rawTokenAddress;
       const network = chain === 'evm' ? normalizeEvmNetwork(holding.chain || holding.network) : '';
