@@ -3462,6 +3462,12 @@ function renderHoldingsTable() {
       const explorerDisabled = explorerHref === '#';
       const walletDisabled = walletHref === '#';
 
+      const wlActive = isTokenInWatchlist({
+        chain: String(holding.chain || ''),
+        network: String(holding.network || ''),
+        address: String(chartAddress || ''),
+      });
+
       return `
       <tr class="holding-row holding-card-row" data-key="${holding.key}">
         <td colspan="6">
