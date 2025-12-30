@@ -99,6 +99,13 @@ html, body {
   overflow-x: hidden;
 }
 
+ button,
+ input,
+ select,
+ textarea {
+  font-family: inherit;
+ }
+
 body {
   padding-top: env(safe-area-inset-top);
   padding-right: env(safe-area-inset-right);
@@ -609,7 +616,7 @@ width: 44px;
 }
 
 .summary-card .summary-value {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   font-size: clamp(17px, 2.9vw, 24px);
   line-height: 1.05;
   letter-spacing: 0.02em;
@@ -758,7 +765,7 @@ width: 44px;
 }
 
 .logo-title {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   font-size: 50px;
   font-weight: 400;
   color: var(--ink);
@@ -1952,7 +1959,7 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 .token-metrics-title {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   font-size: 22px;
   letter-spacing: 0.02em;
   margin: 0 0 4px;
@@ -2178,8 +2185,9 @@ body.is-scanning .logo-lockup .eye::before {
   transform: translateY(1px) scale(0.992);
 }
 
-
-
+.input-container {
+  font-family: inherit;
+}
 
 .table-section {
   margin-bottom: 24px;
@@ -2356,6 +2364,7 @@ body.ui-results .table-header {
   font-size: 14px;
   outline: none;
   background: var(--panel);
+  font-family: inherit;
 }
 
 .search-input:focus {
@@ -2372,6 +2381,7 @@ body.ui-results .table-header {
   color: var(--ink);
   font-weight: 700;
   outline: none;
+  font-family: inherit;
 }
 
 .checkbox {
@@ -2386,6 +2396,7 @@ body.ui-results .table-header {
     font-weight: 700;
     user-select: none;
     background: var(--panel);
+    font-family: inherit;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2411,7 +2422,7 @@ body.ui-results .table-header {
 }
 
 body.ui-results .table-title {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   letter-spacing: 0.02em;
 }
 
@@ -2920,9 +2931,8 @@ body.holdings-cards .holding-metric-value strong {
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
   border-radius: var(--radius-full);
+  border: 1px solid var(--border);
   font-size: 12px;
   color: var(--text-secondary);
 }
@@ -3414,7 +3424,7 @@ body.ui-results .table-stats {
 }
 
 .footer-name {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   font-size: 50px;
   font-weight: 400;
   color: var(--ink);
@@ -3749,14 +3759,6 @@ body.ui-results .wallet-card:hover {
   background: rgba(255, 255, 255, 0.65);
 }
 
-.wallet-card.sol {
-  border-left: 3px solid var(--solana);
-}
-
-.wallet-card.evm {
-  border-left: 3px solid var(--evm);
-}
-
 .wallet-header {
   display: flex;
   justify-content: space-between;
@@ -3825,7 +3827,7 @@ body.ui-results .wallet-count {
 }
 
 .footer-rotator-title {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   font-size: clamp(26px, 7vw, 42px);
   font-weight: 400;
   letter-spacing: 0.02em;
@@ -3840,7 +3842,7 @@ body.ui-results .wallet-count {
 }
 
 .footer-rotator-text {
-  font-family: 'Bangers', system-ui, sans-serif;
+  font-family: 'Bangers', 'Comic Neue', system-ui, sans-serif;
   font-size: clamp(20px, 6vw, 38px);
   font-weight: 400;
   letter-spacing: 0.02em;
