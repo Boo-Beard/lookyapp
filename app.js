@@ -3864,13 +3864,6 @@ function renderHoldingsTable() {
             </div>
           </div>
         </td>
-        <td>
-          <strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
-        </td>
-        <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
-        <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
-        <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
-        <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
       </tr>
     `;
     }).join('');
