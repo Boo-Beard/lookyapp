@@ -841,6 +841,31 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
 let holdingsRenderQueued = false;
 let holdingsRenderLastAt = 0;
 let holdingsRenderThrottleTimer = null;
+
+let holdingsDataVersion = 0;
+let watchlistDataVersion = 0;
+const holdingsTableCache = {
+  key: null,
+  useCardRows: null,
+  page: null,
+  htmlBase: null,
+  filtered: null,
+  totalItems: 0,
+  totalPages: 1,
+  filteredTotalValue: 0,
+};
+
+function invalidateHoldingsTableCache() {
+  holdingsTableCache.key = null;
+  holdingsTableCache.useCardRows = null;
+  holdingsTableCache.page = null;
+  holdingsTableCache.htmlBase = null;
+  holdingsTableCache.filtered = null;
+  holdingsTableCache.totalItems = 0;
+  holdingsTableCache.totalPages = 1;
+  holdingsTableCache.filteredTotalValue = 0;
+}
+
 function scheduleRenderHoldingsTable() {
   const now = Date.now();
   const throttleMs = state.scanning ? 650 : 0;
@@ -1249,31 +1274,45 @@ async function refreshWatchlistMetrics({ force } = {}) {
   watchlistRefreshInFlight = true;
   try {
     const next = [...list];
+    const queue = [];
     for (let i = 0; i < next.length; i++) {
       const t = next[i];
       const should = force || !t.updatedAt || (now - Number(t.updatedAt || 0)) > STALE_MS;
       if (!should) continue;
-
-      try {
-        const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-        const model = await runTokenSearch(t.address, controller ? { signal: controller.signal } : undefined);
-        const merged = sanitizeWatchlistToken({
-          ...t,
-          chain: model?.chain || t.chain,
-          network: model?.network || t.network,
-          symbol: model?.symbol || t.symbol,
-          name: model?.name || t.name,
-          logoUrl: model?.logoUrl || t.logoUrl,
-          extensions: model?.extensions || t.extensions,
-          priceUsd: model?.priceUsd ?? t.priceUsd,
-          marketCapUsd: model?.marketCapUsd ?? t.marketCapUsd,
-          change24hPct: model?.change24hPct ?? t.change24hPct,
-          volume24hUsd: model?.volume24hUsd ?? t.volume24hUsd,
-          updatedAt: Date.now(),
-        });
-        if (merged) next[i] = merged;
-      } catch {}
+      queue.push({ idx: i, token: t });
     }
+
+    const CONCURRENCY = 2;
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < queue.length) {
+        const job = queue[cursor++];
+        if (!job) return;
+        try {
+          const t = job.token;
+          const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+          const model = await runTokenSearch(t.address, controller ? { signal: controller.signal } : undefined);
+          const merged = sanitizeWatchlistToken({
+            ...t,
+            chain: model?.chain || t.chain,
+            network: model?.network || t.network,
+            symbol: model?.symbol || t.symbol,
+            name: model?.name || t.name,
+            logoUrl: model?.logoUrl || t.logoUrl,
+            extensions: model?.extensions || t.extensions,
+            priceUsd: model?.priceUsd ?? t.priceUsd,
+            marketCapUsd: model?.marketCapUsd ?? t.marketCapUsd,
+            change24hPct: model?.change24hPct ?? t.change24hPct,
+            volume24hUsd: model?.volume24hUsd ?? t.volume24hUsd,
+            updatedAt: Date.now(),
+          });
+          if (merged) next[job.idx] = merged;
+        } catch {}
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(CONCURRENCY, queue.length) }, () => worker());
+    await Promise.allSettled(workers);
 
     state.watchlistTokens = next;
     saveWatchlistTokens(next);
@@ -1308,6 +1347,8 @@ function addTokenToWatchlist(token) {
 
   list.unshift(t);
   state.watchlistTokens = list;
+  watchlistDataVersion++;
+  invalidateHoldingsTableCache();
   saveWatchlistTokens(list);
   renderWatchlist();
   try { syncWatchlistStars(); } catch {}
@@ -1325,6 +1366,8 @@ function removeTokenFromWatchlistByKey(key) {
   const removed = list.find((t) => normalizeWatchlistTokenKey(t) === k);
   const next = list.filter((t) => normalizeWatchlistTokenKey(t) !== k);
   state.watchlistTokens = next;
+  watchlistDataVersion++;
+  invalidateHoldingsTableCache();
   saveWatchlistTokens(next);
   renderWatchlist();
   try { syncWatchlistStars(); } catch {}
@@ -3511,23 +3554,45 @@ function renderHoldingsTable() {
   const hideDust = $('hideDust')?.checked ?? true;
   const sortBy = $('sortSelect')?.value || 'valueDesc';
 
-  let filtered = state.holdings.filter(h => {
-    if (hideDust && h.value < 1) return false;
-    if (!searchTerm) return true;
-    return h.symbol.toLowerCase().includes(searchTerm) || h.name.toLowerCase().includes(searchTerm) || h.address.toLowerCase().includes(searchTerm);
-  });
+  const cacheKey = [
+    `v:${holdingsDataVersion}`,
+    `w:${watchlistDataVersion}`,
+    `s:${searchTerm}`,
+    `d:${hideDust ? 1 : 0}`,
+    `o:${sortBy}`,
+  ].join('|');
 
-  filtered.sort((a, b) => {
-    switch (sortBy) {
-      case 'valueAsc': return a.value - b.value;
-      case 'mcapAsc': return (a.mcap || 0) - (b.mcap || 0);
-      case 'nameAsc': return a.name.localeCompare(b.name);
-      case 'mcapDesc': return (b.mcap || 0) - (a.mcap || 0);
-      case 'valueDesc':
-      default:
-        return b.value - a.value;
-    }
-  });
+  const canReuseFiltered = holdingsTableCache.key === cacheKey
+    && holdingsTableCache.useCardRows === useCardRows
+    && Array.isArray(holdingsTableCache.filtered);
+
+  let filtered = canReuseFiltered ? holdingsTableCache.filtered : null;
+
+  if (!filtered) {
+    filtered = state.holdings.filter(h => {
+      if (hideDust && h.value < 1) return false;
+      if (!searchTerm) return true;
+      return h.symbol.toLowerCase().includes(searchTerm) || h.name.toLowerCase().includes(searchTerm) || h.address.toLowerCase().includes(searchTerm);
+    });
+
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'valueAsc': return a.value - b.value;
+        case 'mcapAsc': return (a.mcap || 0) - (b.mcap || 0);
+        case 'nameAsc': return a.name.localeCompare(b.name);
+        case 'mcapDesc': return (b.mcap || 0) - (a.mcap || 0);
+        case 'valueDesc':
+        default:
+          return b.value - a.value;
+      }
+    });
+
+    holdingsTableCache.key = cacheKey;
+    holdingsTableCache.useCardRows = useCardRows;
+    holdingsTableCache.filtered = filtered;
+    holdingsTableCache.page = null;
+    holdingsTableCache.htmlBase = null;
+  }
 
   if (filtered.length === 0) {
     if (state.scanning) {
@@ -3604,6 +3669,12 @@ function renderHoldingsTable() {
   const startIdx = (page - 1) * HOLDINGS_PAGE_SIZE;
   const pageItems = filtered.slice(startIdx, startIdx + HOLDINGS_PAGE_SIZE);
 
+  const canReuseHtmlBase =
+    holdingsTableCache.key === cacheKey &&
+    holdingsTableCache.useCardRows === useCardRows &&
+    holdingsTableCache.page === page &&
+    typeof holdingsTableCache.htmlBase === 'string';
+
   const pageIndicator = $('pageIndicator');
   if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
   const prevBtn = $('pagePrev');
@@ -3628,43 +3699,57 @@ function renderHoldingsTable() {
         `).join('')
       : '';
 
-    tbody.innerHTML = pageItems.map((holding) => {
-      const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
-      const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
+    if (canReuseHtmlBase) {
+      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+    } else {
+      const htmlBase = pageItems.map((holding) => {
+        const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
+        const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
 
-      const wlActive = !!getWatchlistMatchKey({
-        chain: String(holding.chain || ''),
-        network: String(holding.network || ''),
-        address: String(chartAddress || ''),
-      });
+        const wlActive = !!getWatchlistMatchKey({
+          chain: String(holding.chain || ''),
+          network: String(holding.network || ''),
+          address: String(chartAddress || ''),
+        });
 
-      return `
-      <tr class="holding-row" data-key="${holding.key}">
-        <td>
-          <div class="token-cell">
-            <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
-            <div class="token-info">
-              <div class="token-symbol">${holding.symbol}</div>
-              <div class="token-name">${holding.name}</div>
+        return `
+        <tr class="holding-row" data-key="${holding.key}">
+          <td>
+            <div class="token-cell">
+              <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
+              <div class="token-info">
+                <div class="token-symbol">${holding.symbol}</div>
+                <div class="token-name">${holding.name}</div>
+              </div>
+              <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+              <div class="holding-card-actions" aria-label="Holding actions">
+                <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                  <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+                </a>
+              </div>
             </div>
-            <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
-            <div class="holding-card-actions" aria-label="Holding actions">
-              <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
-                <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </td>
-        <td>
-          <strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
-        </td>
-        <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
-        <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
-        <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
-        <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
-      </tr>
-    `;
-    }).join('') + skeletonRows;
+          </td>
+          <td>
+            <strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
+          </td>
+          <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
+          <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
+          <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
+          <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
+        </tr>
+      `;
+      }).join('');
+
+      holdingsTableCache.key = cacheKey;
+      holdingsTableCache.useCardRows = useCardRows;
+      holdingsTableCache.page = page;
+      holdingsTableCache.htmlBase = htmlBase;
+      holdingsTableCache.totalItems = totalItems;
+      holdingsTableCache.totalPages = totalPages;
+      holdingsTableCache.filteredTotalValue = filteredTotalValue;
+
+      tbody.innerHTML = `${htmlBase}${skeletonRows}`;
+    }
   } else {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
       ? Array.from({ length: scanSkeletonCount }).map(() => `
@@ -3690,7 +3775,12 @@ function renderHoldingsTable() {
         `).join('')
       : '';
 
-    tbody.innerHTML = pageItems.map(holding => {
+    if (canReuseHtmlBase) {
+      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      return;
+    }
+
+    const htmlBase = pageItems.map(holding => {
       const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
 
       let explorerHref = '#';
@@ -3774,14 +3864,26 @@ function renderHoldingsTable() {
             </div>
           </div>
         </td>
+        <td>
+          <strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
+        </td>
+        <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
+        <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
+        <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
+        <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
       </tr>
-      `;
-    }).join('') + skeletonRows;
-  }
+    `;
+    }).join('');
 
-  const progressPart = (state.scanning && scanTotal > 0) ? ` • Scanning ${scanCompleted}/${scanTotal}` : '';
-  if ($('tableStats')) {
-    $('tableStats').innerHTML = `Showing ${totalItems} tokens • Total value: <span class="redacted-field" tabindex="0">${formatCurrency(filteredTotalValue)}</span>${escapeHtml(progressPart)}`;
+    holdingsTableCache.key = cacheKey;
+    holdingsTableCache.useCardRows = useCardRows;
+    holdingsTableCache.page = page;
+    holdingsTableCache.htmlBase = htmlBase;
+    holdingsTableCache.totalItems = totalItems;
+    holdingsTableCache.totalPages = totalPages;
+    holdingsTableCache.filteredTotalValue = filteredTotalValue;
+
+    tbody.innerHTML = `${htmlBase}${skeletonRows}`;
   }
 
   try { syncWatchlistStars(); } catch {}
@@ -3899,6 +4001,8 @@ function recomputeAggregatesAndRender() {
   });
 
   state.holdings = Array.from(holdingsMap.values());
+  holdingsDataVersion++;
+  invalidateHoldingsTableCache();
   state.wallets = wallets;
   state.totalValue = total;
   state.totalSolValue = totalSolValue;
@@ -4131,6 +4235,18 @@ function setupEyeTracking() {
   const INTRO_DURATION_MS = 2400;
   const INTRO_RADIUS_PX = 260;
 
+  const FRAME_INTERVAL_MS = 1000 / 30;
+  let lastFrameAt = 0;
+  let paused = document.hidden;
+
+  const setPaused = (p) => {
+    paused = !!p;
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    setPaused(document.hidden);
+  });
+
   function startIntroLookAround() {
     introStart = performance.now();
     introActive = true;
@@ -4237,6 +4353,17 @@ function setupEyeTracking() {
 
   function animateEyes() {
     const now = performance.now();
+
+    if (paused) {
+      requestAnimationFrame(animateEyes);
+      return;
+    }
+
+    if (now - lastFrameAt < FRAME_INTERVAL_MS) {
+      requestAnimationFrame(animateEyes);
+      return;
+    }
+    lastFrameAt = now;
 
     const introElapsed = now - introStart;
     const shouldRunIntro = introActive && introElapsed >= 0 && introElapsed < INTRO_DURATION_MS;
