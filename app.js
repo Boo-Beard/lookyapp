@@ -274,82 +274,6 @@ function extractDexscreenerExtensions(bestPair) {
   return out;
 }
 
-function renderSearchTokenActions(model) {
-  const ext = normalizeExtensions(model?.extensions);
-  const explorerHref = getExplorerTokenUrl(model);
-  const explorerDisabled = explorerHref === '#';
-
-  const links = {
-    website: sanitizeUrl(ext?.links?.website),
-    twitter: sanitizeUrl(ext?.links?.twitter),
-    telegram: sanitizeUrl(ext?.links?.telegram),
-    discord: sanitizeUrl(ext?.links?.discord),
-  };
-
-  const items = [];
-  items.push({
-    key: 'explorer',
-    href: explorerHref,
-    iconHtml: '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>',
-    label: 'View on Explorer',
-    disabled: explorerDisabled,
-  });
-
-  if (links.website) {
-    items.push({
-      key: 'website',
-      href: links.website,
-      iconHtml: '<i class="fa-solid fa-globe" aria-hidden="true"></i>',
-      label: 'Website',
-      disabled: false,
-    });
-  }
-  if (links.twitter) {
-    items.push({
-      key: 'twitter',
-      href: links.twitter,
-      iconHtml: '<i class="fa-brands fa-x-twitter" aria-hidden="true"></i>',
-      label: 'X (Twitter)',
-      disabled: false,
-    });
-  }
-  if (links.telegram) {
-    items.push({
-      key: 'telegram',
-      href: links.telegram,
-      iconHtml: '<i class="fa-brands fa-telegram" aria-hidden="true"></i>',
-      label: 'Telegram',
-      disabled: false,
-    });
-  }
-  if (links.discord) {
-    items.push({
-      key: 'discord',
-      href: links.discord,
-      iconHtml: '<i class="fa-brands fa-discord" aria-hidden="true"></i>',
-      label: 'Discord',
-      disabled: false,
-    });
-  }
-
-  if (!items.length) return '';
-  return `
-    <div class="holding-card-actions search-token-actions" aria-label="Token links">
-      <a class="holding-action" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="Add to Watchlist">
-        <i class="fa-solid fa-star" aria-hidden="true"></i>
-      </a>
-      ${items.map((it) => {
-        const disabled = !!it.disabled || !it.href || it.href === '#';
-        return `
-          <a class="holding-action ${disabled ? 'disabled' : ''}" href="${escapeAttribute(it.href || '#')}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttribute(it.label)}" ${disabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
-            ${it.iconHtml}
-          </a>
-        `;
-      }).join('')}
-    </div>
-  `;
-}
-
 function setLastScanAt(ts) {
   try {
     localStorage.setItem(STORAGE_KEY_LAST_SCAN_AT, String(Number(ts) || Date.now()));
@@ -806,6 +730,36 @@ function normalizeWatchlistTokenKey(t) {
   return `${chain}:${network}:${address}`.toLowerCase();
 }
 
+function isTokenInWatchlist(t) {
+  try {
+    const key = normalizeWatchlistTokenKey(t);
+    const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+    return list.some((x) => normalizeWatchlistTokenKey(x) === key);
+  } catch {
+    return false;
+  }
+}
+
+function syncWatchlistStars() {
+  try {
+    const els = document.querySelectorAll('a.holding-action[data-action="watchlist-add"]');
+    els.forEach((a) => {
+      const chain = a.dataset.chain;
+      const network = a.dataset.network;
+      const address = a.dataset.address;
+      const active = isTokenInWatchlist({ chain, network, address });
+      a.classList.toggle('is-active', active);
+      a.setAttribute('aria-label', active ? 'Remove from Watchlist' : 'Add to Watchlist');
+
+      const icon = a.querySelector('i');
+      if (!icon) return;
+      icon.classList.toggle('fa-solid', active);
+      icon.classList.toggle('fa-regular', !active);
+      icon.classList.add('fa-star');
+    });
+  } catch {}
+}
+
 function sanitizeWatchlistToken(raw) {
   const t = (raw && typeof raw === 'object') ? raw : {};
   const chain = String(t.chain || '').toLowerCase();
@@ -897,6 +851,7 @@ function renderWatchlist() {
       </div>
     `;
     try { lockInputBodyHeight(); } catch {}
+    try { syncWatchlistStars(); } catch {}
     return;
   }
 
@@ -975,6 +930,7 @@ function renderWatchlist() {
   } catch {}
 
   try { lockInputBodyHeight(); } catch {}
+  try { syncWatchlistStars(); } catch {}
 }
 
 let watchlistRefreshInFlight = false;
@@ -1056,6 +1012,7 @@ function addTokenToWatchlist(token) {
   state.watchlistTokens = list;
   saveWatchlistTokens(list);
   renderWatchlist();
+  try { syncWatchlistStars(); } catch {}
   try { lockInputBodyHeight(); } catch {}
   setWatchlistHint('Added to watchlist.', 'info');
   hapticFeedback('success');
@@ -1071,6 +1028,7 @@ function removeTokenFromWatchlistByKey(key) {
   state.watchlistTokens = next;
   saveWatchlistTokens(next);
   renderWatchlist();
+  try { syncWatchlistStars(); } catch {}
 
   const removedName = (removed?.symbol || removed?.name || 'Token').toString().trim();
   setWatchlistHint(`${removedName} removed from watchlist`, 'info');
@@ -3437,8 +3395,8 @@ function renderHoldingsTable() {
               <div class="holding-card-header-right">
                 <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                 <div class="holding-card-actions" aria-label="Holding actions">
-                  <a class="holding-action" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="Add to Watchlist">
-                    <i class="fa-solid fa-star" aria-hidden="true"></i>
+                  <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                    <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
                   </a>
                   <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
                     <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
@@ -4148,7 +4106,6 @@ function renderSearchTokenCard(model) {
             <div class="token-info">
               <div class="token-symbol">${escapeHtml(titleSymbol)}</div>
               <div class="token-name">${escapeHtml(titleName)}</div>
-              ${subtitle ? `<div class=\"table-subtitle\">${escapeHtml(subtitle)}</div>` : ''}
             </div>
           </div>
 
@@ -4571,14 +4528,32 @@ function setupEventListeners() {
         try {
           const addr = String(wlAdd.dataset.address || '').trim();
           if (!addr) return;
+
+          const chain = String(wlAdd.dataset.chain || '');
+          const network = String(wlAdd.dataset.network || '');
+          const key = normalizeWatchlistTokenKey({ chain, network, address: addr });
+          if (isTokenInWatchlist({ chain, network, address: addr })) {
+            removeTokenFromWatchlistByKey(key);
+            return;
+          }
+
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
           const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
           addTokenToWatchlist({ ...model, updatedAt: Date.now() });
         } catch {
+          const chain = String(wlAdd.dataset.chain || '');
+          const network = String(wlAdd.dataset.network || '');
+          const addr = String(wlAdd.dataset.address || '').trim();
+          const key = normalizeWatchlistTokenKey({ chain, network, address: addr });
+          if (addr && isTokenInWatchlist({ chain, network, address: addr })) {
+            removeTokenFromWatchlistByKey(key);
+            return;
+          }
+
           addTokenToWatchlist({
-            chain: wlAdd.dataset.chain,
-            network: wlAdd.dataset.network,
-            address: wlAdd.dataset.address,
+            chain,
+            network,
+            address: addr,
             symbol: wlAdd.dataset.symbol,
             name: wlAdd.dataset.name,
             logoUrl: wlAdd.dataset.logoUrl,

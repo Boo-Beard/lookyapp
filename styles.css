@@ -1581,6 +1581,14 @@ body.is-scanning .logo-lockup .eye::before {
   pointer-events: none;
 }
 
+#watchlistBody .holding-action.is-active {
+  color: var(--accent);
+}
+
+:root[data-theme="dark"] #watchlistBody .holding-action.is-active {
+  background: rgba(255, 45, 85, 0.14);
+}
+
 #watchlistBody .holding-card-metrics {
   padding: 16px;
   display: grid;
@@ -1705,6 +1713,14 @@ body.is-scanning .logo-lockup .eye::before {
 #searchResults .holding-action.disabled {
   opacity: 0.35;
   pointer-events: none;
+}
+
+#searchResults .holding-action.is-active {
+  color: var(--accent);
+}
+
+:root[data-theme="dark"] #searchResults .holding-action.is-active {
+  background: rgba(255, 45, 85, 0.14);
 }
 
 #searchResults .holding-card-metrics {
