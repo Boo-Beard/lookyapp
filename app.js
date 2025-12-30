@@ -4127,6 +4127,7 @@ function setMode(mode) {
 
 function setupEventListeners() {
   const addressInput = $('addressInput');
+  const addressClearBtn = $('addressClearBtn');
   if (addressInput) {
     addressInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -4138,12 +4139,29 @@ function setupEventListeners() {
     addressInput.addEventListener('input', () => {
       const wrap = addressInput.closest('.address-entry');
       wrap?.classList.remove('shake');
+      if (addressClearBtn) {
+        addressClearBtn.classList.toggle('hidden', !String(addressInput.value || '').length);
+      }
     });
     addressInput.addEventListener('paste', () => {
       setTimeout(() => {
         $('inputWarning')?.classList.add('hidden');
+        if (addressClearBtn) {
+          addressClearBtn.classList.toggle('hidden', !String(addressInput.value || '').length);
+        }
       }, 10);
     });
+
+    if (addressClearBtn) {
+      addressClearBtn.addEventListener('click', () => {
+        addressInput.value = '';
+        addressClearBtn.classList.add('hidden');
+        $('inputHint')?.classList.add('hidden');
+        $('inputWarning')?.classList.add('hidden');
+        addressInput.focus();
+        hapticFeedback('light');
+      });
+    }
   }
 
   $('addWalletBtn')?.addEventListener('click', () => {
@@ -4151,6 +4169,7 @@ function setupEventListeners() {
   });
 
   const searchAddressInput = $('searchAddressInput');
+  const searchClearBtn = $('searchClearBtn');
   if (searchAddressInput) {
     searchAddressInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -4164,7 +4183,29 @@ function setupEventListeners() {
       hint?.classList.remove('error');
       const wrap = searchAddressInput.closest('.address-entry');
       wrap?.classList.remove('shake');
+      if (searchClearBtn) {
+        searchClearBtn.classList.toggle('hidden', !String(searchAddressInput.value || '').length);
+      }
     });
+
+    searchAddressInput.addEventListener('paste', () => {
+      setTimeout(() => {
+        if (searchClearBtn) {
+          searchClearBtn.classList.toggle('hidden', !String(searchAddressInput.value || '').length);
+        }
+      }, 10);
+    });
+
+    if (searchClearBtn) {
+      searchClearBtn.addEventListener('click', () => {
+        searchAddressInput.value = '';
+        searchClearBtn.classList.add('hidden');
+        setSearchHint('', 'info');
+        $('searchResults') && ($('searchResults').innerHTML = '');
+        searchAddressInput.focus();
+        hapticFeedback('light');
+      });
+    }
   }
   $('searchFindBtn')?.addEventListener('click', () => {
     const hint = $('searchHint');
