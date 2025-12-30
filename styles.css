@@ -1538,6 +1538,16 @@ body.is-scanning .logo-lockup .eye::before {
   overflow: hidden;
 }
 
+.watchlist-row .wl-token,
+.watchlist-list-header .wl-token {
+  overflow: visible;
+  min-width: 200px;
+}
+
+.watchlist-row .wl-token .token-cell {
+  min-width: 0;
+}
+
 .watchlist-row .wl-price strong,
 .watchlist-row .wl-mcap strong,
 .watchlist-row .wl-change strong,
@@ -1588,11 +1598,25 @@ body.is-scanning .logo-lockup .eye::before {
 }
 
 @media (max-width: 720px) {
+  .watchlist-list {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    overflow: visible;
+  }
+
   .watchlist-list-header {
     display: none;
   }
 
   .watchlist-row {
+    margin: 0 0 12px 0;
+    border: 3px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--panel);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+
     grid-template-columns: minmax(0, 1fr) 96px;
     grid-template-areas:
       "token actions"
@@ -1603,12 +1627,24 @@ body.is-scanning .logo-lockup .eye::before {
     row-gap: 8px;
   }
 
+  .watchlist-row:last-child {
+    margin-bottom: 0;
+  }
+
   .watchlist-row .wl-token { grid-area: token; }
   .watchlist-row .wl-actions { grid-area: actions; align-self: start; }
   .watchlist-row .wl-price { grid-area: price; text-align: left; }
   .watchlist-row .wl-mcap { grid-area: mcap; text-align: left; }
   .watchlist-row .wl-change { grid-area: change; text-align: left; }
   .watchlist-row .wl-vol { grid-area: vol; text-align: left; }
+
+  .watchlist-row .wl-token {
+    min-width: 0;
+  }
+
+  .watchlist-row .wl-actions {
+    justify-content: flex-end;
+  }
 
   .watchlist-row .wl-price::before { content: 'Price '; color: var(--text-tertiary); font-weight: 800; }
   .watchlist-row .wl-mcap::before { content: 'MCap '; color: var(--text-tertiary); font-weight: 800; }
