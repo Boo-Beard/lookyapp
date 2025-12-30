@@ -858,13 +858,32 @@ function saveWatchlistTokens(list) {
   } catch {}
 }
 
+let watchlistHintTimer = null;
 function setWatchlistHint(text, tone = 'info') {
   const hint = $('watchlistHint');
   if (!hint) return;
+
+  if (watchlistHintTimer) {
+    clearTimeout(watchlistHintTimer);
+    watchlistHintTimer = null;
+  }
+
   const msg = String(text || '').trim();
   hint.textContent = msg;
   hint.classList.toggle('hidden', !msg);
   hint.classList.toggle('error', tone === 'error');
+
+  if (msg) {
+    watchlistHintTimer = setTimeout(() => {
+      try {
+        const el = $('watchlistHint');
+        if (!el) return;
+        el.textContent = '';
+        el.classList.add('hidden');
+        el.classList.remove('error');
+      } catch {}
+    }, 10_000);
+  }
 }
 
 function renderWatchlist() {
@@ -872,7 +891,11 @@ function renderWatchlist() {
   if (!body) return;
   const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
   if (!list.length) {
-    body.innerHTML = '';
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-text">Your watchlist is empty. Add tokens using the <strong>star</strong> on Search results or Portfolio holdings.</div>
+      </div>
+    `;
     try { lockInputBodyHeight(); } catch {}
     return;
   }
@@ -1043,11 +1066,14 @@ function removeTokenFromWatchlistByKey(key) {
   const k = String(key || '').toLowerCase();
   if (!k) return;
   const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  const removed = list.find((t) => normalizeWatchlistTokenKey(t) === k);
   const next = list.filter((t) => normalizeWatchlistTokenKey(t) !== k);
   state.watchlistTokens = next;
   saveWatchlistTokens(next);
   renderWatchlist();
-  setWatchlistHint('Removed from watchlist.', 'info');
+
+  const removedName = (removed?.symbol || removed?.name || 'Token').toString().trim();
+  setWatchlistHint(`${removedName} removed from watchlist`, 'info');
   hapticFeedback('light');
 }
 
