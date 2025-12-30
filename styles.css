@@ -1318,6 +1318,25 @@ body.is-scanning .logo-lockup .eye::before {
 
  #portfolioPanel .profiles-bar {
   order: 1;
+  margin-top: 0;
+  margin-bottom: 12px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+ }
+
+ @media (max-width: 520px) {
+  #portfolioPanel .profiles-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    justify-items: stretch;
+  }
+
+  #portfolioPanel .profiles-bar .select,
+  #portfolioPanel .profiles-bar .btn {
+    width: 100%;
+  }
  }
 
  .profiles-bar .btn {
@@ -1547,6 +1566,12 @@ body.is-scanning .logo-lockup .eye::before {
 
   .profiles-bar .btn {
     width: 100%;
+  }
+ }
+
+ @media (max-width: 420px) {
+  #portfolioPanel .profiles-bar {
+    margin-bottom: 10px;
   }
  }
 
