@@ -4749,10 +4749,17 @@ function setupEventListeners() {
 
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
           const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
+          const resolvedChain = String(chain || model?.chain || '');
+          const resolvedNetwork = String(network || model?.network || '');
+
+          try {
+            if (resolvedChain) wlAdd.dataset.chain = resolvedChain;
+            if (resolvedNetwork) wlAdd.dataset.network = resolvedNetwork;
+          } catch {}
           const added = addTokenToWatchlist({
             ...model,
-            chain,
-            network,
+            chain: resolvedChain,
+            network: resolvedNetwork,
             address: addr,
             symbol: model?.symbol || wlAdd.dataset.symbol,
             name: model?.name || wlAdd.dataset.name,
