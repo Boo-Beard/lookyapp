@@ -887,8 +887,27 @@ const state = {
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
 const WATCHLIST_MAX_TOKENS = 5;
 
+function canonicalizeChainForKey(chain) {
+  const c = String(chain || '').toLowerCase().trim();
+  if (!c) return '';
+  if (c === 'sol' || c === 'solana') return 'solana';
+  if (c === 'evm') return 'evm';
+  if (
+    c === 'eth' || c === 'ethereum' ||
+    c === 'arb' || c === 'arbitrum' ||
+    c === 'op' || c === 'optimism' ||
+    c === 'base' ||
+    c === 'poly' || c === 'polygon' || c === 'matic' ||
+    c === 'bsc' || c === 'bnb' || c === 'binance' || c === 'bnbchain' || c === 'bnb-chain' ||
+    c === 'avax' || c === 'avalanche' || c === 'avax-c' || c === 'avalanche-c'
+  ) {
+    return 'evm';
+  }
+  return c;
+}
+
 function canonicalizeNetworkForKey(chain, network) {
-  const c = String(chain || '').toLowerCase();
+  const c = canonicalizeChainForKey(chain);
   const n = String(network || '').toLowerCase();
   if (c !== 'evm') return n;
 
@@ -904,7 +923,7 @@ function canonicalizeNetworkForKey(chain, network) {
 }
 
 function normalizeWatchlistTokenKey(t) {
-  const chain = String(t?.chain || '').toLowerCase();
+  const chain = canonicalizeChainForKey(t?.chain);
   const network = canonicalizeNetworkForKey(chain, String(t?.network || ''));
   const address = String(t?.address || '').trim();
   return `${chain}:${network}:${address}`.toLowerCase();
@@ -915,7 +934,7 @@ function getWatchlistMatchKey(t) {
     const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
     if (!list.length) return null;
 
-    const chain = String(t?.chain || '').toLowerCase();
+    const chain = canonicalizeChainForKey(t?.chain);
     const address = String(t?.address || '').trim().toLowerCase();
     if (!chain || !address) return null;
 
@@ -965,7 +984,7 @@ function syncWatchlistStars() {
 
 function sanitizeWatchlistToken(raw) {
   const t = (raw && typeof raw === 'object') ? raw : {};
-  const chain = String(t.chain || '').toLowerCase();
+  const chain = canonicalizeChainForKey(t.chain);
   const network = canonicalizeNetworkForKey(chain, String(t.network || ''));
   const address = String(t.address || '').trim();
   if (!chain || !address) return null;
