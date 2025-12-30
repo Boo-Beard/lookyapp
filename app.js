@@ -673,7 +673,15 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
 
   const out = holdings.map((h) => ({ ...h }));
   const uniq = Array.from(new Set(out
-    .map((h) => String(h?.address || h?.token_address || '').trim())
+    .map((h) => String(
+      h?.address ||
+      h?.token_address ||
+      h?.mint ||
+      h?.mintAddress ||
+      h?.mint_address ||
+      h?.tokenAddress ||
+      ''
+    ).trim())
     .filter(Boolean)));
 
   if (uniq.length === 0) return out;
@@ -735,7 +743,15 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
   const missing = [];
 
   out.forEach((h) => {
-    const addr = String(h?.address || h?.token_address || '').trim();
+    const addr = String(
+      h?.address ||
+      h?.token_address ||
+      h?.mint ||
+      h?.mintAddress ||
+      h?.mint_address ||
+      h?.tokenAddress ||
+      ''
+    ).trim();
     if (!addr) return;
     const pct24h = Number(pctByAddr.get(addr) ?? 0) || 0;
     const valueUsd = Number(h?.value || h?.valueUsd || 0) || 0;
@@ -3627,7 +3643,7 @@ function recomputeAggregatesAndRender() {
     else totalEvmValue += walletTotalValue;
 
     items.forEach(holding => {
-      const rawTokenAddress = holding.address || holding.token_address;
+      const rawTokenAddress = holding.address || holding.token_address || holding.mint || holding.mintAddress || holding.mint_address || holding.tokenAddress;
       const contractAddress = holding.contract_address || holding.contractAddress || (chain === 'evm' ? extractEvmContractAddress(rawTokenAddress) : '');
       const tokenAddress = contractAddress || rawTokenAddress;
       const network = chain === 'evm' ? normalizeEvmNetwork(holding.chain || holding.network) : '';
