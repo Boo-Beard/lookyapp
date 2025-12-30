@@ -2798,7 +2798,6 @@ body.ui-results .holdings-table td:nth-child(5) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    background: var(--panel);
   }
 
   .holding-metric {
