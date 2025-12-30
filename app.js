@@ -629,6 +629,20 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
     }
   }
 
+  // Native SOL often fails to return pct from Birdeye endpoints; use a safe fallback.
+  if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
+    try {
+      const isNative = String(tokenAddress) === 'So11111111111111111111111111111111111111111';
+      if (isNative) {
+        const pct = await fetchNativeSolPct24hFallback({ signal });
+        if (Number.isFinite(pct) && Math.abs(pct) > 0) {
+          pct24h = pct;
+          source = 'coingecko';
+        }
+      }
+    } catch {}
+  }
+
   if (!Number.isFinite(pct24h)) pct24h = 0;
 
   if (DEBUG_SOL_CHANGE) {
@@ -640,6 +654,19 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
 
   setSolTokenChangeCache(tokenAddress, { pct24h, source });
   return pct24h;
+}
+
+async function fetchNativeSolPct24hFallback({ signal } = {}) {
+  try {
+    const url = 'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd&include_24hr_change=true';
+    const res = await fetch(url, signal ? { signal } : undefined);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    const pct = Number(data?.solana?.usd_24h_change ?? 0);
+    return Number.isFinite(pct) ? pct : 0;
+  } catch {
+    return 0;
+  }
 }
 
 function holdingDeltaUsdFromPct({ valueUsd, pct }) {
