@@ -1725,6 +1725,17 @@ body.is-scanning .logo-lockup .eye::after {
   overflow: hidden;
 }
 
+#watchlistBody .holding-row::before,
+#watchlistBody .holding-row:hover::before {
+  background: rgba(0, 194, 255, 0) !important;
+  box-shadow: none !important;
+}
+
+#watchlistBody .holding-row::after,
+#watchlistBody .holding-row:hover::after {
+  opacity: 0 !important;
+}
+
 @media (min-width: 641px) {
   #watchlistBody .holding-card {
     width: min(calc(100vw - 32px), calc(80% + 35%));

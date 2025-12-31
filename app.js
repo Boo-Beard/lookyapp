@@ -1230,7 +1230,6 @@ function renderWatchlist() {
     const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
     const key = normalizeWatchlistTokenKey(t);
-    const ipfsCid = extractIpfsCid(t?.logoUrl) || extractIpfsCid(iconUrl);
 
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
@@ -1255,7 +1254,7 @@ function renderWatchlist() {
         <div class="holding-card">
           <div class="holding-card-header">
             <div class="token-cell">
-              <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" ${ipfsCid ? `data-ipfs-cid="${escapeAttribute(ipfsCid)}" data-gateway-idx="0"` : ''} alt="" />
+              <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
               <div class="token-info">
                 <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
                 <div class="token-name">${escapeHtml(t.name || '')}</div>
@@ -1288,20 +1287,6 @@ function renderWatchlist() {
       </div>
     `;
   }).join('');
-
-  try {
-    const imgs = body.querySelectorAll('img.token-icon[data-ipfs-cid]');
-    imgs.forEach((img) => {
-      const cid = img?.dataset?.ipfsCid;
-      if (!cid) return;
-      img.dataset.gatewayIdx = img.dataset.gatewayIdx || '0';
-      resolveIpfsLogoUrl(cid, { timeoutMs: 1200 }).then((resolved) => {
-        if (!resolved?.url) return;
-        img.dataset.gatewayIdx = String(resolved.idx || 0);
-        img.src = resolved.url;
-      }).catch(() => {});
-    });
-  } catch {}
 
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
@@ -1348,10 +1333,6 @@ async function refreshWatchlistMetrics({ force } = {}) {
             ...t,
             chain: model?.chain || t.chain,
             network: model?.network || t.network,
-            symbol: model?.symbol || t.symbol,
-            name: model?.name || t.name,
-            logoUrl: model?.logoUrl || t.logoUrl,
-            extensions: model?.extensions || t.extensions,
             priceUsd: model?.priceUsd ?? t.priceUsd,
             marketCapUsd: model?.marketCapUsd ?? t.marketCapUsd,
             change24hPct: model?.change24hPct ?? t.change24hPct,
@@ -4921,9 +4902,7 @@ function setMode(mode) {
     sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
   }
 
-  if (m === 'watchlist') {
-    refreshWatchlistMetrics();
-  }
+  // Watchlist refresh is manual-only (via Refresh button).
 }
 
 function setupEventListeners() {
@@ -5856,7 +5835,6 @@ function initialize() {
 
   state.watchlistTokens = loadWatchlistTokens();
   renderWatchlist();
-  refreshWatchlistMetrics();
 
   setMode('portfolio');
 }
