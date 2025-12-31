@@ -92,6 +92,7 @@
 html, body {
   height: 100%;
   font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--paper);
   background:
     radial-gradient(1400px 900px at 18% 10%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.00) 60%),
     radial-gradient(1100px 760px at 82% 0%, rgba(0, 194, 255, 0.16) 0%, rgba(0, 194, 255, 0.00) 58%),
@@ -101,6 +102,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 body::before {
@@ -3195,11 +3197,17 @@ body.ui-results .chain-badge-small {
   .table-footer {
     flex-direction: column;
     align-items: stretch;
+    justify-content: flex-start;
   }
 
   .table-footer-actions {
     width: 100%;
     justify-content: center;
+  }
+
+  .table-stats {
+    flex: 0 0 auto;
+    min-width: 0;
   }
 
   .table-footer-actions .btn {

@@ -235,43 +235,6 @@
           </div>
         </div>
 
-        <div class="card alloc-risk-card is-collapsed" id="aiScoreCard">
-          <div class="alloc-risk-header">
-            <div class="collapsible-header-left">
-              <h3 class="table-title">Portfolio Score</h3>
-              <div class="table-subtitle">Multi-factor portfolio score</div>
-            </div>
-            <div class="section-scan-indicator" aria-hidden="true"></div>
-            <button id="aiScoreToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio Score" aria-controls="aiScoreContent" aria-expanded="false">
-              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-            </button>
-          </div>
-          <div id="aiScoreContent" class="alloc-risk-body collapsible-content hidden">
-            <div class="alloc-risk-cols">
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Score</div>
-                <div id="aiScoreValue" class="summary-value">—</div>
-                <div id="aiScoreMeta" class="table-subtitle">—</div>
-              </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Key drivers</div>
-                <div id="aiScoreDrivers" class="alloc-risk-insights"></div>
-              </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Subscores</div>
-                <div id="aiScoreSubscores" class="alloc-risk-insights"></div>
-              </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Recommendations</div>
-                <div id="aiScoreRecs" class="alloc-risk-insights"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="card table-section is-collapsed" id="holdingsCard">
           <div class="table-header">
             <div class="collapsible-header-left">
@@ -283,9 +246,7 @@
             <button id="holdingsToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio Holdings" aria-controls="holdingsContent" aria-expanded="false">
               <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             </button>
-            
           </div>
-
           <div id="holdingsContent" class="collapsible-content hidden">
             <div class="table-controls">
               <div class="search-box">
@@ -353,6 +314,43 @@
                   <span class="btn-icon"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></span>
                   Export CSV
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card alloc-risk-card is-collapsed" id="aiScoreCard">
+          <div class="alloc-risk-header">
+            <div class="collapsible-header-left">
+              <h3 class="table-title">Portfolio Score</h3>
+              <div class="table-subtitle">Multi-factor portfolio score</div>
+            </div>
+            <div class="section-scan-indicator" aria-hidden="true"></div>
+            <button id="aiScoreToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio Score" aria-controls="aiScoreContent" aria-expanded="false">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="aiScoreContent" class="alloc-risk-body collapsible-content hidden">
+            <div class="alloc-risk-cols">
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Score</div>
+                <div id="aiScoreValue" class="summary-value">—</div>
+                <div id="aiScoreMeta" class="table-subtitle">—</div>
+              </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Key drivers</div>
+                <div id="aiScoreDrivers" class="alloc-risk-insights"></div>
+              </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Subscores</div>
+                <div id="aiScoreSubscores" class="alloc-risk-insights"></div>
+              </div>
+
+              <div class="alloc-risk-col full-width">
+                <div class="alloc-risk-section-title">Recommendations</div>
+                <div id="aiScoreRecs" class="alloc-risk-insights"></div>
               </div>
             </div>
           </div>

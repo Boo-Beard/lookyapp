@@ -1165,8 +1165,12 @@ function setWatchlistHint(text, tone = 'info') {
 function renderWatchlist() {
   const body = $('watchlistBody');
   if (!body) return;
+
+  const controls = document.querySelector('#watchlistPanel .watchlist-controls');
   const sortKey = getWatchlistSortPreference();
   const list = Array.isArray(state.watchlistTokens) ? [...state.watchlistTokens].sort((a, b) => compareWatchlistTokens(a, b, sortKey)) : [];
+
+  if (controls) controls.classList.toggle('hidden', !list.length);
   if (!list.length) {
     body.innerHTML = `
       <div class="empty-state">
@@ -5378,17 +5382,6 @@ function setupEventListeners() {
       hapticFeedback('light');
       return;
     }
-
-    const current = state.addressItems[idx]?.raw;
-    if (!current) return;
-    const next = prompt('Edit address', current);
-    if (next === null) return;
-    const parsed = getAddressItemsFromText(next);
-    state.addressItems[idx] = parsed.items[0] || { raw: next, type: 'invalid', normalized: next };
-    renderAddressChips();
-    persistAddressItems();
-    updateTelegramMainButton();
-    updateAddressStats();
   });
 
   const profileSelect = $('profileSelect');
