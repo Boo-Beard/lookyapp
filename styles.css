@@ -1233,6 +1233,11 @@ body.is-scanning .logo-lockup .eye::before {
   animation: none;
 }
 
+body.is-scanning .logo-lockup .eye::after {
+  animation: none;
+  transform: scaleY(0);
+}
+
 @keyframes scanEyePulse {
   0%, 100% {
     transform: translateY(0);
