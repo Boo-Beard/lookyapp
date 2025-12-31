@@ -568,7 +568,6 @@ body.is-redacted .redacted-field.is-revealed {
   text-align: center;
   gap: 8px;
   padding: 32px 14px 16px;
-  min-height: 176px;
   overflow: visible;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
@@ -3831,13 +3830,8 @@ body.ui-results .table-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .summary-grid > .summary-card:nth-child(5) {
-    grid-column: 1 / -1;
-  }
 
-  .summary-grid > .summary-card:last-child {
-    grid-column: 1 / -1;
-  }
+
 
   .alloc-risk-header {
     position: relative;
