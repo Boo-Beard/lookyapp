@@ -2837,6 +2837,8 @@ function updateSummary() {
     }
   }
 
+  try { renderSummaryChainAllocation(); } catch {}
+
   renderAiScoreSection();
 }
 
@@ -3198,6 +3200,146 @@ function formatPct(value, digits = 1) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '0%';
   return `${n.toFixed(digits)}%`;
+}
+
+function renderSummaryChainAllocation() {
+  const el = $('summaryChainAllocationChart');
+  if (!el) return;
+
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+  const total = Number(state.totalValue || 0) || 0;
+  if (!holdings.length || total <= 0) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const evmNetworkName = (network) => {
+    switch (normalizeEvmNetwork(network)) {
+      case 'ethereum': return 'Ethereum';
+      case 'bsc': return 'BSC';
+      case 'arbitrum': return 'Arbitrum';
+      case 'optimism': return 'Optimism';
+      case 'polygon': return 'Polygon';
+      case 'base': return 'Base';
+      case 'avalanche': return 'Avalanche';
+      case 'fantom': return 'Fantom';
+      case 'gnosis': return 'Gnosis';
+      default: {
+        const s = String(network || '').trim();
+        if (!s) return 'EVM';
+        return s.toUpperCase();
+      }
+    }
+  };
+
+  const chainTotals = new Map();
+  for (const h of holdings) {
+    const v = Number(h?.value || 0) || 0;
+    const chain = String(h?.chain || 'unknown');
+
+    let bucketKey = chain;
+    let bucketName = chain;
+
+    if (chain === 'solana') {
+      bucketKey = 'solana';
+      bucketName = 'Solana';
+    } else if (chain === 'evm') {
+      const network = normalizeEvmNetwork(h?.network || h?.chain || '');
+      bucketKey = `evm:${network || 'unknown'}`;
+      bucketName = evmNetworkName(network);
+    }
+
+    if (!chainTotals.has(bucketKey)) chainTotals.set(bucketKey, { name: bucketName, value: 0 });
+    chainTotals.get(bucketKey).value += v;
+  }
+
+  const rows = Array.from(chainTotals.entries())
+    .map(([bucketKey, data]) => ({
+      key: bucketKey,
+      name: data.name,
+      value: Number(data.value || 0) || 0,
+    }))
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  const top = rows.slice(0, 6);
+  const otherSum = rows.slice(6).reduce((s, r) => s + (Number(r?.value || 0) || 0), 0);
+  const donutRows = otherSum > 0 ? [...top, { key: 'other', name: 'Other', value: otherSum }] : top;
+
+  const hashHue = (str) => {
+    const s = String(str || '');
+    let h = 0;
+    for (let i = 0; i < s.length; i += 1) h = ((h << 5) - h) + s.charCodeAt(i);
+    return Math.abs(h) % 360;
+  };
+
+  const chainBrandColor = (chainKey) => {
+    const key = String(chainKey || '').toLowerCase();
+    if (key === 'solana') return '#7c3aed';
+    if (key === 'evm:ethereum') return '#3b82f6';
+    if (key === 'evm:base') return '#2563eb';
+    if (key === 'evm:arbitrum') return '#60a5fa';
+    if (key === 'evm:optimism') return '#ef4444';
+    if (key === 'evm:bsc') return '#fbbf24';
+    if (key === 'evm:polygon') return '#a855f7';
+    if (key === 'evm:avalanche') return '#f43f5e';
+    if (key === 'evm:fantom') return '#38bdf8';
+    if (key === 'evm:gnosis') return '#22c55e';
+    if (key === 'other') return '#94a3b8';
+    const hue = hashHue(key);
+    return `hsl(${hue} 85% 55%)`;
+  };
+
+  const donutSize = 120;
+  const donutStroke = 14;
+  const r = (donutSize / 2) - (donutStroke / 2);
+  const c = 2 * Math.PI * r;
+
+  let offset = 0;
+  const segments = donutRows.map((row) => {
+    const pctRaw = total > 0 ? (row.value / total) * 100 : 0;
+    const pct = Math.max(0, Math.min(100, Number.isFinite(pctRaw) ? pctRaw : 0));
+    const dashFull = (pct / 100) * c;
+    const seg = {
+      ...row,
+      pct,
+      dashFull,
+      offset,
+      color: chainBrandColor(row.key),
+    };
+    offset += dashFull;
+    return seg;
+  });
+
+  const svg = `
+    <svg viewBox="0 0 ${donutSize} ${donutSize}" width="${donutSize}" height="${donutSize}" role="img" aria-label="Chain allocation">
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${r}" fill="none" stroke="rgba(0,0,0,0.16)" stroke-width="${donutStroke}" />
+      ${segments.map(s => {
+        const title = `${String(s.name || '—')} · ${formatPct(s.pct)} · ${formatCurrency(s.value)}`;
+        return `
+          <circle
+            class="alloc-seg"
+            cx="${donutSize / 2}"
+            cy="${donutSize / 2}"
+            r="${r}"
+            fill="none"
+            stroke="${s.color}"
+            stroke-opacity="1"
+            stroke-width="${donutStroke}"
+            stroke-linecap="round"
+            stroke-dasharray="${s.dashFull.toFixed(2)} ${(c - s.dashFull).toFixed(2)}"
+            stroke-dashoffset="${(-s.offset).toFixed(2)}"
+            transform="rotate(-90 ${donutSize / 2} ${donutSize / 2})"
+          >
+            <title>${escapeHtml(title)}</title>
+          </circle>
+        `;
+      }).join('')}
+      <circle cx="${donutSize / 2}" cy="${donutSize / 2}" r="${Math.max(0, r - donutStroke)}" fill="rgba(255,255,255,0.58)" />
+    </svg>
+  `;
+
+  el.innerHTML = svg;
 }
 
 function renderAllocationAndRisk() {
