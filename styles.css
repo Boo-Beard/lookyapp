@@ -1206,40 +1206,24 @@ body.is-scanning .logo-lockup .eye-loader {
 .logo-lockup .eye-loader .loader {
   width: 48px;
   height: 48px;
-  display: block;
-  position: relative;
-  border: 3px solid #2aa8ff;
+  background: #2aa8ff;
   border-radius: 50%;
-  box-sizing: border-box;
-  animation: animloader 2s linear infinite;
+  position: relative;
+  animation: skLinRotate 1s ease-in-out infinite alternate;
 }
 .logo-lockup .eye-loader .loader:after {
   content: '';
-  box-sizing: border-box;
-  width: 6px;
-  height: 24px;
-  background: #05060a;
-  transform: rotate(-45deg);
   position: absolute;
-  bottom: -20px;
-  left: 46px;
+  inset: 5px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top-color: #05060a;
 }
 
-@keyframes animloader {
-  0% {
-    transform: translate(-10px, -10px);
-  }
-  25% {
-    transform: translate(-10px, 10px);
-  }
-  50% {
-    transform: translate(10px, 10px);
-  }
-  75% {
-    transform: translate(10px, -10px);
-  }
+@keyframes skLinRotate {
+  95%,
   100% {
-    transform: translate(-10px, -10px);
+    transform: rotate(840deg);
   }
 }
 
