@@ -1186,6 +1186,81 @@ body.is-scanning .logo-lockup .pupil {
   animation: scanPupilJitter 0.35s steps(2, end) infinite;
 }
 
+.logo-lockup .eye-loader {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+body.is-scanning .logo-lockup .pupil {
+  opacity: 0;
+  animation: none;
+}
+
+body.is-scanning .logo-lockup .eye-loader {
+  display: flex;
+}
+
+.logo-lockup .eye-loader .loader {
+  position: relative;
+  transform: rotateZ(45deg);
+  perspective: 1000px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  color: var(--ink);
+}
+
+.logo-lockup .eye-loader .loader:before,
+.logo-lockup .eye-loader .loader:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: inherit;
+  height: inherit;
+  border-radius: 50%;
+  transform: rotateX(70deg);
+  animation: 1s peeek-loader-spin linear infinite;
+}
+
+.logo-lockup .eye-loader .loader:after {
+  color: var(--accent);
+  transform: rotateY(70deg);
+  animation-delay: .4s;
+}
+
+@keyframes peeek-loader-spin {
+  0%,
+  100% {
+    box-shadow: .2em 0px 0 0px currentcolor;
+  }
+  12% {
+    box-shadow: .2em .2em 0 0 currentcolor;
+  }
+  25% {
+    box-shadow: 0 .2em 0 0px currentcolor;
+  }
+  37% {
+    box-shadow: -.2em .2em 0 0 currentcolor;
+  }
+  50% {
+    box-shadow: -.2em 0 0 0 currentcolor;
+  }
+  62% {
+    box-shadow: -.2em -.2em 0 0 currentcolor;
+  }
+  75% {
+    box-shadow: 0px -.2em 0 0 currentcolor;
+  }
+  87% {
+    box-shadow: .2em -.2em 0 0 currentcolor;
+  }
+}
+
 body.is-scanning .logo-lockup .eye::before {
   animation: none;
 }
