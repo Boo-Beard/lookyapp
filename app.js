@@ -1,6 +1,19 @@
 
 const $ = (id) => document.getElementById(id);
 
+function shouldIgnoreGlobalError(message, source) {
+  const msg = String(message || '');
+  const src = String(source || '');
+
+  if (/metamask/i.test(msg)) return true;
+  if (/Failed\s+to\s+connect\s+to\s+MetaMask/i.test(msg)) return true;
+
+  // Wallet extensions often throw from extension URLs; those aren't actionable for users.
+  if (/^(chrome|moz|safari)-extension:\/\//i.test(src)) return true;
+
+  return false;
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -10,6 +23,7 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('error', (e) => {
   try {
     const msg = e?.error?.message || e?.message || 'Unknown error';
+    if (shouldIgnoreGlobalError(msg, e?.filename)) return;
     document.body?.setAttribute('data-js-error', '1');
     const status = document.getElementById('statusContent');
     if (status) status.textContent = `Error: ${String(msg).slice(0, 140)}`;
@@ -21,6 +35,7 @@ window.addEventListener('error', (e) => {
 window.addEventListener('unhandledrejection', (e) => {
   try {
     const msg = e?.reason?.message || String(e?.reason || 'Unhandled rejection');
+    if (shouldIgnoreGlobalError(msg)) return;
     document.body?.setAttribute('data-js-error', '1');
     const status = document.getElementById('statusContent');
     if (status) status.textContent = `Error: ${String(msg).slice(0, 140)}`;
