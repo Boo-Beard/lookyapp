@@ -574,6 +574,7 @@ body.is-redacted .redacted-field.is-revealed {
   text-align: center;
   gap: 8px;
   padding: 32px 14px 16px;
+  min-height: 176px;
   overflow: visible;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
