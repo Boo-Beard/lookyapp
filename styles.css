@@ -94,11 +94,6 @@ html, body {
   min-height: 100vh;
   font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--paper);
-  background:
-    radial-gradient(1400px 900px at 18% 10%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.00) 60%),
-    radial-gradient(1100px 760px at 82% 0%, rgba(0, 194, 255, 0.16) 0%, rgba(0, 194, 255, 0.00) 58%),
-    radial-gradient(920px 720px at 50% 110%, rgba(255, 45, 85, 0.14) 0%, rgba(255, 45, 85, 0.00) 62%),
-    var(--paper);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
