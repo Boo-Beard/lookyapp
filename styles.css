@@ -1206,7 +1206,9 @@ body.is-scanning .logo-lockup .eye-loader {
 .logo-lockup .eye-loader .loader {
   width: 48px;
   height: 48px;
-  background: #2aa8ff;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.92) 0 10%, rgba(255, 255, 255, 0) 11% 100%),
+    radial-gradient(circle at 55% 58%, #2aa8ff 0%, #0b2a6d 55%, #05060a 100%);
   border-radius: 50%;
   position: relative;
   animation: skLinRotate 1s ease-in-out infinite alternate;
@@ -1217,7 +1219,7 @@ body.is-scanning .logo-lockup .eye-loader {
   inset: 5px;
   border-radius: 50%;
   border: 5px solid transparent;
-  border-top-color: #05060a;
+  border-top-color: #2aa8ff;
 }
 
 @keyframes skLinRotate {
