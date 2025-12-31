@@ -2931,6 +2931,10 @@ function computePortfolioBlendScore(options = {}) {
   }
 
   const chainShares = Array.from(chainTotals.values()).map(v => (total > 0 ? (Number(v.value || 0) / total) : 0));
+  const hhi = chainShares.reduce((s, share) => {
+    const x = Number(share || 0) || 0;
+    return s + (x * x);
+  }, 0);
   const topChainPct = chainShares.length ? (Math.max(...chainShares) * 100) : 0;
   const DUST_USD = 1;
   const dust = holdings.reduce((acc, h) => {
@@ -4261,6 +4265,14 @@ async function scanWallets({ queueOverride } = {}) {
 
   scheduleRecomputeAggregatesAndRender();
   forceCollapseResultsSections();
+
+  try {
+    requestAnimationFrame(() => {
+      try { scheduleRenderHoldingsTable(); } catch {}
+    });
+  } catch {
+    try { scheduleRenderHoldingsTable(); } catch {}
+  }
 
   updateScanCooldownUi();
 
