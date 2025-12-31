@@ -665,35 +665,6 @@ width: 44px;
   display: inline-block;
 }
 
-
-#totalChange.summary-change {
-    align-items: baseline;
-    gap: 6px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-    font-size: clamp(11px, 2.1vw, 14px);
-    line-height: 1;
-    font-family: var(--mono);
-    font-weight: 900;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    letter-spacing: 0.01em;
-    min-width: 0;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#totalChange.summary-change.positive {
-  color: rgb(4, 130, 48);
-}
-
-#totalChange.summary-change.negative {
-  color: rgb(154, 22, 22);
-}
-
 .pnl-positive {
   color: rgb(4, 130, 48);
 }

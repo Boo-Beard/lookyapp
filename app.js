@@ -2851,28 +2851,6 @@ function updateSummary() {
       : 0;
   $('walletCount') && ($('walletCount').textContent = `${walletCount} wallet${walletCount === 1 ? '' : 's'}`);
 
-  const totalChangeEl = $('totalChange');
-  if (totalChangeEl) {
-    const totalNow = Number(state.totalValueForChange || 0) || 0;
-    const total24hAgo = Number(state.totalValue24hAgo || 0) || 0;
-    const delta = totalNow - total24hAgo;
-
-    if (totalNow <= 0) {
-      totalChangeEl.classList.add('hidden');
-      totalChangeEl.classList.remove('positive', 'negative');
-    } else {
-      const pct = total24hAgo > 0 ? (delta / total24hAgo) * 100 : 0;
-      const pctSafe = Number.isFinite(pct) ? pct : 0;
-
-      totalChangeEl.classList.remove('hidden');
-      totalChangeEl.classList.toggle('positive', pctSafe > 0.0001);
-      totalChangeEl.classList.toggle('negative', pctSafe < -0.0001);
-      const arrow = pctSafe > 0.0001 ? '▲' : pctSafe < -0.0001 ? '▼' : '•';
-      const sign = delta > 0 ? '+' : delta < 0 ? '-' : '+';
-      totalChangeEl.textContent = `${arrow} ${Math.abs(pctSafe).toFixed(2)}% (${sign}${formatCurrency(Math.abs(delta))})`;
-    }
-  }
-
   const totalPnl24hEl = $('totalPnl24h');
   if (totalPnl24hEl) {
     const holdings = Array.isArray(state.holdings) ? state.holdings : [];
