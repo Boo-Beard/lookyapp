@@ -4901,8 +4901,6 @@ function setMode(mode) {
     sBtn.classList.toggle('is-active', m === 'search');
     sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
   }
-
-  // Watchlist refresh is manual-only (via Refresh button).
 }
 
 function setupEventListeners() {
@@ -5026,14 +5024,30 @@ function setupEventListeners() {
 
   const watchlistRefreshBtn = $('watchlistRefreshBtn');
   if (watchlistRefreshBtn) {
+    let watchlistRefreshCooldownTimer = null;
     watchlistRefreshBtn.addEventListener('click', async () => {
+      if (watchlistRefreshCooldownTimer) return;
+
+      const labelEl = watchlistRefreshBtn.querySelector('span:not(.btn-icon)') || watchlistRefreshBtn.querySelector('span:last-child');
+      const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
       try {
         watchlistRefreshBtn.disabled = true;
         await refreshWatchlistMetrics({ force: true });
+        if (labelEl) labelEl.textContent = 'Updated!';
         hapticFeedback('light');
+
+        watchlistRefreshCooldownTimer = window.setTimeout(() => {
+          try {
+            if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
+            watchlistRefreshBtn.disabled = false;
+          } catch {}
+          watchlistRefreshCooldownTimer = null;
+        }, 30_000);
       } catch {
         try { hapticFeedback('error'); } catch {}
-      } finally {
+        try {
+          if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
+        } catch {}
         watchlistRefreshBtn.disabled = false;
       }
     });
