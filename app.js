@@ -106,6 +106,32 @@ function migrateLegacyStorageKeys() {
   } catch {}
 }
 
+async function copyTextToClipboard(text) {
+  const value = String(text || '').trim();
+  if (!value) return false;
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {}
+
+  try {
+    const el = document.createElement('textarea');
+    el.value = value;
+    el.setAttribute('readonly', '');
+    el.style.position = 'fixed';
+    el.style.top = '-9999px';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    const ok = document.execCommand('copy');
+    el.remove();
+    return !!ok;
+  } catch {}
+  return false;
+}
+
 function watchlistStarLabelFromEl(el) {
   try {
     const sym = String(el?.dataset?.symbol || '').trim();
@@ -212,6 +238,9 @@ function renderSearchTokenActions(model) {
     <div class="holding-card-actions search-token-actions" aria-label="Token links">
       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
         <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+      </a>
+      <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(model?.address || ''))}" aria-label="Copy contract address">
+        <i class="fa-regular fa-copy" aria-hidden="true"></i>
       </a>
       ${items.map((it) => {
         const disabled = !!it.disabled || !it.href || it.href === '#';
@@ -1238,6 +1267,9 @@ function renderWatchlist() {
               <div class="holding-card-actions" aria-label="Watchlist actions">
                 <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
                   <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+                </a>
+                <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(t.address || ''))}" aria-label="Copy contract address">
+                  <i class="fa-regular fa-copy" aria-hidden="true"></i>
                 </a>
                 <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Watchlist">
                   <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -2303,13 +2335,11 @@ async function fetchSolanaWalletPnl(wallet, { signal } = {}) {
 
   const data = await birdeyeRequest('/wallet/v2/pnl/summary', {
     wallet: wallet,
-    duration: 'all',
-  }, {
-    signal,
-    headers: {
-      'x-chain': 'solana',
-    },
-  });
+    wallet_address: wallet,
+
+    currency: 'usd',
+    chain: 'solana',
+  }, { signal });
 
   const summary = data?.data?.summary || {};
   const pnl = summary?.pnl || {};
@@ -2328,7 +2358,7 @@ async function fetchSolanaWalletPnl(wallet, { signal } = {}) {
 }
 
 function birdeyeXChain(chain) {
-  return chain === 'solana' ? 'solana' : 'ethereum';
+  return chain === 'solana' ? 'solana' : birdeyeXChain(normalizeEvmNetwork(chain));
 }
 
 async function fetchSolanaNetWorthChange(wallet, { signal } = {}) {
@@ -2883,16 +2913,24 @@ function computePortfolioBlendScore(options = {}) {
   for (const h of holdings) {
     const v = Number(h?.value || 0) || 0;
     const chain = String(h?.chain || 'unknown');
+
     let bucketKey = chain;
-    if (chain === 'solana') bucketKey = 'solana';
-    else if (chain === 'evm') {
+    let bucketName = chain;
+
+    if (chain === 'solana') {
+      bucketKey = 'solana';
+      bucketName = 'Solana';
+    } else if (chain === 'evm') {
       const network = normalizeEvmNetwork(h?.network || h?.chain || '');
       bucketKey = `evm:${network || 'unknown'}`;
+      bucketName = evmNetworkLabel(network);
     }
-    chainTotals.set(bucketKey, (chainTotals.get(bucketKey) || 0) + v);
+
+    if (!chainTotals.has(bucketKey)) chainTotals.set(bucketKey, { name: bucketName, value: 0 });
+    chainTotals.get(bucketKey).value += v;
   }
-  const chainShares = Array.from(chainTotals.values()).map(v => (total > 0 ? (Number(v || 0) / total) : 0));
-  const hhi = chainShares.reduce((s, w) => s + (w * w), 0);
+
+  const chainShares = Array.from(chainTotals.values()).map(v => (total > 0 ? (Number(v.value || 0) / total) : 0));
   const topChainPct = chainShares.length ? (Math.max(...chainShares) * 100) : 0;
   const DUST_USD = 1;
   const dust = holdings.reduce((acc, h) => {
@@ -2909,6 +2947,7 @@ function computePortfolioBlendScore(options = {}) {
     const v = Number(h?.value || 0) || 0;
     const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean).map(String) : [];
     if (!sources.length || v <= 0) continue;
+
     const uniq = Array.from(new Set(sources));
     const per = v / Math.max(1, uniq.length);
     for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
@@ -3752,6 +3791,9 @@ function renderHoldingsTable() {
                 <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                   <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
                 </a>
+                <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
+                  <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                </a>
               </div>
             </div>
           </td>
@@ -3844,6 +3886,9 @@ function renderHoldingsTable() {
                 <div class="holding-card-actions" aria-label="Holding actions">
                   <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                     <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+                  </a>
+                  <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
+                    <i class="fa-regular fa-copy" aria-hidden="true"></i>
                   </a>
                   <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
                     <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
@@ -4544,7 +4589,6 @@ function renderSearchTokenError(message) {
           </div>
         </div>
       </div>
-    </div>
   `;
 }
 
@@ -4626,193 +4670,6 @@ function renderSearchTokenCard(model) {
 
   try { syncWatchlistStars(); } catch {}
 
-}
-
-function normalizeEvmAddress(raw) {
-  const s = String(raw || '').trim();
-  if (!/^0x[a-f0-9]{40}$/i.test(s)) return null;
-  return s;
-}
-
-function looksLikeSolanaMint(raw) {
-  const s = String(raw || '').trim();
-  if (!s || s.startsWith('0x')) return false;
-  if (s.length < 32 || s.length > 48) return false;
-  return /^[1-9A-HJ-NP-Za-km-z]+$/.test(s);
-}
-
-function birdeyeChainFromDexscreenerChainId(chainId) {
-  const id = String(chainId || '').toLowerCase();
-  const map = {
-    ethereum: 'ethereum',
-    eth: 'ethereum',
-    bsc: 'bsc',
-    polygon: 'polygon',
-    matic: 'polygon',
-    arbitrum: 'arbitrum',
-    optimism: 'optimism',
-    base: 'base',
-    avalanche: 'avalanche',
-    avax: 'avalanche',
-    fantom: 'fantom',
-    cronos: 'cronos',
-    linea: 'linea',
-    celo: 'celo',
-  };
-  return map[id] || null;
-}
-
-function pickFirstNumber(obj, keys) {
-  if (!obj || typeof obj !== 'object') return null;
-  for (const k of keys) {
-    const v = obj[k];
-    const n = Number(v);
-    if (Number.isFinite(n)) return n;
-  }
-  return null;
-}
-
-async function fetchSolanaTokenMetrics(address, { signal } = {}) {
-  const overview = await birdeyeRequest('/defi/token_overview', { address, ui_amount_mode: 'scaled' }, {
-    signal,
-    headers: { 'x-chain': 'solana' },
-  });
-
-  const data = overview?.data || {};
-  const model = {
-    address,
-    chain: 'solana',
-    network: 'solana',
-    chainLabel: 'Solana',
-    chainShort: 'SOL',
-    name: data?.name || data?.symbol || 'Token',
-    symbol: data?.symbol || '',
-    logoUrl: data?.logoURI ?? data?.logoUri ?? data?.logo_uri ?? data?.logo ?? data?.image ?? data?.imageUrl ?? data?.image_url ?? data?.logo_url ?? null,
-    extensions: data?.extensions || null,
-    priceUsd: data?.price ?? null,
-    marketCapUsd: data?.marketCap ?? data?.fdv ?? null,
-    liquidityUsd: data?.liquidity ?? null,
-    volume24hUsd: data?.v24hUSD ?? data?.v24hUsd ?? data?.v24h ?? null,
-    change24hPct: data?.priceChange24hPercent ?? null,
-    holders: pickFirstNumber(data, ['holder', 'holders', 'totalHolders', 'total_holder']),
-    circulatingSupply: data?.circulatingSupply ?? data?.totalSupply ?? null,
-    trades24h: pickFirstNumber(data, ['trade24h', 'trade_24h', 'txns24h', 'trades24h']),
-  };
-
-  if (model.holders == null) {
-    try {
-      const holderResp = await birdeyeRequest('/defi/v3/token/holder', { address, limit: 1, offset: 0 }, {
-        signal,
-        headers: { 'x-chain': 'solana' },
-      });
-      model.holders = pickFirstNumber(holderResp?.data || {}, ['total', 'totalHolders', 'total_holder', 'holder', 'holders', 'count']);
-    } catch {}
-  }
-
-  if (model.trades24h == null) {
-    try {
-      const tradeResp = await birdeyeRequest('/defi/v3/token/trade-data/single', { address, frames: '24h' }, {
-        signal,
-        headers: { 'x-chain': 'solana' },
-      });
-      const t = tradeResp?.data || {};
-      const direct = pickFirstNumber(t, ['txns24h', 'trade24h', 'trades24h', 'txns_24h', 'trades_24h']);
-      const nested = pickFirstNumber(t?.txns || {}, ['h24', '24h', 'h_24']);
-      model.trades24h = direct ?? nested ?? null;
-    } catch {}
-  }
-
-  return model;
-}
-
-async function fetchEvmTokenMetrics(address, { signal } = {}) {
-  const url = `https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(address)}`;
-  const resp = await fetch(url, signal ? { signal } : undefined);
-  if (!resp.ok) throw new Error(`Dexscreener error: ${resp.status}`);
-  const data = await resp.json();
-
-  const pairs = Array.isArray(data?.pairs) ? data.pairs : [];
-  if (!pairs.length) throw new Error('No pairs found for that token on Dexscreener.');
-
-  const best = pairs
-    .slice()
-    .sort((a, b) => (Number(b?.liquidity?.usd || 0) || 0) - (Number(a?.liquidity?.usd || 0) || 0))[0];
-
-  const chainId = String(best?.chainId || '').toLowerCase();
-  const birdeyeChain = birdeyeChainFromDexscreenerChainId(chainId);
-  if (birdeyeChain) {
-    try {
-      const overview = await birdeyeRequest('/defi/token_overview', { address, ui_amount_mode: 'scaled' }, {
-        signal,
-        headers: { 'x-chain': birdeyeChain },
-      });
-      const o = overview?.data || {};
-      const dexExt = extractDexscreenerExtensions(best);
-      return {
-        address,
-        chain: 'evm',
-        network: chainId,
-        chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
-        chainShort: String(best?.chainId || 'EVM').toUpperCase(),
-        name: o?.name || best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
-        symbol: o?.symbol || best?.baseToken?.symbol || '',
-        logoUrl: o?.logoURI ?? o?.logoUri ?? o?.logo_uri ?? o?.logo ?? o?.image ?? o?.imageUrl ?? o?.image_url
-          ?? best?.baseToken?.logoURI ?? best?.baseToken?.logoUri ?? best?.baseToken?.logo_uri
-          ?? best?.info?.imageUrl ?? best?.info?.image_url ?? best?.info?.image
-          ?? null,
-        extensions: o?.extensions || dexExt || null,
-        priceUsd: o?.price ?? best?.priceUsd ?? null,
-        marketCapUsd: o?.marketCap ?? o?.fdv ?? best?.marketCap ?? best?.fdv ?? null,
-        liquidityUsd: o?.liquidity ?? best?.liquidity?.usd ?? null,
-        volume24hUsd: o?.v24hUSD ?? best?.volume?.h24 ?? null,
-        change24hPct: o?.priceChange24hPercent ?? best?.priceChange?.h24 ?? null,
-        holders: pickFirstNumber(o, ['holder', 'holders', 'totalHolders', 'total_holder']),
-        circulatingSupply: o?.circulatingSupply ?? o?.totalSupply ?? null,
-        trades24h: pickFirstNumber(o, ['trade24h', 'trade_24h', 'txns24h', 'trades24h']),
-      };
-    } catch {}
-  }
-
-  const txns24h = best?.txns?.h24;
-  const trades24h = (Number(txns24h?.buys || 0) || 0) + (Number(txns24h?.sells || 0) || 0);
-  const dexExt = extractDexscreenerExtensions(best);
-  return {
-    address,
-    chain: 'evm',
-    network: chainId,
-    chainLabel: `${best?.chainId || 'EVM'}${best?.dexId ? ` · ${best.dexId}` : ''}`,
-    chainShort: String(best?.chainId || 'EVM').toUpperCase(),
-    name: best?.baseToken?.name || best?.baseToken?.symbol || 'Token',
-    symbol: best?.baseToken?.symbol || '',
-    logoUrl: best?.baseToken?.logoURI || best?.baseToken?.logoUri || best?.baseToken?.logo_uri
-      || best?.info?.imageUrl || best?.info?.image_url || best?.info?.image
-      || null,
-    extensions: dexExt || null,
-    priceUsd: best?.priceUsd ?? null,
-    marketCapUsd: best?.marketCap ?? best?.fdv ?? null,
-    liquidityUsd: best?.liquidity?.usd ?? null,
-    volume24hUsd: best?.volume?.h24 ?? null,
-    change24hPct: best?.priceChange?.h24 ?? null,
-    holders: null,
-    circulatingSupply: null,
-    trades24h: Number.isFinite(trades24h) ? trades24h : null,
-  };
-}
-
-async function runTokenSearch(raw, { signal } = {}) {
-  const addr = String(raw || '').trim();
-  if (!addr) throw new Error('Paste a token address first.');
-
-  const evm = normalizeEvmAddress(addr);
-  if (evm) {
-    return await fetchEvmTokenMetrics(evm, { signal });
-  }
-
-  if (looksLikeSolanaMint(addr)) {
-    return await fetchSolanaTokenMetrics(addr, { signal });
-  }
-
-  throw new Error('Unrecognized token address format. Paste a SOL mint or an EVM 0x… address.');
 }
 
 function setPortfolioMinimizedPreference(isMinimized) {
@@ -5017,6 +4874,17 @@ function setupEventListeners() {
   });
 
   document.addEventListener('click', (e) => {
+    const copyBtn = e.target.closest('a.holding-action[data-action="copy-contract"]');
+    if (copyBtn) {
+      e.preventDefault();
+      const addr = String(copyBtn.dataset.address || '').trim();
+      copyTextToClipboard(addr).then((ok) => {
+        showInlineStarToast(copyBtn, ok ? 'Copied' : 'Copy failed');
+      });
+      try { hapticFeedback('light'); } catch {}
+      return;
+    }
+
     const wlAdd = e.target.closest('a.holding-action[data-action="watchlist-add"]');
     if (wlAdd) {
       e.preventDefault();
