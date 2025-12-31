@@ -1303,8 +1303,47 @@ function renderWatchlist() {
     });
   } catch {}
 
+  try { updateWatchlistUpdatedAtLabel(); } catch {}
+
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
+}
+
+function formatRelativeTime(ts) {
+  const t = Number(ts || 0) || 0;
+  if (!t) return '—';
+  const deltaMs = Date.now() - t;
+  if (!Number.isFinite(deltaMs)) return '—';
+
+  if (deltaMs < 3_000) return 'just now';
+  const sec = Math.floor(deltaMs / 1000);
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  return `${day}d ago`;
+}
+
+function updateWatchlistUpdatedAtLabel({ inFlight } = {}) {
+  const el = $('watchlistUpdatedAt');
+  if (!el) return;
+
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  if (!list.length) {
+    el.textContent = 'Last updated: —';
+    return;
+  }
+
+  let latest = 0;
+  for (const t of list) {
+    const u = Number(t?.updatedAt || 0) || 0;
+    if (u > latest) latest = u;
+  }
+
+  const suffix = inFlight ? ' (refreshing…)': '';
+  el.textContent = `Last updated: ${formatRelativeTime(latest)}${suffix}`;
 }
 
 let watchlistRefreshInFlight = false;
@@ -1324,6 +1363,7 @@ async function refreshWatchlistMetrics({ force } = {}) {
 
   watchlistRefreshInFlight = true;
   try {
+    try { updateWatchlistUpdatedAtLabel({ inFlight: true }); } catch {}
     const next = [...list];
     const queue = [];
     for (let i = 0; i < next.length; i++) {
@@ -1368,8 +1408,10 @@ async function refreshWatchlistMetrics({ force } = {}) {
     state.watchlistTokens = next;
     saveWatchlistTokens(next);
     renderWatchlist();
+    try { updateWatchlistUpdatedAtLabel(); } catch {}
   } finally {
     watchlistRefreshInFlight = false;
+    try { updateWatchlistUpdatedAtLabel(); } catch {}
   }
 }
 
@@ -4814,6 +4856,7 @@ function setMode(mode) {
 
   if (m === 'watchlist') {
     refreshWatchlistMetrics();
+    try { updateWatchlistUpdatedAtLabel(); } catch {}
   }
 }
 
@@ -4935,6 +4978,23 @@ function setupEventListeners() {
     setMode('watchlist');
     hapticFeedback('light');
   });
+
+  const watchlistRefreshBtn = $('watchlistRefreshBtn');
+  if (watchlistRefreshBtn) {
+    watchlistRefreshBtn.addEventListener('click', async () => {
+      try {
+        watchlistRefreshBtn.disabled = true;
+        updateWatchlistUpdatedAtLabel({ inFlight: true });
+        await refreshWatchlistMetrics({ force: true });
+        hapticFeedback('light');
+      } catch {
+        try { hapticFeedback('error'); } catch {}
+      } finally {
+        watchlistRefreshBtn.disabled = false;
+        try { updateWatchlistUpdatedAtLabel(); } catch {}
+      }
+    });
+  }
 
   const watchlistSortSelect = $('watchlistSortSelect');
   if (watchlistSortSelect) {

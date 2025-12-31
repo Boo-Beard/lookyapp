@@ -146,6 +146,13 @@
               <div class="input-warning hidden" id="watchlistHint"></div>
 
               <div class="watchlist-controls">
+                <div class="watchlist-refresh">
+                  <button id="watchlistRefreshBtn" class="btn btn-outline btn-sm" type="button">
+                    <span class="btn-icon"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span>
+                    <span>Refresh</span>
+                  </button>
+                  <div id="watchlistUpdatedAt" class="watchlist-updated-at">Last updated: —</div>
+                </div>
                 <select id="watchlistSortSelect" class="select select-sm" aria-label="Sort watchlist">
                   <option value="change24h">24h Change</option>
                   <option value="name">Name</option>

@@ -98,7 +98,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: auto;
 }
 
 html {
@@ -1674,6 +1675,23 @@ body.is-scanning .logo-lockup .eye::after {
   margin-top: 6px;
 }
 
+.watchlist-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.watchlist-updated-at {
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
 .watchlist-controls .control-label {
   font-family: var(--mono);
   letter-spacing: 0.12em;
@@ -1691,10 +1709,17 @@ body.is-scanning .logo-lockup .eye::after {
 @media (max-width: 420px) {
   .watchlist-controls {
     justify-content: center;
+    flex-direction: column;
   }
   .watchlist-controls .select {
     min-width: 0;
     width: 100%;
+    max-width: 340px;
+  }
+
+  .watchlist-refresh {
+    width: 100%;
+    justify-content: space-between;
     max-width: 340px;
   }
 }
