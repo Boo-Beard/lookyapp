@@ -1210,7 +1210,7 @@ body.is-scanning .logo-lockup .eye-loader {
   border-radius: 50%;
   width: 48px;
   height: 48px;
-  color: var(--ink);
+  color: #05060a;
 }
 
 .logo-lockup .eye-loader .loader:before,
@@ -1228,7 +1228,7 @@ body.is-scanning .logo-lockup .eye-loader {
 }
 
 .logo-lockup .eye-loader .loader:after {
-  color: var(--accent);
+  color: #2aa8ff;
   transform: rotateY(70deg);
   animation-delay: .4s;
 }
