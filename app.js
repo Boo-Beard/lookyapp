@@ -2824,6 +2824,19 @@ function updateSummary() {
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
   $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
 
+  const summaryScoreEl = $('summaryPortfolioScore');
+  const summaryScoreMetaEl = $('summaryPortfolioScoreMeta');
+  if (summaryScoreEl && summaryScoreMetaEl) {
+    const s = computePortfolioBlendScore();
+    if (!Number.isFinite(s?.score)) {
+      summaryScoreEl.textContent = '—';
+      summaryScoreMetaEl.textContent = '—';
+    } else {
+      summaryScoreEl.textContent = `${Math.round(s.score)}/100`;
+      summaryScoreMetaEl.textContent = String(s?.label || s?.meta || '—');
+    }
+  }
+
   renderAiScoreSection();
 }
 
