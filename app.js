@@ -954,6 +954,7 @@ const state = {
   holdingsPage: 1,
   lastScanFailedQueue: [],
   watchlistTokens: [],
+  watchlistLastRefreshAt: 0,
 };
 
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
@@ -1342,8 +1343,9 @@ function updateWatchlistUpdatedAtLabel({ inFlight } = {}) {
     if (u > latest) latest = u;
   }
 
+  const base = latest > 0 ? `Last updated: ${formatRelativeTime(latest)}` : 'Last updated: —';
   const suffix = inFlight ? ' (refreshing…)': '';
-  el.textContent = `Last updated: ${formatRelativeTime(latest)}${suffix}`;
+  el.textContent = `${base}${suffix}`;
 }
 
 let watchlistRefreshInFlight = false;
@@ -1354,6 +1356,7 @@ async function refreshWatchlistMetrics({ force } = {}) {
   if (!list.length) return;
 
   const now = Date.now();
+  state.watchlistLastRefreshAt = now;
   const STALE_MS = 2 * 60 * 1000;
   const needsRefresh = force
     ? list
@@ -1375,6 +1378,7 @@ async function refreshWatchlistMetrics({ force } = {}) {
 
     const CONCURRENCY = 2;
     let cursor = 0;
+    let okCount = 0;
     const worker = async () => {
       while (cursor < queue.length) {
         const job = queue[cursor++];
@@ -1382,7 +1386,7 @@ async function refreshWatchlistMetrics({ force } = {}) {
         try {
           const t = job.token;
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-          const model = await runTokenSearch(t.address, controller ? { signal: controller.signal } : undefined);
+          const model = await runTokenSearch(t.address, controller ? { signal: controller.signal, chain: t.chain, network: t.network } : { chain: t.chain, network: t.network });
           const merged = sanitizeWatchlistToken({
             ...t,
             chain: model?.chain || t.chain,
@@ -1398,6 +1402,7 @@ async function refreshWatchlistMetrics({ force } = {}) {
             updatedAt: Date.now(),
           });
           if (merged) next[job.idx] = merged;
+          okCount += 1;
         } catch {}
       }
     };
@@ -1409,6 +1414,10 @@ async function refreshWatchlistMetrics({ force } = {}) {
     saveWatchlistTokens(next);
     renderWatchlist();
     try { updateWatchlistUpdatedAtLabel(); } catch {}
+
+    if (okCount === 0) {
+      try { setWatchlistHint('Refresh failed (rate limited or offline).', 'error'); } catch {}
+    }
   } finally {
     watchlistRefreshInFlight = false;
     try { updateWatchlistUpdatedAtLabel(); } catch {}
@@ -2337,6 +2346,96 @@ async function birdeyeRequest(path, params = {}, { signal, headers } = {}) {
   return data;
 }
 
+async function runTokenSearch(address, { signal, chain, network } = {}) {
+  const raw = String(address || '').trim();
+  if (!raw) throw new Error('Missing token address');
+
+  const classified = classifyAddress(raw);
+  const inferredChain = chain
+    ? canonicalizeChainForKey(chain)
+    : (classified?.type === 'solana' ? 'solana' : classified?.type === 'evm' ? 'evm' : '');
+
+  if (!inferredChain) throw new Error('Invalid token address');
+
+  const resolvedNetwork = inferredChain === 'evm'
+    ? normalizeEvmNetwork(network || '')
+    : '';
+
+  if (inferredChain === 'evm' && !isValidEvmContractAddress(raw)) {
+    throw new Error('Invalid EVM token address');
+  }
+
+  const overview = await birdeyeRequest('/defi/token_overview', {
+    address: raw,
+    ui_amount_mode: 'scaled',
+  }, {
+    signal,
+    headers: {
+      'x-chain': birdeyeXChain(inferredChain === 'solana' ? 'solana' : (resolvedNetwork || 'ethereum')),
+    },
+  });
+
+  const data = overview?.data || {};
+  const ext = normalizeExtensions(data?.extensions);
+
+  const priceUsd = Number(
+    data?.price ??
+    data?.priceUsd ??
+    data?.price_usd ??
+    data?.value?.price ??
+    data?.value?.priceUsd ??
+    0
+  );
+
+  const marketCapUsd = Number(
+    data?.marketCap ??
+    data?.market_cap ??
+    data?.marketcap ??
+    data?.fdv ??
+    data?.fdv_usd ??
+    0
+  );
+
+  const volume24hUsd = Number(
+    data?.v24hUSD ??
+    data?.v24h_usd ??
+    data?.volume24h ??
+    data?.volume24hUsd ??
+    data?.volume_24h ??
+    data?.volume_24h_usd ??
+    0
+  );
+
+  const change24hPct = Number(
+    data?.priceChange24hPercent ??
+    data?.price_change_24h_percent ??
+    data?.price_change_24h_percent_value ??
+    data?.priceChangePercent ??
+    data?.price_change_percent ??
+    0
+  );
+
+  const symbol = String(data?.symbol || '').trim();
+  const name = String(data?.name || '').trim();
+  const logoUrl = String(data?.logoURI ?? data?.logo_uri ?? data?.logoUrl ?? data?.logo_url ?? '').trim();
+
+  return {
+    address: raw,
+    chain: inferredChain,
+    network: inferredChain === 'evm' ? resolvedNetwork : '',
+    chainShort: inferredChain === 'solana' ? 'SOL' : evmNetworkLabel(resolvedNetwork),
+    symbol,
+    name,
+    logoUrl,
+    extensions: ext,
+    priceUsd: Number.isFinite(priceUsd) && priceUsd > 0 ? priceUsd : null,
+    marketCapUsd: Number.isFinite(marketCapUsd) && marketCapUsd > 0 ? marketCapUsd : null,
+    volume24hUsd: Number.isFinite(volume24hUsd) && volume24hUsd > 0 ? volume24hUsd : null,
+    change24hPct: Number.isFinite(change24hPct) ? change24hPct : null,
+    updatedAt: Date.now(),
+  };
+}
+
 async function fetchEvmWalletPnl(wallet, { signal } = {}) {
   const cached = getWalletPnlCache('evm', wallet);
   if (cached) return cached;
@@ -2400,7 +2499,20 @@ async function fetchSolanaWalletPnl(wallet, { signal } = {}) {
 }
 
 function birdeyeXChain(chain) {
-  return chain === 'solana' ? 'solana' : birdeyeXChain(normalizeEvmNetwork(chain));
+  const c = String(chain || '').toLowerCase().trim();
+  if (c === 'solana' || c === 'sol') return 'solana';
+  switch (normalizeEvmNetwork(c)) {
+    case 'ethereum': return 'ethereum';
+    case 'bsc': return 'bsc';
+    case 'arbitrum': return 'arbitrum';
+    case 'optimism': return 'optimism';
+    case 'polygon': return 'polygon';
+    case 'base': return 'base';
+    case 'avalanche': return 'avalanche';
+    case 'fantom': return 'fantom';
+    case 'gnosis': return 'gnosis';
+    default: return 'ethereum';
+  }
 }
 
 async function fetchSolanaNetWorthChange(wallet, { signal } = {}) {
