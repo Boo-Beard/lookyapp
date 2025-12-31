@@ -2782,6 +2782,42 @@ function updateSummary() {
       totalChangeEl.textContent = `${arrow} ${Math.abs(pctSafe).toFixed(2)}% (${sign}${formatCurrency(Math.abs(delta))})`;
     }
   }
+
+  const totalPnl24hEl = $('totalPnl24h');
+  if (totalPnl24hEl) {
+    const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+    let totalNow = 0;
+    let totalPnlUsd = 0;
+    let total24hAgo = 0;
+    for (const h of holdings) {
+      const value = Number(h?.value || 0) || 0;
+      const changeUsd = Number(h?.changeUsd || 0) || 0;
+      if (value <= 0 && changeUsd === 0) continue;
+      totalNow += value;
+      totalPnlUsd += changeUsd;
+      total24hAgo += Math.max(0, value - changeUsd);
+    }
+
+    totalPnl24hEl.textContent = formatCurrency(totalPnlUsd);
+
+    const totalPnl24hPctEl = $('totalPnl24hPct');
+    if (totalPnl24hPctEl) {
+      if (totalNow <= 0) {
+        totalPnl24hPctEl.classList.add('hidden');
+        totalPnl24hPctEl.classList.remove('positive', 'negative');
+      } else {
+        const pct = total24hAgo > 0 ? (totalPnlUsd / total24hAgo) * 100 : 0;
+        const pctSafe = Number.isFinite(pct) ? pct : 0;
+
+        totalPnl24hPctEl.classList.remove('hidden');
+        totalPnl24hPctEl.classList.toggle('positive', pctSafe > 0.0001);
+        totalPnl24hPctEl.classList.toggle('negative', pctSafe < -0.0001);
+
+        const arrow = pctSafe > 0.0001 ? '▲' : pctSafe < -0.0001 ? '▼' : '•';
+        totalPnl24hPctEl.textContent = `${arrow} ${Math.abs(pctSafe).toFixed(2)}%`;
+      }
+    }
+  }
   $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
 
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
