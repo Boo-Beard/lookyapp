@@ -46,6 +46,26 @@ function savePortfolioSnapshot() {
   } catch {}
 }
 
+function flashCopySuccess(el, { ms = 5000 } = {}) {
+  try {
+    const a = el;
+    if (!a) return;
+    const icon = a.querySelector('i');
+    if (!icon) return;
+
+    const prevClassName = icon.className;
+    icon.className = 'fa-solid fa-check';
+    a.classList.add('is-copied');
+
+    window.setTimeout(() => {
+      try {
+        icon.className = prevClassName;
+        a.classList.remove('is-copied');
+      } catch {}
+    }, Math.max(250, Number(ms) || 5000));
+  } catch {}
+}
+
 function clearPortfolioSnapshot() {
   try { localStorage.removeItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT); } catch {}
 }
@@ -5685,6 +5705,7 @@ function setupEventListeners() {
       e.preventDefault();
       const addr = String(copyBtn.dataset.address || '').trim();
       copyTextToClipboard(addr);
+      try { flashCopySuccess(copyBtn, { ms: 5000 }); } catch {}
       try { hapticFeedback('light'); } catch {}
       return;
     }
