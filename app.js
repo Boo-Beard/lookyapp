@@ -4160,6 +4160,12 @@ function renderHoldingsTable() {
   const totalItems = filtered.length;
   let filteredTotalValue = 0;
   for (let i = 0; i < filtered.length; i++) filteredTotalValue += Number(filtered[i]?.value || 0) || 0;
+
+  const tableStatsEl = $('tableStats');
+  if (tableStatsEl) {
+    tableStatsEl.textContent = `Showing ${totalItems} tokens • Total value: ${formatCurrency(filteredTotalValue)}`;
+  }
+
   const totalPages = Math.max(1, Math.ceil(totalItems / HOLDINGS_PAGE_SIZE));
   if ((state.holdingsPage || 1) > totalPages) setHoldingsPage(totalPages);
   const page = state.holdingsPage || 1;
