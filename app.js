@@ -4185,12 +4185,175 @@ function renderHoldingsTable() {
           </tr>
         `).join('')
       : '';
-    holdingsTableCache.htmlBase = htmlBase;
-    holdingsTableCache.totalItems = totalItems;
-    holdingsTableCache.totalPages = totalPages;
-    holdingsTableCache.filteredTotalValue = filteredTotalValue;
 
-    tbody.innerHTML = `${htmlBase}${skeletonRows}`;
+    if (canReuseHtmlBase) {
+      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+    } else {
+      const htmlBase = pageItems.map((holding) => {
+        const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
+        const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
+
+        const wlActive = !!getWatchlistMatchKey({
+          chain: String(holding.chain || ''),
+          network: String(holding.network || ''),
+          address: String(chartAddress || ''),
+        });
+
+        const isHidden = isHoldingHidden(holding.key);
+        const hideIcon = isHidden ? 'fa-eye' : 'fa-eye-slash';
+        const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
+
+        return `
+          <tr class="holding-row" data-key="${holding.key}">
+            <td>
+              <div class="token-cell">
+                <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
+                <div class="token-info">
+                  <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
+                  <div class="token-name">${escapeHtml(holding.name)}</div>
+                </div>
+                <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+                <div class="holding-card-actions" aria-label="Holding actions">
+                  <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                    <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+                  </a>
+                  <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
+                    <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                  </a>
+                  <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
+                    <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </td>
+            <td><strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></td>
+            <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
+            <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
+            <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
+            <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      holdingsTableCache.key = cacheKey;
+      holdingsTableCache.useCardRows = useCardRows;
+      holdingsTableCache.page = page;
+      holdingsTableCache.htmlBase = htmlBase;
+      holdingsTableCache.totalItems = totalItems;
+      holdingsTableCache.totalPages = totalPages;
+      holdingsTableCache.filteredTotalValue = filteredTotalValue;
+
+      tbody.innerHTML = `${htmlBase}${skeletonRows}`;
+    }
+  } else {
+    const skeletonRows = state.scanning && scanSkeletonCount > 0
+      ? Array.from({ length: scanSkeletonCount }).map(() => `
+          <tr class="skeleton-row holding-card-row">
+            <td colspan="6">
+              <div class="holding-card">
+                <div class="holding-card-header">
+                  <div class="token-cell">
+                    <div class="skeleton-line w-40"></div>
+                  </div>
+                  <div class="skeleton-line w-30"></div>
+                </div>
+                <div class="holding-card-metrics">
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `).join('')
+      : '';
+
+    if (canReuseHtmlBase) {
+      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+    } else {
+      const htmlBase = pageItems.map((holding) => {
+        const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
+        const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
+
+        let explorerHref = '#';
+        if (holding.chain === 'solana') {
+          explorerHref = `https://solscan.io/token/${holding.address}`;
+        } else if (isValidEvmContractAddress(displayAddress)) {
+          explorerHref = `${evmExplorerBase(holding.network)}/token/${displayAddress}`;
+        }
+        const explorerDisabled = explorerHref === '#';
+
+        const wlActive = !!getWatchlistMatchKey({
+          chain: String(holding.chain || ''),
+          network: String(holding.network || ''),
+          address: String(chartAddress || ''),
+        });
+
+        const isHidden = isHoldingHidden(holding.key);
+        const hideIcon = isHidden ? 'fa-eye' : 'fa-eye-slash';
+        const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
+
+        return `
+          <tr class="holding-row holding-card-row" data-key="${holding.key}">
+            <td colspan="6">
+              <div class="holding-card">
+                <div class="holding-card-header">
+                  <div class="token-cell">
+                    <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
+                    <div class="token-info">
+                      <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
+                      <div class="token-name">${escapeHtml(holding.name)}</div>
+                    </div>
+                  </div>
+
+                  <div class="holding-card-header-right">
+                    <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+                    <div class="holding-card-actions" aria-label="Holding actions">
+                      <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                        <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+                      </a>
+                      <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
+                        <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                      </a>
+                      <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
+                        <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+                      </a>
+                      <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
+                        <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="holding-card-metrics">
+                  <div class="holding-metric"><div class="holding-metric-label">Balance</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Value</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">MCap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
+                </div>
+
+                <a class="holding-hide-toggle" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
+                  <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      holdingsTableCache.key = cacheKey;
+      holdingsTableCache.useCardRows = useCardRows;
+      holdingsTableCache.page = page;
+      holdingsTableCache.htmlBase = htmlBase;
+      holdingsTableCache.totalItems = totalItems;
+      holdingsTableCache.totalPages = totalPages;
+      holdingsTableCache.filteredTotalValue = filteredTotalValue;
+
+      tbody.innerHTML = `${htmlBase}${skeletonRows}`;
+    }
   }
 
   try { syncWatchlistStars(); } catch {}
