@@ -4223,7 +4223,7 @@ function renderHoldingsTable() {
         });
 
         const isHidden = isHoldingHidden(holding.key);
-        const hideIcon = isHidden ? 'fa-eye' : 'fa-eye-slash';
+        const hideIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
         const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
 
         return `
@@ -4315,7 +4315,7 @@ function renderHoldingsTable() {
         });
 
         const isHidden = isHoldingHidden(holding.key);
-        const hideIcon = isHidden ? 'fa-eye' : 'fa-eye-slash';
+        const hideIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
         const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
 
         return `
