@@ -5548,6 +5548,36 @@ function setupEventListeners() {
       return;
     }
 
+    const chart = e.target.closest('a.holding-action[data-action="chart"]');
+    if (chart) {
+      e.preventDefault();
+      const actions = chart.closest('.holding-card-actions');
+      if (!actions) return;
+      const popover = actions.querySelector('.chart-popover');
+      if (!popover) return;
+
+      const isOpening = popover.classList.contains('hidden');
+      closeAllChartPopovers(popover);
+      if (!isOpening) {
+        popover.classList.add('hidden');
+        return;
+      }
+
+      const chain = chart.dataset.chain || '';
+      const network = chart.dataset.network || '';
+      const address = chart.dataset.address || '';
+
+      const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
+      const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
+      const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
+      if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
+      if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
+      if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
+
+      popover.classList.remove('hidden');
+      return;
+    }
+
     const copyBtn = e.target.closest('a.holding-action[data-action="copy-contract"]');
     if (copyBtn) {
       e.preventDefault();
@@ -5634,36 +5664,6 @@ function setupEventListeners() {
     if (wlRemove) {
       e.preventDefault();
       removeTokenFromWatchlistByKey(wlRemove.dataset.watchlistKey);
-      return;
-    }
-
-    const chart = e.target.closest('a.holding-action[data-action="chart"]');
-    if (chart) {
-      e.preventDefault();
-      const actions = chart.closest('.holding-card-actions');
-      if (!actions) return;
-      const popover = actions.querySelector('.chart-popover');
-      if (!popover) return;
-
-      const isOpening = popover.classList.contains('hidden');
-      closeAllChartPopovers(popover);
-      if (!isOpening) {
-        popover.classList.add('hidden');
-        return;
-      }
-
-      const chain = chart.dataset.chain || '';
-      const network = chart.dataset.network || '';
-      const address = chart.dataset.address || '';
-
-      const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
-      const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
-      const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
-      if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
-      if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
-      if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
-
-      popover.classList.remove('hidden');
       return;
     }
 
