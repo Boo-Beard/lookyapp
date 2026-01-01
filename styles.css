@@ -2618,6 +2618,11 @@ body.ui-results .table-header {
     grid-template-areas:
       "search sort"
       "dust hidden";
+    width: 100%;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
     gap: 8px;
     padding: 10px;
     border-radius: var(--radius-lg);
