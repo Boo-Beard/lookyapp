@@ -4354,7 +4354,7 @@ function renderHoldingsTable() {
                   <div class="holding-metric"><div class="holding-metric-label">Balance</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Value</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></div></div>
-                  <div class="holding-metric"><div class="holding-metric-label">MCap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
                 </div>
 
