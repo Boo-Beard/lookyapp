@@ -2386,6 +2386,17 @@ body.is-scanning .logo-lockup .eye::after {
   color: var(--ink);
  }
 
+ #scanButton {
+  min-width: 180px;
+  justify-content: center;
+ }
+
+ #watchlistRefreshBtn,
+ #portfolioRefreshBtn {
+  min-width: 130px;
+  justify-content: center;
+ }
+
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
