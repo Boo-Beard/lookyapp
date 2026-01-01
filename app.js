@@ -4025,6 +4025,8 @@ function renderHoldingsTable() {
     $('tableStats') && ($('tableStats').textContent = 'Loading holdings…');
     const pageIndicator = $('pageIndicator');
     if (pageIndicator) pageIndicator.textContent = 'Page 1 of 1';
+    const pageIndicatorTop = $('pageIndicatorTop');
+    if (pageIndicatorTop) pageIndicatorTop.textContent = 'Page 1 of 1';
     return;
   }
 
@@ -4124,9 +4126,13 @@ function renderHoldingsTable() {
       const progressPart = scanTotal > 0 ? ` • Scanning ${scanCompleted}/${scanTotal}` : '';
       $('tableStats') && ($('tableStats').textContent = `Loading holdings…${progressPart}`);
       $('pageIndicator') && ($('pageIndicator').textContent = 'Page 1 of 1');
+      $('pageIndicatorTop') && ($('pageIndicatorTop').textContent = 'Page 1 of 1');
       $('pagePrev') && ($('pagePrev').disabled = true);
       $('pagePrev')?.classList?.add('hidden');
       $('pageNext') && ($('pageNext').disabled = true);
+      $('pagePrevTop') && ($('pagePrevTop').disabled = true);
+      $('pagePrevTop')?.classList?.add('hidden');
+      $('pageNextTop') && ($('pageNextTop').disabled = true);
       return;
     }
 
@@ -4141,9 +4147,13 @@ function renderHoldingsTable() {
     `;
     $('tableStats') && ($('tableStats').textContent = 'Showing 0 tokens');
     $('pageIndicator') && ($('pageIndicator').textContent = 'Page 1 of 1');
+    $('pageIndicatorTop') && ($('pageIndicatorTop').textContent = 'Page 1 of 1');
     $('pagePrev') && ($('pagePrev').disabled = true);
     $('pagePrev')?.classList?.add('hidden');
     $('pageNext') && ($('pageNext').disabled = true);
+    $('pagePrevTop') && ($('pagePrevTop').disabled = true);
+    $('pagePrevTop')?.classList?.add('hidden');
+    $('pageNextTop') && ($('pageNextTop').disabled = true);
     return;
   }
 
@@ -4164,13 +4174,26 @@ function renderHoldingsTable() {
 
   const pageIndicator = $('pageIndicator');
   if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+  const pageIndicatorTop = $('pageIndicatorTop');
+  if (pageIndicatorTop) pageIndicatorTop.textContent = `Page ${page} of ${totalPages}`;
   const prevBtn = $('pagePrev');
   const nextBtn = $('pageNext');
+  const prevBtnTop = $('pagePrevTop');
+  const nextBtnTop = $('pageNextTop');
   if (prevBtn) {
     prevBtn.disabled = page <= 1;
     prevBtn.classList.toggle('hidden', page <= 1);
   }
-  if (nextBtn) nextBtn.disabled = page >= totalPages;
+  if (prevBtnTop) {
+    prevBtnTop.disabled = page <= 1;
+    prevBtnTop.classList.toggle('hidden', page <= 1);
+  }
+  if (nextBtn) {
+    nextBtn.disabled = page >= totalPages;
+  }
+  if (nextBtnTop) {
+    nextBtnTop.disabled = page >= totalPages;
+  }
 
   if (!useCardRows) {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
@@ -6098,6 +6121,15 @@ function setupEventListeners() {
     scheduleRenderHoldingsTable();
   });
   $('pageNext')?.addEventListener('click', () => {
+    setHoldingsPage((state.holdingsPage || 1) + 1);
+    scheduleRenderHoldingsTable();
+  });
+
+  $('pagePrevTop')?.addEventListener('click', () => {
+    setHoldingsPage((state.holdingsPage || 1) - 1);
+    scheduleRenderHoldingsTable();
+  });
+  $('pageNextTop')?.addEventListener('click', () => {
     setHoldingsPage((state.holdingsPage || 1) + 1);
     scheduleRenderHoldingsTable();
   });
