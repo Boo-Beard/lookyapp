@@ -2455,7 +2455,7 @@ body.ui-results .table-header {
 #holdingsCard .table-controls {
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   gap: 10px;
 }
@@ -2463,7 +2463,6 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .search-box,
 #holdingsCard .table-controls .select,
 #holdingsCard .table-controls .checkbox,
-#holdingsCard .table-controls .checkbox-wrapper-10,
 #holdingsCard .table-controls .checkbox-wrapper-11 {
   width: auto;
   max-width: none;
@@ -2479,9 +2478,40 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls .checkbox,
-#holdingsCard .table-controls .checkbox-wrapper-10,
 #holdingsCard .table-controls .checkbox-wrapper-11 {
   flex: 0 0 auto;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: var(--radius-xl);
+  border: 4px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow-md);
+  color: var(--ink);
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 900;
+  user-select: none;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: rgba(0, 194, 255, 1);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 label {
+  margin: 0;
+  cursor: pointer;
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-10 {
@@ -2618,6 +2648,9 @@ body.ui-results .table-header {
     grid-template-areas:
       "search sort"
       "dust hidden";
+    width: fit-content;
+    max-width: calc(100% - 24px);
+    margin: 0 auto;
     gap: 8px;
     padding: 10px;
     border-radius: var(--radius-lg);
