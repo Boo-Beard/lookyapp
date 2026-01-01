@@ -1983,6 +1983,8 @@ const IPFS_GATEWAYS = [
 ];
 
 const ipfsLogoResolveCache = new Map();
+const ipfsLogoResolveFailCache = new Map();
+const IPFS_FAIL_CACHE_TTL_MS = 15 * 60 * 1000;
 
 async function probeUrl(url, timeoutMs) {
   const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
@@ -2007,6 +2009,11 @@ async function resolveIpfsLogoUrl(cid, { timeoutMs = 1500 } = {}) {
   const cleanCid = String(cid || '').trim();
   if (!cleanCid) return null;
 
+  const failHit = ipfsLogoResolveFailCache.get(cleanCid);
+  if (failHit && (Date.now() - failHit.ts) < IPFS_FAIL_CACHE_TTL_MS) {
+    return null;
+  }
+
   try {
     const cached = ipfsLogoResolveCache.get(cleanCid);
     if (cached && cached.expiresAt && Date.now() < cached.expiresAt && cached.value) {
@@ -2016,9 +2023,12 @@ async function resolveIpfsLogoUrl(cid, { timeoutMs = 1500 } = {}) {
 
   // Race all gateways; take the first reachable.
   const candidates = IPFS_GATEWAYS.map((base, idx) => ({ idx, url: `${base}${cleanCid}` }));
-  const results = await Promise.all(candidates.map(async (c) => ({ ...c, ok: await probeUrl(c.url, timeoutMs) })));
-  const winner = results.find(r => r.ok) || results[0];
+  const results = await Promise.all(candidates.map(async (c) => ({ ...c, ok: await probeUrl(c.url, Math.min(600, timeoutMs)) }))); 
+  const winner = results.find(r => r.ok) || null;
   const resolved = winner ? { url: winner.url, idx: winner.idx } : null;
+  if (!resolved) {
+    ipfsLogoResolveFailCache.set(cleanCid, { ts: Date.now() });
+  }
 
   try {
     ipfsLogoResolveCache.set(cleanCid, {
@@ -4263,7 +4273,7 @@ function renderHoldingsTable() {
                       <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
-                      <img class="chart-popover-icon" alt="" src="https://www.dextools.io/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
+                      <img class="chart-popover-icon" alt="" src="https://info.dextools.io/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
                       <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
@@ -4377,7 +4387,7 @@ function renderHoldingsTable() {
                           <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
-                          <img class="chart-popover-icon" alt="" src="https://www.dextools.io/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
+                          <img class="chart-popover-icon" alt="" src="https://info.dextools.io/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
                           <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
