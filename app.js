@@ -1278,10 +1278,10 @@ function renderWatchlist() {
           </div>
 
           <div class="holding-card-metrics">
-            <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" data-wl-field="mcap" tabindex="0">${escapeHtml(mcap)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" data-wl-field="price" tabindex="0">${escapeHtml(price)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="redacted-field ${changeClass}" data-wl-field="change" tabindex="0">${escapeHtml(changeText)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">Vol (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" data-wl-field="vol" tabindex="0">${escapeHtml(vol)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong data-wl-field="mcap" tabindex="0">${escapeHtml(mcap)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong data-wl-field="price" tabindex="0">${escapeHtml(price)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="${changeClass}" data-wl-field="change" tabindex="0">${escapeHtml(changeText)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Vol (24h)</div><div class="holding-metric-value mono"><strong data-wl-field="vol" tabindex="0">${escapeHtml(vol)}</strong></div></div>
           </div>
         </div>
       </div>
