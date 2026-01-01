@@ -2458,6 +2458,7 @@ body.ui-results .table-header {
   justify-content: center;
   align-items: center;
   gap: 10px;
+      margin-bottom: 15px;
 }
 
 #holdingsCard .table-controls .search-box,
