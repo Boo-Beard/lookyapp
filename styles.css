@@ -1957,6 +1957,31 @@ body.is-scanning .logo-lockup .eye::after {
   color: var(--accent);
 }
 
+#watchlistBody a.holding-action[data-action="watchlist-add"],
+#holdingsTable a.holding-action[data-action="watchlist-add"],
+#searchResults a.holding-action[data-action="watchlist-add"] {
+  color: rgba(11, 11, 16, 0.82);
+}
+
+#watchlistBody a.holding-action[data-action="watchlist-add"].is-active,
+#holdingsTable a.holding-action[data-action="watchlist-add"].is-active,
+#searchResults a.holding-action[data-action="watchlist-add"].is-active {
+  color: #ff2d55;
+}
+
+#watchlistBody a.holding-action[data-action="watchlist-add"] i.fa-heart,
+#holdingsTable a.holding-action[data-action="watchlist-add"] i.fa-heart,
+#searchResults a.holding-action[data-action="watchlist-add"] i.fa-heart {
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+#watchlistBody a.holding-action[data-action="watchlist-add"].is-active i.fa-heart,
+#holdingsTable a.holding-action[data-action="watchlist-add"].is-active i.fa-heart,
+#searchResults a.holding-action[data-action="watchlist-add"].is-active i.fa-heart {
+  transform: scale(1.18);
+  filter: drop-shadow(0 6px 0 rgba(0,0,0,0.18));
+}
+
 :root[data-theme="dark"] #searchResults .holding-action.is-active {
   background: rgba(255, 45, 85, 0.14);
 }

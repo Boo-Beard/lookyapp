@@ -349,7 +349,7 @@ function renderSearchTokenActions(model) {
   return `
     <div class="holding-card-actions search-token-actions" aria-label="Token links">
       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
-        <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+        <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
       </a>
       <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(model?.address || ''))}" aria-label="Copy contract address">
         <i class="fa-regular fa-copy" aria-hidden="true"></i>
@@ -1329,7 +1329,7 @@ function syncWatchlistStars() {
       if (!icon) return;
       icon.classList.toggle('fa-solid', active);
       icon.classList.toggle('fa-regular', !active);
-      icon.classList.add('fa-star');
+      icon.classList.add('fa-heart');
     });
   } catch {}
 }
@@ -4336,7 +4336,7 @@ function renderHoldingsTable() {
                 <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                 <div class="holding-card-actions" aria-label="Holding actions">
                   <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
-                    <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+                    <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
                   </a>
                   <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
                     <i class="fa-regular fa-copy" aria-hidden="true"></i>
@@ -4447,7 +4447,7 @@ function renderHoldingsTable() {
                     <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                     <div class="holding-card-actions" aria-label="Holding actions">
                       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
-                        <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
+                        <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
                       </a>
                       <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
                         <i class="fa-regular fa-copy" aria-hidden="true"></i>
