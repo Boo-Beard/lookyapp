@@ -1278,10 +1278,10 @@ function renderWatchlist() {
           </div>
 
           <div class="holding-card-metrics">
-            <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(mcap)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(price)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="redacted-field ${changeClass}" tabindex="0">${escapeHtml(changeText)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">Vol (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(vol)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" data-wl-field="mcap" tabindex="0">${escapeHtml(mcap)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" data-wl-field="price" tabindex="0">${escapeHtml(price)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="redacted-field ${changeClass}" data-wl-field="change" tabindex="0">${escapeHtml(changeText)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Vol (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" data-wl-field="vol" tabindex="0">${escapeHtml(vol)}</strong></div></div>
           </div>
         </div>
       </div>
@@ -1290,6 +1290,49 @@ function renderWatchlist() {
 
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
+}
+
+function syncWatchlistCardsInPlace() {
+  const body = $('watchlistBody');
+  if (!body) return false;
+
+  const rows = Array.from(body.querySelectorAll('.holding-row[data-key]'));
+  if (!rows.length) return false;
+
+  const byKey = new Map(rows.map((el) => [String(el.dataset.key || ''), el]));
+
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  for (const t of list) {
+    const key = normalizeWatchlistTokenKey(t);
+    const row = byKey.get(key);
+    if (!row) continue;
+
+    const price = t.priceUsd != null && Number.isFinite(Number(t.priceUsd)) ? formatPrice(Number(t.priceUsd)) : '—';
+    const mcap = t.marketCapUsd != null && Number.isFinite(Number(t.marketCapUsd)) ? `$${formatCompactNumber(Number(t.marketCapUsd))}` : '—';
+    const vol = t.volume24hUsd != null && Number.isFinite(Number(t.volume24hUsd)) ? `$${formatCompactNumber(Number(t.volume24hUsd))}` : '—';
+
+    const changePct = Number(t.change24hPct);
+    const changeText = Number.isFinite(changePct) ? formatPct(changePct, 2) : '—';
+    const changeClass = Number.isFinite(changePct)
+      ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
+      : '';
+
+    const priceEl = row.querySelector('[data-wl-field="price"]');
+    if (priceEl) priceEl.textContent = price;
+    const mcapEl = row.querySelector('[data-wl-field="mcap"]');
+    if (mcapEl) mcapEl.textContent = mcap;
+    const volEl = row.querySelector('[data-wl-field="vol"]');
+    if (volEl) volEl.textContent = vol;
+
+    const changeEl = row.querySelector('[data-wl-field="change"]');
+    if (changeEl) {
+      changeEl.textContent = changeText;
+      changeEl.classList.remove('pnl-positive', 'pnl-negative', 'pnl-flat');
+      if (changeClass) changeEl.classList.add(changeClass);
+    }
+  }
+
+  return true;
 }
 
 let watchlistRefreshInFlight = false;
@@ -1331,8 +1374,6 @@ async function refreshWatchlistMetrics({ force } = {}) {
           const model = await runTokenSearch(t.address, controller ? { signal: controller.signal, chain: t.chain, network: t.network } : { chain: t.chain, network: t.network });
           const merged = sanitizeWatchlistToken({
             ...t,
-            chain: model?.chain || t.chain,
-            network: model?.network || t.network,
             priceUsd: model?.priceUsd ?? t.priceUsd,
             marketCapUsd: model?.marketCapUsd ?? t.marketCapUsd,
             change24hPct: model?.change24hPct ?? t.change24hPct,
@@ -1350,7 +1391,12 @@ async function refreshWatchlistMetrics({ force } = {}) {
 
     state.watchlistTokens = next;
     saveWatchlistTokens(next);
-    renderWatchlist();
+    try {
+      if (!syncWatchlistCardsInPlace()) renderWatchlist();
+    } catch {
+      renderWatchlist();
+    }
+    try { lockInputBodyHeight(); } catch {}
 
     if (okCount === 0) {
       try { setWatchlistHint('Refresh failed (rate limited or offline).', 'error'); } catch {}
