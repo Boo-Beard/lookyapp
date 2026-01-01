@@ -2612,10 +2612,10 @@ body.ui-results .table-header {
   transform: rotateY(20deg);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 820px) {
   #holdingsCard .table-controls {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
     grid-template-areas:
       "search sort"
       "dust hidden";
