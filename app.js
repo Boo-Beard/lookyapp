@@ -1463,13 +1463,10 @@ function renderWatchlist() {
   }
 
   body.innerHTML = list.map((t) => {
-    const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
+    const iconUrl = getFastTokenIconUrl(t.logoUrl, t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
     const key = normalizeWatchlistTokenKey(t);
-    const ipfsCid = extractIpfsCid(t.logoUrl) || extractIpfsCid(iconUrl);
-    const ipfsAttrs = ipfsCid
-      ? `data-ipfs-cid="${escapeAttribute(ipfsCid)}" data-gateway-idx="0"`
-      : '';
+    const ipfsAttrs = '';
 
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
@@ -2006,6 +2003,14 @@ function tokenIconLabel(symbol) {
 function getTokenIconUrl(logoUrl, symbol) {
   const url = String(logoUrl || '').trim();
   return url ? url : tokenIconDataUri(symbol);
+}
+
+function getFastTokenIconUrl(logoUrl, symbol) {
+  const raw = String(logoUrl || '').trim();
+  if (!raw) return tokenIconDataUri(symbol);
+  const cid = extractIpfsCid(raw);
+  if (cid) return tokenIconDataUri(symbol);
+  return getTokenIconUrl(normalizeTokenLogoUrl(raw), symbol);
 }
 
 function normalizeTokenLogoUrl(url) {
@@ -5301,10 +5306,9 @@ function renderSearchTokenCard(model) {
 
   const ext = normalizeExtensions(model?.extensions);
   const subtitle = ext?.description || '';
-  const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(model?.logoUrl), model?.symbol || model?.name);
+  const iconUrl = getFastTokenIconUrl(model?.logoUrl, model?.symbol || model?.name);
   const chainBadge = String(model?.chainShort || '').trim();
   const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
-  const ipfsCid = extractIpfsCid(model?.logoUrl) || extractIpfsCid(iconUrl);
   const actionsHtml = renderSearchTokenActions(model);
   const titleSymbol = symbol || tokenIconLabel(name);
   const titleName = name || '';
@@ -5340,19 +5344,6 @@ function renderSearchTokenCard(model) {
       </div>
     </div>
   `;
-
-  if (ipfsCid) {
-    const img = root.querySelector('.token-icon');
-    if (img) {
-      img.dataset.ipfsCid = ipfsCid;
-      img.dataset.gatewayIdx = '0';
-      resolveIpfsLogoUrl(ipfsCid, { timeoutMs: 1200 }).then((resolved) => {
-        if (!resolved?.url) return;
-        img.dataset.gatewayIdx = String(resolved.idx || 0);
-        img.src = resolved.url;
-      }).catch(() => {});
-    }
-  }
 
   try { syncWatchlistStars(); } catch {}
 
