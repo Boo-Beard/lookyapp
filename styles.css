@@ -2455,7 +2455,7 @@ body.ui-results .table-header {
 #holdingsCard .table-controls {
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
 
@@ -2487,8 +2487,7 @@ body.ui-results .table-header {
     grid-template-areas:
       "search search"
       "sort sort"
-      "dust dust"
-      "hidden hidden";
+      "dust hidden";
     gap: 10px;
     padding: 12px;
     border-radius: var(--radius-lg);
