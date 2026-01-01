@@ -5338,7 +5338,11 @@ function setupEventListeners() {
       const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
       try {
         portfolioRefreshBtn.disabled = true;
-        await refreshPortfolioMetrics({ force: true });
+        const wallets = Array.isArray(state.wallets) ? state.wallets : [];
+        const queueOverride = wallets
+          .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
+          .filter((q) => q.wallet && (q.chain === 'solana' || q.chain === 'evm'));
+        await scanWallets({ queueOverride });
         if (labelEl) labelEl.textContent = 'Updated!';
         hapticFeedback('light');
 
