@@ -14,6 +14,108 @@ function shouldIgnoreGlobalError(message, source) {
   return false;
 }
 
+const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
+
+function savePortfolioSnapshot() {
+  try {
+    const wallets = Array.isArray(state.wallets) ? state.wallets : [];
+    const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+    const walletHoldingsEntries = (state.walletHoldings && typeof state.walletHoldings.entries === 'function')
+      ? Array.from(state.walletHoldings.entries())
+      : [];
+    const walletDayChangeEntries = (state.walletDayChange && typeof state.walletDayChange.entries === 'function')
+      ? Array.from(state.walletDayChange.entries())
+      : [];
+    const payload = {
+      ts: Date.now(),
+      wallets,
+      holdings,
+      walletHoldingsEntries,
+      walletDayChangeEntries,
+      totals: {
+        totalValue: Number(state.totalValue || 0) || 0,
+        totalSolValue: Number(state.totalSolValue || 0) || 0,
+        totalEvmValue: Number(state.totalEvmValue || 0) || 0,
+        totalChangeSolUsd: Number(state.totalChangeSolUsd || 0) || 0,
+        totalChangeEvmUsd: Number(state.totalChangeEvmUsd || 0) || 0,
+        totalValueForChange: Number(state.totalValueForChange || 0) || 0,
+        totalValue24hAgo: Number(state.totalValue24hAgo || 0) || 0,
+      },
+    };
+    localStorage.setItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT, JSON.stringify(payload));
+  } catch {}
+}
+
+function clearPortfolioSnapshot() {
+  try { localStorage.removeItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT); } catch {}
+}
+
+function loadPortfolioSnapshot() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    const holdings = Array.isArray(parsed.holdings) ? parsed.holdings : [];
+    const wallets = Array.isArray(parsed.wallets) ? parsed.wallets : [];
+    if (!holdings.length || !wallets.length) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function restorePortfolioSnapshot() {
+  const snap = loadPortfolioSnapshot();
+  if (!snap) return false;
+
+  try {
+    state.holdings = Array.isArray(snap.holdings) ? snap.holdings : [];
+    state.wallets = Array.isArray(snap.wallets) ? snap.wallets : [];
+    const wh = Array.isArray(snap.walletHoldingsEntries) ? snap.walletHoldingsEntries : [];
+    const wd = Array.isArray(snap.walletDayChangeEntries) ? snap.walletDayChangeEntries : [];
+    const totals = snap.totals || {};
+    state.totalValue = Number(totals.totalValue || 0) || 0;
+    state.totalSolValue = Number(totals.totalSolValue || 0) || 0;
+    state.totalEvmValue = Number(totals.totalEvmValue || 0) || 0;
+    state.totalChangeSolUsd = Number(totals.totalChangeSolUsd || 0) || 0;
+    state.totalChangeEvmUsd = Number(totals.totalChangeEvmUsd || 0) || 0;
+    state.totalValueForChange = Number(totals.totalValueForChange || 0) || 0;
+    state.totalValue24hAgo = Number(totals.totalValue24hAgo || 0) || 0;
+    state.walletHoldings = wh.length
+      ? new Map(wh)
+      : new Map((Array.isArray(state.wallets) ? state.wallets : []).map((w) => [`${String(w.chain || '')}:${String(w.address || '')}`, []]));
+    state.walletDayChange = wd.length ? new Map(wd) : new Map();
+    state.scanning = false;
+    state.scanAbortController = null;
+    state.scanMeta = { completed: 0, total: 0 };
+  } catch {
+    return false;
+  }
+
+  try {
+    document.body.classList.remove('ui-landing');
+    document.body.classList.add('ui-results');
+    $('resultsSection')?.classList.remove('hidden');
+    $('inputSection')?.classList.add('is-minimized');
+    setPortfolioMinimizedPreference(true);
+  } catch {}
+
+  try {
+    holdingsDataVersion++;
+    invalidateHoldingsTableCache();
+  } catch {}
+
+  try {
+    updateSummary();
+    renderAllocationAndRisk();
+    renderHoldingsByWallet();
+    renderHoldingsTable();
+  } catch {}
+
+  return true;
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -1290,6 +1392,49 @@ function renderWatchlist() {
 
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
+}
+
+function syncPortfolioHoldingsInPlace() {
+  const tbody = $('tableBody');
+  if (!tbody) return false;
+
+  const rows = Array.from(tbody.querySelectorAll('tr.holding-row[data-key]'));
+  if (!rows.length) return false;
+
+  const byKey = new Map(rows.map((el) => [String(el.dataset.key || ''), el]));
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+
+  let touched = false;
+  for (const h of holdings) {
+    const key = String(h?.key || '');
+    if (!key) continue;
+    const row = byKey.get(key);
+    if (!row) continue;
+
+    const mcapEl = row.querySelector('[data-h-field="mcap"]');
+    if (mcapEl) mcapEl.textContent = h.mcap ? formatCurrency(h.mcap) : '—';
+
+    const balanceEl = row.querySelector('[data-h-field="balance"]');
+    if (balanceEl) balanceEl.textContent = formatNumber(h.balance);
+
+    const priceEl = row.querySelector('[data-h-field="price"]');
+    if (priceEl) priceEl.textContent = formatPrice(h.price);
+
+    const valueEl = row.querySelector('[data-h-field="value"]');
+    if (valueEl) valueEl.textContent = formatCurrency(h.value);
+
+    const pnlEl = row.querySelector('[data-h-field="pnl"]');
+    if (pnlEl) pnlEl.innerHTML = (() => {
+      const v = Number(h.changeUsd || 0) || 0;
+      const cls = v > 0.0001 ? 'pnl-positive' : v < -0.0001 ? 'pnl-negative' : 'pnl-flat';
+      const sign = v > 0.0001 ? '+' : v < -0.0001 ? '-' : '+';
+      return `<strong class="mono redacted-field ${cls}" tabindex="0">${sign}${formatCurrency(Math.abs(v))}</strong>`;
+    })();
+
+    touched = true;
+  }
+
+  return touched;
 }
 
 function syncWatchlistCardsInPlace() {
@@ -3987,12 +4132,12 @@ function renderHoldingsTable() {
             </div>
           </td>
           <td>
-            <strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
+            <strong class="mono redacted-field" data-h-field="mcap" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
           </td>
-          <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
-          <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
-          <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
-          <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
+          <td class="mono"><strong class="redacted-field" data-h-field="balance" tabindex="0">${formatNumber(holding.balance)}</strong></td>
+          <td class="mono"><strong class="redacted-field" data-h-field="price" tabindex="0">${formatPrice(holding.price)}</strong></td>
+          <td class="mono"><strong class="redacted-field" data-h-field="value" tabindex="0">${formatCurrency(holding.value)}</strong></td>
+          <td class="mono" data-h-field="pnl">${formatPnlCell(holding.changeUsd)}</td>
         </tr>
       `;
       }).join('');
@@ -4103,23 +4248,23 @@ function renderHoldingsTable() {
             <div class="holding-card-metrics">
               <div class="holding-metric">
                 <div class="holding-metric-label">Balance</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="balance" tabindex="0">${formatNumber(holding.balance)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Price</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="price" tabindex="0">${formatPrice(holding.price)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">Value</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="value" tabindex="0">${formatCurrency(holding.value)}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">MCap</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
+                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="mcap" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
               </div>
               <div class="holding-metric">
                 <div class="holding-metric-label">PnL (24h)</div>
-                <div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div>
+                <div class="holding-metric-value mono" data-h-field="pnl">${formatPnlCell(holding.changeUsd)}</div>
               </div>
             </div>
           </div>
@@ -4288,7 +4433,101 @@ function recomputeAggregatesAndRender() {
   renderHoldingsByWallet();
   renderHoldingsTable();
 
+  try { savePortfolioSnapshot(); } catch {}
+
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
+}
+
+let portfolioRefreshInFlight = false;
+async function refreshPortfolioMetrics({ force } = {}) {
+  if (portfolioRefreshInFlight) return;
+  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
+  if (!holdings.length) return;
+
+  portfolioRefreshInFlight = true;
+  try {
+    const next = holdings.map((h) => ({ ...h }));
+    const queue = next
+      .map((h, idx) => ({ h, idx }))
+      .filter(({ h }) => {
+        if (!h) return false;
+        const chain = String(h.chain || '');
+        const addr = String(h.address || '').trim();
+        if (!chain || !addr) return false;
+        if (chain === 'evm' && !isValidEvmContractAddress(addr)) return false;
+        return true;
+      });
+
+    let cursor = 0;
+    const concurrency = (isTelegram() || window.matchMedia('(max-width: 640px)').matches) ? 2 : 4;
+
+    const worker = async () => {
+      while (cursor < queue.length) {
+        const job = queue[cursor++];
+        if (!job) return;
+        try {
+          const h = job.h;
+          const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+          const model = await runTokenSearch(h.address, controller ? { signal: controller.signal, chain: h.chain, network: h.network } : { chain: h.chain, network: h.network });
+          const priceUsd = Number(model?.priceUsd);
+          const mcapUsd = Number(model?.marketCapUsd);
+          const pct24h = Number(model?.change24hPct);
+
+          if (Number.isFinite(priceUsd) && priceUsd > 0) {
+            h.price = priceUsd;
+          }
+          if (Number.isFinite(mcapUsd) && mcapUsd > 0) {
+            h.mcap = mcapUsd;
+          }
+          if (Number.isFinite(h.price) && Number.isFinite(h.balance)) {
+            const value = (Number(h.balance) || 0) * (Number(h.price) || 0);
+            if (Number.isFinite(value)) h.value = value;
+          }
+          if (Number.isFinite(pct24h)) {
+            const delta = holdingDeltaUsdFromPct({ valueUsd: Number(h.value || 0) || 0, pct: pct24h });
+            h.changeUsd = delta;
+          }
+        } catch {}
+      }
+    };
+
+    const workers = Array.from({ length: Math.min(concurrency, queue.length || 1) }, () => worker());
+    await Promise.allSettled(workers);
+
+    state.holdings = next;
+
+    try {
+      let totalValue = 0;
+      let totalSolValue = 0;
+      let totalEvmValue = 0;
+      let totalValue24hAgo = 0;
+      for (const h of next) {
+        const v = Number(h?.value || 0) || 0;
+        const delta = Number(h?.changeUsd || 0) || 0;
+        totalValue += v;
+        totalValue24hAgo += Math.max(0, v - delta);
+        if (h?.chain === 'solana') totalSolValue += v;
+        else if (h?.chain === 'evm') totalEvmValue += v;
+      }
+      state.totalValue = totalValue;
+      state.totalSolValue = totalSolValue;
+      state.totalEvmValue = totalEvmValue;
+      state.totalValue24hAgo = totalValue24hAgo;
+    } catch {}
+
+    try {
+      updateSummary();
+      renderAllocationAndRisk();
+    } catch {}
+
+    try {
+      syncPortfolioHoldingsInPlace();
+    } catch {}
+
+    try { savePortfolioSnapshot(); } catch {}
+  } finally {
+    portfolioRefreshInFlight = false;
+  }
 }
 
 async function scanWallets({ queueOverride } = {}) {
@@ -5088,6 +5327,37 @@ function setupEventListeners() {
       hapticFeedback('light');
     });
   }
+
+  const portfolioRefreshBtn = $('portfolioRefreshBtn');
+  if (portfolioRefreshBtn) {
+    let portfolioRefreshCooldownTimer = null;
+    portfolioRefreshBtn.addEventListener('click', async () => {
+      if (portfolioRefreshCooldownTimer) return;
+
+      const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
+      const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
+      try {
+        portfolioRefreshBtn.disabled = true;
+        await refreshPortfolioMetrics({ force: true });
+        if (labelEl) labelEl.textContent = 'Updated!';
+        hapticFeedback('light');
+
+        portfolioRefreshCooldownTimer = window.setTimeout(() => {
+          try {
+            if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
+            portfolioRefreshBtn.disabled = false;
+          } catch {}
+          portfolioRefreshCooldownTimer = null;
+        }, 30_000);
+      } catch {
+        try { hapticFeedback('error'); } catch {}
+        try {
+          if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
+        } catch {}
+        portfolioRefreshBtn.disabled = false;
+      }
+    });
+  }
   $('portfolioModeBtn')?.addEventListener('click', () => {
     setMode('portfolio');
     hapticFeedback('light');
@@ -5520,6 +5790,8 @@ function setupEventListeners() {
       return;
     }
 
+    try { clearPortfolioSnapshot(); } catch {}
+
     try {
       if (state.scanning) state.scanAbortController?.abort();
     } catch {}
@@ -5873,6 +6145,8 @@ function initialize() {
 
   state.watchlistTokens = loadWatchlistTokens();
   renderWatchlist();
+
+  try { restorePortfolioSnapshot(); } catch {}
 
   setMode('portfolio');
 }

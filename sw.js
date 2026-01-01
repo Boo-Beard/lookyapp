@@ -1,12 +1,12 @@
-const CACHE_NAME = 'peeek-cache-v7';
+const CACHE_NAME = 'peeek-cache-v8';
 
 const ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
-  '/styles.css?v=8',
+  '/styles.css?v=9',
   '/app.js',
-  '/app.js?v=8',
+  '/app.js?v=9',
   '/manifest.json?v=5',
   '/peeek-icon.png?v=5',
   '/icons/icon-192.png?v=5',
