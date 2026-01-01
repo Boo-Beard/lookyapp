@@ -581,7 +581,7 @@ function updateScanCooldownUi() {
 
   if (remaining > 0) {
     btn.disabled = true;
-    btn.innerHTML = `<span>Cooldown: ${formatCooldownMs(remaining)}</span>`;
+    btn.innerHTML = `<span>${formatCooldownMs(remaining)}</span>`;
     if (!scanCooldownTimer) {
       scanCooldownTimer = window.setInterval(updateScanCooldownUi, 1000);
     }
@@ -4255,6 +4255,14 @@ function renderHoldingsTable() {
                   <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
                     <i class="fa-regular fa-copy" aria-hidden="true"></i>
                   </a>
+                  <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
+                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                  </a>
+                  <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
+                    <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer">Dexscreener</a>
+                    <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer">Dextools</a>
+                    <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer">Birdeye</a>
+                  </div>
                   <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
                     <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
                   </a>
@@ -4645,7 +4653,7 @@ async function scanWallets({ queueOverride } = {}) {
     const remaining = SCAN_COOLDOWN_MS - (Date.now() - last);
     if (remaining > 0) {
       updateScanCooldownUi();
-      showStatus(`You can scan again in ${formatCooldownMs(remaining)}.`, 'info');
+      showStatus(`Try again in ${formatCooldownMs(remaining)}.`, 'info');
       hapticFeedback('light');
       return;
     }
@@ -5410,7 +5418,7 @@ function setupEventListeners() {
         const tick = () => {
           const remaining = endsAt - Date.now();
           if (remaining > 0) {
-            if (labelEl) labelEl.textContent = `Cooldown: ${formatCooldownMs(remaining)}`;
+            if (labelEl) labelEl.textContent = formatCooldownMs(remaining);
             return;
           }
           try {
@@ -5465,7 +5473,7 @@ function setupEventListeners() {
         const tick = () => {
           const remaining = endsAt - Date.now();
           if (remaining > 0) {
-            if (labelEl) labelEl.textContent = `Cooldown: ${formatCooldownMs(remaining)}`;
+            if (labelEl) labelEl.textContent = formatCooldownMs(remaining);
             return;
           }
           try {

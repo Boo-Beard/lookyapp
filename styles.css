@@ -2415,6 +2415,20 @@ body.is-scanning .logo-lockup .eye::after {
   transform: translateY(-1px);
 }
 
+.btn:disabled,
+.btn[disabled] {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:disabled:hover,
+.btn[disabled]:hover,
+.btn:disabled:active,
+.btn[disabled]:active {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
 .btn-outline:active {
   transform: translateY(1px) scale(0.992);
 }
