@@ -154,7 +154,6 @@ const STORAGE_KEY_UI_SECTIONS = 'peeek:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'peeek:redactedMode';
 const STORAGE_KEY_HIDDEN_HOLDINGS = 'peeek:hiddenHoldingsV1';
 const STORAGE_KEY_SHOW_HIDDEN_HOLDINGS = 'peeek:showHiddenHoldingsV1';
-const STORAGE_KEY_HIDE_DUST = 'peeek:hideDustV1';
 
 const STORAGE_KEY_LAST_SCAN_AT = 'peeek:lastScanAt';
 const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
@@ -1086,15 +1085,6 @@ function showHiddenHoldingsStorageKey() {
   }
 }
 
-function hideDustStorageKey() {
-  try {
-    const profile = typeof getActiveProfileName === 'function' ? getActiveProfileName() : '';
-    return `${STORAGE_KEY_HIDE_DUST}:${profile || 'default'}`;
-  } catch {
-    return `${STORAGE_KEY_HIDE_DUST}:default`;
-  }
-}
-
 function loadHiddenHoldingsSet() {
   try {
     const raw = localStorage.getItem(hiddenHoldingsStorageKey());
@@ -1146,20 +1136,6 @@ function loadShowHiddenHoldingsPreference() {
 
 function setShowHiddenHoldingsPreference(enabled) {
   try { localStorage.setItem(showHiddenHoldingsStorageKey(), enabled ? '1' : '0'); } catch {}
-}
-
-function loadHideDustPreference() {
-  try {
-    const v = localStorage.getItem(hideDustStorageKey());
-    if (v == null) return true;
-    return v !== '0';
-  } catch {
-    return true;
-  }
-}
-
-function setHideDustPreference(enabled) {
-  try { localStorage.setItem(hideDustStorageKey(), enabled ? '1' : '0'); } catch {}
 }
 
 function applyShowHiddenHoldings(enabled) {
@@ -5952,10 +5928,6 @@ function setupEventListeners() {
       applyShowHiddenHoldings(loadShowHiddenHoldingsPreference());
       const sh = $('showHiddenHoldings');
       if (sh) sh.checked = !!state.showHiddenHoldings;
-
-      const hd = $('hideDust');
-      const nextHideDust = loadHideDustPreference();
-      if (hd) hd.checked = !!nextHideDust;
     } catch {}
     showStatus(`Loaded profile: ${name}`, 'success');
     hapticFeedback('light');
@@ -6114,13 +6086,7 @@ function setupEventListeners() {
   }
 
   $('sortSelect')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
-  $('hideDust')?.addEventListener('change', (e) => {
-    const el = e?.target;
-    const checked = !!(el && el.checked);
-    try { setHideDustPreference(checked); } catch {}
-    setHoldingsPage(1);
-    scheduleRenderHoldingsTable();
-  });
+  $('hideDust')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
   $('showHiddenHoldings')?.addEventListener('change', (e) => {
     const el = e?.target;
     const checked = !!(el && el.checked);
@@ -6289,10 +6255,6 @@ function initialize() {
     applyShowHiddenHoldings(loadShowHiddenHoldingsPreference());
     const sh = $('showHiddenHoldings');
     if (sh) sh.checked = !!state.showHiddenHoldings;
-
-    const hd = $('hideDust');
-    const nextHideDust = loadHideDustPreference();
-    if (hd) hd.checked = !!nextHideDust;
   } catch {}
 
   try { restorePortfolioSnapshot(); } catch {}
