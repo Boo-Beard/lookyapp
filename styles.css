@@ -2503,14 +2503,14 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   margin: 0;
   appearance: none;
   -webkit-appearance: none;
   background: rgba(255, 255, 255, 0.75);
   border: 3px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
   cursor: pointer;
   position: relative;
@@ -2530,22 +2530,45 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]::after {
   content: "";
   position: absolute;
-  left: 5px;
-  top: 1px;
-  width: 6px;
-  height: 10px;
+  left: 7px;
+  top: 3px;
+  width: 7px;
+  height: 12px;
   border-right: 4px solid rgba(0, 0, 0, 0.85);
   border-bottom: 4px solid rgba(0, 0, 0, 0.85);
   transform: rotate(45deg) scale(0);
   transition: transform 0.14s ease;
 }
 
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  right: 3px;
+  bottom: 3px;
+  border-radius: 6px;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 60%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]:checked {
-  background: rgba(0, 194, 255, 0.85);
+  background: rgba(0, 194, 255, 0.95);
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]:checked::after {
   transform: rotate(45deg) scale(1);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]:checked {
+  animation: peeek-check-pop 0.18s ease-out;
+}
+
+@keyframes peeek-check-pop {
+  0% { transform: translateY(-1px) scale(1); }
+  60% { transform: translateY(-1px) scale(1.08); }
+  100% { transform: translateY(-1px) scale(1); }
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 label {
