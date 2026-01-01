@@ -6096,6 +6096,8 @@ function initialize() {
 
   try { restorePortfolioSnapshot(); } catch {}
 
+  try { renderHoldingsTable(); } catch {}
+
   setMode('portfolio');
 }
 
