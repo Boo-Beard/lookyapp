@@ -2655,6 +2655,14 @@ async function runTokenSearch(address, { signal, chain, network } = {}) {
     data?.holders ??
     data?.holdersCount ??
     data?.holders_count ??
+    data?.holder ??
+    data?.holderCount ??
+    data?.holder_count ??
+    data?.stats?.holders ??
+    data?.stats?.holdersCount ??
+    data?.stats?.holders_count ??
+    data?.value?.holders ??
+    data?.value?.holdersCount ??
     0
   );
 
@@ -2669,6 +2677,15 @@ async function runTokenSearch(address, { signal, chain, network } = {}) {
     data?.trades24h ??
     data?.trades_24h ??
     data?.trades_24h_count ??
+    data?.trade24h ??
+    data?.trade_24h ??
+    data?.trade_24h_count ??
+    data?.txns24h ??
+    data?.txns_24h ??
+    data?.txns_24h_count ??
+    data?.stats?.trades24h ??
+    data?.stats?.txns24h ??
+    data?.value?.trades24h ??
     0
   );
 
