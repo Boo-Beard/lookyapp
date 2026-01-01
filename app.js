@@ -342,6 +342,10 @@ function renderSearchTokenActions(model) {
     address: String(model?.address || ''),
   });
 
+  const chain = String(model?.chain || '');
+  const network = String(model?.network || '');
+  const address = String(model?.address || '').trim();
+
   return `
     <div class="holding-card-actions search-token-actions" aria-label="Token links">
       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
@@ -1317,26 +1321,34 @@ function syncWatchlistStars() {
 }
 
 function sanitizeWatchlistToken(raw) {
-  const t = (raw && typeof raw === 'object') ? raw : {};
-  const chain = canonicalizeChainForKey(t.chain);
-  const network = canonicalizeNetworkForKey(chain, String(t.network || ''));
-  const address = String(t.address || '').trim();
-  if (!chain || !address) return null;
+  try {
+    const t = (raw && typeof raw === 'object') ? raw : {};
+    const chain = canonicalizeChainForKey(t.chain);
+    const network = canonicalizeNetworkForKey(chain, String(t.network || ''));
+    const address = String(t.address || '').trim();
+    if (!chain || !address) return null;
 
-  return {
-    chain,
-    network,
-    address,
-    symbol: String(t.symbol || '').trim(),
-    name: String(t.name || '').trim(),
-    logoUrl: String(t.logoUrl || '').trim(),
-    extensions: t.extensions || null,
-    priceUsd: (t.priceUsd == null ? null : Number(t.priceUsd)),
-    marketCapUsd: (t.marketCapUsd == null ? null : Number(t.marketCapUsd)),
-    change24hPct: (t.change24hPct == null ? null : Number(t.change24hPct)),
-    volume24hUsd: (t.volume24hUsd == null ? null : Number(t.volume24hUsd)),
-    updatedAt: (t.updatedAt == null ? null : Number(t.updatedAt)),
-  };
+    return {
+      chain,
+      network,
+      address,
+      symbol: String(t.symbol || '').trim(),
+      name: String(t.name || '').trim(),
+      logoUrl: String(t.logoUrl || '').trim(),
+      extensions: t.extensions || null,
+      priceUsd: (t.priceUsd == null ? null : Number(t.priceUsd)),
+      marketCapUsd: (t.marketCapUsd == null ? null : Number(t.marketCapUsd)),
+      change24hPct: (t.change24hPct == null ? null : Number(t.change24hPct)),
+      volume24hUsd: (t.volume24hUsd == null ? null : Number(t.volume24hUsd)),
+      liquidityUsd: (t.liquidityUsd == null ? null : Number(t.liquidityUsd)),
+      holders: (t.holders == null ? null : Number(t.holders)),
+      circulatingSupply: (t.circulatingSupply == null ? null : Number(t.circulatingSupply)),
+      trades24h: (t.trades24h == null ? null : Number(t.trades24h)),
+      updatedAt: (t.updatedAt == null ? null : Number(t.updatedAt)),
+    };
+  } catch {
+    return null;
+  }
 }
 
 function loadWatchlistTokens() {
@@ -2631,6 +2643,35 @@ async function runTokenSearch(address, { signal, chain, network } = {}) {
     0
   );
 
+  const liquidityUsd = Number(
+    data?.liquidity ??
+    data?.liquidityUsd ??
+    data?.liquidity_usd ??
+    data?.liquidity_1d ??
+    0
+  );
+
+  const holders = Number(
+    data?.holders ??
+    data?.holdersCount ??
+    data?.holders_count ??
+    0
+  );
+
+  const circulatingSupply = Number(
+    data?.circulatingSupply ??
+    data?.circulating_supply ??
+    data?.circulating_supply_value ??
+    0
+  );
+
+  const trades24h = Number(
+    data?.trades24h ??
+    data?.trades_24h ??
+    data?.trades_24h_count ??
+    0
+  );
+
   const change24hPct = Number(
     data?.priceChange24hPercent ??
     data?.price_change_24h_percent ??
@@ -2656,6 +2697,10 @@ async function runTokenSearch(address, { signal, chain, network } = {}) {
     priceUsd: Number.isFinite(priceUsd) && priceUsd > 0 ? priceUsd : null,
     marketCapUsd: Number.isFinite(marketCapUsd) && marketCapUsd > 0 ? marketCapUsd : null,
     volume24hUsd: Number.isFinite(volume24hUsd) && volume24hUsd > 0 ? volume24hUsd : null,
+    liquidityUsd: Number.isFinite(liquidityUsd) && liquidityUsd > 0 ? liquidityUsd : null,
+    holders: Number.isFinite(holders) && holders > 0 ? holders : null,
+    circulatingSupply: Number.isFinite(circulatingSupply) && circulatingSupply > 0 ? circulatingSupply : null,
+    trades24h: Number.isFinite(trades24h) && trades24h > 0 ? trades24h : null,
     change24hPct: Number.isFinite(change24hPct) ? change24hPct : null,
     updatedAt: Date.now(),
   };
@@ -5559,36 +5604,42 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  $('tableBody')?.addEventListener('click', (e) => {
-    const chart = e.target.closest('a.holding-action[data-action="chart"]');
-    if (!chart) return;
-    e.preventDefault();
+  const bindChartPopoverDelegation = (containerEl) => {
+    if (!containerEl) return;
+    containerEl.addEventListener('click', (e) => {
+      const chart = e.target.closest('a.holding-action[data-action="chart"]');
+      if (!chart) return;
+      e.preventDefault();
 
-    const actions = chart.closest('.holding-card-actions');
-    if (!actions) return;
-    const popover = actions.querySelector('.chart-popover');
-    if (!popover) return;
+      const actions = chart.closest('.holding-card-actions');
+      if (!actions) return;
+      const popover = actions.querySelector('.chart-popover');
+      if (!popover) return;
 
-    const isOpening = popover.classList.contains('hidden');
-    closeAllChartPopovers(popover);
-    if (!isOpening) {
-      popover.classList.add('hidden');
-      return;
-    }
+      const isOpening = popover.classList.contains('hidden');
+      closeAllChartPopovers(popover);
+      if (!isOpening) {
+        popover.classList.add('hidden');
+        return;
+      }
 
-    const chain = chart.dataset.chain || '';
-    const network = chart.dataset.network || '';
-    const address = chart.dataset.address || '';
+      const chain = chart.dataset.chain || '';
+      const network = chart.dataset.network || '';
+      const address = chart.dataset.address || '';
 
-    const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
-    const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
-    const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
-    if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
-    if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
-    if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
+      const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
+      const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
+      const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
+      if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
+      if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
+      if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
 
-    popover.classList.remove('hidden');
-  });
+      popover.classList.remove('hidden');
+    });
+  };
+
+  bindChartPopoverDelegation($('tableBody'));
+  bindChartPopoverDelegation($('searchResults'));
 
   document.addEventListener('click', (e) => {
     const hideToggle = e.target.closest('[data-action="holding-hide-toggle"]');
