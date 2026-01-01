@@ -2484,6 +2484,38 @@ body.ui-results .table-header {
   flex: 0 0 auto;
 }
 
+#holdingsCard .table-controls .toggle-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: var(--radius-xl);
+  border: 4px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow-md);
+  color: var(--ink);
+  font-weight: 900;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#holdingsCard .table-controls .toggle-btn:focus-visible {
+  outline: 3px solid rgba(0, 194, 255, 0.55);
+  outline-offset: 2px;
+}
+
+#holdingsCard .table-controls .toggle-btn.is-active,
+#holdingsCard .table-controls .toggle-btn[aria-pressed="true"] {
+  background: rgba(0, 194, 255, 0.14);
+  border-color: rgba(0, 194, 255, 1);
+}
+
 #holdingsCard .table-controls .checkbox-wrapper-10 {
   display: flex;
   align-items: center;

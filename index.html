@@ -307,15 +307,9 @@
                 <option value="nameAsc">Name (A → Z)</option>
               </select>
               
-              <div class="checkbox-wrapper-11 dust-toggle" aria-label="Hide dust (under $1)">
-                <input id="hideDust" type="checkbox" checked>
-                <label for="hideDust">Hide dust (&lt;$1)</label>
-              </div>
+              <button id="hideDust" class="toggle-btn dust-toggle" type="button" aria-pressed="true" aria-label="Hide dust (under $1)">Hide dust (&lt;$1)</button>
 
-              <div class="checkbox-wrapper-11 show-hidden-toggle" aria-label="Show hidden holdings">
-                <input id="showHiddenHoldings" type="checkbox">
-                <label for="showHiddenHoldings">Show hidden</label>
-              </div>
+              <button id="showHiddenHoldings" class="toggle-btn show-hidden-toggle" type="button" aria-pressed="false" aria-label="Show hidden holdings">Show hidden</button>
             </div>
             <div class="table-container">
               <table class="holdings-table" id="holdingsTable">
