@@ -2470,7 +2470,6 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls .search-box {
-  flex: 1 1 320px;
   max-width: 520px;
 }
 
