@@ -3360,7 +3360,7 @@ body.holdings-cards .holding-card .holding-hide-toggle:hover {
 .inline-star-toast {
   position: absolute;
   right: 0;
-  top: -10px;
+  top: calc(100% + 8px);
   transform: translateY(-6px);
   opacity: 0;
   pointer-events: none;
@@ -3379,7 +3379,7 @@ body.holdings-cards .holding-card .holding-hide-toggle:hover {
 
 .inline-star-toast.show {
   opacity: 1;
-  transform: translateY(-12px);
+  transform: translateY(0);
 }
 
 body.holdings-cards .holding-action {
