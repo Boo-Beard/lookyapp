@@ -5528,9 +5528,40 @@ function setupEventListeners() {
     setMode('portfolio');
     hapticFeedback('light');
   });
-  $('searchModeBtn')?.addEventListener('click', () => {
-    setMode('search');
+  $('exportButton')?.addEventListener('click', () => {
+    exportHoldingsToCsv();
     hapticFeedback('light');
+  });
+
+  $('tableBody')?.addEventListener('click', (e) => {
+    const chart = e.target.closest('a.holding-action[data-action="chart"]');
+    if (!chart) return;
+    e.preventDefault();
+
+    const actions = chart.closest('.holding-card-actions');
+    if (!actions) return;
+    const popover = actions.querySelector('.chart-popover');
+    if (!popover) return;
+
+    const isOpening = popover.classList.contains('hidden');
+    closeAllChartPopovers(popover);
+    if (!isOpening) {
+      popover.classList.add('hidden');
+      return;
+    }
+
+    const chain = chart.dataset.chain || '';
+    const network = chart.dataset.network || '';
+    const address = chart.dataset.address || '';
+
+    const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
+    const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
+    const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
+    if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
+    if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
+    if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
+
+    popover.classList.remove('hidden');
   });
 
   document.addEventListener('click', (e) => {
@@ -5545,40 +5576,6 @@ function setupEventListeners() {
         showInlineStarToast(hideToggle, wasHidden ? 'Unhidden' : 'Hidden');
       } catch {}
       try { hapticFeedback('light'); } catch {}
-      return;
-    }
-
-    const chart = e.target.closest('a.holding-action[data-action="chart"]');
-    if (chart) {
-      e.preventDefault();
-      try { console.debug('[chart-popover] click', { chain: chart.dataset.chain, network: chart.dataset.network, address: chart.dataset.address }); } catch {}
-      const actions = chart.closest('.holding-card-actions');
-      if (!actions) return;
-      const popover = actions.querySelector('.chart-popover');
-      if (!popover) return;
-
-      try { console.debug('[chart-popover] found', { hidden: popover.classList.contains('hidden') }); } catch {}
-
-      const isOpening = popover.classList.contains('hidden');
-      closeAllChartPopovers(popover);
-      if (!isOpening) {
-        popover.classList.add('hidden');
-        return;
-      }
-
-      const chain = chart.dataset.chain || '';
-      const network = chart.dataset.network || '';
-      const address = chart.dataset.address || '';
-
-      const linkDex = popover.querySelector('a.chart-popover-link[data-provider="dexscreener"]');
-      const linkDexTools = popover.querySelector('a.chart-popover-link[data-provider="dextools"]');
-      const linkBirdeye = popover.querySelector('a.chart-popover-link[data-provider="birdeye"]');
-      if (linkDex) linkDex.href = buildDexscreenerTokenUrl({ chain, network, address });
-      if (linkDexTools) linkDexTools.href = buildDextoolsTokenUrl({ chain, network, address });
-      if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
-
-      popover.classList.remove('hidden');
-      try { console.debug('[chart-popover] opened'); } catch {}
       return;
     }
 

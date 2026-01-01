@@ -214,6 +214,15 @@ body.modal-open {
   position: relative;
 }
 
+.token-cell,
+.holding-card-actions {
+  overflow: visible;
+}
+
+body.ui-results .table-container {
+  overflow: visible;
+}
+
 .chart-popover {
   position: absolute;
   right: 0;
