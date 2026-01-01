@@ -2463,7 +2463,7 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .search-box,
 #holdingsCard .table-controls .select,
 #holdingsCard .table-controls .checkbox,
-#holdingsCard .table-controls .checkbox-wrapper-10 {
+#holdingsCard .table-controls .checkbox-wrapper-11 {
   width: auto;
   max-width: none;
 }
@@ -2479,135 +2479,205 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls .checkbox,
-#holdingsCard .table-controls .checkbox-wrapper-10 {
+#holdingsCard .table-controls .checkbox-wrapper-11 {
   flex: 0 0 auto;
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl {
-  display: none;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:after,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:before,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:after,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:before,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn {
-  box-sizing: border-box;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:after::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:before::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:after::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:before::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn::-moz-selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl::selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:after::selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:before::selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *::selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:after::selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:before::selection,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn::selection {
-  background: none;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn {
-  outline: 0;
-  display: block;
-  width: 8.2em;
-  height: 2.05em;
+#holdingsCard .table-controls .checkbox-wrapper-11 {
+  --text: var(--ink);
+  --check: rgba(0, 194, 255, 1);
+  --disabled: rgba(11, 11, 16, 0.35);
+  --border-radius: 14px;
+  --background: var(--panel);
+  border-radius: var(--border-radius);
   position: relative;
-  cursor: pointer;
-  user-select: none;
-  border-radius: var(--radius-xl);
+  padding: 6px 10px;
+  display: grid;
+  grid-template-columns: 18px auto;
+  align-items: center;
+  gap: 10px;
   border: 3px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:after,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:before {
+#holdingsCard .table-controls .checkbox-wrapper-11 label {
+  color: var(--text);
   position: relative;
-  display: block;
-  content: "";
-  width: 50%;
-  height: 100%;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:after {
-  left: 0;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:before {
-  display: none;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:checked + .tgl-btn:after {
-  left: 50%;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn {
-  padding: 2px;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  display: grid;
+  align-items: center;
+  width: fit-content;
+  transition: color 0.3s ease;
   font-family: var(--mono);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  perspective: 100px;
-  background: var(--panel);
   font-size: 11px;
-}
-
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:after,
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:before {
-  display: inline-block;
-  transition: all 0.4s ease;
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  line-height: 1.95em;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.96);
-  top: 0;
-  left: 0;
-  backface-visibility: hidden;
-  border-radius: calc(var(--radius-xl) - 6px);
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:after {
-  content: attr(data-tg-on);
-  background: #02C66F;
-  transform: rotateY(-180deg);
+#holdingsCard .table-controls .checkbox-wrapper-11 label::before,
+#holdingsCard .table-controls .checkbox-wrapper-11 label::after {
+  content: "";
+  position: absolute;
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:before {
-  background: #FF3A19;
-  content: attr(data-tg-off);
+#holdingsCard .table-controls .checkbox-wrapper-11 label::before {
+  height: 2px;
+  width: 8px;
+  left: -22px;
+  background: var(--check);
+  border-radius: 2px;
+  transition: background 0.3s ease;
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:active:before {
-  transform: rotateY(-20deg);
+#holdingsCard .table-controls .checkbox-wrapper-11 label:after {
+  height: 4px;
+  width: 4px;
+  top: 8px;
+  left: -20px;
+  border-radius: 50%;
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:before {
-  transform: rotateY(180deg);
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  position: relative;
+  height: 14px;
+  width: 14px;
+  outline: none;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  background: var(--background);
+  display: grid;
+  align-items: center;
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:after {
-  transform: rotateY(0);
-  left: 0;
-  background: #7FC6A6;
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]::before,
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  top: auto;
+  background: var(--check);
+  border-radius: 2px;
 }
 
-#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:active:after {
-  transform: rotateY(20deg);
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]::before {
+  width: 0px;
+  right: 60%;
+  transform-origin: right bottom;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]::after {
+  width: 0px;
+  left: 40%;
+  transform-origin: left bottom;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]:checked::before {
+  animation: check-01-11 0.4s ease forwards;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]:checked::after {
+  animation: check-02-11 0.4s ease forwards;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]:checked + label {
+  color: var(--disabled);
+  animation: move-11 0.3s ease 0.1s forwards;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]:checked + label::before {
+  background: var(--disabled);
+  animation: slice-11 0.4s ease forwards;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-11 input[type=checkbox]:checked + label::after {
+  animation: firework-11 0.5s ease forwards 0.1s;
+}
+
+@keyframes move-11 {
+  50% {
+    padding-left: 8px;
+    padding-right: 0px;
+  }
+  100% {
+    padding-right: 4px;
+  }
+}
+
+@keyframes slice-11 {
+  60% {
+    width: 100%;
+    left: 4px;
+  }
+  100% {
+    width: 100%;
+    left: -2px;
+    padding-left: 0;
+  }
+}
+
+@keyframes check-01-11 {
+  0% {
+    width: 4px;
+    top: auto;
+    transform: rotate(0);
+  }
+  50% {
+    width: 0px;
+    top: auto;
+    transform: rotate(0);
+  }
+  51% {
+    width: 0px;
+    top: 8px;
+    transform: rotate(45deg);
+  }
+  100% {
+    width: 5px;
+    top: 8px;
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes check-02-11 {
+  0% {
+    width: 4px;
+    top: auto;
+    transform: rotate(0);
+  }
+  50% {
+    width: 0px;
+    top: auto;
+    transform: rotate(0);
+  }
+  51% {
+    width: 0px;
+    top: 8px;
+    transform: rotate(-45deg);
+  }
+  100% {
+    width: 10px;
+    top: 8px;
+    transform: rotate(-45deg);
+  }
+}
+
+@keyframes firework-11 {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 -2px rgba(0, 194, 255, 1), 0 0 0 -2px rgba(0, 194, 255, 1), 0 0 0 -2px rgba(0, 194, 255, 1), 0 0 0 -2px rgba(0, 194, 255, 1), 0 0 0 -2px rgba(0, 194, 255, 1), 0 0 0 -2px rgba(0, 194, 255, 1);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 -15px 0 0px rgba(0, 194, 255, 1), 14px -8px 0 0px rgba(0, 194, 255, 1), 14px 8px 0 0px rgba(0, 194, 255, 1), 0 15px 0 0px rgba(0, 194, 255, 1), -14px 8px 0 0px rgba(0, 194, 255, 1), -14px -8px 0 0px rgba(0, 194, 255, 1);
+  }
 }
 
 @media (max-width: 520px) {
