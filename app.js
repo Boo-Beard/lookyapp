@@ -4273,7 +4273,7 @@ function renderHoldingsTable() {
                       <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
-                      <img class="chart-popover-icon" alt="" src="https://info.dextools.io/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
+                      <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
                       <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
@@ -4387,7 +4387,7 @@ function renderHoldingsTable() {
                           <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
-                          <img class="chart-popover-icon" alt="" src="https://info.dextools.io/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
+                          <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
                           <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
