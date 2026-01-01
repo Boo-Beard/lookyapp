@@ -2461,7 +2461,8 @@ body.ui-results .table-header {
 
 #holdingsCard .table-controls .search-box,
 #holdingsCard .table-controls .select,
-#holdingsCard .table-controls .checkbox {
+#holdingsCard .table-controls .checkbox,
+#holdingsCard .table-controls .checkbox-wrapper-10 {
   width: auto;
   max-width: none;
 }
@@ -2476,8 +2477,135 @@ body.ui-results .table-header {
   min-width: 200px;
 }
 
-#holdingsCard .table-controls .checkbox {
+#holdingsCard .table-controls .checkbox,
+#holdingsCard .table-controls .checkbox-wrapper-10 {
   flex: 0 0 auto;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl {
+  display: none;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:after,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:before,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:after,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:before,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn {
+  box-sizing: border-box;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:after::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:before::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:after::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:before::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn::-moz-selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl::selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:after::selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:before::selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *::selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:after::selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl *:before::selection,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn::selection {
+  background: none;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn {
+  outline: 0;
+  display: block;
+  width: 9.5em;
+  height: 2.35em;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-xl);
+  border: 4px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:after,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:before {
+  position: relative;
+  display: block;
+  content: "";
+  width: 50%;
+  height: 100%;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:after {
+  left: 0;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn:before {
+  display: none;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl:checked + .tgl-btn:after {
+  left: 50%;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn {
+  padding: 2px;
+  transition: all 0.2s ease;
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  perspective: 100px;
+  background: var(--panel);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:after,
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:before {
+  display: inline-block;
+  transition: all 0.4s ease;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  line-height: 2.1em;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.96);
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+  border-radius: calc(var(--radius-xl) - 6px);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:after {
+  content: attr(data-tg-on);
+  background: #02C66F;
+  transform: rotateY(-180deg);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:before {
+  background: #FF3A19;
+  content: attr(data-tg-off);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:active:before {
+  transform: rotateY(-20deg);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:before {
+  transform: rotateY(180deg);
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:after {
+  transform: rotateY(0);
+  left: 0;
+  background: #7FC6A6;
+}
+
+#holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip:checked + .tgl-btn:active:after {
+  transform: rotateY(20deg);
 }
 
 @media (max-width: 520px) {
@@ -2508,16 +2636,16 @@ body.ui-results .table-header {
     min-width: 0;
   }
 
-  #holdingsCard .table-controls .checkbox {
+  #holdingsCard .table-controls .dust-toggle {
     grid-area: dust;
     width: 100%;
     justify-content: center;
-    min-height: 44px;
-    padding: 8px 10px;
   }
 
-  #holdingsCard .table-controls .checkbox.show-hidden {
+  #holdingsCard .table-controls .show-hidden-toggle {
     grid-area: hidden;
+    width: 100%;
+    justify-content: center;
   }
 
   #holdingsCard .table-controls .search-input,

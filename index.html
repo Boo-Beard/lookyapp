@@ -307,17 +307,15 @@
                 <option value="nameAsc">Name (A → Z)</option>
               </select>
               
-              <label class="checkbox">
-                <input type="checkbox" id="hideDust" checked>
-                <span class="checkmark"></span>
-                Hide dust (&lt;$1)
-              </label>
+              <div class="checkbox-wrapper-10 dust-toggle" aria-label="Hide dust (under $1)">
+                <input class="tgl tgl-flip" id="hideDust" type="checkbox" checked />
+                <label class="tgl-btn" data-tg-off="Show dust" data-tg-on="Hide dust" for="hideDust"></label>
+              </div>
 
-              <label class="checkbox show-hidden">
-                <input type="checkbox" id="showHiddenHoldings">
-                <span class="checkmark"></span>
-                Show hidden
-              </label>
+              <div class="checkbox-wrapper-10 show-hidden-toggle" aria-label="Show hidden holdings">
+                <input class="tgl tgl-flip" id="showHiddenHoldings" type="checkbox" />
+                <label class="tgl-btn" data-tg-off="Hidden off" data-tg-on="Show hidden" for="showHiddenHoldings"></label>
+              </div>
             </div>
             <div class="table-container">
               <table class="holdings-table" id="holdingsTable">
