@@ -226,7 +226,7 @@ body.modal-open {
   border: 2px solid rgba(0, 0, 0, 0.9);
   background: var(--paper);
   box-shadow: var(--shadow-md);
-  z-index: 2;
+  z-index: 999;
 }
 
 .chart-popover.hidden {
