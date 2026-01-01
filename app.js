@@ -4071,8 +4071,10 @@ function renderHoldingsTable() {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'valueAsc': return a.value - b.value;
+        case 'pnlAsc': return (a.changeUsd || 0) - (b.changeUsd || 0);
         case 'mcapAsc': return (a.mcap || 0) - (b.mcap || 0);
         case 'nameAsc': return a.name.localeCompare(b.name);
+        case 'pnlDesc': return (b.changeUsd || 0) - (a.changeUsd || 0);
         case 'mcapDesc': return (b.mcap || 0) - (a.mcap || 0);
         case 'valueDesc':
         default:
@@ -5627,8 +5629,12 @@ function setupEventListeners() {
   $('amendWalletsBtn')?.addEventListener('click', () => {
     if (!document.body.classList.contains('ui-results')) return;
     const inputSection = $('inputSection');
-    inputSection?.classList.toggle('is-minimized');
-    if (inputSection) setPortfolioMinimizedPreference(inputSection.classList.contains('is-minimized'));
+    const resultsSection = $('resultsSection');
+    inputSection?.classList.remove('is-minimized');
+    if (inputSection) setPortfolioMinimizedPreference(false);
+    if (resultsSection) resultsSection.classList.add('hidden');
+    document.body.classList.remove('ui-results');
+    document.body.classList.add('ui-landing');
   });
 
   let deferredInstallPrompt = null;
