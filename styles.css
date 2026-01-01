@@ -513,14 +513,13 @@ body.ui-results #resultsSection > * {
 
 body.ui-results #summaryGrid {
   margin: 0;
+  margin-top: 20px;
+  margin-bottom: 18px;
+
 }
 
 .amend-wallets-row {
   margin: 0 0 12px;
-}
-
-body.ui-results #amendWalletsRow {
-  margin-bottom: 18px;
 }
 
 body.ui-results .amend-wallets-row {
@@ -535,10 +534,6 @@ body.ui-results .amend-wallets-row {
   padding: 12px;
   display: flex;
   gap: 12px;
-}
-
-body.ui-results #holdingsCard {
-  margin-top: 18px;
 }
 
 body.ui-results .amend-wallets-row .btn {
