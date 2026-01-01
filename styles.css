@@ -513,9 +513,7 @@ body.ui-results #resultsSection > * {
 
 body.ui-results #summaryGrid {
   margin: 0;
-  margin-top: 20px;
-  margin-bottom: 18px;
-
+  margin-top: 15px;
 }
 
 .amend-wallets-row {
