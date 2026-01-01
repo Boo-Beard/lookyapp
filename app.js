@@ -5551,10 +5551,13 @@ function setupEventListeners() {
     const chart = e.target.closest('a.holding-action[data-action="chart"]');
     if (chart) {
       e.preventDefault();
+      try { console.debug('[chart-popover] click', { chain: chart.dataset.chain, network: chart.dataset.network, address: chart.dataset.address }); } catch {}
       const actions = chart.closest('.holding-card-actions');
       if (!actions) return;
       const popover = actions.querySelector('.chart-popover');
       if (!popover) return;
+
+      try { console.debug('[chart-popover] found', { hidden: popover.classList.contains('hidden') }); } catch {}
 
       const isOpening = popover.classList.contains('hidden');
       closeAllChartPopovers(popover);
@@ -5575,6 +5578,7 @@ function setupEventListeners() {
       if (linkBirdeye) linkBirdeye.href = buildBirdeyeTokenUrl({ chain, network, address });
 
       popover.classList.remove('hidden');
+      try { console.debug('[chart-popover] opened'); } catch {}
       return;
     }
 
