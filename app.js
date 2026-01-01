@@ -5427,6 +5427,11 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
+  $('searchModeBtn')?.addEventListener('click', () => {
+    setMode('search');
+    hapticFeedback('light');
+  });
+
   const watchlistRefreshBtn = $('watchlistRefreshBtn');
   if (watchlistRefreshBtn) {
     let watchlistRefreshCooldownTimer = null;
