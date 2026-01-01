@@ -2463,7 +2463,8 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .search-box,
 #holdingsCard .table-controls .select,
 #holdingsCard .table-controls .checkbox,
-#holdingsCard .table-controls .checkbox-wrapper-10 {
+#holdingsCard .table-controls .checkbox-wrapper-10,
+#holdingsCard .table-controls .checkbox-wrapper-11 {
   width: auto;
   max-width: none;
 }
@@ -2479,7 +2480,8 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls .checkbox,
-#holdingsCard .table-controls .checkbox-wrapper-10 {
+#holdingsCard .table-controls .checkbox-wrapper-10,
+#holdingsCard .table-controls .checkbox-wrapper-11 {
   flex: 0 0 auto;
 }
 
@@ -2615,8 +2617,7 @@ body.ui-results .table-header {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "search search"
-      "sort sort"
+      "search sort"
       "dust hidden";
     gap: 8px;
     padding: 10px;
