@@ -152,6 +152,8 @@ const STORAGE_KEY_PROFILES = 'peeek:profiles';
 const STORAGE_KEY_ACTIVE_PROFILE = 'peeek:activeProfile';
 const STORAGE_KEY_UI_SECTIONS = 'peeek:uiSections';
 const STORAGE_KEY_REDACTED_MODE = 'peeek:redactedMode';
+const STORAGE_KEY_HIDDEN_HOLDINGS = 'peeek:hiddenHoldingsV1';
+const STORAGE_KEY_SHOW_HIDDEN_HOLDINGS = 'peeek:showHiddenHoldingsV1';
 
 const STORAGE_KEY_LAST_SCAN_AT = 'peeek:lastScanAt';
 const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
@@ -990,6 +992,7 @@ let holdingsRenderThrottleTimer = null;
 
 let holdingsDataVersion = 0;
 let watchlistDataVersion = 0;
+let hiddenHoldingsVersion = 0;
 const holdingsTableCache = {
   key: null,
   useCardRows: null,
@@ -1038,6 +1041,8 @@ function scheduleRenderHoldingsTable() {
 const state = {
   wallets: [],
   holdings: [],
+  hiddenHoldings: new Set(),
+  showHiddenHoldings: false,
   scanning: false,
   scanMeta: { completed: 0, total: 0 },
   lastScanFailedQueue: [],
@@ -1061,6 +1066,85 @@ const state = {
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
 const STORAGE_KEY_WATCHLIST_SORT = 'looky_watchlist_sort_v1';
 const WATCHLIST_MAX_TOKENS = 5;
+
+function hiddenHoldingsStorageKey() {
+  try {
+    const profile = typeof getActiveProfileName === 'function' ? getActiveProfileName() : '';
+    return `${STORAGE_KEY_HIDDEN_HOLDINGS}:${profile || 'default'}`;
+  } catch {
+    return `${STORAGE_KEY_HIDDEN_HOLDINGS}:default`;
+  }
+}
+
+function showHiddenHoldingsStorageKey() {
+  try {
+    const profile = typeof getActiveProfileName === 'function' ? getActiveProfileName() : '';
+    return `${STORAGE_KEY_SHOW_HIDDEN_HOLDINGS}:${profile || 'default'}`;
+  } catch {
+    return `${STORAGE_KEY_SHOW_HIDDEN_HOLDINGS}:default`;
+  }
+}
+
+function loadHiddenHoldingsSet() {
+  try {
+    const raw = localStorage.getItem(hiddenHoldingsStorageKey());
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.map(String).filter(Boolean));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveHiddenHoldingsSet(set) {
+  try {
+    localStorage.setItem(hiddenHoldingsStorageKey(), JSON.stringify(Array.from(set || []).map(String).filter(Boolean)));
+  } catch {}
+}
+
+function isHoldingHidden(key) {
+  const k = String(key || '');
+  if (!k) return false;
+  return !!(state.hiddenHoldings && typeof state.hiddenHoldings.has === 'function' && state.hiddenHoldings.has(k));
+}
+
+function setHoldingHidden(key, hidden) {
+  const k = String(key || '');
+  if (!k) return;
+  if (!(state.hiddenHoldings && typeof state.hiddenHoldings.add === 'function')) state.hiddenHoldings = new Set();
+
+  const next = !!hidden;
+  const had = state.hiddenHoldings.has(k);
+  if (next && !had) state.hiddenHoldings.add(k);
+  if (!next && had) state.hiddenHoldings.delete(k);
+
+  hiddenHoldingsVersion++;
+  try { saveHiddenHoldingsSet(state.hiddenHoldings); } catch {}
+  try { invalidateHoldingsTableCache(); } catch {}
+  try { setHoldingsPage(1); } catch {}
+  try { scheduleRenderHoldingsTable(); } catch {}
+}
+
+function loadShowHiddenHoldingsPreference() {
+  try {
+    return localStorage.getItem(showHiddenHoldingsStorageKey()) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function setShowHiddenHoldingsPreference(enabled) {
+  try { localStorage.setItem(showHiddenHoldingsStorageKey(), enabled ? '1' : '0'); } catch {}
+}
+
+function applyShowHiddenHoldings(enabled) {
+  state.showHiddenHoldings = !!enabled;
+  try { setShowHiddenHoldingsPreference(state.showHiddenHoldings); } catch {}
+  try { invalidateHoldingsTableCache(); } catch {}
+  try { setHoldingsPage(1); } catch {}
+  try { scheduleRenderHoldingsTable(); } catch {}
+}
 
 function getWatchlistSortPreference() {
   try {
@@ -3952,13 +4036,16 @@ function renderHoldingsTable() {
   const searchTerm = ($('searchInput')?.value || '').toLowerCase();
   const hideDust = $('hideDust')?.checked ?? true;
   const sortBy = $('sortSelect')?.value || 'valueDesc';
+  const showHidden = $('showHiddenHoldings')?.checked ?? !!state.showHiddenHoldings;
 
   const cacheKey = [
     `v:${holdingsDataVersion}`,
     `w:${watchlistDataVersion}`,
+    `h:${hiddenHoldingsVersion}`,
     `s:${searchTerm}`,
     `d:${hideDust ? 1 : 0}`,
     `o:${sortBy}`,
+    `sh:${showHidden ? 1 : 0}`,
   ].join('|');
 
   const canReuseFiltered = holdingsTableCache.key === cacheKey
@@ -3969,6 +4056,7 @@ function renderHoldingsTable() {
 
   if (!filtered) {
     filtered = state.holdings.filter(h => {
+      if (!showHidden && isHoldingHidden(h.key)) return false;
       if (hideDust && h.value < 1) return false;
       if (!searchTerm) return true;
       return h.symbol.toLowerCase().includes(searchTerm) || h.name.toLowerCase().includes(searchTerm) || h.address.toLowerCase().includes(searchTerm);
@@ -4097,185 +4185,6 @@ function renderHoldingsTable() {
           </tr>
         `).join('')
       : '';
-
-    if (canReuseHtmlBase) {
-      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
-    } else {
-      const htmlBase = pageItems.map((holding) => {
-        const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
-        const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
-
-        const wlActive = !!getWatchlistMatchKey({
-          chain: String(holding.chain || ''),
-          network: String(holding.network || ''),
-          address: String(chartAddress || ''),
-        });
-
-        return `
-        <tr class="holding-row" data-key="${holding.key}">
-          <td>
-            <div class="token-cell">
-              <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
-              <div class="token-info">
-                <div class="token-symbol">${holding.symbol}</div>
-                <div class="token-name">${holding.name}</div>
-              </div>
-              <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
-              <div class="holding-card-actions" aria-label="Holding actions">
-                <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
-                  <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
-                </a>
-                <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
-                  <i class="fa-regular fa-copy" aria-hidden="true"></i>
-                </a>
-              </div>
-            </div>
-          </td>
-          <td>
-            <strong class="mono redacted-field" data-h-field="mcap" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong>
-          </td>
-          <td class="mono"><strong class="redacted-field" data-h-field="balance" tabindex="0">${formatNumber(holding.balance)}</strong></td>
-          <td class="mono"><strong class="redacted-field" data-h-field="price" tabindex="0">${formatPrice(holding.price)}</strong></td>
-          <td class="mono"><strong class="redacted-field" data-h-field="value" tabindex="0">${formatCurrency(holding.value)}</strong></td>
-          <td class="mono" data-h-field="pnl">${formatPnlCell(holding.changeUsd)}</td>
-        </tr>
-      `;
-      }).join('');
-
-      holdingsTableCache.key = cacheKey;
-      holdingsTableCache.useCardRows = useCardRows;
-      holdingsTableCache.page = page;
-      holdingsTableCache.htmlBase = htmlBase;
-      holdingsTableCache.totalItems = totalItems;
-      holdingsTableCache.totalPages = totalPages;
-      holdingsTableCache.filteredTotalValue = filteredTotalValue;
-
-      tbody.innerHTML = `${htmlBase}${skeletonRows}`;
-    }
-  } else {
-    const skeletonRows = state.scanning && scanSkeletonCount > 0
-      ? Array.from({ length: scanSkeletonCount }).map(() => `
-          <tr class="skeleton-row holding-card-row">
-            <td colspan="6">
-              <div class="holding-card">
-                <div class="holding-card-header">
-                  <div class="token-cell">
-                    <div class="skeleton-line w-40"></div>
-                  </div>
-                  <div class="skeleton-line w-30"></div>
-                </div>
-                <div class="holding-card-metrics">
-                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
-                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
-                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
-                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
-                  <div class="holding-metric"><div class="skeleton-line w-60"></div></div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        `).join('')
-      : '';
-
-    if (canReuseHtmlBase) {
-      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
-      return;
-    }
-
-    const htmlBase = pageItems.map(holding => {
-      const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
-
-      let explorerHref = '#';
-      if (holding.chain === 'solana') {
-        explorerHref = `https://solscan.io/token/${holding.address}`;
-      } else if (isValidEvmContractAddress(displayAddress)) {
-        explorerHref = `${evmExplorerBase(holding.network)}/token/${displayAddress}`;
-      }
-
-      const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
-
-      const explorerDisabled = explorerHref === '#';
-
-      const wlActive = !!getWatchlistMatchKey({
-        chain: String(holding.chain || ''),
-        network: String(holding.network || ''),
-        address: String(chartAddress || ''),
-      });
-
-      return `
-      <tr class="holding-row holding-card-row" data-key="${holding.key}">
-        <td colspan="6">
-          <div class="holding-card">
-            <div class="holding-card-header">
-              <div class="token-cell">
-                <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
-                <div class="token-info">
-                  <div class="token-symbol">${holding.symbol}</div>
-                  <div class="token-name">${holding.name}</div>
-                </div>
-              </div>
-
-              <div class="holding-card-header-right">
-                <span class="chain-badge-small ${holding.chain}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
-                <div class="holding-card-actions" aria-label="Holding actions">
-                  <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
-                    <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-star" aria-hidden="true"></i>
-                  </a>
-                  <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
-                    <i class="fa-regular fa-copy" aria-hidden="true"></i>
-                  </a>
-                  <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
-                    <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
-                  </a>
-                  <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
-                    <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-                  </a>
-                  <div class="chart-popover hidden" aria-label="Chart links">
-                    <a class="chart-popover-link" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-                      <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64" alt="Dexscreener" />
-                    </a>
-                    <a class="chart-popover-link" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
-                      <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=dextools.io&sz=64" alt="Dextools" />
-                    </a>
-                    <a class="chart-popover-link" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-                      <img class="chart-popover-icon" src="https://www.google.com/s2/favicons?domain=birdeye.so&sz=64" alt="Birdeye" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="holding-card-metrics">
-              <div class="holding-metric">
-                <div class="holding-metric-label">Balance</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="balance" tabindex="0">${formatNumber(holding.balance)}</strong></div>
-              </div>
-              <div class="holding-metric">
-                <div class="holding-metric-label">Price</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="price" tabindex="0">${formatPrice(holding.price)}</strong></div>
-              </div>
-              <div class="holding-metric">
-                <div class="holding-metric-label">Value</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="value" tabindex="0">${formatCurrency(holding.value)}</strong></div>
-              </div>
-              <div class="holding-metric">
-                <div class="holding-metric-label">MCap</div>
-                <div class="holding-metric-value mono"><strong class="redacted-field" data-h-field="mcap" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div>
-              </div>
-              <div class="holding-metric">
-                <div class="holding-metric-label">PnL (24h)</div>
-                <div class="holding-metric-value mono" data-h-field="pnl">${formatPnlCell(holding.changeUsd)}</div>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-    `;
-    }).join('');
-
-    holdingsTableCache.key = cacheKey;
-    holdingsTableCache.useCardRows = useCardRows;
-    holdingsTableCache.page = page;
     holdingsTableCache.htmlBase = htmlBase;
     holdingsTableCache.totalItems = totalItems;
     holdingsTableCache.totalPages = totalPages;
@@ -5372,6 +5281,20 @@ function setupEventListeners() {
   });
 
   document.addEventListener('click', (e) => {
+    const hideToggle = e.target.closest('[data-action="holding-hide-toggle"]');
+    if (hideToggle) {
+      e.preventDefault();
+      const key = String(hideToggle.dataset.holdingKey || '').trim();
+      if (!key) return;
+      const wasHidden = isHoldingHidden(key);
+      setHoldingHidden(key, !wasHidden);
+      try {
+        showInlineStarToast(hideToggle, wasHidden ? 'Unhidden' : 'Hidden');
+      } catch {}
+      try { hapticFeedback('light'); } catch {}
+      return;
+    }
+
     const copyBtn = e.target.closest('a.holding-action[data-action="copy-contract"]');
     if (copyBtn) {
       e.preventDefault();
@@ -5835,6 +5758,14 @@ function setupEventListeners() {
     const parsed = getAddressItemsFromText(rawList.join('\n'));
     setAddressItems(parsed.items, { showWarning: parsed.truncated });
     setActiveProfileName(name);
+
+    try {
+      state.hiddenHoldings = loadHiddenHoldingsSet();
+      hiddenHoldingsVersion++;
+      applyShowHiddenHoldings(loadShowHiddenHoldingsPreference());
+      const sh = $('showHiddenHoldings');
+      if (sh) sh.checked = !!state.showHiddenHoldings;
+    } catch {}
     showStatus(`Loaded profile: ${name}`, 'success');
     hapticFeedback('light');
 
@@ -5993,6 +5924,11 @@ function setupEventListeners() {
 
   $('sortSelect')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
   $('hideDust')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
+  $('showHiddenHoldings')?.addEventListener('change', (e) => {
+    const el = e?.target;
+    const checked = !!(el && el.checked);
+    applyShowHiddenHoldings(checked);
+  });
 
   $('pagePrev')?.addEventListener('click', () => {
     setHoldingsPage((state.holdingsPage || 1) - 1);
@@ -6149,6 +6085,14 @@ function initialize() {
 
   state.watchlistTokens = loadWatchlistTokens();
   renderWatchlist();
+
+  try {
+    state.hiddenHoldings = loadHiddenHoldingsSet();
+    hiddenHoldingsVersion++;
+    applyShowHiddenHoldings(loadShowHiddenHoldingsPreference());
+    const sh = $('showHiddenHoldings');
+    if (sh) sh.checked = !!state.showHiddenHoldings;
+  } catch {}
 
   try { restorePortfolioSnapshot(); } catch {}
 

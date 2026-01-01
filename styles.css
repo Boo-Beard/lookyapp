@@ -2486,13 +2486,13 @@ body.ui-results .table-header {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "search search"
-      "sort dust";
+      "sort sort"
+      "dust dust"
+      "hidden hidden";
     gap: 10px;
-    align-items: stretch;
-    justify-content: stretch;
     padding: 12px;
-    border-radius: var(--radius-xl);
-    border: 3px solid var(--border);
+    border-radius: var(--radius-lg);
+    border-width: 3px;
     background: var(--panel);
     box-shadow: var(--shadow-sm);
   }
@@ -2515,6 +2515,10 @@ body.ui-results .table-header {
     justify-content: center;
     min-height: 44px;
     padding: 8px 10px;
+  }
+
+  #holdingsCard .table-controls .checkbox.show-hidden {
+    grid-area: hidden;
   }
 
   #holdingsCard .table-controls .search-input,
@@ -3077,6 +3081,27 @@ body.holdings-cards .holding-card-actions {
   align-items: center;
   gap: 8px;
   position: relative;
+}
+
+body.holdings-cards .holding-card .holding-hide-toggle {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 3px solid var(--border);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+body.holdings-cards .holding-card .holding-hide-toggle:hover {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .inline-star-toast {
