@@ -160,8 +160,8 @@ const STORAGE_KEY_HIDDEN_HOLDINGS = 'peeek:hiddenHoldingsV1';
 const STORAGE_KEY_SHOW_HIDDEN_HOLDINGS = 'peeek:showHiddenHoldingsV1';
 
 const STORAGE_KEY_LAST_SCAN_AT = 'peeek:lastScanAt';
-const SCAN_COOLDOWN_MS = 5 * 60 * 1000;
-const DISABLE_SCAN_COOLDOWN = true;
+const SCAN_COOLDOWN_MS = 60 * 1000;
+const DISABLE_SCAN_COOLDOWN = false;
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -5395,30 +5395,105 @@ function setupEventListeners() {
   const watchlistRefreshBtn = $('watchlistRefreshBtn');
   if (watchlistRefreshBtn) {
     let watchlistRefreshCooldownTimer = null;
+    let watchlistRefreshCooldownTick = null;
     watchlistRefreshBtn.addEventListener('click', async () => {
-      if (watchlistRefreshCooldownTimer) return;
+      if (watchlistRefreshCooldownTimer || watchlistRefreshCooldownTick) return;
 
       const labelEl = watchlistRefreshBtn.querySelector('span:not(.btn-icon)') || watchlistRefreshBtn.querySelector('span:last-child');
       const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
       try {
         watchlistRefreshBtn.disabled = true;
         await refreshWatchlistMetrics({ force: true });
-        if (labelEl) labelEl.textContent = 'Updated!';
         hapticFeedback('light');
 
-        watchlistRefreshCooldownTimer = window.setTimeout(() => {
+        const endsAt = Date.now() + 60_000;
+        const tick = () => {
+          const remaining = endsAt - Date.now();
+          if (remaining > 0) {
+            if (labelEl) labelEl.textContent = `Cooldown: ${formatCooldownMs(remaining)}`;
+            return;
+          }
+          try {
+            if (watchlistRefreshCooldownTick) window.clearInterval(watchlistRefreshCooldownTick);
+          } catch {}
+          watchlistRefreshCooldownTick = null;
           try {
             if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
             watchlistRefreshBtn.disabled = false;
           } catch {}
+        };
+
+        tick();
+        watchlistRefreshCooldownTick = window.setInterval(tick, 1000);
+        watchlistRefreshCooldownTimer = window.setTimeout(() => {
           watchlistRefreshCooldownTimer = null;
-        }, 30_000);
+        }, 60_000);
       } catch {
         try { hapticFeedback('error'); } catch {}
         try {
           if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
         } catch {}
+        try {
+          if (watchlistRefreshCooldownTick) window.clearInterval(watchlistRefreshCooldownTick);
+        } catch {}
+        watchlistRefreshCooldownTick = null;
+        watchlistRefreshCooldownTimer = null;
         watchlistRefreshBtn.disabled = false;
+      }
+    });
+  }
+
+  const portfolioRefreshBtn = $('portfolioRefreshBtn');
+  if (portfolioRefreshBtn) {
+    let portfolioRefreshCooldownTimer = null;
+    let portfolioRefreshCooldownTick = null;
+    portfolioRefreshBtn.addEventListener('click', async () => {
+      if (portfolioRefreshCooldownTimer || portfolioRefreshCooldownTick) return;
+
+      const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
+      const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
+      try {
+        portfolioRefreshBtn.disabled = true;
+        const wallets = Array.isArray(state.wallets) ? state.wallets : [];
+        const queueOverride = wallets
+          .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
+          .filter(w => w.wallet && (w.chain === 'solana' || w.chain === 'evm'));
+        await scanWallets({ queueOverride });
+        hapticFeedback('light');
+
+        const endsAt = Date.now() + 60_000;
+        const tick = () => {
+          const remaining = endsAt - Date.now();
+          if (remaining > 0) {
+            if (labelEl) labelEl.textContent = `Cooldown: ${formatCooldownMs(remaining)}`;
+            return;
+          }
+          try {
+            if (portfolioRefreshCooldownTick) window.clearInterval(portfolioRefreshCooldownTick);
+          } catch {}
+          portfolioRefreshCooldownTick = null;
+          try {
+            if (labelEl) labelEl.textContent = baseLabel || 'Rescan';
+            portfolioRefreshBtn.disabled = false;
+          } catch {}
+        };
+
+        tick();
+        portfolioRefreshCooldownTick = window.setInterval(tick, 1000);
+        portfolioRefreshCooldownTimer = window.setTimeout(() => {
+          portfolioRefreshCooldownTimer = null;
+        }, 60_000);
+      } catch {
+        try { hapticFeedback('error'); } catch {}
+        try {
+          if (labelEl) labelEl.textContent = baseLabel || 'Rescan';
+        } catch {}
+        try {
+          if (portfolioRefreshCooldownTick) window.clearInterval(portfolioRefreshCooldownTick);
+        } catch {}
+        portfolioRefreshCooldownTick = null;
+        portfolioRefreshCooldownTimer = null;
+        portfolioRefreshBtn.disabled = false;
       }
     });
   }
@@ -5435,40 +5510,6 @@ function setupEventListeners() {
     });
   }
 
-  const portfolioRefreshBtn = $('portfolioRefreshBtn');
-  if (portfolioRefreshBtn) {
-    let portfolioRefreshCooldownTimer = null;
-    portfolioRefreshBtn.addEventListener('click', async () => {
-      if (portfolioRefreshCooldownTimer) return;
-
-      const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
-      const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
-      try {
-        portfolioRefreshBtn.disabled = true;
-        const wallets = Array.isArray(state.wallets) ? state.wallets : [];
-        const queueOverride = wallets
-          .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
-          .filter((q) => q.wallet && (q.chain === 'solana' || q.chain === 'evm'));
-        await scanWallets({ queueOverride });
-        if (labelEl) labelEl.textContent = 'Updated!';
-        hapticFeedback('light');
-
-        portfolioRefreshCooldownTimer = window.setTimeout(() => {
-          try {
-            if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
-            portfolioRefreshBtn.disabled = false;
-          } catch {}
-          portfolioRefreshCooldownTimer = null;
-        }, 30_000);
-      } catch {
-        try { hapticFeedback('error'); } catch {}
-        try {
-          if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
-        } catch {}
-        portfolioRefreshBtn.disabled = false;
-      }
-    });
-  }
   $('portfolioModeBtn')?.addEventListener('click', () => {
     setMode('portfolio');
     hapticFeedback('light');
