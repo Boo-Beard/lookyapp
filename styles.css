@@ -2448,7 +2448,7 @@ body.ui-results .table-header {
 .table-controls {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   align-items: stretch;
 }
 
@@ -2457,6 +2457,7 @@ body.ui-results .table-header {
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
+  gap: 10px;
 }
 
 #holdingsCard .table-controls .search-box,
@@ -2522,13 +2523,13 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .checkbox-wrapper-10 .tgl + .tgl-btn {
   outline: 0;
   display: block;
-  width: 9.5em;
-  height: 2.35em;
+  width: 8.2em;
+  height: 2.05em;
   position: relative;
   cursor: pointer;
   user-select: none;
   border-radius: var(--radius-xl);
-  border: 4px solid var(--border);
+  border: 3px solid var(--border);
   box-shadow: var(--shadow-sm);
 }
 
@@ -2561,6 +2562,7 @@ body.ui-results .table-header {
   text-transform: uppercase;
   perspective: 100px;
   background: var(--panel);
+  font-size: 11px;
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-10 .tgl-flip + .tgl-btn:after,
@@ -2570,7 +2572,7 @@ body.ui-results .table-header {
   width: 100%;
   text-align: center;
   position: absolute;
-  line-height: 2.1em;
+  line-height: 1.95em;
   font-weight: 900;
   color: rgba(255, 255, 255, 0.96);
   top: 0;
@@ -2616,8 +2618,8 @@ body.ui-results .table-header {
       "search search"
       "sort sort"
       "dust hidden";
-    gap: 10px;
-    padding: 12px;
+    gap: 8px;
+    padding: 10px;
     border-radius: var(--radius-lg);
     border-width: 3px;
     background: var(--panel);
@@ -2650,10 +2652,10 @@ body.ui-results .table-header {
 
   #holdingsCard .table-controls .search-input,
   #holdingsCard .table-controls .select {
-    min-height: 44px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    font-size: 14px;
+    min-height: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 13px;
   }
 
   #holdingsCard .table-controls .search-icon {
