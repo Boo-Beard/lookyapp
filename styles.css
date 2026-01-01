@@ -2109,6 +2109,25 @@ body.is-scanning .logo-lockup .eye::after {
   pointer-events: none;
 }
 
+@keyframes copyPop {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-1px) scale(1.08); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+a.holding-action[data-action="copy-contract"] {
+  position: relative;
+}
+
+a.holding-action[data-action="copy-contract"] i {
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+a.holding-action[data-action="copy-contract"]:active i {
+  animation: copyPop 220ms ease-out;
+  filter: drop-shadow(0 6px 0 rgba(0,0,0,0.16));
+}
+
 :root[data-theme="dark"] #searchResults .search-token-actions .holding-action {
   background: rgba(255, 255, 255, 0.06);
 }

@@ -1677,7 +1677,6 @@ function addTokenToWatchlist(token) {
   const list = Array.isArray(state.watchlistTokens) ? [...state.watchlistTokens] : [];
   const exists = list.some((x) => normalizeWatchlistTokenKey(x) === key);
   if (exists) {
-    setWatchlistHint('Already in watchlist.', 'info');
     hapticFeedback('light');
     return true;
   }
@@ -1696,9 +1695,6 @@ function addTokenToWatchlist(token) {
   renderWatchlist();
   try { syncWatchlistStars(); } catch {}
   try { lockInputBodyHeight(); } catch {}
-  const addedName = (t?.symbol || t?.name || 'Token').toString().trim();
-  setWatchlistHint(`${addedName} added to watchlist`, 'info');
-  hapticFeedback('success');
   return true;
 }
 
@@ -1714,9 +1710,6 @@ function removeTokenFromWatchlistByKey(key) {
   saveWatchlistTokens(next);
   renderWatchlist();
   try { syncWatchlistStars(); } catch {}
-
-  const removedName = (removed?.symbol || removed?.name || 'Token').toString().trim();
-  setWatchlistHint(`${removedName} removed from watchlist`, 'info');
   hapticFeedback('light');
 }
 
@@ -5691,9 +5684,7 @@ function setupEventListeners() {
     if (copyBtn) {
       e.preventDefault();
       const addr = String(copyBtn.dataset.address || '').trim();
-      copyTextToClipboard(addr).then((ok) => {
-        showInlineStarToast(copyBtn, ok ? 'Copied' : 'Copy failed');
-      });
+      copyTextToClipboard(addr);
       try { hapticFeedback('light'); } catch {}
       return;
     }
@@ -5711,7 +5702,7 @@ function setupEventListeners() {
           const matchKey = getWatchlistMatchKey({ chain, network, address: addr });
           if (matchKey) {
             removeTokenFromWatchlistByKey(matchKey);
-            showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} removed from watchlist`);
+            try { hapticFeedback('light'); } catch {}
             return;
           }
 
@@ -5728,7 +5719,7 @@ function setupEventListeners() {
           const resolvedMatchKey = getWatchlistMatchKey({ chain: resolvedChain, network: resolvedNetwork, address: addr });
           if (resolvedMatchKey) {
             try { syncWatchlistStars(); } catch {}
-            showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} already in watchlist`);
+            try { hapticFeedback('light'); } catch {}
             return;
           }
 
@@ -5742,7 +5733,7 @@ function setupEventListeners() {
             logoUrl: model?.logoUrl || wlAdd.dataset.logoUrl,
             updatedAt: Date.now(),
           });
-          if (added) showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} added to watchlist`);
+          if (added) try { hapticFeedback('success'); } catch {}
         } catch {
           const chain = String(wlAdd.dataset.chain || '');
           const network = String(wlAdd.dataset.network || '');
@@ -5750,7 +5741,7 @@ function setupEventListeners() {
           const key = normalizeWatchlistTokenKey({ chain, network, address: addr });
           if (addr && isTokenInWatchlist({ chain, network, address: addr })) {
             removeTokenFromWatchlistByKey(key);
-            showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} removed from watchlist`);
+            try { hapticFeedback('light'); } catch {}
             return;
           }
 
@@ -5763,7 +5754,7 @@ function setupEventListeners() {
             logoUrl: wlAdd.dataset.logoUrl,
             updatedAt: Date.now(),
           });
-          if (added) showInlineStarToast(wlAdd, `${watchlistStarLabelFromEl(wlAdd)} added to watchlist`);
+          if (added) try { hapticFeedback('success'); } catch {}
         }
       })();
       return;
