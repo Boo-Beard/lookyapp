@@ -881,7 +881,12 @@ body.ui-results #resultsSection .card::before {
 
  .theme-toggle {
   position: static;
-  padding: 8px 10px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
  }
 
  .settings-wrap {
@@ -889,7 +894,12 @@ body.ui-results #resultsSection .card::before {
  }
 
  .settings-toggle {
-  padding: 8px 10px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
  }
 
  .settings-menu {
