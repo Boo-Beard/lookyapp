@@ -2514,6 +2514,7 @@ body.ui-results .table-header {
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55);
   cursor: pointer;
   position: relative;
+  overflow: hidden;
   transform: translateY(-1px);
 }
 
@@ -2530,13 +2531,14 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]::after {
   content: "";
   position: absolute;
-  left: 7px;
-  top: 3px;
+  left: 50%;
+  top: 50%;
   width: 7px;
   height: 12px;
   border-right: 4px solid rgba(0, 0, 0, 0.85);
   border-bottom: 4px solid rgba(0, 0, 0, 0.85);
-  transform: rotate(45deg) scale(0);
+  transform-origin: center;
+  transform: translate(-35%, -55%) rotate(45deg) scale(0);
   transition: transform 0.14s ease;
 }
 
@@ -2558,7 +2560,7 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]:checked::after {
-  transform: rotate(45deg) scale(1);
+  transform: translate(-35%, -55%) rotate(45deg) scale(1);
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"]:checked {
