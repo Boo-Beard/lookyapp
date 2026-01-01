@@ -1466,6 +1466,10 @@ function renderWatchlist() {
     const iconUrl = getTokenIconUrl(normalizeTokenLogoUrl(t.logoUrl), t.symbol || t.name);
     const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
     const key = normalizeWatchlistTokenKey(t);
+    const ipfsCid = extractIpfsCid(t.logoUrl) || extractIpfsCid(iconUrl);
+    const ipfsAttrs = ipfsCid
+      ? `data-ipfs-cid="${escapeAttribute(ipfsCid)}" data-gateway-idx="0"`
+      : '';
 
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
@@ -1490,7 +1494,7 @@ function renderWatchlist() {
         <div class="holding-card">
           <div class="holding-card-header">
             <div class="token-cell">
-              <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
+              <img class="token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsAttrs} onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
               <div class="token-info">
                 <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
                 <div class="token-name">${escapeHtml(t.name || '')}</div>
@@ -2016,9 +2020,10 @@ function normalizeTokenLogoUrl(url) {
 }
 
 const IPFS_GATEWAYS = [
-  'https://cloudflare-ipfs.com/ipfs/',
-  'https://gateway.pinata.cloud/ipfs/',
   'https://dweb.link/ipfs/',
+  'https://w3s.link/ipfs/',
+  'https://gateway.pinata.cloud/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
 ];
 
 const ipfsLogoResolveCache = new Map();
@@ -2110,6 +2115,20 @@ function handleSearchTokenIconError(imgEl, fallbackDataUri) {
       imgEl.src = fallbackDataUri;
       return;
     }
+
+    try {
+      const currentSrc = String(imgEl.currentSrc || imgEl.src || '');
+      if (currentSrc && /https?:\/\/(?:[^/]+\.)?ipfs\.io\/ipfs\//i.test(currentSrc)) {
+        imgEl.src = ipfsGatewayUrl(cid, 0);
+        return;
+      }
+      const usingKnownGateway = IPFS_GATEWAYS.some((base) => currentSrc.startsWith(base));
+      if (!usingKnownGateway) {
+        imgEl.dataset.gatewayIdx = '0';
+        imgEl.src = ipfsGatewayUrl(cid, 0);
+        return;
+      }
+    } catch {}
 
     const current = Number(imgEl.dataset.gatewayIdx || '0') || 0;
     const next = current + 1;
