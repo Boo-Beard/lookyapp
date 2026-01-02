@@ -214,6 +214,20 @@ body.modal-open {
   position: relative;
 }
 
+.holding-card-actions .holding-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+body.ui-reveal .holding-card-actions .holding-action,
+body.ui-reveal .holding-card-actions .holding-action * {
+  transition: none !important;
+  animation: none !important;
+}
+
 .token-cell,
 .holding-card-actions {
   overflow: visible;
