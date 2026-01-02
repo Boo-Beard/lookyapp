@@ -3111,7 +3111,8 @@ body.ui-results .holdings-table tbody tr:active {
   width: 3px;
   background: rgba(0, 194, 255, 0.0);
   box-shadow: none;
-  transition: all var(--transition-fast);
+  pointer-events: none;
+  transition: background var(--transition-fast);
 }
 
 .holding-row:hover::before {
@@ -3127,6 +3128,7 @@ body.ui-results .holdings-table tbody tr:active {
   opacity: 0;
   transition: opacity var(--transition-fast);
   box-shadow: none;
+  will-change: opacity;
 }
 
 body.ui-results .holding-row::after {
