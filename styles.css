@@ -1797,7 +1797,7 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 #watchlistBody .holding-action:hover {
-  transform: translateY(-2px) rotate(-0.6deg);
+  transform: translateY(-1px);
   background: rgba(0, 194, 255, 0.10);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
 }
@@ -1947,7 +1947,7 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 #searchResults .holding-action:hover {
-  transform: translateY(-2px) rotate(-0.6deg);
+  transform: translateY(-1px);
   background: rgba(0, 194, 255, 0.10);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
 }
@@ -3462,7 +3462,7 @@ body.holdings-cards .holding-action {
 }
 
 body.holdings-cards .holding-action:hover {
-  transform: translateY(-2px) rotate(-0.6deg);
+  transform: translateY(-1px);
   background: rgba(0, 194, 255, 0.10);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
 }
