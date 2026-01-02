@@ -667,9 +667,9 @@ width: 44px;
 }
 
 .summary-card .summary-value {
-  font-family: 'Oi', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-family: 'Knewave', system-ui, 'Comic Neue', sans-serif;
   font-size: clamp(17px, 2.9vw, 24px);
-  line-height: 1.08;
+  line-height: 1.05;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -679,7 +679,7 @@ width: 44px;
 @media (max-width: 420px) {
   .summary-card .summary-value {
     font-size: clamp(16px, 4.4vw, 22px);
-    line-height: 1.12;
+    line-height: 1.1;
   }
 }
 
@@ -1983,12 +1983,6 @@ body.is-scanning .logo-lockup .eye::after {
 #holdingsTable a.holding-action[data-action="watchlist-add"],
 #searchResults a.holding-action[data-action="watchlist-add"] {
   color: rgba(11, 11, 16, 0.82);
-}
-
-:root[data-theme="dark"] #watchlistBody a.holding-action[data-action="watchlist-add"],
-:root[data-theme="dark"] #holdingsTable a.holding-action[data-action="watchlist-add"],
-:root[data-theme="dark"] #searchResults a.holding-action[data-action="watchlist-add"] {
-  color: rgba(255, 255, 255, 0.86);
 }
 
 #watchlistBody a.holding-action[data-action="watchlist-add"].is-active,
