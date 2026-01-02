@@ -387,13 +387,13 @@ function renderSearchTokenActions(model) {
       </a>
       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-          <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dexscreener.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
           <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-          <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/birdeye.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
         </a>
       </div>
     </div>
@@ -4383,13 +4383,13 @@ function renderHoldingsTable() {
                   </a>
                   <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
                     <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-                      <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+                      <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dexscreener.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
                       <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-                      <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+                      <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/birdeye.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
                     </a>
                   </div>
                   <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
@@ -4497,13 +4497,13 @@ function renderHoldingsTable() {
                       </a>
                       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
                         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-                          <img class="chart-popover-icon" alt="" src="https://dexscreener.com/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+                          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dexscreener.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
                           <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-                          <img class="chart-popover-icon" alt="" src="https://birdeye.so/favicon.ico" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+                          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/birdeye.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
                         </a>
                       </div>
                     </div>
