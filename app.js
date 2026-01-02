@@ -3057,19 +3057,29 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
 
   let idx = 0;
   let mcapChanged = false;
+  let lastRenderAt = 0;
+  const maybeRender = () => {
+    const now = Date.now();
+    if (now - lastRenderAt < 1000) return;
+    lastRenderAt = now;
+    holdingsDataVersion++;
+    invalidateHoldingsTableCache();
+    scheduleRenderHoldingsTable();
+  };
 
   const worker = async () => {
     while (idx < candidates.length) {
       const current = candidates[idx++];
       if (!current) continue;
-      if (signal?.aborted) return;
+      if (signal?.aborted) break;
 
       const mcap = await getTokenMcap(current.address, current.chain, { signal });
-      if (signal?.aborted) return;
+      if (signal?.aborted) break;
 
       if (mcap && mcap > 0) {
         current.mcap = mcap;
         mcapChanged = true;
+        maybeRender();
       }
     }
   };
