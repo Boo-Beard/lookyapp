@@ -3056,21 +3056,7 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
   if (candidates.length === 0) return;
 
   let idx = 0;
-  let renderQueued = false;
   let mcapChanged = false;
-  const queueRender = () => {
-    if (renderQueued) return;
-    renderQueued = true;
-    window.setTimeout(() => {
-      renderQueued = false;
-      if (mcapChanged) {
-        mcapChanged = false;
-        holdingsDataVersion++;
-        invalidateHoldingsTableCache();
-      }
-      scheduleRenderHoldingsTable();
-    }, 150);
-  };
 
   const worker = async () => {
     while (idx < candidates.length) {
@@ -3084,14 +3070,20 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
       if (mcap && mcap > 0) {
         current.mcap = mcap;
         mcapChanged = true;
-        queueRender();
       }
     }
   };
 
-  for (let i = 0; i < MCAP_CONCURRENCY; i++) {
-    worker();
-  }
+  const workers = [];
+  for (let i = 0; i < MCAP_CONCURRENCY; i++) workers.push(worker());
+
+  Promise.all(workers).then(() => {
+    if (signal?.aborted) return;
+    if (!mcapChanged) return;
+    holdingsDataVersion++;
+    invalidateHoldingsTableCache();
+    scheduleRenderHoldingsTable();
+  }).catch(() => {});
 }
 
 async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
