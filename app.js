@@ -5194,27 +5194,25 @@ function setupEyeTracking() {
 
 function lockInputBodyHeight() {
   if (lockInputBodyHeight._raf) return;
+  const now = Date.now();
+  const lastAt = Number(lockInputBodyHeight._lastAt || 0) || 0;
+  if (now - lastAt < 250) return;
+  lockInputBodyHeight._lastAt = now;
   lockInputBodyHeight._raf = requestAnimationFrame(() => {
     lockInputBodyHeight._raf = null;
     const body = $('inputBody');
     if (!body) return;
 
-    const panels = [
-      $('portfolioPanel'),
-      $('watchlistPanel'),
-      $('searchPanel'),
-    ].filter(Boolean);
+    const portfolioPanel = $('portfolioPanel');
+    const watchlistPanel = $('watchlistPanel');
+    const searchPanel = $('searchPanel');
+    const panels = [portfolioPanel, watchlistPanel, searchPanel].filter(Boolean);
 
-    const measure = (el) => {
-      const wasHidden = el.classList.contains('hidden');
-      if (wasHidden) el.classList.remove('hidden');
-      const h = el.scrollHeight || 0;
-      if (wasHidden) el.classList.add('hidden');
-      return h;
-    };
+    const activePanel = panels.find((p) => !p.classList.contains('hidden')) || panels[0];
+    if (!activePanel) return;
 
-    const maxH = panels.reduce((m, el) => Math.max(m, measure(el)), 0);
-    if (maxH > 0) body.style.minHeight = `${maxH}px`;
+    const h = activePanel.scrollHeight || 0;
+    if (h > 0) body.style.minHeight = `${h}px`;
   });
 }
 
