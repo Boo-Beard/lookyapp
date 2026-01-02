@@ -366,6 +366,12 @@ function renderSearchTokenActions(model) {
   const network = String(model?.network || '');
   const address = String(model?.address || '').trim();
 
+  const chartIconDexscreener = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#0b0b10" d="M4 18.5v-13a1 1 0 0 1 1.6-.8l6.6 4.9a1 1 0 0 1 0 1.6l-6.6 4.9A1 1 0 0 1 4 18.5Zm14.2-13.3a1 1 0 0 1 1.4.2c1 1.4 1.5 3 1.5 4.6s-.5 3.2-1.5 4.6a1 1 0 1 1-1.6-1.2c.7-1 1.1-2.2 1.1-3.4s-.4-2.4-1.1-3.4a1 1 0 0 1 .2-1.4Z"/></svg>')}`;
+  const chartIconBirdeye = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#0b0b10" d="M12 4c5.5 0 10 4 10 8s-4.5 8-10 8S2 16 2 12 6.5 4 12 4Zm0 3.2c-2.8 0-5 2.1-5 4.8s2.2 4.8 5 4.8 5-2.1 5-4.8-2.2-4.8-5-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"/></svg>')}`;
+
+  // expose for other renderers (holdings table/cards) so we avoid cross-origin icon loads
+  window.__peeekChartIcons = window.__peeekChartIcons || { dexscreener: chartIconDexscreener, birdeye: chartIconBirdeye };
+
   return `
     <div class="holding-card-actions search-token-actions" aria-label="Token links">
       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
@@ -387,13 +393,13 @@ function renderSearchTokenActions(model) {
       </a>
       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dexscreener.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+          <img class="chart-popover-icon" alt="" src="${chartIconDexscreener}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
           <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/birdeye.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+          <img class="chart-popover-icon" alt="" src="${chartIconBirdeye}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
         </a>
       </div>
     </div>
@@ -4383,13 +4389,13 @@ function renderHoldingsTable() {
                   </a>
                   <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
                     <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-                      <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dexscreener.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+                      <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.dexscreener) ? window.__peeekChartIcons.dexscreener : 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%230b0b10%22%20d%3D%22M4%2018.5v-13a1%201%200%200%201%201.6-.8l6.6%204.9a1%201%200%200%201%200%201.6l-6.6%204.9A1%201%200%200%201%204%2018.5Zm14.2-13.3a1%201%200%200%201%201.4.2c1%201.4%201.5%203%201.5%204.6s-.5%203.2-1.5%204.6a1%201%200%201%201-1.6-1.2c.7-1%201.1-2.2%201.1-3.4s-.4-2.4-1.1-3.4a1%201%200%200%201%20.2-1.4Z%22%2F%3E%3C%2Fsvg%3E'}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
                       <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                     </a>
                     <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-                      <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/birdeye.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+                      <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.birdeye) ? window.__peeekChartIcons.birdeye : 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%230b0b10%22%20d%3D%22M12%204c5.5%200%2010%204%2010%208s-4.5%208-10%208S2%2016%202%2012%206.5%204%2012%204Zm0%203.2c-2.8%200-5%202.1-5%204.8s2.2%204.8%205%204.8%205-2.1%205-4.8-2.2-4.8-5-4.8Zm0%202.2a2.6%202.6%200%201%201%200%205.2%202.6%202.6%200%200%201%200-5.2Z%22%2F%3E%3C%2Fsvg%3E'}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
                     </a>
                   </div>
                   <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
@@ -4497,13 +4503,13 @@ function renderHoldingsTable() {
                       </a>
                       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
                         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-                          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/dexscreener.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+                          <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.dexscreener) ? window.__peeekChartIcons.dexscreener : 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%230b0b10%22%20d%3D%22M4%2018.5v-13a1%201%200%200%201%201.6-.8l6.6%204.9a1%201%200%200%201%200%201.6l-6.6%204.9A1%201%200%200%201%204%2018.5Zm14.2-13.3a1%201%200%200%201%201.4.2c1%201.4%201.5%203%201.5%204.6s-.5%203.2-1.5%204.6a1%201%200%201%201-1.6-1.2c.7-1%201.1-2.2%201.1-3.4s-.4-2.4-1.1-3.4a1%201%200%200%201%20.2-1.4Z%22%2F%3E%3C%2Fsvg%3E'}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
                           <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
                         </a>
                         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-                          <img class="chart-popover-icon" alt="" src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/birdeye.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+                          <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.birdeye) ? window.__peeekChartIcons.birdeye : 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%230b0b10%22%20d%3D%22M12%204c5.5%200%2010%204%2010%208s-4.5%208-10%208S2%2016%202%2012%206.5%204%2012%204Zm0%203.2c-2.8%200-5%202.1-5%204.8s2.2%204.8%205%204.8%205-2.1%205-4.8-2.2-4.8-5-4.8Zm0%202.2a2.6%202.6%200%201%201%200%205.2%202.6%202.6%200%200%201%200-5.2Z%22%2F%3E%3C%2Fsvg%3E'}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
                         </a>
                       </div>
                     </div>
