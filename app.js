@@ -1349,7 +1349,7 @@ function syncWatchlistStars() {
       const address = a.dataset.address;
       const active = isTokenInWatchlist({ chain, network, address });
       a.classList.toggle('is-active', active);
-      a.setAttribute('aria-label', active ? 'Remove from Watchlist' : 'Add to Watchlist');
+      a.setAttribute('aria-label', active ? 'Remove from Favorites' : 'Add to Favorites');
 
       const icon = a.querySelector('i');
       if (!icon) return;
@@ -1460,7 +1460,7 @@ function renderWatchlist() {
   if (!list.length) {
     body.innerHTML = `
       <div class="empty-state">
-        <div class="empty-text">Your watchlist is empty. Add tokens using the <strong>star</strong> on Search results or Portfolio holdings.</div>
+        <div class="empty-text">Your favorites are empty. Add tokens using the <strong>heart</strong> on Search results or Portfolio holdings.</div>
       </div>
     `;
     try { lockInputBodyHeight(); } catch {}
@@ -1506,14 +1506,14 @@ function renderWatchlist() {
 
             <div class="holding-card-header-right">
               ${chainBadge ? `<span class=\"chain-badge-small ${escapeAttribute(String(t.chain || ''))}\">${escapeHtml(chainBadge)}</span>` : ''}
-              <div class="holding-card-actions" aria-label="Watchlist actions">
+              <div class="holding-card-actions" aria-label="Favorites actions">
                 <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
                   <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
                 </a>
                 <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(t.address || ''))}" aria-label="Copy contract address">
                   <i class="fa-regular fa-copy" aria-hidden="true"></i>
                 </a>
-                <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Watchlist">
+                <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Favorites">
                   <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </a>
               </div>
