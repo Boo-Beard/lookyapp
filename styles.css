@@ -2022,6 +2022,12 @@ body.is-scanning .logo-lockup .eye::after {
   color: rgba(11, 11, 16, 0.82);
 }
 
+ :root[data-theme="dark"] #watchlistBody a.holding-action[data-action="watchlist-add"]:not(.is-active),
+ :root[data-theme="dark"] #holdingsTable a.holding-action[data-action="watchlist-add"]:not(.is-active),
+ :root[data-theme="dark"] #searchResults a.holding-action[data-action="watchlist-add"]:not(.is-active) {
+   color: rgba(255, 255, 255, 0.86);
+ }
+
 #watchlistBody a.holding-action[data-action="watchlist-add"].is-active,
 #holdingsTable a.holding-action[data-action="watchlist-add"].is-active,
 #searchResults a.holding-action[data-action="watchlist-add"].is-active {
