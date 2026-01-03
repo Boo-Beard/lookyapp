@@ -3440,7 +3440,6 @@ body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not
 }
 
 body.holdings-cards .holdings-table {
-  border-spacing: 0 12px;
   table-layout: auto;
 }
 
