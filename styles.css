@@ -2928,22 +2928,29 @@ body.ui-results .table-header {
   }
 
   #holdingsCard .table-controls .search-box {
-    width: 100%;
-    max-width: none;
+    flex: 1 1 260px;
+    min-width: 220px;
+    width: auto;
+    max-width: 520px;
   }
 
   #holdingsCard .table-controls .select {
-    width: 100%;
-    min-width: 0;
+    flex: 0 1 220px;
+    min-width: 200px;
+    width: auto;
   }
 
   #holdingsCard .table-controls .dust-toggle {
-    width: 100%;
+    flex: 1 1 220px;
+    min-width: 200px;
+    width: auto;
     justify-content: center;
   }
 
   #holdingsCard .table-controls .show-hidden-toggle {
-    width: 100%;
+    flex: 1 1 220px;
+    min-width: 200px;
+    width: auto;
     justify-content: center;
   }
 
