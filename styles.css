@@ -528,7 +528,6 @@ body.ui-results #resultsSection {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  align-items: center;
 }
 
 body.ui-results #resultsSection > * {
@@ -563,6 +562,15 @@ body.ui-results .amend-wallets-row {
   width: min(980px, calc(100% - 24px));
   margin-left: auto;
   margin-right: auto;
+}
+
+body.ui-results #inputHeaderBar {
+  display: flex;
+  justify-content: center;
+}
+
+body.ui-results #inputHeaderBar .logo-lockup {
+  flex: 0 1 auto;
 }
 
 body.ui-results .amend-wallets-row .btn {
