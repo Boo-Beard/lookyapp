@@ -3561,6 +3561,13 @@ body.holdings-cards .holding-card-row {
   background: transparent !important;
 }
 
+body.holdings-cards .holding-card-row,
+body.holdings-cards .holding-card-row > td,
+body.holdings-cards .holding-card-row .holding-card,
+body.holdings-cards .holding-card-row .holding-card * {
+  pointer-events: auto;
+}
+
 body.holdings-cards .holding-card-row:hover::before,
 body.holdings-cards .holding-card-row:hover::after {
   opacity: 0;

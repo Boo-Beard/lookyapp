@@ -5813,6 +5813,7 @@ function setupEventListeners() {
     const whatIfBtn = e.target.closest('button[data-action="whatif-mult"]');
     if (whatIfBtn) {
       e.preventDefault();
+      try { e.stopPropagation(); } catch {}
       const key = String(whatIfBtn.dataset.holdingKey || '').trim();
       const mult = Number(whatIfBtn.dataset.mult || 1) || 1;
       if (!key) return;
@@ -5820,6 +5821,7 @@ function setupEventListeners() {
       try { scheduleRenderHoldingsTable(); } catch {}
       try { scheduleHoldingWhatIfReset(key); } catch {}
       try { hapticFeedback('light'); } catch {}
+      try { console.debug('[whatif] applied', { key, mult }); } catch {}
       return;
     }
 
