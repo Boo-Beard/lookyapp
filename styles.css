@@ -2911,21 +2911,20 @@ body.ui-results .table-header {
 
 @media (max-width: 820px) {
   #holdingsCard .table-controls {
-display: grid;
-        /* grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); */
-        grid-template-areas:
-        "search sort"
-        "dust hidden";
-        /* width: fit-content; */
-        /* max-width: calc(100% - 7px); */
-        margin: 0 auto;
-        /* gap: 8px; */
-        padding: 10px;
-        /* border-radius: var(--radius-lg); */
-        /* border-width: 3px; */
-        /* background: var(--panel); */
-        /* box-shadow: var(--shadow-sm); */
-    }
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    grid-template-areas:
+      "search sort"
+      "dust hidden";
+    width: fit-content;
+    max-width: calc(100% - 24px);
+    margin: 0 auto;
+    gap: 8px;
+    padding: 10px;
+    border-radius: var(--radius-lg);
+    border-width: 3px;
+    background: var(--panel);
+    box-shadow: var(--shadow-sm);
   }
 
   #holdingsCard .table-controls .search-box {
@@ -2968,11 +2967,17 @@ display: grid;
     padding-left: 38px;
   }
 
+}
 
 .table-pagination {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+#holdingsCard .table-pagination {
+  width: 100%;
+  justify-content: space-between;
 }
 
 .table-pagination-top {
