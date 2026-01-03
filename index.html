@@ -204,6 +204,10 @@
             <span class="btn-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></span>
             <span>Manage Wallets</span>
           </button>
+          <button id="portfolioRefreshBtn" class="btn btn-outline" type="button">
+            <span class="btn-icon"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></span>
+            <span>Rescan</span>
+          </button>
           <button id="redactedToggleBtn" class="btn btn-outline" type="button">
             <span class="btn-icon"><i class="fa-solid fa-user-secret" aria-hidden="true"></i></span>
             <span>Hide Balances</span>
@@ -271,20 +275,12 @@
           </div>
         </div>
 
-        <div class="portfolio-refresh-row">
-          <button id="portfolioRefreshBtn" class="btn btn-outline" type="button">
-            <span class="btn-icon"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></span>
-            <span>Rescan</span>
-          </button>
-        </div>
-
         <div class="card table-section is-collapsed" id="holdingsCard">
           <div class="table-header">
             <div class="collapsible-header-left">
               <h3 class="table-title">Portfolio Holdings</h3>
               <p class="table-subtitle">Sorted by value • Use the icons to open explorer, chart, or wallet</p>
             </div>
-            
             <div class="section-scan-indicator" aria-hidden="true"></div>
             
             <button id="holdingsToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio Holdings" aria-controls="holdingsContent" aria-expanded="false">
