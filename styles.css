@@ -554,15 +554,25 @@ body.ui-results .amend-wallets-row {
   box-shadow: var(--shadow-md);
   padding: 12px;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
 }
 
 body.ui-results .amend-wallets-row .btn {
   width: auto;
+  margin: 0;
+  min-height: 44px;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-  margin-top: 6px;
+  min-width: 130px;
+}
+
+@media (max-width: 640px) {
+  body.ui-results .amend-wallets-row {
+    justify-content: center;
+  }
 }
 
 body.is-redacted .redacted-field {
