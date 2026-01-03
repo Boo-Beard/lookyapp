@@ -3281,6 +3281,12 @@ function updateSummary() {
     }
 
     totalPnl24hEl.textContent = formatCurrency(totalPnlUsd);
+    try {
+      totalPnl24hEl.classList.remove('pnl-positive', 'pnl-negative', 'pnl-flat');
+      const v = Number(totalPnlUsd || 0) || 0;
+      const cls = v > 0.0001 ? 'pnl-positive' : v < -0.0001 ? 'pnl-negative' : 'pnl-flat';
+      totalPnl24hEl.classList.add(cls);
+    } catch {}
 
     const totalPnl24hPctEl = $('totalPnl24hPct');
     if (totalPnl24hPctEl) {
