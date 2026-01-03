@@ -813,8 +813,8 @@ width: 44px;
 
 @media (max-width: 420px) {
   .summary-card .summary-value {
-    font-size: clamp(16px, 4.4vw, 22px);
-    line-height: 1.1;
+    font-size: clamp(25px, 2.9vw, 24px);
+    line-height: 1.05;
   }
 }
 
