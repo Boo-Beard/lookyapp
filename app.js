@@ -4636,10 +4636,19 @@ function renderHoldingsTable() {
         const hideIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
         const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
 
+        const basePriceNum = Number(holding.price || 0) || 0;
+        const baseMcapNum = Number(holding.mcap || 0) || 0;
+        const baseValueNum = (Number.isFinite(Number(holding.value))
+          ? Number(holding.value)
+          : ((Number(holding.balance || 0) || 0) * (Number(holding.price || 0) || 0))) || 0;
+        const basePriceText = basePriceNum > 0 ? formatPrice(basePriceNum) : '—';
+        const baseMcapText = baseMcapNum > 0 ? formatCurrency(baseMcapNum) : '—';
+        const baseValueText = formatCurrency(baseValueNum);
+
         return `
           <tr class="holding-row holding-card-row" data-key="${holding.key}">
             <td colspan="6">
-              <div class="holding-card">
+              <div class="holding-card" data-whatif-card="1" data-holding-key="${escapeAttribute(String(holdingWhatIfKey(holding) || ''))}" data-whatif-base-price="${escapeAttribute(String(basePriceNum))}" data-whatif-base-mcap="${escapeAttribute(String(baseMcapNum))}" data-whatif-base-value="${escapeAttribute(String(baseValueNum))}" data-whatif-base-price-text="${escapeAttribute(String(basePriceText))}" data-whatif-base-mcap-text="${escapeAttribute(String(baseMcapText))}" data-whatif-base-value-text="${escapeAttribute(String(baseValueText))}">
                 <div class="holding-card-header">
                   <div class="token-cell">
                     ${(() => {
