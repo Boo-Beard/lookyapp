@@ -531,9 +531,7 @@ body.ui-results #resultsSection {
   --results-rail: min(980px, calc(100% - 24px));
 }
 
-body.ui-results #resultsSection > * {
-  margin: 0;
-}
+
 
 body.ui-results #summaryGrid {
   margin: 0;
@@ -1093,9 +1091,9 @@ body.ui-results .input-section.is-minimized {
 }
 
 .mode-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
+  display: inline-grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   border: 2px solid var(--border);
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.55);
@@ -1120,6 +1118,10 @@ body.ui-results .input-section.is-minimized {
   text-transform: uppercase;
   color: var(--text-tertiary);
   padding: 8px 10px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   user-select: none;
   transition: background var(--transition-fast), transform var(--transition-fast);
