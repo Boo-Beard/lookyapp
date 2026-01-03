@@ -49,6 +49,12 @@ function applyHoldingWhatIfToCard(cardEl, mult) {
     if (baseMcapText) setTextSafely(mcapEl, baseMcapText);
     if (baseValueText) setTextSafely(valueEl, baseValueText);
     try { valueEl?.classList?.remove('is-whatif'); } catch {}
+    try {
+      card.classList.remove('is-whatif-active');
+      priceEl?.classList?.remove('is-whatif-changed');
+      mcapEl?.classList?.remove('is-whatif-changed');
+      valueEl?.classList?.remove('is-whatif-changed');
+    } catch {}
     return;
   }
 
@@ -60,6 +66,12 @@ function applyHoldingWhatIfToCard(cardEl, mult) {
   if (Number.isFinite(nextMcap) && baseMcap > 0) setTextSafely(mcapEl, formatCurrency(nextMcap));
   if (Number.isFinite(nextValue) && baseValue >= 0) setTextSafely(valueEl, `${formatCurrency(nextValue)} (${nextMult}x)`);
   try { valueEl?.classList?.add('is-whatif'); } catch {}
+  try {
+    card.classList.add('is-whatif-active');
+    priceEl?.classList?.add('is-whatif-changed');
+    mcapEl?.classList?.add('is-whatif-changed');
+    valueEl?.classList?.add('is-whatif-changed');
+  } catch {}
 }
 
 function holdingWhatIfKey(h) {
