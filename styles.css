@@ -3463,6 +3463,10 @@ body.holdings-cards .holding-card {
   position: relative;
   left: auto;
   transform: none;
+  border-radius: var(--radius-xl);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
 
 body.holdings-cards .holding-card-header {
