@@ -3718,6 +3718,9 @@ body.holdings-cards .holding-card-metrics {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 body.holdings-cards .holding-metric {
@@ -3725,6 +3728,7 @@ body.holdings-cards .holding-metric {
   border: 2px solid var(--border);
   background: var(--panel);
   padding: 10px;
+  pointer-events: auto;
 }
 
 body.holdings-cards .holding-metric-label {
