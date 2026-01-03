@@ -3441,6 +3441,12 @@ body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not
 
 body.holdings-cards .holdings-table {
   border-spacing: 0 12px;
+  table-layout: auto;
+}
+
+body.holdings-cards .holdings-table th,
+body.holdings-cards .holdings-table td {
+  width: 100% !important;
 }
 
 body.holdings-cards .holdings-table td {
