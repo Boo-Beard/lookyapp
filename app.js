@@ -21,6 +21,47 @@ const WHATIF_AUTO_RESET_MS = 10_000;
 const whatIfHolding = new Map();
 const whatIfTimers = new Map();
 
+function setTextSafely(el, text) {
+  try {
+    if (!el) return;
+    el.textContent = String(text);
+  } catch {}
+}
+
+function applyHoldingWhatIfToCard(cardEl, mult) {
+  const card = cardEl;
+  if (!card) return;
+
+  const priceEl = card.querySelector('[data-whatif-field="price"]');
+  const mcapEl = card.querySelector('[data-whatif-field="mcap"]');
+  const valueEl = card.querySelector('[data-whatif-field="value"]');
+
+  const basePrice = Number(card.getAttribute('data-whatif-base-price') || 0) || 0;
+  const baseMcap = Number(card.getAttribute('data-whatif-base-mcap') || 0) || 0;
+  const baseValue = Number(card.getAttribute('data-whatif-base-value') || 0) || 0;
+  const nextMult = Number(mult || 1) || 1;
+
+  if (nextMult === 1) {
+    const basePriceText = card.getAttribute('data-whatif-base-price-text') || '';
+    const baseMcapText = card.getAttribute('data-whatif-base-mcap-text') || '';
+    const baseValueText = card.getAttribute('data-whatif-base-value-text') || '';
+    if (basePriceText) setTextSafely(priceEl, basePriceText);
+    if (baseMcapText) setTextSafely(mcapEl, baseMcapText);
+    if (baseValueText) setTextSafely(valueEl, baseValueText);
+    try { valueEl?.classList?.remove('is-whatif'); } catch {}
+    return;
+  }
+
+  const nextPrice = basePrice * nextMult;
+  const nextMcap = baseMcap * nextMult;
+  const nextValue = baseValue * nextMult;
+
+  if (Number.isFinite(nextPrice) && basePrice > 0) setTextSafely(priceEl, formatPrice(nextPrice));
+  if (Number.isFinite(nextMcap) && baseMcap > 0) setTextSafely(mcapEl, formatCurrency(nextMcap));
+  if (Number.isFinite(nextValue) && baseValue >= 0) setTextSafely(valueEl, `${formatCurrency(nextValue)} (${nextMult}x)`);
+  try { valueEl?.classList?.add('is-whatif'); } catch {}
+}
+
 function holdingWhatIfKey(h) {
   const chain = String(h?.chain || '').trim();
   const address = String(h?.address || '').trim();
@@ -38,7 +79,15 @@ function scheduleHoldingWhatIfReset(key, ms = WHATIF_AUTO_RESET_MS) {
     const t = window.setTimeout(() => {
       try { whatIfHolding.delete(key); } catch {}
       try { whatIfTimers.delete(key); } catch {}
-      try { scheduleRenderHoldingsTable(); } catch {}
+      try {
+        const card = document.querySelector(`.holding-card[data-whatif-card="1"][data-holding-key="${CSS.escape(key)}"]`);
+        if (card) {
+          applyHoldingWhatIfToCard(card, 1);
+          try {
+            card.querySelectorAll('button.whatif-chip').forEach((b) => b.classList.toggle('is-active', String(b.dataset.mult || '1') === '1'));
+          } catch {}
+        }
+      } catch {}
     }, Math.max(1000, Number(ms) || WHATIF_AUTO_RESET_MS));
     whatIfTimers.set(key, t);
   } catch {}
@@ -1615,8 +1664,16 @@ function renderWatchlist() {
         const mult = Number(btn.dataset.mult || 1) || 1;
         if (!key) return;
         try { whatIfHolding.set(key, mult); } catch {}
-        try { invalidateHoldingsTableCache(); } catch {}
-        try { scheduleRenderHoldingsTable(); } catch {}
+        try {
+          const card = btn.closest('.holding-card');
+          if (card) applyHoldingWhatIfToCard(card, mult);
+          const chipsWrap = btn.closest('.whatif-chips');
+          if (chipsWrap) {
+            chipsWrap.querySelectorAll('button.whatif-chip').forEach((b) => {
+              b.classList.toggle('is-active', b === btn);
+            });
+          }
+        } catch {}
         try { scheduleHoldingWhatIfReset(key); } catch {}
         try { hapticFeedback('light'); } catch {}
       });
@@ -4309,7 +4366,7 @@ function renderHoldingsTable() {
         return `
           <tr class="skeleton-row holding-card-row">
             <td colspan="6">
-              <div class="holding-card">
+              <div class="holding-card" data-whatif-card="1" data-holding-key="${escapeAttribute(String(holdingWhatIfKey(holding) || ''))}" data-whatif-base-price="${escapeAttribute(String(Number(holding.price || 0) || 0))}" data-whatif-base-mcap="${escapeAttribute(String(Number(holding.mcap || 0) || 0))}" data-whatif-base-value="${escapeAttribute(String(Number(holding.value || 0) || 0))}" data-whatif-base-price-text="${escapeAttribute(String(formatPrice(holding.price) || '—'))}" data-whatif-base-mcap-text="${escapeAttribute(String(holding.mcap ? formatCurrency(holding.mcap) : '—'))}" data-whatif-base-value-text="${escapeAttribute(String(formatCurrency(holding.value) || '—'))}">
                 <div class="holding-card-header">
                   <div class="token-cell">
                     <div class="skeleton-line w-40"></div>
@@ -4602,7 +4659,7 @@ function renderHoldingsTable() {
 
                 <div class="holding-card-metrics">
                   <div class="holding-metric"><div class="holding-metric-label">Balance</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div></div>
-                  <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="price">${formatPrice(holding.price)}</strong></div></div>
                   ${(() => {
                     const key = holdingWhatIfKey(holding);
                     const mult = key ? (Number(whatIfHolding.get(key) || 1) || 1) : 1;
@@ -4614,10 +4671,10 @@ function renderHoldingsTable() {
                     const valueClass = active ? 'holding-metric-value is-whatif' : 'holding-metric-value';
                     return `<div class="holding-metric">
                       <div class="holding-metric-label">Value</div>
-                      <div class="${valueClass} mono"><strong class="redacted-field" tabindex="0">${escapeHtml(valueText)}</strong></div>
+                      <div class="${valueClass} mono"><strong class="redacted-field" tabindex="0" data-whatif-field="value">${escapeHtml(valueText)}</strong></div>
                     </div>`;
                   })()}
-                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
                   ${(() => {
                     const key = holdingWhatIfKey(holding);
