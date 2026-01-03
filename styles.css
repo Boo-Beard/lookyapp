@@ -561,8 +561,16 @@ body.ui-results .amend-wallets-row .btn {
   width: auto;
 }
 
-body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-  margin-top: 6px;
+.portfolio-refresh-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 0 14px;
+}
+
+@media (max-width: 640px) {
+  .portfolio-refresh-row {
+    justify-content: center;
+  }
 }
 
 body.is-redacted .redacted-field {
