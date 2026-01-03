@@ -628,6 +628,35 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::before {
   pointer-events: none;
 }
 
+.btn.is-cooldown,
+#scanButton.is-cooldown,
+#watchlistRefreshBtn.is-cooldown,
+#portfolioRefreshBtn.is-cooldown {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.is-cooldown::before,
+#scanButton.is-cooldown::before,
+#watchlistRefreshBtn.is-cooldown::before,
+#portfolioRefreshBtn.is-cooldown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--panel);
+  transform: translateX(calc((-100% + (var(--cooldown-pct, 0) * 100%))));
+  transition: transform 900ms linear;
+  pointer-events: none;
+}
+
+.btn.is-cooldown > *,
+#scanButton.is-cooldown > *,
+#watchlistRefreshBtn.is-cooldown > *,
+#portfolioRefreshBtn.is-cooldown > * {
+  position: relative;
+  z-index: 1;
+}
+
 @media (max-width: 640px) {
   body.ui-results .amend-wallets-row {
     padding: 10px;
@@ -836,6 +865,12 @@ width: 44px;
 @media (max-width: 980px) {
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .summary-card {
+    height: 100%;
+    min-height: 142px;
   }
 }
 

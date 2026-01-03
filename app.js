@@ -631,6 +631,11 @@ function updateScanCooldownUi() {
     }
     btn.disabled = false;
     btn.innerHTML = '<span>Scan</span>';
+    try {
+      btn.classList.remove('is-cooldown');
+      btn.style.removeProperty('--cooldown-pct');
+      btn.removeAttribute('aria-busy');
+    } catch {}
     return;
   }
 
@@ -639,7 +644,13 @@ function updateScanCooldownUi() {
 
   if (remaining > 0) {
     btn.disabled = true;
-    btn.innerHTML = `<span>${formatCooldownMs(remaining)}</span>`;
+    btn.innerHTML = '<span>Scan</span>';
+    try {
+      const pct = Math.max(0, Math.min(1, 1 - (remaining / SCAN_COOLDOWN_MS)));
+      btn.classList.add('is-cooldown');
+      btn.style.setProperty('--cooldown-pct', String(pct));
+      btn.setAttribute('aria-busy', 'true');
+    } catch {}
     if (!scanCooldownTimer) {
       scanCooldownTimer = window.setInterval(updateScanCooldownUi, 1000);
     }
@@ -652,6 +663,11 @@ function updateScanCooldownUi() {
   }
   btn.disabled = false;
   btn.innerHTML = '<span>Scan</span>';
+  try {
+    btn.classList.remove('is-cooldown');
+    btn.style.removeProperty('--cooldown-pct');
+    btn.removeAttribute('aria-busy');
+  } catch {}
 }
 
 async function fetchSolTokenOverview(addr, { signal } = {}) {
@@ -5547,6 +5563,12 @@ function setupEventListeners() {
       const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
       try {
         watchlistRefreshBtn.disabled = true;
+        try {
+          watchlistRefreshBtn.classList.add('is-cooldown');
+          watchlistRefreshBtn.style.setProperty('--cooldown-pct', '0');
+          watchlistRefreshBtn.setAttribute('aria-busy', 'true');
+          if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
+        } catch {}
         await refreshWatchlistMetrics({ force: true });
         hapticFeedback('light');
 
@@ -5554,7 +5576,8 @@ function setupEventListeners() {
         const tick = () => {
           const remaining = endsAt - Date.now();
           if (remaining > 0) {
-            if (labelEl) labelEl.textContent = formatCooldownMs(remaining);
+            const pct = Math.max(0, Math.min(1, 1 - (remaining / 60_000)));
+            try { watchlistRefreshBtn.style.setProperty('--cooldown-pct', String(pct)); } catch {}
             return;
           }
           try {
@@ -5562,8 +5585,10 @@ function setupEventListeners() {
           } catch {}
           watchlistRefreshCooldownTick = null;
           try {
-            if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
             watchlistRefreshBtn.disabled = false;
+            watchlistRefreshBtn.classList.remove('is-cooldown');
+            watchlistRefreshBtn.style.removeProperty('--cooldown-pct');
+            watchlistRefreshBtn.removeAttribute('aria-busy');
           } catch {}
         };
 
@@ -5575,6 +5600,9 @@ function setupEventListeners() {
       } catch {
         try { hapticFeedback('error'); } catch {}
         try {
+          watchlistRefreshBtn.classList.remove('is-cooldown');
+          watchlistRefreshBtn.style.removeProperty('--cooldown-pct');
+          watchlistRefreshBtn.removeAttribute('aria-busy');
           if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
         } catch {}
         try {
