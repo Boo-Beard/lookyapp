@@ -3066,6 +3066,7 @@ body.ui-results .table-header {
 
 #holdingsCard .table-pagination {
   width: 100%;
+      margin-top: 20px;
 }
 
 .table-pagination-top {
@@ -3537,6 +3538,8 @@ body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not
 
 body.holdings-cards .holdings-table {
   table-layout: auto;
+      margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 body.holdings-cards .holdings-table th,
@@ -3802,6 +3805,10 @@ body.holdings-cards .holding-card.is-whatif-active [data-whatif-field].is-whatif
   border-radius: 8px;
   padding: 2px 6px;
 }
+
+ :root[data-theme="dark"] body.holdings-cards .holding-card.is-whatif-active [data-whatif-field].is-whatif-changed {
+   border-color: var(--peeek-accent);
+ }
 
 body.holdings-cards .holding-metric-value.is-whatif {
   animation: whatifPulse 450ms ease-out;
