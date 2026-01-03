@@ -531,10 +531,6 @@ body.ui-results #resultsSection {
   --results-rail: min(980px, calc(100% - 24px));
 }
 
-body.ui-results #resultsSection > * {
-  margin: 0;
-}
-
 
 
 body.ui-results #summaryGrid {
@@ -543,6 +539,7 @@ body.ui-results #summaryGrid {
   width: var(--results-rail);
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 15px;
 }
 
 .amend-wallets-row {
