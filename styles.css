@@ -2911,42 +2911,38 @@ body.ui-results .table-header {
 
 @media (max-width: 820px) {
   #holdingsCard .table-controls {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    grid-template-areas:
-      "search sort"
-      "dust hidden";
-    width: fit-content;
-    max-width: calc(100% - 24px);
-    margin: 0 auto;
-    gap: 8px;
-    padding: 10px;
-    border-radius: var(--radius-lg);
-    border-width: 3px;
-    background: var(--panel);
-    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: auto;
+    max-width: none;
+    margin: 0 auto 15px;
+    padding: 0;
+    border-radius: 0;
+    border-width: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   #holdingsCard .table-controls .search-box {
-    grid-area: search;
     width: 100%;
     max-width: none;
   }
 
   #holdingsCard .table-controls .select {
-    grid-area: sort;
     width: 100%;
     min-width: 0;
   }
 
   #holdingsCard .table-controls .dust-toggle {
-    grid-area: dust;
     width: 100%;
     justify-content: center;
   }
 
   #holdingsCard .table-controls .show-hidden-toggle {
-    grid-area: hidden;
     width: 100%;
     justify-content: center;
   }
@@ -2977,7 +2973,6 @@ body.ui-results .table-header {
 
 #holdingsCard .table-pagination {
   width: 100%;
-  justify-content: space-between;
 }
 
 .table-pagination-top {
