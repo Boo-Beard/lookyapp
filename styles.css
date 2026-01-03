@@ -2626,8 +2626,9 @@ a.holding-action[data-action="copy-contract"]:active i {
   margin-bottom: 24px;
 }
 
-body.ui-results .table-section {
-  margin-bottom: 16px;
+body.ui-results .table-section,
+body.ui-results .wallets-section {
+  margin-bottom: 0;
 }
 
 .table-header {
@@ -3814,11 +3815,7 @@ body.ui-results .table-stats {
 }
 
 .alloc-risk-card {
-  margin-bottom: 0;
-}
-
-body.ui-results .alloc-risk-card {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .alloc-risk-header {
