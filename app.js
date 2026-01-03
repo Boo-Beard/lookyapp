@@ -366,8 +366,11 @@ function renderSearchTokenActions(model) {
   const network = String(model?.network || '');
   const address = String(model?.address || '').trim();
 
-  const chartIconDexscreener = 'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64';
-  const chartIconBirdeye = 'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64';
+  const chartIconDexscreener = 'https://docs.dexscreener.com/~gitbook/image?url=https%3A%2F%2F198140802-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F7OmRM9NOmlC1POtFwsnX%252Ficon%252F6BJXvNUMQSXAtDTzDyBK%252Ficon-512x512.png%3Falt%3Dmedia%26token%3Da7ce263e-0b40-4afb-ae25-eae378aef0ab&width=32&dpr=2&quality=100&sign=f988708e&sv=2';
+  const chartIconBirdeye = 'https://birdeye.so/be/m-dark-logo.png';
+
+  preloadImage(chartIconDexscreener);
+  preloadImage(chartIconBirdeye);
 
   // expose for other renderers (holdings table/cards) so we avoid cross-origin icon loads
   window.__peeekChartIcons = window.__peeekChartIcons || { dexscreener: chartIconDexscreener, birdeye: chartIconBirdeye };
@@ -393,13 +396,13 @@ function renderSearchTokenActions(model) {
       </a>
       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-          <img class="chart-popover-icon" alt="" src="${chartIconDexscreener}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+          <img class="chart-popover-icon" alt="" src="${chartIconDexscreener}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64','D');">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
           <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-          <img class="chart-popover-icon" alt="" src="${chartIconBirdeye}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+          <img class="chart-popover-icon" alt="" src="${chartIconBirdeye}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64','B');">
         </a>
       </div>
     </div>
@@ -417,6 +420,17 @@ const DEBUG_SOL_CHANGE = (() => {
   catch { return false; }
 })();
 
+const preloadImage = (url) => {
+  if (!url) return;
+  try {
+    const img = new Image();
+    img.decoding = 'async';
+    img.loading = 'eager';
+    img.referrerPolicy = 'no-referrer';
+    img.src = url;
+  } catch {}
+};
+
 const SOL_CHANGE_ELIGIBLE_LIQUIDITY_USD = 5000;
 const SOL_CHANGE_ELIGIBLE_VOLUME24H_USD = 5000;
 
@@ -427,6 +441,24 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function handleChartIconError(imgEl, fallbackSrc, fallbackText) {
+  try {
+    if (!imgEl || imgEl.dataset.fallbackTried === '1') throw new Error('no-more-fallbacks');
+    if (!fallbackSrc) throw new Error('no-fallback-src');
+    imgEl.dataset.fallbackTried = '1';
+    imgEl.src = fallbackSrc;
+    return;
+  } catch {}
+
+  try {
+    if (!imgEl) return;
+    imgEl.onerror = null;
+    imgEl.style.display = 'none';
+    const parent = imgEl.parentElement;
+    if (parent) parent.textContent = String(fallbackText || '').slice(0, 1) || '?';
+  } catch {}
 }
 
 function escapeAttribute(str) {

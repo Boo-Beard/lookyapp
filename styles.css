@@ -288,11 +288,13 @@ body.ui-results .table-container {
 }
 
 .chart-popover-icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 4px;
   object-fit: contain;
   display: block;
+  background: transparent;
+  opacity: 1;
 }
 
 .container {
