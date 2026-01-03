@@ -222,6 +222,18 @@ body.modal-open {
   will-change: transform;
 }
 
+.holding-card-actions .holding-action i,
+.holding-card-actions .holding-action img {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  flex: 0 0 18px;
+}
+
+.holding-card-actions .holding-action img {
+  object-fit: contain;
+}
+
 body.ui-reveal .holding-card-actions .holding-action,
 body.ui-reveal .holding-card-actions .holding-action * {
   transition: none !important;
