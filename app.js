@@ -5593,11 +5593,13 @@ function setupEventListeners() {
     let portfolioRefreshCooldownTick = null;
     portfolioRefreshBtn.addEventListener('click', async () => {
       if (portfolioRefreshCooldownTimer || portfolioRefreshCooldownTick) return;
-
-      const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
-      const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
       try {
         portfolioRefreshBtn.disabled = true;
+        try {
+          portfolioRefreshBtn.classList.add('is-cooldown');
+          portfolioRefreshBtn.style.setProperty('--cooldown-pct', '0');
+          portfolioRefreshBtn.setAttribute('aria-busy', 'true');
+        } catch {}
         const wallets = Array.isArray(state.wallets) ? state.wallets : [];
         const queueOverride = wallets
           .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
@@ -5609,7 +5611,8 @@ function setupEventListeners() {
         const tick = () => {
           const remaining = endsAt - Date.now();
           if (remaining > 0) {
-            if (labelEl) labelEl.textContent = formatCooldownMs(remaining);
+            const pct = Math.max(0, Math.min(1, 1 - (remaining / 60_000)));
+            try { portfolioRefreshBtn.style.setProperty('--cooldown-pct', String(pct)); } catch {}
             return;
           }
           try {
@@ -5617,8 +5620,10 @@ function setupEventListeners() {
           } catch {}
           portfolioRefreshCooldownTick = null;
           try {
-            if (labelEl) labelEl.textContent = baseLabel || 'Rescan';
             portfolioRefreshBtn.disabled = false;
+            portfolioRefreshBtn.classList.remove('is-cooldown');
+            portfolioRefreshBtn.style.removeProperty('--cooldown-pct');
+            portfolioRefreshBtn.removeAttribute('aria-busy');
           } catch {}
         };
 
@@ -5630,7 +5635,9 @@ function setupEventListeners() {
       } catch {
         try { hapticFeedback('error'); } catch {}
         try {
-          if (labelEl) labelEl.textContent = baseLabel || 'Rescan';
+          portfolioRefreshBtn.classList.remove('is-cooldown');
+          portfolioRefreshBtn.style.removeProperty('--cooldown-pct');
+          portfolioRefreshBtn.removeAttribute('aria-busy');
         } catch {}
         try {
           if (portfolioRefreshCooldownTick) window.clearInterval(portfolioRefreshCooldownTick);

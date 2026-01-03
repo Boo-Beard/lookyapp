@@ -609,6 +609,25 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
   font-size: 18px;
 }
 
+body.ui-results .amend-wallets-row #portfolioRefreshBtn {
+  position: relative;
+  overflow: hidden;
+}
+
+body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown {
+  opacity: 0.65;
+}
+
+body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 194, 255, 0.22);
+  transform: translateX(calc((-100% + (var(--cooldown-pct, 0) * 100%))));
+  transition: transform 900ms linear;
+  pointer-events: none;
+}
+
 @media (max-width: 640px) {
   body.ui-results .amend-wallets-row {
     padding: 10px;
@@ -2780,6 +2799,7 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .checkbox-wrapper-11 label {
   margin: 0;
   cursor: pointer;
+  font-size: 9px;
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-10 {
