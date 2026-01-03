@@ -531,6 +531,10 @@ body.ui-results #resultsSection {
   --results-rail: min(980px, calc(100% - 24px));
 }
 
+body.ui-results #resultsSection > * {
+  margin: 0;
+}
+
 
 
 body.ui-results #summaryGrid {
@@ -665,7 +669,6 @@ body.is-redacted .redacted-field.is-revealed {
   border: 4px solid var(--border);
   backdrop-filter: none;
   box-shadow: var(--shadow-lg);
-  margin-bottom: 15px;
 }
 
 .summary-card::before {
