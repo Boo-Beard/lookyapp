@@ -2674,12 +2674,12 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls {
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
   gap: 10px;
-      margin-bottom: 15px;
+  align-items: center;
 }
 
 #holdingsCard .table-controls .search-box,
