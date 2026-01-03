@@ -304,7 +304,6 @@ function renderSearchTokenActions(model) {
   const links = {
     website: sanitizeUrl(ext?.links?.website),
     twitter: sanitizeUrl(ext?.links?.twitter),
-    telegram: sanitizeUrl(ext?.links?.telegram),
     discord: sanitizeUrl(ext?.links?.discord),
   };
 
@@ -332,15 +331,6 @@ function renderSearchTokenActions(model) {
       href: links.twitter,
       iconHtml: '<i class="fa-brands fa-x-twitter" aria-hidden="true"></i>',
       label: 'X (Twitter)',
-      disabled: false,
-    });
-  }
-  if (links.telegram) {
-    items.push({
-      key: 'telegram',
-      href: links.telegram,
-      iconHtml: '<i class="fa-brands fa-telegram" aria-hidden="true"></i>',
-      label: 'Telegram',
       disabled: false,
     });
   }
@@ -546,11 +536,11 @@ function sanitizeUrl(url) {
 function safeSocialHandleUrl(platform, handleOrUrl) {
   const raw = String(handleOrUrl || '').trim();
   if (!raw) return '';
-  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^https?:\/\//i.test(raw)) return sanitizeUrl(raw);
+
   const clean = raw.replace(/^@/, '');
   if (!clean) return '';
   if (platform === 'twitter') return `https://x.com/${clean}`;
-  if (platform === 'telegram') return `https://t.me/${clean}`;
   return '';
 }
 
@@ -578,7 +568,6 @@ function normalizeExtensions(ext) {
 
   const website = sanitizeUrl(e.website || e.site || e.url);
   const twitter = safeSocialHandleUrl('twitter', e.twitter || e.x || e.twitter_handle);
-  const telegram = safeSocialHandleUrl('telegram', e.telegram || e.tg || e.telegram_handle);
   const discord = sanitizeUrl(e.discord);
 
   return {
@@ -586,7 +575,6 @@ function normalizeExtensions(ext) {
     links: {
       website,
       twitter,
-      telegram,
       discord,
     },
   };
@@ -602,7 +590,6 @@ function extractDexscreenerExtensions(bestPair) {
     links: {
       website: '',
       twitter: '',
-      telegram: '',
       discord: '',
     },
   };
@@ -617,7 +604,6 @@ function extractDexscreenerExtensions(bestPair) {
     const href = sanitizeUrl(s?.url) || safeSocialHandleUrl(type, s?.url || s?.handle);
     if (!href) continue;
     if (type === 'twitter' || type === 'x') out.links.twitter = href;
-    if (type === 'telegram') out.links.telegram = href;
     if (type === 'discord') out.links.discord = href;
   }
 
@@ -1912,73 +1898,7 @@ const MCAP_MAX_LOOKUPS_PER_RENDER = 80;
 const MCAP_CONCURRENCY = 4;
 
 let statusHideTimer = null;
-const TG = (() => {
-  try { return window.Telegram?.WebApp || null; } catch { return null; }
-})();
-
-const isTelegram = () => !!TG && typeof TG.ready === 'function';
-
-function tgIsAtLeast(version) {
-  if (!isTelegram()) return false;
-  try {
-    if (typeof TG.isVersionAtLeast === 'function') return TG.isVersionAtLeast(version);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function applyTelegramTheme() {
-  if (!isTelegram()) return;
-
-  const p = TG.themeParams || {};
-  const root = document.documentElement;
-
-  if (p.bg_color) root.style.setProperty('--bg-primary', p.bg_color);
-  if (p.text_color) root.style.setProperty('--text-primary', p.text_color);
-  if (p.hint_color) root.style.setProperty('--text-secondary', p.hint_color);
-  if (p.link_color) root.style.setProperty('--text-accent', p.link_color);
-
-  try {
-    if (tgIsAtLeast('6.1')) {
-      TG.setHeaderColor?.('secondary_bg_color');
-      TG.setBackgroundColor?.(p.bg_color || '#0A0B14');
-    }
-  } catch {}
-}
-
-function hapticFeedback(type = 'light') {
-  if (!isTelegram() || !TG.HapticFeedback) return;
-  if (!tgIsAtLeast('6.1')) return;
-
-  try {
-    if (type === 'success') TG.HapticFeedback.notificationOccurred('success');
-    else if (type === 'error') TG.HapticFeedback.notificationOccurred('error');
-    else TG.HapticFeedback.impactOccurred(type);
-  } catch {}
-}
-
-function updateTelegramMainButton() {
-  if (!isTelegram()) return;
-
-  try {
-    const validCount = state.addressItems.filter(a => a.type === 'solana' || a.type === 'evm').length;
-    TG.MainButton.setText('Scan Wallets');
-
-    if (state.scanning) {
-      TG.MainButton.show();
-      TG.MainButton.disable?.();
-      return;
-    }
-
-    if (validCount > 0) {
-      TG.MainButton.show();
-      TG.MainButton.enable?.();
-    } else {
-      TG.MainButton.hide();
-    }
-  } catch {}
-}
+function hapticFeedback() {}
 
 function shortenAddress(address) {
   if (!address) return address;
@@ -2540,7 +2460,6 @@ function setAddressItems(items, { showWarning = false } = {}) {
   }
 
   persistAddressItems();
-  updateTelegramMainButton();
   updateAddressStats();
 }
 
@@ -2652,7 +2571,6 @@ function addWalletFromInput() {
   persistAddressItems();
   renderAddressChips();
   updateAddressStats();
-  updateTelegramMainButton();
 
   input.value = '';
   input.focus();
@@ -4182,7 +4100,7 @@ function renderHoldingsTable() {
 
   state.viewMode = 'aggregate';
 
-  const useCardRows = isTelegram() || window.matchMedia('(max-width: 640px)').matches;
+  const useCardRows = window.matchMedia('(max-width: 640px)').matches;
   document.body.classList.toggle('holdings-cards', useCardRows);
 
   const formatPnlCell = (pnlUsd) => {
@@ -4808,7 +4726,7 @@ async function refreshPortfolioMetrics({ force } = {}) {
       });
 
     let cursor = 0;
-    const concurrency = (isTelegram() || window.matchMedia('(max-width: 640px)').matches) ? 2 : 4;
+    const concurrency = window.matchMedia('(max-width: 640px)').matches ? 2 : 4;
 
     const worker = async () => {
       while (cursor < queue.length) {
@@ -4929,7 +4847,6 @@ async function scanWallets({ queueOverride } = {}) {
   state.lastScanFailedQueue = [];
   state.scanMeta = { completed: 0, total: walletsQueue.length };
   state.scanAbortController = new AbortController();
-  updateTelegramMainButton();
 
   const scanButton = $('scanButton');
   if (scanButton) {
@@ -4948,7 +4865,7 @@ async function scanWallets({ queueOverride } = {}) {
 
   let completed = 0;
   const total = Math.max(totalWallets, 1);
-  const concurrency = (isTelegram() || window.matchMedia('(max-width: 640px)').matches) ? 2 : 4;
+  const concurrency = window.matchMedia('(max-width: 640px)').matches ? 2 : 4;
   let cursor = 0;
 
   const markComplete = () => {
@@ -5058,8 +4975,6 @@ async function scanWallets({ queueOverride } = {}) {
   } else {
     hapticFeedback('success');
   }
-
-  updateTelegramMainButton();
 
   setTimeout(() => {
     $('scanStatus')?.classList.add('hidden');
@@ -6177,7 +6092,6 @@ function setupEventListeners() {
       state.addressItems.splice(idx, 1);
       renderAddressChips();
       persistAddressItems();
-      updateTelegramMainButton();
       updateAddressStats();
       hapticFeedback('light');
       return;
@@ -6246,7 +6160,7 @@ function setupEventListeners() {
       updateProgress(0);
       $('cancelScanButton')?.classList.add('hidden');
       $('retryFailedButton')?.classList.add('hidden');
-      updateTelegramMainButton();
+      
     } catch {}
 
     const profiles = loadProfiles();
@@ -6474,27 +6388,6 @@ function setupEventListeners() {
 
 }
 
-function setupTelegram() {
-  if (!isTelegram()) return;
-
-  TG.ready();
-  TG.expand?.();
-
-  applyTelegramTheme();
-  TG.onEvent('themeChanged', applyTelegramTheme);
-
-  TG.MainButton.onClick(scanWallets);
-  updateTelegramMainButton();
-
-  if (tgIsAtLeast('6.1')) {
-    TG.BackButton.onClick(() => {
-      const inputSection = $('inputSection');
-      inputSection?.classList.toggle('is-minimized');
-      if (inputSection) setPortfolioMinimizedPreference(inputSection.classList.contains('is-minimized'));
-    });
-  }
-}
-
 function setupFooterRotator() {
   const el = $('footerRotatorText');
   if (!el) return;
@@ -6558,7 +6451,6 @@ function initialize() {
 
   try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
 
-  setupTelegram();
   setupEyeTracking();
   setupEventListeners();
   setupFooterRotator();
@@ -6586,7 +6478,6 @@ function initialize() {
   }
 
   updateAddressStats();
-  updateTelegramMainButton();
 
   state.watchlistTokens = loadWatchlistTokens();
   renderWatchlist();
