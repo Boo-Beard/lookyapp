@@ -3455,7 +3455,7 @@ body.holdings-cards .holdings-table td {
 }
 
 body.holdings-cards .table-container {
-  max-width: min(1120px, calc(100vw - 12px));
+  max-width: min(1060px, calc(100vw - 12px));
   margin-left: auto;
   margin-right: auto;
 }
