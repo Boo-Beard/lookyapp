@@ -570,7 +570,8 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn {
 
 @media (max-width: 640px) {
   body.ui-results .amend-wallets-row {
-    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 10px;
   }
 }
 
