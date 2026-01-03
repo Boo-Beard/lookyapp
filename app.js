@@ -1602,6 +1602,26 @@ function renderWatchlist() {
 
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
+
+  try {
+    const chips = tbody.querySelectorAll('button.whatif-chip[data-action="whatif-mult"]');
+    chips.forEach((btn) => {
+      if (btn.__peeekWhatIfBound) return;
+      btn.__peeekWhatIfBound = true;
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        try { e.stopPropagation(); } catch {}
+        const key = String(btn.dataset.holdingKey || '').trim();
+        const mult = Number(btn.dataset.mult || 1) || 1;
+        if (!key) return;
+        try { whatIfHolding.set(key, mult); } catch {}
+        try { invalidateHoldingsTableCache(); } catch {}
+        try { scheduleRenderHoldingsTable(); } catch {}
+        try { scheduleHoldingWhatIfReset(key); } catch {}
+        try { hapticFeedback('light'); } catch {}
+      });
+    });
+  } catch {}
 }
 
 function syncPortfolioHoldingsInPlace() {
