@@ -3745,6 +3745,45 @@ body.holdings-cards .holding-metric-value strong {
   font-weight: 900;
 }
 
+body.holdings-cards .holding-metric-whatif {
+  grid-column: 1 / -1;
+}
+
+body.holdings-cards .whatif-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+body.holdings-cards .whatif-chip {
+  appearance: none;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--text-primary);
+  font-family: var(--mono);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  padding: 6px 10px;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+body.holdings-cards .whatif-chip.is-active {
+  background: rgba(4, 130, 48, 0.12);
+  border-color: rgba(4, 130, 48, 0.85);
+  color: rgb(4, 130, 48);
+}
+
+body.holdings-cards .holding-metric-value.is-whatif {
+  animation: whatifPulse 450ms ease-out;
+}
+
 .chain-badge-small {
   display: inline-flex;
   align-items: center;
