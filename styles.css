@@ -572,10 +572,42 @@ body.is-redacted .redacted-field {
   display: inline-block;
 }
 
+:root[data-theme="dark"] body.is-redacted .redacted-field {
+  position: relative;
+  color: transparent;
+}
+
+:root[data-theme="dark"] body.is-redacted .redacted-field::after {
+  content: '--';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.86);
+  filter: none;
+  pointer-events: none;
+}
+
 body.is-redacted .redacted-field:hover,
 body.is-redacted .redacted-field:focus,
 body.is-redacted .redacted-field.is-revealed {
   filter: none;
+}
+
+:root[data-theme="dark"] body.is-redacted .redacted-field:hover,
+:root[data-theme="dark"] body.is-redacted .redacted-field:focus,
+:root[data-theme="dark"] body.is-redacted .redacted-field.is-revealed {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] body.is-redacted .redacted-field:hover::after,
+:root[data-theme="dark"] body.is-redacted .redacted-field:focus::after,
+:root[data-theme="dark"] body.is-redacted .redacted-field.is-revealed::after {
+  content: '';
 }
 
 .summary-grid {
