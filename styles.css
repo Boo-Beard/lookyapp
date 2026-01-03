@@ -528,6 +528,7 @@ body.ui-results #resultsSection {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  --results-rail: min(980px, calc(100% - 24px));
 }
 
 body.ui-results #resultsSection > * {
@@ -537,7 +538,7 @@ body.ui-results #resultsSection > * {
 body.ui-results #summaryGrid {
   margin: 0;
   margin-top: 15px;
-  width: min(980px, calc(100% - 24px));
+  width: var(--results-rail);
   margin-left: auto;
   margin-right: auto;
 }
@@ -559,7 +560,7 @@ body.ui-results .amend-wallets-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: 12px;
-  width: min(980px, calc(100% - 24px));
+  width: var(--results-rail);
   margin-left: auto;
   margin-right: auto;
 }
@@ -1101,7 +1102,6 @@ body.ui-results .input-section.is-minimized {
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   margin-top: -4px;
-      margin-right: 20px;
 }
 
 
