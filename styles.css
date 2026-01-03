@@ -2674,12 +2674,12 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls {
-  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
   align-items: center;
+  margin-bottom: 15px;
 }
 
 #holdingsCard .table-controls .search-box,
@@ -2911,20 +2911,21 @@ body.ui-results .table-header {
 
 @media (max-width: 820px) {
   #holdingsCard .table-controls {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    grid-template-areas:
-      "search sort"
-      "dust hidden";
-    width: fit-content;
-    max-width: calc(100% - 24px);
-    margin: 0 auto;
-    gap: 8px;
-    padding: 10px;
-    border-radius: var(--radius-lg);
-    border-width: 3px;
-    background: var(--panel);
-    box-shadow: var(--shadow-sm);
+display: grid;
+        /* grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); */
+        grid-template-areas:
+        "search sort"
+        "dust hidden";
+        /* width: fit-content; */
+        /* max-width: calc(100% - 7px); */
+        margin: 0 auto;
+        /* gap: 8px; */
+        padding: 10px;
+        /* border-radius: var(--radius-lg); */
+        /* border-width: 3px; */
+        /* background: var(--panel); */
+        /* box-shadow: var(--shadow-sm); */
+    }
   }
 
   #holdingsCard .table-controls .search-box {
