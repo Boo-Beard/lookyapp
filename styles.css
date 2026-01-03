@@ -3449,9 +3449,15 @@ body.holdings-cards .holdings-table td {
 }
 
 body.holdings-cards .table-container {
-  max-width: min(980px, calc(100vw - 24px));
+  max-width: min(1120px, calc(100vw - 12px));
   margin-left: auto;
   margin-right: auto;
+}
+
+@media (max-width: 640px) {
+  body.holdings-cards .table-container {
+    max-width: calc(100vw - 8px);
+  }
 }
 
 body.holdings-cards .holding-card-row {
