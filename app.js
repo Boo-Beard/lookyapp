@@ -366,8 +366,8 @@ function renderSearchTokenActions(model) {
   const network = String(model?.network || '');
   const address = String(model?.address || '').trim();
 
-  const chartIconDexscreener = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#0b0b10" d="M4 18.5v-13a1 1 0 0 1 1.6-.8l6.6 4.9a1 1 0 0 1 0 1.6l-6.6 4.9A1 1 0 0 1 4 18.5Zm14.2-13.3a1 1 0 0 1 1.4.2c1 1.4 1.5 3 1.5 4.6s-.5 3.2-1.5 4.6a1 1 0 1 1-1.6-1.2c.7-1 1.1-2.2 1.1-3.4s-.4-2.4-1.1-3.4a1 1 0 0 1 .2-1.4Z"/></svg>')}`;
-  const chartIconBirdeye = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#0b0b10" d="M12 4c5.5 0 10 4 10 8s-4.5 8-10 8S2 16 2 12 6.5 4 12 4Zm0 3.2c-2.8 0-5 2.1-5 4.8s2.2 4.8 5 4.8 5-2.1 5-4.8-2.2-4.8-5-4.8Zm0 2.2a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z"/></svg>')}`;
+  const chartIconDexscreener = 'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64';
+  const chartIconBirdeye = 'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64';
 
   // expose for other renderers (holdings table/cards) so we avoid cross-origin icon loads
   window.__peeekChartIcons = window.__peeekChartIcons || { dexscreener: chartIconDexscreener, birdeye: chartIconBirdeye };
@@ -393,13 +393,13 @@ function renderSearchTokenActions(model) {
       </a>
       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
-          <img class="chart-popover-icon" alt="" src="${chartIconDexscreener}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
+          <img class="chart-popover-icon" alt="" src="${chartIconDexscreener}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='D';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
           <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
         </a>
         <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
-          <img class="chart-popover-icon" alt="" src="${chartIconBirdeye}" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
+          <img class="chart-popover-icon" alt="" src="${chartIconBirdeye}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='B';">
         </a>
       </div>
     </div>
