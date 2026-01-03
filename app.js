@@ -5673,6 +5673,7 @@ function setupEventListeners() {
       const chart = e.target.closest('a.holding-action[data-action="chart"]');
       if (!chart) return;
       e.preventDefault();
+      e.stopPropagation();
 
       const actions = chart.closest('.holding-card-actions');
       if (!actions) return;
