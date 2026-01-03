@@ -2911,14 +2911,15 @@ body.ui-results .table-header {
 
 @media (max-width: 820px) {
   #holdingsCard .table-controls {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) !important;
+    grid-template-areas:
+      "search sort"
+      "dust hidden";
+    gap: 10px !important;
     align-items: center;
-    gap: 10px;
-    width: auto;
-    max-width: none;
+    width: 100% !important;
+    max-width: calc(100% - 24px) !important;
     margin: 0 auto 15px;
     padding: 0;
     border-radius: 0;
@@ -2928,29 +2929,26 @@ body.ui-results .table-header {
   }
 
   #holdingsCard .table-controls .search-box {
-    flex: 1 1 260px;
-    min-width: 220px;
-    width: auto;
-    max-width: 520px;
+    grid-area: search;
+    width: 100% !important;
+    max-width: none !important;
   }
 
   #holdingsCard .table-controls .select {
-    flex: 0 1 220px;
-    min-width: 200px;
-    width: auto;
+    grid-area: sort;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
   #holdingsCard .table-controls .dust-toggle {
-    flex: 1 1 220px;
-    min-width: 200px;
-    width: auto;
+    grid-area: dust;
+    width: 100% !important;
     justify-content: center;
   }
 
   #holdingsCard .table-controls .show-hidden-toggle {
-    flex: 1 1 220px;
-    min-width: 200px;
-    width: auto;
+    grid-area: hidden;
+    width: 100% !important;
     justify-content: center;
   }
 
