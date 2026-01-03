@@ -133,10 +133,6 @@ function restorePortfolioSnapshot() {
     renderHoldingsTable();
   } catch {}
 
-  try {
-    enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
-  } catch {}
-
   return true;
 }
 
