@@ -278,8 +278,7 @@ body.ui-results .table-container {
 .chart-popover-icon {
   width: 18px;
   height: 18px;
-  object-fit: contain;
-  display: block;
+  border-radius: 4px;
 }
 
 .container {
