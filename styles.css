@@ -539,7 +539,6 @@ body.ui-results #summaryGrid {
   width: var(--results-rail);
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 15px;
 }
 
 .amend-wallets-row {
@@ -649,7 +648,8 @@ body.is-redacted .redacted-field.is-revealed {
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  column-gap: 14px;
+  row-gap: 22px;
 }
 
 .summary-card {
