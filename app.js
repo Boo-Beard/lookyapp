@@ -6050,9 +6050,15 @@ function setupEventListeners() {
     setSettingsOpen(false);
   });
 
+  const STORAGE_KEY_THEME = 'peeek:theme';
+
   const applyTheme = (theme) => {
     const t = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.dataset.theme = t;
+
+    try {
+      localStorage.setItem(STORAGE_KEY_THEME, t);
+    } catch {}
 
     const btn = $('themeToggleBtn');
     if (btn) {
@@ -6065,7 +6071,15 @@ function setupEventListeners() {
     }
   };
 
-  applyTheme('light');
+  const loadTheme = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_THEME);
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {}
+    return 'light';
+  };
+
+  applyTheme(loadTheme());
 
   $('themeToggleBtn')?.addEventListener('click', () => {
     const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
