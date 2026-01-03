@@ -3458,26 +3458,11 @@ body.holdings-cards .holding-card-row:hover::after {
 }
 
 body.holdings-cards .holding-card {
-  width: min(calc(100vw - 12px), 120%);
+  width: 100%;
+  max-width: 100%;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
-@media (max-width: 640px) {
-  body.holdings-cards .holding-card {
-    width: min(calc(100vw - 12px), 135%);
-  }
-}
-
-@media (min-width: 641px) {
-  body.holdings-cards .holding-card {
-    width: min(calc(100vw - 20px), 120%);
-  }
+  left: auto;
+  transform: none;
 }
 
 body.holdings-cards .holding-card-header {
