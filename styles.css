@@ -3448,6 +3448,12 @@ body.holdings-cards .holdings-table td {
   padding: 0;
 }
 
+body.holdings-cards .table-container {
+  max-width: min(980px, calc(100vw - 24px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
 body.holdings-cards .holding-card-row {
   background: transparent !important;
 }
