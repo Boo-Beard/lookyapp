@@ -557,7 +557,7 @@ body.ui-results .amend-wallets-row {
   box-shadow: var(--shadow-md);
   padding: 12px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr auto 1fr;
   gap: 12px;
   width: min(980px, calc(100% - 24px));
   margin-left: auto;
@@ -579,7 +579,20 @@ body.ui-results .amend-wallets-row .btn {
   min-height: 44px;
 }
 
+body.ui-results .amend-wallets-row #portfolioRefreshBtn {
+  min-width: 0;
+  width: 56px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
 
+body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
+  margin: 0;
+}
+
+body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
+  font-size: 18px;
+}
 
 @media (max-width: 640px) {
   body.ui-results .amend-wallets-row {
@@ -1088,6 +1101,7 @@ body.ui-results .input-section.is-minimized {
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   margin-top: -4px;
+      margin-right: 20px;
 }
 
 
