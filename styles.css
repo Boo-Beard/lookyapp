@@ -2911,20 +2911,21 @@ body.ui-results .table-header {
 
 @media (max-width: 820px) {
   #holdingsCard .table-controls {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-    grid-template-areas:
-      "search sort"
-      "dust hidden";
-    width: fit-content;
-    max-width: calc(100% - 24px);
-    margin: 0 auto;
-    gap: 8px;
-    padding: 10px;
-    border-radius: var(--radius-lg);
-    border-width: 3px;
-    background: var(--panel);
-    box-shadow: var(--shadow-sm);
+display: grid;
+        /* grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); */
+        grid-template-areas:
+        "search sort"
+        "dust hidden";
+        /* width: fit-content; */
+        /* max-width: calc(100% - 7px); */
+        margin: 0 auto;
+        /* gap: 8px; */
+        padding: 10px;
+        /* border-radius: var(--radius-lg); */
+        /* border-width: 3px; */
+        /* background: var(--panel); */
+        /* box-shadow: var(--shadow-sm); */
+    }
   }
 
   #holdingsCard .table-controls .search-box {
@@ -2976,29 +2977,8 @@ body.ui-results .table-header {
 
 .table-pagination-top {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: nowrap;
-}
-
-#holdingsCard .table-pagination {
-  width: 100%;
-  max-width: none;
-  margin-left: auto;
-  margin-right: auto;
-  justify-content: space-between;
-}
-
-#holdingsCard .table-pagination .page-indicator {
-  flex: 1 1 auto;
-  text-align: center;
-}
-
-#holdingsCard #pagePrev,
-#holdingsCard #pageNext,
-#holdingsCard #pagePrevTop,
-#holdingsCard #pageNextTop {
-  flex: 0 0 auto;
-  min-width: 82px;
 }
 
 .table-pagination-top .page-indicator {
@@ -3019,13 +2999,6 @@ body.ui-results .table-header {
 
 #holdingsCard #pagePrev,
 #holdingsCard #pageNext {
-  height: 32px;
-  padding: 0 10px;
-  font-size: 12px;
-}
-
-#holdingsCard #pagePrevTop,
-#holdingsCard #pageNextTop {
   height: 32px;
   padding: 0 10px;
   font-size: 12px;
@@ -4625,6 +4598,4 @@ body.ui-results .wallet-count {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 220ms ease, transform 220ms ease;
-}
-
 }
