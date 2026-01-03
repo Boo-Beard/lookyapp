@@ -2914,8 +2914,8 @@ body.ui-results .table-header {
     display: grid !important;
     grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) !important;
     grid-template-areas:
-      "search sort"
-      "dust hidden";
+      "search dust"
+      "sort hidden";
     gap: 10px !important;
     align-items: center;
     width: 100% !important;
