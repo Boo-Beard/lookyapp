@@ -3761,7 +3761,7 @@ body.holdings-cards .holding-metric-value strong {
 }
 
 body.holdings-cards .holding-metric-whatif {
-  grid-column: 1 / -1;
+  grid-column: 2;
 }
 
 body.holdings-cards .whatif-chips {

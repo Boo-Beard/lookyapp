@@ -16,7 +16,7 @@ function shouldIgnoreGlobalError(message, source) {
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 
-const WHATIF_PRESETS = [1, 2, 5, 8, 10];
+const WHATIF_PRESETS = [2, 5, 8, 10];
 const WHATIF_AUTO_RESET_MS = 10_000;
 const whatIfHolding = new Map();
 const whatIfTimers = new Map();
@@ -96,7 +96,7 @@ function scheduleHoldingWhatIfReset(key, ms = WHATIF_AUTO_RESET_MS) {
         if (card) {
           applyHoldingWhatIfToCard(card, 1);
           try {
-            card.querySelectorAll('button.whatif-chip').forEach((b) => b.classList.toggle('is-active', String(b.dataset.mult || '1') === '1'));
+            card.querySelectorAll('button.whatif-chip').forEach((b) => b.classList.remove('is-active'));
           } catch {}
         }
       } catch {}
@@ -4562,6 +4562,9 @@ function renderHoldingsTable() {
                   <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
                     <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                   </a>
+                  <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
+                    <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
+                  </a>
                   <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
                     <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
                       <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.dexscreener) ? window.__peeekChartIcons.dexscreener : 'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64'}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64','D');">
@@ -4573,9 +4576,6 @@ function renderHoldingsTable() {
                       <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.birdeye) ? window.__peeekChartIcons.birdeye : 'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64'}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64','B');">
                     </a>
                   </div>
-                  <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
-                    <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
-                  </a>
                 </div>
               </div>
             </td>
@@ -4691,6 +4691,9 @@ function renderHoldingsTable() {
                       <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
                         <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                       </a>
+                      <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
+                        <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
+                      </a>
                       <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
                         <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
                           <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.dexscreener) ? window.__peeekChartIcons.dexscreener : 'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64'}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64','D');">
@@ -4740,10 +4743,6 @@ function renderHoldingsTable() {
                     </div>`;
                   })()}
                 </div>
-
-                <a class="holding-hide-toggle" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
-                  <i class="fa-regular ${hideIcon}" aria-hidden="true"></i>
-                </a>
               </div>
             </td>
           </tr>
