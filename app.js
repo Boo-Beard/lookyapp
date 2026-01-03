@@ -1469,10 +1469,11 @@ function renderWatchlist() {
   }
 
   body.innerHTML = list.map((t) => {
-    const iconUrl = getFastTokenIconUrl(t.logoUrl, t.symbol || t.name);
-    const fallbackIcon = tokenIconDataUri(t.symbol || t.name);
+    const icon = resolveTokenIcon(t.logoUrl, t.symbol || t.name, { preferFast: false });
     const key = normalizeWatchlistTokenKey(t);
-    const ipfsAttrs = '';
+    const ipfsAttrs = icon.cid
+      ? `data-ipfs-cid="${escapeAttribute(icon.cid)}" data-gateway-idx="0"`
+      : '';
 
     const explorerHref = (t.chain === 'solana')
       ? `https://solscan.io/token/${t.address}`
@@ -1497,7 +1498,7 @@ function renderWatchlist() {
         <div class="holding-card">
           <div class="holding-card-header">
             <div class="token-cell">
-              <img class="token-icon" src="${escapeAttribute(iconUrl)}" ${ipfsAttrs} onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
+              <img class="token-icon" src="${escapeAttribute(icon.src)}" ${ipfsAttrs} onerror="handleSearchTokenIconError(this,'${escapeAttribute(icon.fallback)}')" alt="" />
               <div class="token-info">
                 <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
                 <div class="token-name">${escapeHtml(t.name || '')}</div>
@@ -2019,6 +2020,36 @@ function getFastTokenIconUrl(logoUrl, symbol) {
   return getTokenIconUrl(normalizeTokenLogoUrl(raw), symbol);
 }
 
+const tokenIconResolvedCache = new Map();
+const TOKEN_ICON_RESOLVE_TTL_MS = 30 * 60 * 1000;
+
+function resolveTokenIcon(logoUrl, symbol, { preferFast = true } = {}) {
+  const raw = String(logoUrl || '').trim();
+  const sym = String(symbol || '').trim();
+  const fallback = tokenIconDataUri(sym);
+  if (!raw) return { src: fallback, fallback, cid: null };
+
+  const cid = extractIpfsCid(raw);
+  if (!cid) {
+    const src = preferFast ? getFastTokenIconUrl(raw, sym) : getTokenIconUrl(normalizeTokenLogoUrl(raw), sym);
+    return { src, fallback, cid: null };
+  }
+
+  try {
+    const cached = tokenIconResolvedCache.get(cid);
+    if (cached && cached.expiresAt && Date.now() < cached.expiresAt && cached.src) {
+      return { src: cached.src, fallback, cid };
+    }
+  } catch {}
+
+  // Immediate candidate so we render something quickly.
+  const first = ipfsGatewayUrl(cid, 0);
+  try {
+    tokenIconResolvedCache.set(cid, { src: first, expiresAt: Date.now() + TOKEN_ICON_RESOLVE_TTL_MS });
+  } catch {}
+  return { src: first, fallback, cid };
+}
+
 function normalizeTokenLogoUrl(url) {
   const raw = String(url || '').trim();
   if (!raw) return '';
@@ -2127,6 +2158,15 @@ function handleSearchTokenIconError(imgEl, fallbackDataUri) {
       return;
     }
 
+    // If we already resolved a good gateway for this CID, jump straight to it.
+    try {
+      const cached = tokenIconResolvedCache.get(cid);
+      if (cached && cached.expiresAt && Date.now() < cached.expiresAt && cached.src && cached.src !== imgEl.src) {
+        imgEl.src = cached.src;
+        return;
+      }
+    } catch {}
+
     try {
       const currentSrc = String(imgEl.currentSrc || imgEl.src || '');
       if (currentSrc && /https?:\/\/(?:[^/]+\.)?ipfs\.io\/ipfs\//i.test(currentSrc)) {
@@ -2146,7 +2186,9 @@ function handleSearchTokenIconError(imgEl, fallbackDataUri) {
 
     if (next < IPFS_GATEWAYS.length) {
       imgEl.dataset.gatewayIdx = String(next);
-      imgEl.src = ipfsGatewayUrl(cid, next);
+      const nextUrl = ipfsGatewayUrl(cid, next);
+      imgEl.src = nextUrl;
+      try { tokenIconResolvedCache.set(cid, { src: nextUrl, expiresAt: Date.now() + TOKEN_ICON_RESOLVE_TTL_MS }); } catch {}
       return;
     }
 
@@ -4373,7 +4415,13 @@ function renderHoldingsTable() {
           <tr class="holding-row" data-key="${holding.key}">
             <td>
               <div class="token-cell">
-                <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
+                ${(() => {
+                  const icon = resolveTokenIcon(holding.logo, holding.symbol, { preferFast: false });
+                  const ipfsAttrs = icon.cid
+                    ? `data-ipfs-cid=\"${escapeAttribute(icon.cid)}\" data-gateway-idx=\"0\"`
+                    : '';
+                  return `<img class=\"token-icon\" src=\"${escapeAttribute(icon.src)}\" ${ipfsAttrs} onerror=\"handleSearchTokenIconError(this,'${escapeAttribute(icon.fallback)}')\" alt=\"\">`;
+                })()}
                 <div class="token-info">
                   <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
                   <div class="token-name">${escapeHtml(holding.name)}</div>
@@ -4481,7 +4529,13 @@ function renderHoldingsTable() {
               <div class="holding-card">
                 <div class="holding-card-header">
                   <div class="token-cell">
-                    <img class="token-icon" src="${getTokenIconUrl(holding.logo, holding.symbol)}" onerror="this.onerror=null;this.src='${tokenIconDataUri(holding.symbol)}'" alt="">
+                    ${(() => {
+                      const icon = resolveTokenIcon(holding.logo, holding.symbol, { preferFast: false });
+                      const ipfsAttrs = icon.cid
+                        ? `data-ipfs-cid=\"${escapeAttribute(icon.cid)}\" data-gateway-idx=\"0\"`
+                        : '';
+                      return `<img class=\"token-icon\" src=\"${escapeAttribute(icon.src)}\" ${ipfsAttrs} onerror=\"handleSearchTokenIconError(this,'${escapeAttribute(icon.fallback)}')\" alt=\"\">`;
+                    })()}
                     <div class="token-info">
                       <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
                       <div class="token-name">${escapeHtml(holding.name)}</div>
@@ -5312,9 +5366,11 @@ function renderSearchTokenCard(model) {
 
   const ext = normalizeExtensions(model?.extensions);
   const subtitle = ext?.description || '';
-  const iconUrl = getFastTokenIconUrl(model?.logoUrl, model?.symbol || model?.name);
+  const icon = resolveTokenIcon(model?.logoUrl, model?.symbol || model?.name, { preferFast: false });
   const chainBadge = String(model?.chainShort || '').trim();
-  const fallbackIcon = tokenIconDataUri(model?.symbol || model?.name);
+  const ipfsAttrs = icon.cid
+    ? `data-ipfs-cid="${escapeAttribute(icon.cid)}" data-gateway-idx="0"`
+    : '';
   const actionsHtml = renderSearchTokenActions(model);
   const titleSymbol = symbol || tokenIconLabel(name);
   const titleName = name || '';
@@ -5324,7 +5380,7 @@ function renderSearchTokenCard(model) {
       <div class="holding-card">
         <div class="holding-card-header">
           <div class="token-cell">
-            <img class="token-icon" src="${escapeAttribute(iconUrl)}" onerror="handleSearchTokenIconError(this,'${escapeAttribute(fallbackIcon)}')" alt="" />
+            <img class="token-icon" src="${escapeAttribute(icon.src)}" ${ipfsAttrs} onerror="handleSearchTokenIconError(this,'${escapeAttribute(icon.fallback)}')" alt="" />
             <div class="token-info">
               <div class="token-symbol">${escapeHtml(titleSymbol)}</div>
               <div class="token-name">${escapeHtml(titleName)}</div>
