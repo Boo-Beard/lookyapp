@@ -565,7 +565,17 @@ body.ui-results .amend-wallets-row .btn {
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-  min-width: 130px;
+  min-width: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
+  margin: 0;
+}
+
+body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
+  font-size: 18px;
 }
 
 @media (max-width: 640px) {
