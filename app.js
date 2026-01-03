@@ -227,6 +227,34 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
+
+  document.addEventListener('pointerdown', (e) => {
+    const btn = e.target?.closest?.('button[data-action="whatif-mult"]');
+    if (!btn) return;
+    try {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    } catch {}
+
+    const key = String(btn.dataset.holdingKey || '').trim();
+    const mult = Number(btn.dataset.mult || 1) || 1;
+    if (!key) return;
+
+    try { whatIfHolding.set(key, mult); } catch {}
+    try {
+      const card = btn.closest('.holding-card');
+      if (card) applyHoldingWhatIfToCard(card, mult);
+      const chipsWrap = btn.closest('.whatif-chips');
+      if (chipsWrap) {
+        chipsWrap.querySelectorAll('button.whatif-chip').forEach((b) => {
+          b.classList.toggle('is-active', b === btn);
+        });
+      }
+    } catch {}
+    try { scheduleHoldingWhatIfReset(key); } catch {}
+    try { hapticFeedback('light'); } catch {}
+  }, true);
 }
 
 window.addEventListener('error', (e) => {
@@ -5895,7 +5923,16 @@ function setupEventListeners() {
       const mult = Number(whatIfBtn.dataset.mult || 1) || 1;
       if (!key) return;
       try { whatIfHolding.set(key, mult); } catch {}
-      try { scheduleRenderHoldingsTable(); } catch {}
+      try {
+        const card = whatIfBtn.closest('.holding-card');
+        if (card) applyHoldingWhatIfToCard(card, mult);
+        const chipsWrap = whatIfBtn.closest('.whatif-chips');
+        if (chipsWrap) {
+          chipsWrap.querySelectorAll('button.whatif-chip').forEach((b) => {
+            b.classList.toggle('is-active', b === whatIfBtn);
+          });
+        }
+      } catch {}
       try { scheduleHoldingWhatIfReset(key); } catch {}
       try { hapticFeedback('light'); } catch {}
       try { console.debug('[whatif] applied', { key, mult }); } catch {}
