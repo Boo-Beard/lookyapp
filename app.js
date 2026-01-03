@@ -16,6 +16,34 @@ function shouldIgnoreGlobalError(message, source) {
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 
+const WHATIF_PRESETS = [1, 2, 5, 8, 10];
+const WHATIF_AUTO_RESET_MS = 10_000;
+const whatIfHolding = new Map();
+const whatIfTimers = new Map();
+
+function holdingWhatIfKey(h) {
+  const chain = String(h?.chain || '').trim();
+  const address = String(h?.address || '').trim();
+  if (!chain || !address) return '';
+  return `${chain}:${address}`;
+}
+
+function scheduleHoldingWhatIfReset(key, ms = WHATIF_AUTO_RESET_MS) {
+  if (!key) return;
+  try {
+    const prev = whatIfTimers.get(key);
+    if (prev) window.clearTimeout(prev);
+  } catch {}
+  try {
+    const t = window.setTimeout(() => {
+      try { whatIfHolding.delete(key); } catch {}
+      try { whatIfTimers.delete(key); } catch {}
+      try { scheduleRenderHoldingsTable(); } catch {}
+    }, Math.max(1000, Number(ms) || WHATIF_AUTO_RESET_MS));
+    whatIfTimers.set(key, t);
+  } catch {}
+}
+
 function savePortfolioSnapshot() {
   try {
     const wallets = Array.isArray(state.wallets) ? state.wallets : [];
@@ -4555,9 +4583,36 @@ function renderHoldingsTable() {
                 <div class="holding-card-metrics">
                   <div class="holding-metric"><div class="holding-metric-label">Balance</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></div></div>
-                  <div class="holding-metric"><div class="holding-metric-label">Value</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></div></div>
+                  ${(() => {
+                    const key = holdingWhatIfKey(holding);
+                    const mult = key ? (Number(whatIfHolding.get(key) || 1) || 1) : 1;
+                    const active = key && mult && mult !== 1;
+                    const simValue = (Number(holding.balance || 0) || 0) * (Number(holding.price || 0) || 0) * (Number(mult) || 1);
+                    const valueText = active && Number.isFinite(simValue)
+                      ? `${formatCurrency(simValue)} (${mult}x)`
+                      : formatCurrency(holding.value);
+                    const valueClass = active ? 'holding-metric-value is-whatif' : 'holding-metric-value';
+                    return `<div class="holding-metric">
+                      <div class="holding-metric-label">Value</div>
+                      <div class="${valueClass} mono"><strong class="redacted-field" tabindex="0">${escapeHtml(valueText)}</strong></div>
+                    </div>`;
+                  })()}
                   <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
+                  ${(() => {
+                    const key = holdingWhatIfKey(holding);
+                    const mult = key ? (Number(whatIfHolding.get(key) || 1) || 1) : 1;
+                    const buttons = WHATIF_PRESETS.map((m) => {
+                      const isActive = Number(m) === Number(mult);
+                      return `<button class="whatif-chip ${isActive ? 'is-active' : ''}" type="button" data-action="whatif-mult" data-holding-key="${escapeAttribute(key)}" data-mult="${escapeAttribute(String(m))}" aria-label="What if ${escapeAttribute(String(m))}x">${escapeHtml(String(m))}x</button>`;
+                    }).join('');
+                    return `<div class="holding-metric holding-metric-whatif">
+                      <div class="holding-metric-label">What if?</div>
+                      <div class="holding-metric-value">
+                        <div class="whatif-chips" role="group" aria-label="What if multipliers">${buttons}</div>
+                      </div>
+                    </div>`;
+                  })()}
                 </div>
 
                 <a class="holding-hide-toggle" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
@@ -5755,6 +5810,19 @@ function setupEventListeners() {
   bindChartPopoverDelegation($('searchResults'));
 
   document.addEventListener('click', (e) => {
+    const whatIfBtn = e.target.closest('button[data-action="whatif-mult"]');
+    if (whatIfBtn) {
+      e.preventDefault();
+      const key = String(whatIfBtn.dataset.holdingKey || '').trim();
+      const mult = Number(whatIfBtn.dataset.mult || 1) || 1;
+      if (!key) return;
+      try { whatIfHolding.set(key, mult); } catch {}
+      try { scheduleRenderHoldingsTable(); } catch {}
+      try { scheduleHoldingWhatIfReset(key); } catch {}
+      try { hapticFeedback('light'); } catch {}
+      return;
+    }
+
     const hideToggle = e.target.closest('[data-action="holding-hide-toggle"]');
     if (hideToggle) {
       e.preventDefault();
