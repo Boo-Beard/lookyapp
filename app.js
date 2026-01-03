@@ -114,6 +114,16 @@ function restorePortfolioSnapshot() {
   }
 
   try {
+    for (const h of (Array.isArray(state.holdings) ? state.holdings : [])) {
+      const addr = String(h?.address || '').trim();
+      const chain = String(h?.chain || '').trim();
+      const mcap = Number(h?.mcap || 0) || 0;
+      if (!addr || !chain || !(mcap > 0)) continue;
+      mcapCache.set(`${chain}:${addr}`, { mcap, ts: Date.now() });
+    }
+  } catch {}
+
+  try {
     document.body.classList.remove('ui-landing');
     document.body.classList.add('ui-results');
     $('resultsSection')?.classList.remove('hidden');
@@ -3069,6 +3079,7 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
     holdingsDataVersion++;
     invalidateHoldingsTableCache();
     scheduleRenderHoldingsTable();
+    try { savePortfolioSnapshot(); } catch {}
   };
 
   const worker = async () => {
@@ -3097,6 +3108,7 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
     holdingsDataVersion++;
     invalidateHoldingsTableCache();
     scheduleRenderHoldingsTable();
+    try { savePortfolioSnapshot(); } catch {}
   }).catch(() => {});
 }
 
