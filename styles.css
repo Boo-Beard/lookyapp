@@ -3162,22 +3162,30 @@ body.ui-results .table-header {
     min-width: 0 !important;
   }
 
-  #holdingsCard .table-controls .dust-toggle {
-    grid-area: dust;
+  #holdingsCard .table-controls .dust-toggle,
+  #holdingsCard .table-controls .show-hidden-toggle {
     width: 100% !important;
     min-width: 0 !important;
-    justify-content: center;
-    display: flex !important;
-    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 8px 14px !important;
+    gap: 8px !important;
+  }
+  
+  #holdingsCard .table-controls .dust-toggle {
+    grid-area: dust;
   }
 
   #holdingsCard .table-controls .show-hidden-toggle {
     grid-area: hidden;
-    width: 100% !important;
-    min-width: 0 !important;
-    justify-content: center;
-    display: flex !important;
-    align-items: center !important;
+  }
+  
+  #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"] {
+    flex-shrink: 0;
+  }
+  
+  #holdingsCard .table-controls .checkbox-wrapper-11 label {
+    font-size: 9px !important;
+    line-height: 1.2;
   }
 
   #holdingsCard .table-controls .search-input,
