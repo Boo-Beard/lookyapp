@@ -1714,6 +1714,7 @@ function loadWatchlistTokens() {
       out.push(t);
       if (out.length >= WATCHLIST_MAX_TOKENS) break;
     }
+    updateWatchlistModeBtnCount();
     return out;
   } catch {
     return [];
@@ -1723,35 +1724,58 @@ function loadWatchlistTokens() {
 function saveWatchlistTokens(list) {
   try {
     localStorage.setItem(STORAGE_KEY_WATCHLIST_TOKENS, JSON.stringify(Array.isArray(list) ? list : []));
+    updateWatchlistModeBtnCount();
   } catch {}
 }
 
-let watchlistHintTimer = null;
-function setWatchlistHint(text, tone = 'info') {
-  const hint = $('watchlistHint');
-  if (!hint) return;
-
-  if (watchlistHintTimer) {
-    clearTimeout(watchlistHintTimer);
-    watchlistHintTimer = null;
+function addTokenToWatchlist(token) {
+  const t = sanitizeWatchlistToken(token);
+  if (!t) {
+    setWatchlistHint('Invalid token.', 'error');
+    hapticFeedback('error');
+    return false;
   }
 
-  const msg = String(text || '').trim();
-  hint.textContent = msg;
-  hint.classList.toggle('hidden', !msg);
-  hint.classList.toggle('error', tone === 'error');
-
-  if (msg) {
-    watchlistHintTimer = setTimeout(() => {
-      try {
-        const el = $('watchlistHint');
-        if (!el) return;
-        el.textContent = '';
-        el.classList.add('hidden');
-        el.classList.remove('error');
-      } catch {}
-    }, 10_000);
+  const key = normalizeWatchlistTokenKey(t);
+  const list = Array.isArray(state.watchlistTokens) ? [...state.watchlistTokens] : [];
+  const exists = list.some((x) => normalizeWatchlistTokenKey(x) === key);
+  if (exists) {
+    hapticFeedback('light');
+    return true;
   }
+
+  if (list.length >= WATCHLIST_MAX_TOKENS) {
+    setWatchlistHint(`Watchlist limit reached (${WATCHLIST_MAX_TOKENS}). Remove one first.`, 'error');
+    hapticFeedback('error');
+    return false;
+  }
+
+  list.unshift(t);
+  state.watchlistTokens = list;
+  watchlistDataVersion++;
+  invalidateHoldingsTableCache();
+  saveWatchlistTokens(list);
+  renderWatchlist();
+  try { syncWatchlistStars(); } catch {}
+  try { updateWatchlistModeBtnCount(); } catch {}
+  try { lockInputBodyHeight(); } catch {}
+  return true;
+}
+
+function removeTokenFromWatchlistByKey(key) {
+  const k = String(key || '').toLowerCase();
+  if (!k) return;
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  const removed = list.find((t) => normalizeWatchlistTokenKey(t) === k);
+  const next = list.filter((t) => normalizeWatchlistTokenKey(t) !== k);
+  state.watchlistTokens = next;
+  watchlistDataVersion++;
+  invalidateHoldingsTableCache();
+  saveWatchlistTokens(next);
+  renderWatchlist();
+  try { syncWatchlistStars(); } catch {}
+  try { updateWatchlistModeBtnCount(); } catch {}
+  hapticFeedback('light');
 }
 
 function renderWatchlist() {
@@ -1771,6 +1795,7 @@ function renderWatchlist() {
     `;
     try { lockInputBodyHeight(); } catch {}
     try { syncWatchlistStars(); } catch {}
+    try { updateWatchlistModeBtnCount(); } catch {}
     return;
   }
 
@@ -1840,239 +1865,7 @@ function renderWatchlist() {
 
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
-
-  try {
-    const chips = tbody.querySelectorAll('button.whatif-chip[data-action="whatif-mult"]');
-    chips.forEach((btn) => {
-      if (btn.__peeekWhatIfBound) return;
-      btn.__peeekWhatIfBound = true;
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        try { e.stopPropagation(); } catch {}
-        const key = String(btn.dataset.holdingKey || '').trim();
-        const mult = Number(btn.dataset.mult || 1) || 1;
-        if (!key) return;
-        try { whatIfHolding.set(key, mult); } catch {}
-        try {
-          const card = btn.closest('.holding-card');
-          if (card) applyHoldingWhatIfToCard(card, mult);
-          const chipsWrap = btn.closest('.whatif-chips');
-          if (chipsWrap) {
-            chipsWrap.querySelectorAll('button.whatif-chip').forEach((b) => {
-              b.classList.toggle('is-active', b === btn);
-            });
-          }
-        } catch {}
-        try { scheduleHoldingWhatIfReset(key); } catch {}
-        try { hapticFeedback('light'); } catch {}
-      });
-    });
-  } catch {}
-}
-
-function syncPortfolioHoldingsInPlace() {
-  const tbody = $('tableBody');
-  if (!tbody) return false;
-
-  const rows = Array.from(tbody.querySelectorAll('tr.holding-row[data-key]'));
-  if (!rows.length) return false;
-
-  const byKey = new Map(rows.map((el) => [String(el.dataset.key || ''), el]));
-  const holdings = Array.isArray(state.holdings) ? state.holdings : [];
-
-  let touched = false;
-  for (const h of holdings) {
-    const key = String(h?.key || '');
-    if (!key) continue;
-    const row = byKey.get(key);
-    if (!row) continue;
-
-    const mcapEl = row.querySelector('[data-h-field="mcap"]');
-    if (mcapEl) mcapEl.textContent = h.mcap ? formatCurrency(h.mcap) : '—';
-
-    const balanceEl = row.querySelector('[data-h-field="balance"]');
-    if (balanceEl) balanceEl.textContent = formatNumber(h.balance);
-
-    const priceEl = row.querySelector('[data-h-field="price"]');
-    if (priceEl) priceEl.textContent = formatPrice(h.price);
-
-    const valueEl = row.querySelector('[data-h-field="value"]');
-    if (valueEl) valueEl.textContent = formatCurrency(h.value);
-
-    const pnlEl = row.querySelector('[data-h-field="pnl"]');
-    if (pnlEl) pnlEl.innerHTML = (() => {
-      const v = Number(h.changeUsd || 0) || 0;
-      const cls = v > 0.0001 ? 'pnl-positive' : v < -0.0001 ? 'pnl-negative' : 'pnl-flat';
-      const sign = v > 0.0001 ? '+' : v < -0.0001 ? '-' : '+';
-      return `<strong class="mono redacted-field ${cls}" tabindex="0">${sign}${formatCurrency(Math.abs(v))}</strong>`;
-    })();
-
-    touched = true;
-  }
-
-  return touched;
-}
-
-function syncWatchlistCardsInPlace() {
-  const body = $('watchlistBody');
-  if (!body) return false;
-
-  const rows = Array.from(body.querySelectorAll('.holding-row[data-key]'));
-  if (!rows.length) return false;
-
-  const byKey = new Map(rows.map((el) => [String(el.dataset.key || ''), el]));
-
-  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
-  for (const t of list) {
-    const key = normalizeWatchlistTokenKey(t);
-    const row = byKey.get(key);
-    if (!row) continue;
-
-    const price = t.priceUsd != null && Number.isFinite(Number(t.priceUsd)) ? formatPrice(Number(t.priceUsd)) : '—';
-    const mcap = t.marketCapUsd != null && Number.isFinite(Number(t.marketCapUsd)) ? `$${formatCompactNumber(Number(t.marketCapUsd))}` : '—';
-    const vol = t.volume24hUsd != null && Number.isFinite(Number(t.volume24hUsd)) ? `$${formatCompactNumber(Number(t.volume24hUsd))}` : '—';
-
-    const changePct = Number(t.change24hPct);
-    const changeText = Number.isFinite(changePct) ? formatPct(changePct, 2) : '—';
-    const changeClass = Number.isFinite(changePct)
-      ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
-      : '';
-
-    const priceEl = row.querySelector('[data-wl-field="price"]');
-    if (priceEl) priceEl.textContent = price;
-    const mcapEl = row.querySelector('[data-wl-field="mcap"]');
-    if (mcapEl) mcapEl.textContent = mcap;
-    const volEl = row.querySelector('[data-wl-field="vol"]');
-    if (volEl) volEl.textContent = vol;
-
-    const changeEl = row.querySelector('[data-wl-field="change"]');
-    if (changeEl) {
-      changeEl.textContent = changeText;
-      changeEl.classList.remove('pnl-positive', 'pnl-negative', 'pnl-flat');
-      if (changeClass) changeEl.classList.add(changeClass);
-    }
-  }
-
-  return true;
-}
-
-let watchlistRefreshInFlight = false;
-async function refreshWatchlistMetrics({ force } = {}) {
-  if (watchlistRefreshInFlight) return;
-
-  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
-  if (!list.length) return;
-
-  const now = Date.now();
-  const STALE_MS = 2 * 60 * 1000;
-  const needsRefresh = force
-    ? list
-    : list.filter(t => !t.updatedAt || (now - Number(t.updatedAt || 0)) > STALE_MS);
-
-  if (!needsRefresh.length) return;
-
-  watchlistRefreshInFlight = true;
-  try {
-    const next = [...list];
-    const queue = [];
-    for (let i = 0; i < next.length; i++) {
-      const t = next[i];
-      const should = force || !t.updatedAt || (now - Number(t.updatedAt || 0)) > STALE_MS;
-      if (!should) continue;
-      queue.push({ idx: i, token: t });
-    }
-
-    const CONCURRENCY = 2;
-    let cursor = 0;
-    let okCount = 0;
-    const worker = async () => {
-      while (cursor < queue.length) {
-        const job = queue[cursor++];
-        if (!job) return;
-        try {
-          const t = job.token;
-          const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-          const model = await runTokenSearch(t.address, controller ? { signal: controller.signal, chain: t.chain, network: t.network } : { chain: t.chain, network: t.network });
-          const merged = sanitizeWatchlistToken({
-            ...t,
-            priceUsd: model?.priceUsd ?? t.priceUsd,
-            marketCapUsd: model?.marketCapUsd ?? t.marketCapUsd,
-            change24hPct: model?.change24hPct ?? t.change24hPct,
-            volume24hUsd: model?.volume24hUsd ?? t.volume24hUsd,
-            updatedAt: Date.now(),
-          });
-          if (merged) next[job.idx] = merged;
-          okCount += 1;
-        } catch {}
-      }
-    };
-
-    const workers = Array.from({ length: Math.min(CONCURRENCY, queue.length) }, () => worker());
-    await Promise.allSettled(workers);
-
-    state.watchlistTokens = next;
-    saveWatchlistTokens(next);
-    try {
-      if (!syncWatchlistCardsInPlace()) renderWatchlist();
-    } catch {
-      renderWatchlist();
-    }
-    try { lockInputBodyHeight(); } catch {}
-
-    if (okCount === 0) {
-      try { setWatchlistHint('Refresh failed (rate limited or offline).', 'error'); } catch {}
-    }
-  } finally {
-    watchlistRefreshInFlight = false;
-  }
-}
-
-function addTokenToWatchlist(token) {
-  const t = sanitizeWatchlistToken(token);
-  if (!t) {
-    setWatchlistHint('Invalid token.', 'error');
-    hapticFeedback('error');
-    return false;
-  }
-
-  const key = normalizeWatchlistTokenKey(t);
-  const list = Array.isArray(state.watchlistTokens) ? [...state.watchlistTokens] : [];
-  const exists = list.some((x) => normalizeWatchlistTokenKey(x) === key);
-  if (exists) {
-    hapticFeedback('light');
-    return true;
-  }
-
-  if (list.length >= WATCHLIST_MAX_TOKENS) {
-    setWatchlistHint(`Watchlist limit reached (${WATCHLIST_MAX_TOKENS}). Remove one first.`, 'error');
-    hapticFeedback('error');
-    return false;
-  }
-
-  list.unshift(t);
-  state.watchlistTokens = list;
-  watchlistDataVersion++;
-  invalidateHoldingsTableCache();
-  saveWatchlistTokens(list);
-  renderWatchlist();
-  try { syncWatchlistStars(); } catch {}
-  try { lockInputBodyHeight(); } catch {}
-  return true;
-}
-
-function removeTokenFromWatchlistByKey(key) {
-  const k = String(key || '').toLowerCase();
-  if (!k) return;
-  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
-  const removed = list.find((t) => normalizeWatchlistTokenKey(t) === k);
-  const next = list.filter((t) => normalizeWatchlistTokenKey(t) !== k);
-  state.watchlistTokens = next;
-  watchlistDataVersion++;
-  invalidateHoldingsTableCache();
-  saveWatchlistTokens(next);
-  renderWatchlist();
-  try { syncWatchlistStars(); } catch {}
-  hapticFeedback('light');
+  try { updateWatchlistModeBtnCount(); } catch {}
 }
 
 function downloadBlob(blob, filename) {

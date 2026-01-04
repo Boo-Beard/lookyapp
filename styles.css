@@ -1230,6 +1230,49 @@ body.ui-results .input-section.is-minimized {
   background: var(--panel);
  }
 
+ .mode-toggle-btn {
+  position: relative;
+ }
+
+ .mode-toggle-btn .watchlist-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0.9);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: var(--shadow-sm);
+  color: rgba(11, 11, 16, 0.88);
+  font-family: var(--mono);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+  line-height: 1;
+  transform: translateY(-1px);
+ }
+
+ :root[data-theme="dark"] .mode-toggle-btn .watchlist-count {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+ }
+
+ .mode-toggle-btn .watchlist-count i.fa-heart {
+  color: #ff2d55;
+  filter: drop-shadow(0 4px 0 rgba(0,0,0,0.18));
+ }
+
+ .mode-toggle-btn .watchlist-count.is-zero {
+  opacity: 0.55;
+  filter: grayscale(0.25);
+ }
+
+ .mode-toggle-btn .watchlist-count.is-bounce {
+  animation: peeek-check-pop 0.18s ease-out;
+ }
+
 .app-version {
   font-family: var(--mono);
   font-size: 12px;
