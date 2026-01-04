@@ -3868,8 +3868,15 @@ body.holdings-cards .holding-metric {
   border-radius: 16px;
   border: 2px solid var(--border);
   background: var(--panel);
-  padding: 6px;
+  padding: 10px;
   pointer-events: auto;
+}
+
+body.holdings-cards .holding-metric.holding-metric-whatif {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 body.holdings-cards .holding-metric-label {
