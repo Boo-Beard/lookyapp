@@ -603,7 +603,7 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
@@ -2753,6 +2753,10 @@ a.holding-action[data-action="copy-contract"]:active i {
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
 }
 
+.btn .btn-icon i {
+  font-size: 16px;
+}
+
 .btn:hover {
   transform: translateY(-2px) rotate(-0.6deg);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
@@ -2920,6 +2924,7 @@ body.ui-results .table-header {
   justify-content: center;
   gap: 10px;
   min-height: 40px;
+  height: 40px;
   padding: 10px 14px;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
