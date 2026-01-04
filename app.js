@@ -1894,6 +1894,28 @@ function renderWatchlist() {
   try { updateWatchlistModeBtnCount(); } catch {}
 }
 
+async function refreshWatchlistMetrics({ force } = {}) {
+  const list = Array.isArray(state.watchlistTokens) ? state.watchlistTokens : [];
+  if (!list.length) return;
+
+  const updated = [];
+  for (const token of list) {
+    try {
+      const fresh = await runTokenSearch(token.address, {
+        chain: token.chain,
+        network: token.network,
+      });
+      updated.push(fresh);
+    } catch {
+      updated.push(token);
+    }
+  }
+
+  state.watchlistTokens = updated;
+  saveWatchlistTokens(updated);
+  renderWatchlist();
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
