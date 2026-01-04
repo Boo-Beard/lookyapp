@@ -566,16 +566,16 @@ body.ui-results .amend-wallets-row {
 }
 
 body.ui-results .amend-wallets-row {
-  background: rgba(255, 255, 255, 0.55);
-  border: 3px solid var(--border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  padding: 12px;
-  display: grid;
-  gap: 12px;
-  width: var(--results-rail);
-  margin-left: auto;
-  margin-right: auto;
+    background: rgba(255, 255, 255, 0.55);
+    border: 3px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    width: var(--results-rail);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 body.ui-results #inputHeaderBar {
@@ -595,8 +595,7 @@ body.ui-results .amend-wallets-row .btn {
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
   min-width: 0;
-  padding-left: 12px;
-  padding-right: 12px;
+
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
@@ -615,6 +614,11 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn {
 body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown {
   opacity: 0.65;
 }
+
+body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown .btn-icon i.fa-rotate,
+body.ui-results .amend-wallets-row #portfolioRefreshBtn[aria-busy="true"] .btn-icon i.fa-rotate {
+  animation: peeek-spin 0.9s linear infinite;
+ }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::before {
   content: '';
