@@ -93,9 +93,10 @@
 }
 
 .allocation-details {
-  display: grid;
-  gap: 20px;
-  width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 100%;
 }
 
 @media (max-width: 768px) {
