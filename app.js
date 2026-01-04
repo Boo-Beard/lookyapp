@@ -3620,6 +3620,7 @@ function renderAiScoreSection() {
       { k: 'stability', label: 'Stability' },
       { k: 'cleanliness', label: 'Cleanliness' },
       { k: 'custody', label: 'Custody' },
+      { k: 'size', label: 'Size' },
     ] : [];
 
     const rows = parts
@@ -4027,12 +4028,17 @@ function computePortfolioBlendScore(options = {}) {
   const bLowVol = Number(bonuses.find(b => b.key === 'low_volatility')?.points || 0) || 0;
   const bMultiWallet = Number(bonuses.find(b => b.key === 'multi_wallet')?.points || 0) || 0;
 
+  // Calculate portfolio size score
+  const bSize = Number(bonuses.find(b => b.key === 'portfolio_size')?.points || 0) || 0;
+  const sizeScore = clamp(50 + bSize, 0, 100); // Base 50, can go up with size bonuses
+
   const subscores = {
     diversification: clamp(100 - pTop1 - pTop3 - pTop5 - pChainDom - pChainDiv - pOverDiv - pUnderDiv + bMultiChain + bOptimalDiv, 0, 100),
     quality: clamp(100 - pStable - pStableHigh + bBlueChip, 0, 100),
     stability: clamp(100 - pVol + bLowVol, 0, 100),
     cleanliness: clamp(100 - pDustValue - pDustCount, 0, 100),
     custody: clamp(100 - pWallet + bMultiWallet, 0, 100),
+    size: sizeScore,
   };
 
   return { score, label, meta, penalties, bonuses, subscores, recommendations: recs, config: { targetStablePct, top1TargetPct } };
