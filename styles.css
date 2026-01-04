@@ -2904,29 +2904,29 @@ body.ui-results .table-header {
   max-width: none;
 }
 
-#holdingsCard .table-controls .search-box {
-  max-width: 520px;
-}
-
-#holdingsCard .table-controls .select {
-  flex: 0 1 220px;
+#holdingsCard .table-controls .search-box,
+#holdingsCard .table-controls .select,
+#holdingsCard .table-controls .checkbox-wrapper-11 {
+  flex: 1 1 0;
   min-width: 200px;
+  max-width: 300px;
 }
 
 #holdingsCard .table-controls .checkbox,
 #holdingsCard .table-controls .checkbox-wrapper-11 {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 200px;
+  max-width: 300px;
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   min-height: 40px;
   height: 40px;
-  min-width: 180px;
-  padding: 10px 14px;
+  padding: 8px 14px;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
   background: var(--panel);
@@ -2939,6 +2939,7 @@ body.ui-results .table-header {
   font-weight: 900;
   user-select: none;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-11 input[type="checkbox"] {
@@ -3272,7 +3273,8 @@ body.ui-results .table-header {
 
 .search-input {
   width: 100%;
-  padding: 12px 14px 12px 42px;
+  height: 40px;
+  padding: 8px 14px 8px 42px;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
   box-shadow: var(--shadow-md);
@@ -3281,6 +3283,7 @@ body.ui-results .table-header {
   outline: none;
   background: var(--panel);
   font-family: inherit;
+  box-sizing: border-box;
 }
 
  .search-input:focus-visible {
@@ -3294,7 +3297,8 @@ body.ui-results .table-header {
 
 .select {
   width: 100%;
-  padding: 12px 14px;
+  height: 40px;
+  padding: 8px 14px;
   border-radius: var(--radius-xl);
   border: 4px solid var(--border);
   background: var(--panel);
@@ -3303,6 +3307,7 @@ body.ui-results .table-header {
   font-weight: 700;
   outline: none;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
  .select:focus-visible {

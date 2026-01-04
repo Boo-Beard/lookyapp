@@ -1469,7 +1469,6 @@ function setShowHiddenHoldingsPreference(enabled) {
 function applyShowHiddenHoldings(enabled) {
   state.showHiddenHoldings = !!enabled;
   try { setShowHiddenHoldingsPreference(state.showHiddenHoldings); } catch {}
-  try { invalidateHoldingsTableCache(); } catch {}
   try { setHoldingsPage(1); } catch {}
   try { scheduleRenderHoldingsTable(); } catch {}
 }
