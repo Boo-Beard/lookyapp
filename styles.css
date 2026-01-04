@@ -4863,6 +4863,7 @@ body.ui-results .wallet-count {
     border-radius: 50%;
     object-fit: cover;
     display: block;
+    margin: auto;
 }
 
 .footer-rotator {
