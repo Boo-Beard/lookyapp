@@ -124,6 +124,40 @@
   text-align: right;
 }
 
+.wallet-token-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.token-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.token-action-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.token-action-btn.favorite-btn.is-favorite {
+  color: #ef4444;
+}
+
+.token-action-btn.favorite-btn.is-favorite:hover {
+  color: #dc2626;
+}
+
 @media (max-width: 768px) {
   .wallet-header {
     flex-direction: column;

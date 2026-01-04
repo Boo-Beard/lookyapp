@@ -4517,11 +4517,26 @@ function renderHoldingsByWallet() {
       .map(token => {
         const tokenValue = Number(token?.valueInWallet || 0) || 0;
         const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
+        const isFavorite = isTokenInWatchlist(token?.key);
+        const favoriteClass = isFavorite ? 'is-favorite' : '';
+        const favoriteIcon = isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        
         return `
-          <div class="wallet-token-item">
+          <div class="wallet-token-item" data-key="${escapeHtml(token?.key || '')}">
             <div class="wallet-token-name">${escapeHtml(token?.symbol || '—')}</div>
             <div class="wallet-token-value"><span class="redacted-field" tabindex="0">${formatCurrency(tokenValue)}</span></div>
             <div class="wallet-token-pct">${formatPct(tokenPct)}</div>
+            <div class="wallet-token-actions">
+              <button class="token-action-btn favorite-btn ${favoriteClass}" data-key="${escapeHtml(token?.key || '')}" title="Add to favorites" aria-label="Add to favorites">
+                <i class="${favoriteIcon}"></i>
+              </button>
+              <button class="token-action-btn copy-btn" data-address="${escapeHtml(token?.address || '')}" title="Copy address" aria-label="Copy address">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+              <button class="token-action-btn chart-btn" data-key="${escapeHtml(token?.key || '')}" title="View chart" aria-label="View chart">
+                <i class="fa-solid fa-chart-line"></i>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -4531,7 +4546,7 @@ function renderHoldingsByWallet() {
         <div class="wallet-header" data-wallet="${escapeHtml(r.wallet)}">
           <div class="wallet-header-left">
             <i class="wallet-chevron fa-solid fa-chevron-right"></i>
-            <div class="wallet-address mono">${escapeHtml(shortenAddress(r.wallet))}</div>
+            <div class="wallet-address mono">${escapeHtml(r.wallet)}</div>
           </div>
           <div class="wallet-header-right">
             <div class="wallet-stats">${walletTokens.filter(t => {
@@ -4572,6 +4587,64 @@ function renderHoldingsByWallet() {
         chevron.classList.toggle('fa-chevron-down', !isExpanded);
       }
       
+      hapticFeedback('light');
+    });
+  });
+  
+  // Add click handlers for token action buttons
+  walletAllocationEl.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      if (!key) return;
+      
+      const holding = holdings.find(h => h.key === key);
+      if (!holding) return;
+      
+      toggleWatchlistToken(holding);
+      hapticFeedback('medium');
+      
+      // Update button state
+      const isFavorite = isTokenInWatchlist(key);
+      btn.classList.toggle('is-favorite', isFavorite);
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.className = isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+      }
+    });
+  });
+  
+  walletAllocationEl.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const address = btn.dataset.address;
+      if (!address) return;
+      
+      copyToClipboard(address);
+      hapticFeedback('light');
+      
+      // Visual feedback
+      const icon = btn.querySelector('i');
+      if (icon) {
+        const originalClass = icon.className;
+        icon.className = 'fa-solid fa-check';
+        setTimeout(() => {
+          icon.className = originalClass;
+        }, 1000);
+      }
+    });
+  });
+  
+  walletAllocationEl.querySelectorAll('.chart-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      if (!key) return;
+      
+      const holding = holdings.find(h => h.key === key);
+      if (!holding) return;
+      
+      openTokenChart(holding);
       hapticFeedback('light');
     });
   });
