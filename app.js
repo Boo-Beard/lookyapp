@@ -2517,16 +2517,29 @@ function computeWhatChangedToday() {
   const total24hAgo = Number(state.totalValue24hAgo || 0) || 0;
   const totalDeltaUsd = totalNow - total24hAgo;
 
-  const topTokens = holdings
-    .map((h) => {
-      const deltaUsd = Number(h?.changeUsd ?? 0) || 0;
-      const valueUsd = Number(h?.value ?? 0) || 0;
-      return {
-        symbol: String(h?.symbol || '—'),
-        deltaUsd,
-        valueUsd,
-      };
-    })
+  // Aggregate token changes by symbol to avoid double-counting tokens across wallets
+  const tokenChanges = new Map();
+  holdings.forEach((h) => {
+    const symbol = String(h?.symbol || '—');
+    const deltaUsd = Number(h?.changeUsd ?? 0) || 0;
+    const valueUsd = Number(h?.value ?? 0) || 0;
+    const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean) : [];
+    const uniqueSources = Array.from(new Set(sources));
+    const walletCount = Math.max(1, uniqueSources.length);
+    
+    // Divide the change equally among wallets holding this token
+    const deltaPerWallet = deltaUsd / walletCount;
+    const valuePerWallet = valueUsd / walletCount;
+    
+    if (!tokenChanges.has(symbol)) {
+      tokenChanges.set(symbol, { symbol, deltaUsd: 0, valueUsd: 0 });
+    }
+    const existing = tokenChanges.get(symbol);
+    existing.deltaUsd += deltaPerWallet;
+    existing.valueUsd += valuePerWallet;
+  });
+  
+  const topTokens = Array.from(tokenChanges.values())
     .filter(t => Number.isFinite(t.deltaUsd) && Math.abs(t.deltaUsd) > 0)
     .sort((a, b) => Math.abs(b.deltaUsd) - Math.abs(a.deltaUsd))
     .slice(0, 6);
@@ -4476,25 +4489,42 @@ function renderHoldingsByWallet() {
   const walletHtml = walletRows.map((r) => {
     const pct = Math.max(0, Math.min(100, r.pct));
     
-    // Get tokens for this wallet
+    // Get tokens for this wallet and calculate their actual value in this specific wallet
     const walletTokens = holdings
       .filter(h => {
         const sources = Array.isArray(h?.sources) ? h.sources : [];
         return sources.includes(r.wallet);
       })
-      .sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
+      .map(h => {
+        const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean) : [];
+        const uniqueSources = Array.from(new Set(sources));
+        const totalValue = Number(h?.value || 0) || 0;
+        // Divide value equally among wallets that hold this token
+        const valueInThisWallet = totalValue / Math.max(1, uniqueSources.length);
+        return {
+          ...h,
+          valueInWallet: valueInThisWallet
+        };
+      })
+      .sort((a, b) => (Number(b?.valueInWallet || 0) || 0) - (Number(a?.valueInWallet || 0) || 0));
     
-    const tokenListHtml = walletTokens.map(token => {
-      const tokenValue = Number(token?.value || 0) || 0;
-      const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
-      return `
-        <div class="wallet-token-item">
-          <div class="wallet-token-name">${escapeHtml(token?.symbol || '—')}</div>
-          <div class="wallet-token-value"><span class="redacted-field" tabindex="0">${formatCurrency(tokenValue)}</span></div>
-          <div class="wallet-token-pct">${formatPct(tokenPct)}</div>
-        </div>
-      `;
-    }).join('');
+    const tokenListHtml = walletTokens
+      .filter(token => {
+        const tokenValue = Number(token?.valueInWallet || 0) || 0;
+        const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
+        return tokenPct > 0.05; // Only show tokens with more than 0.0% (0.05% rounds to 0.1%)
+      })
+      .map(token => {
+        const tokenValue = Number(token?.valueInWallet || 0) || 0;
+        const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
+        return `
+          <div class="wallet-token-item">
+            <div class="wallet-token-name">${escapeHtml(token?.symbol || '—')}</div>
+            <div class="wallet-token-value"><span class="redacted-field" tabindex="0">${formatCurrency(tokenValue)}</span></div>
+            <div class="wallet-token-pct">${formatPct(tokenPct)}</div>
+          </div>
+        `;
+      }).join('');
     
     return `
       <div class="wallet-section" data-wallet="${escapeHtml(r.wallet)}">
@@ -4504,7 +4534,15 @@ function renderHoldingsByWallet() {
             <div class="wallet-address mono">${escapeHtml(shortenAddress(r.wallet))}</div>
           </div>
           <div class="wallet-header-right">
-            <div class="wallet-stats">${walletTokens.length} token${walletTokens.length === 1 ? '' : 's'} · ${formatPct(pct)}</div>
+            <div class="wallet-stats">${walletTokens.filter(t => {
+              const tv = Number(t?.valueInWallet || 0) || 0;
+              const tp = r.value > 0 ? (tv / r.value) * 100 : 0;
+              return tp > 0.05;
+            }).length} token${walletTokens.filter(t => {
+              const tv = Number(t?.valueInWallet || 0) || 0;
+              const tp = r.value > 0 ? (tv / r.value) * 100 : 0;
+              return tp > 0.05;
+            }).length === 1 ? '' : 's'} · ${formatPct(pct)}</div>
             <div class="wallet-value"><span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
           </div>
         </div>
