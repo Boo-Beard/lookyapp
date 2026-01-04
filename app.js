@@ -6288,8 +6288,9 @@ function setupEventListeners() {
     } catch {}
     const btn = $('redactedToggleBtn');
     if (btn) {
-      const label = btn.querySelector('span:last-child');
-      if (label) label.textContent = enabled ? 'Show Balances' : 'Hide Balances';
+      const nextLabel = enabled ? 'Show balances' : 'Hide balances';
+      try { btn.setAttribute('aria-label', nextLabel); } catch {}
+      try { btn.setAttribute('title', nextLabel); } catch {}
     }
   };
 
