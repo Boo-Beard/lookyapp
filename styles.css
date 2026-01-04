@@ -2185,6 +2185,13 @@ body.is-scanning .logo-lockup .eye::after {
   background: var(--bg-secondary);
 }
 
+#watchlistBody .holding-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 @media (max-width: 640px) {
   #watchlistBody .holding-card {
     position: relative;
@@ -2210,6 +2217,12 @@ body.is-scanning .logo-lockup .eye::after {
     right: -12px;
     z-index: 2;
   }
+  
+  #watchlistBody .holding-card-header-right {
+    width: 100%;
+    justify-content: space-between;
+    flex: 1 1;
+  }
 }
 
 #searchResults .holding-metric-value {
@@ -2231,6 +2244,13 @@ body.is-scanning .logo-lockup .eye::after {
   gap: 12px;
   border-bottom: 2px solid var(--border);
   background: var(--bg-secondary);
+}
+
+#searchResults .holding-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 640px) {
@@ -2257,6 +2277,12 @@ body.is-scanning .logo-lockup .eye::after {
     top: -12px;
     right: -12px;
     z-index: 2;
+  }
+  
+  #searchResults .holding-card-header-right {
+    width: 100%;
+    justify-content: space-between;
+    flex: 1 1;
   }
 }
 
