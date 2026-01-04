@@ -4296,23 +4296,7 @@ function renderAllocationAndRisk() {
     });
   }
 
-  const tokenRows = topHoldings
-    .filter(r => Number(r?.value || 0) > ALLOC_MIN_VALUE);
-
-  const tokenHtml = tokenRows.map((r) => {
-    const pct = Math.max(0, Math.min(100, r.pct));
-    return `
-      <div class="allocation-item" data-key="${escapeHtml(r.key)}">
-        <div class="allocation-item-name">${escapeHtml(r.name)}</div>
-        <div class="allocation-item-value"><span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
-        <div class="allocation-item-pct">${formatPct(pct)}</div>
-      </div>
-    `;
-  }).join('');
-
-  if (tokenAllocationEl) {
-    tokenAllocationEl.innerHTML = tokenHtml || '<div class="allocation-item">No holdings</div>';
-  }
+  // Token allocation list removed - now shown in Portfolio Holdings table
 
   const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
   const top1 = Number(sortedByValue[0]?.value || 0) || 0;
