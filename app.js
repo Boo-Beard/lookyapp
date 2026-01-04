@@ -4615,7 +4615,8 @@ function renderHoldingsTable() {
       tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
-      const htmlBase = pageItems.map((holding) => {
+      // Render ALL filtered items (not just current page) so DOM manipulation works for all future changes
+      const htmlBase = allFilteredItems.map((holding) => {
         const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
         const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
 
@@ -4693,6 +4694,16 @@ function renderHoldingsTable() {
       tbody.innerHTML = newHtml;
       tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
+      
+      // After initial render, hide items not on current page
+      requestAnimationFrame(() => {
+        const allRows = Array.from(tbody.querySelectorAll('tr.holding-row'));
+        allRows.forEach((row, index) => {
+          if (index < startIdx || index >= startIdx + HOLDINGS_PAGE_SIZE) {
+            row.style.display = 'none';
+          }
+        });
+      });
     }
   } else {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
@@ -4724,15 +4735,25 @@ function renderHoldingsTable() {
     // Check if we can manipulate existing DOM instead of using innerHTML
     const existingRows = Array.from(tbody.querySelectorAll('tr.holding-card-row'));
     const existingKeys = new Set(existingRows.map(r => r.dataset.key).filter(Boolean));
+    const allFilteredKeys = new Set(allFilteredItems.map(h => h.key));
     const pageItemKeys = new Set(pageItems.map(h => h.key));
     
-    // Check if all pageItems exist in the DOM
-    const allItemsExist = pageItems.every(item => existingKeys.has(item.key));
+    // Check if all filtered items exist in the DOM (not just current page)
+    const allItemsExist = allFilteredItems.every(item => existingKeys.has(item.key));
     const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true' && allItemsExist;
     
     if (canManipulateDOM) {
       // Use DOM manipulation to avoid image re-requests
       
+      // First, reorder all rows based on allFilteredItems order
+      allFilteredItems.forEach((holding) => {
+        const row = existingRows.find(r => r.dataset.key === holding.key);
+        if (row) {
+          tbody.appendChild(row);  // Move to end in correct order
+        }
+      });
+      
+      // Then show/hide based on current page
       existingRows.forEach(row => {
         const key = row.dataset.key;
         if (!key || !pageItemKeys.has(key)) {
@@ -4741,21 +4762,14 @@ function renderHoldingsTable() {
           row.style.display = '';
         }
       });
-      
-      // Sort rows based on pageItems order by reordering DOM
-      pageItems.forEach((holding) => {
-        const row = existingRows.find(r => r.dataset.key === holding.key);
-        if (row) {
-          tbody.appendChild(row);  // Move to end in correct order
-        }
-      });
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
       tbody.innerHTML = newHtml;
       tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
-      const htmlBase = pageItems.map((holding) => {
+      // Render ALL filtered items (not just current page) so DOM manipulation works for all future changes
+      const htmlBase = allFilteredItems.map((holding) => {
         const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
         const chartAddress = holding.chain === 'evm' ? displayAddress : holding.address;
 
@@ -4898,6 +4912,16 @@ function renderHoldingsTable() {
       tbody.innerHTML = newHtml;
       tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
+      
+      // After initial render, hide items not on current page
+      requestAnimationFrame(() => {
+        const allRows = Array.from(tbody.querySelectorAll('tr.holding-card-row'));
+        allRows.forEach((row, index) => {
+          if (index < startIdx || index >= startIdx + HOLDINGS_PAGE_SIZE) {
+            row.style.display = 'none';
+          }
+        });
+      });
     }
   }
 
