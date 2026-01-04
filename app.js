@@ -4944,6 +4944,23 @@ function recomputeAggregatesAndRender() {
   try { savePortfolioSnapshot(); } catch {}
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
+
+  try {
+    enrichSolHoldingsWith24hChange(state.holdings, { signal: state.scanAbortController?.signal })
+      .then((next) => {
+        try {
+          if (Array.isArray(next) && next.length) {
+            state.holdings = next;
+            holdingsDataVersion++;
+            invalidateHoldingsTableCache();
+            renderHoldingsByWallet();
+            renderHoldingsTable();
+            try { savePortfolioSnapshot(); } catch {}
+          }
+        } catch {}
+      })
+      .catch(() => {});
+  } catch {}
 }
 
 let portfolioRefreshInFlight = false;
