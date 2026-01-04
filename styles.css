@@ -2082,9 +2082,10 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 #watchlistBody .holding-metric.holding-metric-whatif {
-  border: none;
-  background: transparent;
-  padding: 0;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
 #watchlistBody .holding-metric.holding-metric-whatif .holding-metric-label {
