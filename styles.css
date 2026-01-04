@@ -741,22 +741,22 @@ body.is-redacted .redacted-field.is-revealed {
 }
 
 .summary-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 8px;
-  padding: 32px 14px 16px;
-  overflow: visible;
-  border-radius: var(--radius-lg);
-  border: 2px solid var(--border);
-  backdrop-filter: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 15px;
-  background: var(--card-bg);
-  transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding: 32px 14px 16px;
+    overflow: visible;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border);
+    backdrop-filter: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 15px;
+    background: var(--paper);
+    transition: all 0.2s ease;
 }
 
 .summary-card:hover {
@@ -787,8 +787,7 @@ body.is-redacted .redacted-field.is-revealed {
   justify-content: center;
   border-radius: var(--radius-md);
   border: 2px solid var(--border);
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow: var(--shadow-sm);
+    background: var(--panel);      box-shadow: var(--shadow-sm);
   color: var(--text-primary);
   position: absolute;
   top: -22px;
