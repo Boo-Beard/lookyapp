@@ -3796,6 +3796,26 @@ body.holdings-cards .whatif-chip {
   pointer-events: auto;
 }
 
+@media (max-width: 420px) {
+  body.holdings-cards .holding-metric-whatif .holding-metric-value {
+    display: block;
+  }
+
+  body.holdings-cards .whatif-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+  }
+
+  body.holdings-cards .whatif-chip {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 0;
+    font-size: 11px;
+  }
+}
+
 body.holdings-cards .whatif-chip.is-active {
   background: var(--peeek-accent);
   border-color: rgba(0, 0, 0, 0.95);
