@@ -840,7 +840,8 @@ width: 44px;
 }
 
 .pnl-positive {
-    color: var(--peeek-accent);}
+    color: #10b981;
+}
 
 .pnl-negative {
   color: rgb(154, 22, 22);
@@ -851,7 +852,7 @@ width: 44px;
 }
 
 .summary-card .summary-value.pnl-positive {
-  color: var(--peeek-accent);
+  color: #10b981;
 }
 
 .summary-card .summary-value.pnl-negative {
@@ -863,7 +864,7 @@ width: 44px;
 }
 
 .summary-card .summary-sub.summary-change.positive {
-  color: var(--peeek-accent);
+  color: #10b981;
 }
 
 .summary-card .summary-sub.summary-change.negative {
