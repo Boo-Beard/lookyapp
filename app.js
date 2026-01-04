@@ -4718,6 +4718,13 @@ function renderHoldingsTable() {
                   <div class="holding-metric"><div class="holding-metric-label">Balance</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="price">${formatPrice(holding.price)}</strong></div></div>
                   ${(() => {
+                    const total = Number(state.totalValue || 0) || 0;
+                    const v = Number(holding.value || 0) || 0;
+                    const pct = (total > 0) ? ((v / total) * 100) : NaN;
+                    const text = Number.isFinite(pct) ? `${pct.toFixed(2)}%` : '—';
+                    return `<div class="holding-metric"><div class="holding-metric-label">Allocation</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(text)}</strong></div></div>`;
+                  })()}
+                  ${(() => {
                     const key = holdingWhatIfKey(holding);
                     const mult = key ? (Number(whatIfHolding.get(key) || 1) || 1) : 1;
                     const active = key && mult && mult !== 1;
@@ -4732,7 +4739,9 @@ function renderHoldingsTable() {
                     </div>`;
                   })()}
                   <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Volume (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.volume24hUsd || 0) > 0) ? formatCurrency(holding.volume24hUsd) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.liquidityUsd || 0) > 0) ? formatCurrency(holding.liquidityUsd) : '—'}</strong></div></div>
                   ${(() => {
                     const key = holdingWhatIfKey(holding);
                     const mult = key ? (Number(whatIfHolding.get(key) || 1) || 1) : 1;
