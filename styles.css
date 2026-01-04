@@ -1996,7 +1996,7 @@ body.is-scanning .logo-lockup .eye::after {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.2s ease;
-  background: var(--card-bg);
+  background: var(--paper);
 }
 
 #watchlistBody .holding-card:hover {
@@ -2034,7 +2034,7 @@ body.is-scanning .logo-lockup .eye::after {
   position: relative;
   z-index: 2;
   pointer-events: auto;
-  background: var(--card-bg);
+  background: var(--paper);
 }
 
 #watchlistBody .holding-metric.holding-metric-whatif {
@@ -3781,7 +3781,7 @@ body.holdings-cards .holding-card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.2s ease;
-  background: var(--card-bg);
+  background: var(--paper);
 }
 
 body.holdings-cards .holding-card:hover {
@@ -3909,7 +3909,7 @@ body.holdings-cards .holding-card-metrics {
   position: relative;
   z-index: 2;
   pointer-events: auto;
-  background: var(--card-bg);
+  background: var(--paper);
 }
 
 body.holdings-cards .holding-metric.holding-metric-whatif {
