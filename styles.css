@@ -2005,7 +2005,7 @@ body.is-scanning .logo-lockup .eye::after {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 0 0 auto;
+  flex: 0;
 }
 
 @media (max-width: 640px) {
@@ -2092,6 +2092,13 @@ body.is-scanning .logo-lockup .eye::after {
 
 .holding-metric-whatif {
   grid-column: 1 / -1;
+}
+
+.holding-metric.holding-metric-whatif .whatif-chips {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
 .whatif-chips {
