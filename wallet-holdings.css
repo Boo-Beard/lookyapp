@@ -131,7 +131,7 @@
   flex-shrink: 0;
 }
 
-.token-action-btn {
+.wallet-token-actions .holding-action {
   background: transparent;
   border: none;
   color: var(--text-secondary);
@@ -143,18 +143,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-decoration: none;
 }
 
-.token-action-btn:hover {
+.wallet-token-actions .holding-action:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
 
-.token-action-btn.favorite-btn.is-favorite {
+.wallet-token-actions .holding-action.is-active {
   color: #ef4444;
 }
 
-.token-action-btn.favorite-btn.is-favorite:hover {
+.wallet-token-actions .holding-action.is-active:hover {
   color: #dc2626;
 }
 
