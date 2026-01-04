@@ -436,6 +436,9 @@ function renderSearchTokenActions(model) {
   const network = String(model?.network || '');
   const address = String(model?.address || '').trim();
 
+  const chainLogoUrl = getChainLogoUrl(chain, network);
+  const chainLabel = chain === 'solana' ? 'SOL' : evmNetworkLabel(network);
+
   const chartIconDexscreener = 'https://docs.dexscreener.com/~gitbook/image?url=https%3A%2F%2F198140802-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F7OmRM9NOmlC1POtFwsnX%252Ficon%252F6BJXvNUMQSXAtDTzDyBK%252Ficon-512x512.png%3Falt%3Dmedia%26token%3Da7ce263e-0b40-4afb-ae25-eae378aef0ab&width=32&dpr=2&quality=100&sign=f988708e&sv=2';
   const chartIconBirdeye = 'https://birdeye.so/be/m-dark-logo.png';
 
@@ -452,8 +455,8 @@ function renderSearchTokenActions(model) {
       <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(model?.address || ''))}" aria-label="Copy contract address">
         <i class="fa-regular fa-copy" aria-hidden="true"></i>
       </a>
-      <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
-        <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+      <a class="holding-action holding-action-explorer ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on ${escapeAttribute(chainLabel)} Explorer" ${explorerDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
+        ${chainLogoUrl ? `<img class="chain-logo-action" src="${escapeAttribute(chainLogoUrl)}" alt="${escapeAttribute(chainLabel)}" />` : '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>'}
       </a>
       <a class="holding-action" href="#" data-action="chart" data-chain="${escapeAttribute(chain)}" data-network="${escapeAttribute(network)}" data-address="${escapeAttribute(address)}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" aria-label="View Chart">
         <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
@@ -6194,7 +6197,6 @@ function renderSearchTokenCard(model) {
           </div>
 
           <div class="holding-card-header-right">
-            ${chainBadge ? `<span class=\"chain-badge-small ${String(model?.chain || '')}\">${escapeHtml(chainBadge)}</span>` : ''}
             ${actionsHtml}
           </div>
         </div>

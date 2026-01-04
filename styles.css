@@ -2095,19 +2095,19 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 #watchlistBody .holding-action {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  background: var(--panel);
-  color: var(--text-secondary);
-  text-decoration: none;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
-  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
-}
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* border-radius: 12px; */
+    /* border: 2px solid var(--border); */
+    /* background: var(--panel); */
+    color: var(--text-secondary);
+    text-decoration: none;
+    /* box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm); */
+    transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  }
 
 #watchlistBody .holding-action:hover {
   transform: translateY(-1px);
@@ -3712,7 +3712,6 @@ body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not
 }
 
 body.holdings-cards .holdings-table {
-  table-layout: auto;
       margin-bottom: 10px;
     margin-top: 10px;
 }
@@ -4900,7 +4899,6 @@ body.ui-results .wallet-count {
     border-radius: 50%;
     object-fit: cover;
     position: relative;
-    top: 2px;
 }
 
 .footer-rotator {
