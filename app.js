@@ -4713,7 +4713,7 @@ function renderHoldingsTable() {
                       return `<button class="whatif-chip ${isActive ? 'is-active' : ''}" type="button" data-action="whatif-mult" data-holding-key="${escapeAttribute(key)}" data-mult="${escapeAttribute(String(m))}" aria-label="What if ${escapeAttribute(String(m))}x">${escapeHtml(String(m))}x</button>`;
                     }).join('');
                     return `<div class="holding-metric holding-metric-whatif">
-                      <div class="holding-metric-label">Projection</div>
+                      <div class="holding-metric-label">Peeek Ahead</div>
                       <div class="holding-metric-value">
                         <div class="whatif-chips" role="group" aria-label="What if multipliers">${buttons}</div>
                       </div>
