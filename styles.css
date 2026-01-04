@@ -3495,7 +3495,6 @@ body.ui-results .holding-row::after {
 }
 
 .token-info {
-  flex: 1;
   min-width: 0;
 }
 
@@ -4858,12 +4857,10 @@ body.ui-results .wallet-count {
 }
 
 .chain-logo-action {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     object-fit: cover;
-    display: block;
-    margin: auto;
 }
 
 .footer-rotator {
