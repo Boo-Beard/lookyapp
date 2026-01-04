@@ -4611,6 +4611,7 @@ body.ui-results .table-stats {
 
   .alloc-risk-header {
     position: relative;
+    flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
@@ -4621,7 +4622,7 @@ body.ui-results .table-stats {
     right: 16px;
   }
 
-  #aiScoreCard .alloc-risk-header .collapse-toggle {
+  #portfolioScoreCard .alloc-risk-header .collapse-toggle {
     position: absolute;
     top: 16px;
     right: 16px;
