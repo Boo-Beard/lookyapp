@@ -4814,6 +4814,19 @@ function recomputeAggregatesAndRender() {
       const value = Number(holding.value || holding.valueUsd || 0) || 0;
       const amount = Number(holding.amount || holding.uiAmount || holding.balance || 0) || 0;
       const mcap = Number(holding.market_cap ?? holding.marketCap ?? holding.mc ?? holding.fdv ?? holding.fdv_usd ?? 0) || 0;
+      const volume24hUsd = Number(
+        holding.volume24hUsd ??
+        holding.volume_24h_usd ??
+        holding.volume24h ??
+        holding.volume_24h ??
+        0
+      ) || 0;
+      const liquidityUsd = Number(
+        holding.liquidityUsd ??
+        holding.liquidity_usd ??
+        holding.liquidity ??
+        0
+      ) || 0;
       const changeUsd = Number(
         holding.changeUsd ??
         holding.change_usd ??
@@ -4830,6 +4843,8 @@ function recomputeAggregatesAndRender() {
         existing.value += value;
         existing.balance += amount;
         existing.mcap = Math.max(existing.mcap || 0, mcap);
+        existing.volume24hUsd = Math.max(Number(existing.volume24hUsd || 0) || 0, volume24hUsd);
+        existing.liquidityUsd = Math.max(Number(existing.liquidityUsd || 0) || 0, liquidityUsd);
         existing.changeUsd = (Number(existing.changeUsd || 0) || 0) + changeUsd;
         if (!existing.network && network) existing.network = network;
         existing.sources.push(wallet);
@@ -4847,6 +4862,8 @@ function recomputeAggregatesAndRender() {
           balance: amount,
           value: value,
           mcap: mcap,
+          volume24hUsd: volume24hUsd,
+          liquidityUsd: liquidityUsd,
           changeUsd: changeUsd,
           sources: [wallet],
         });
