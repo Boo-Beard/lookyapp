@@ -3179,9 +3179,14 @@ body.ui-results .table-header {
   #holdingsCard .table-controls .search-input,
   #holdingsCard .table-controls .select {
     min-height: 40px;
+    height: 40px;
     padding-top: 8px;
     padding-bottom: 8px;
     font-size: 13px;
+  }
+  
+  #holdingsCard .table-controls .search-box {
+    height: 40px;
   }
 
   #holdingsCard .table-controls .search-icon {
