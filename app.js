@@ -1844,7 +1844,11 @@ function renderWatchlist() {
             <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong data-wl-field="mcap" tabindex="0">${escapeHtml(mcap)}</strong></div></div>
             <div class="holding-metric"><div class="holding-metric-label">Price</div><div class="holding-metric-value mono"><strong data-wl-field="price" tabindex="0">${escapeHtml(price)}</strong></div></div>
             <div class="holding-metric"><div class="holding-metric-label">24h Change</div><div class="holding-metric-value mono"><strong class="${changeClass}" data-wl-field="change" tabindex="0">${escapeHtml(changeText)}</strong></div></div>
-            <div class="holding-metric"><div class="holding-metric-label">Vol (24h)</div><div class="holding-metric-value mono"><strong data-wl-field="vol" tabindex="0">${escapeHtml(vol)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong data-wl-field="liq" tabindex="0">${escapeHtml(t.liquidityUsd != null && Number.isFinite(Number(t.liquidityUsd)) ? `$${formatCompactNumber(Number(t.liquidityUsd))}` : '—')}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">24h Volume</div><div class="holding-metric-value mono"><strong data-wl-field="vol" tabindex="0">${escapeHtml(vol)}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Holders</div><div class="holding-metric-value mono"><strong data-wl-field="holders" tabindex="0">${escapeHtml(t.holders != null && Number.isFinite(Number(t.holders)) ? formatCompactNumber(Number(t.holders)) : '—')}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Circulating Supply</div><div class="holding-metric-value mono"><strong data-wl-field="circ" tabindex="0">${escapeHtml(t.circulatingSupply != null && Number.isFinite(Number(t.circulatingSupply)) ? formatCompactNumber(Number(t.circulatingSupply)) : '—')}</strong></div></div>
+            <div class="holding-metric"><div class="holding-metric-label">Trades (24h)</div><div class="holding-metric-value mono"><strong data-wl-field="trades" tabindex="0">${escapeHtml(t.trades24h != null && Number.isFinite(Number(t.trades24h)) ? formatCompactNumber(Number(t.trades24h)) : '—')}</strong></div></div>
           </div>
         </div>
       </div>
