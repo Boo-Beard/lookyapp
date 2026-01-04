@@ -1796,6 +1796,14 @@ function renderWatchlist() {
   if (canManipulateDOM) {
     // Use DOM manipulation to avoid image re-requests
     
+    // Remove rows that are no longer in the list
+    existingRows.forEach((row) => {
+      const key = row.dataset.key;
+      if (key && !listKeys.has(key)) {
+        row.remove();
+      }
+    });
+    
     // Reorder rows based on sorted list
     list.forEach((token) => {
       const key = normalizeWatchlistTokenKey(token);
