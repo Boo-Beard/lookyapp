@@ -4946,11 +4946,28 @@ function recomputeAggregatesAndRender() {
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
 
   try {
-    enrichSolHoldingsWith24hChange(state.holdings, { signal: state.scanAbortController?.signal })
+    const solOnly = (Array.isArray(state.holdings) ? state.holdings : [])
+      .filter((h) => String(h?.chain || '') === 'solana')
+      .filter((h) => {
+        const addr = String(h?.address || '').trim();
+        return !!addr && !/^0x/i.test(addr);
+      });
+
+    if (!solOnly.length) return;
+
+    enrichSolHoldingsWith24hChange(solOnly, { signal: state.scanAbortController?.signal })
       .then((next) => {
         try {
           if (Array.isArray(next) && next.length) {
-            state.holdings = next;
+            const byAddr = new Map(next.map((h) => [normalizeSolHoldingTokenAddress(h), h]));
+            const merged = (Array.isArray(state.holdings) ? state.holdings : []).map((h) => {
+              if (String(h?.chain || '') !== 'solana') return h;
+              const addr = normalizeSolHoldingTokenAddress(h);
+              const enriched = byAddr.get(addr);
+              return enriched ? { ...h, ...enriched } : h;
+            });
+
+            state.holdings = merged;
             holdingsDataVersion++;
             invalidateHoldingsTableCache();
             renderHoldingsByWallet();
