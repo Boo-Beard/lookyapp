@@ -3502,10 +3502,6 @@ body.ui-results .holding-row::after {
   object-fit: cover;
 }
 
-.token-info {
-  flex: 1;
-}
-
 .token-symbol {
   font-weight: 900;
   font-size: 15px;
@@ -3759,7 +3755,6 @@ body.holdings-cards .holding-card-header {
   }
   
   body.holdings-cards .holding-card-header .token-cell {
-    flex: 1;
     min-width: 0;
   }
   
@@ -4849,14 +4844,14 @@ body.ui-results .wallet-count {
 }
 
 .chain-badge-logo {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--border);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    /* border: 2px solid var(--border); */
+    /* background: rgba(255, 255, 255, 0.95); */
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); */
+
 }
 
 .footer-rotator {
