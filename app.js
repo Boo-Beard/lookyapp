@@ -4578,11 +4578,15 @@ function renderHoldingsTable() {
     
     // Check if we can manipulate existing DOM instead of using innerHTML
     const existingRows = Array.from(tbody.querySelectorAll('tr.holding-row'));
-    const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true';
+    const existingKeys = new Set(existingRows.map(r => r.dataset.key).filter(Boolean));
+    const pageItemKeys = new Set(pageItems.map(h => h.key));
+    
+    // Check if all pageItems exist in the DOM
+    const allItemsExist = pageItems.every(item => existingKeys.has(item.key));
+    const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true' && allItemsExist;
     
     if (canManipulateDOM) {
       // Use DOM manipulation to avoid image re-requests
-      const pageItemKeys = new Set(pageItems.map(h => h.key));
       
       existingRows.forEach(row => {
         const key = row.dataset.key;
@@ -4714,11 +4718,15 @@ function renderHoldingsTable() {
     
     // Check if we can manipulate existing DOM instead of using innerHTML
     const existingRows = Array.from(tbody.querySelectorAll('tr.holding-card-row'));
-    const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true';
+    const existingKeys = new Set(existingRows.map(r => r.dataset.key).filter(Boolean));
+    const pageItemKeys = new Set(pageItems.map(h => h.key));
+    
+    // Check if all pageItems exist in the DOM
+    const allItemsExist = pageItems.every(item => existingKeys.has(item.key));
+    const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true' && allItemsExist;
     
     if (canManipulateDOM) {
       // Use DOM manipulation to avoid image re-requests
-      const pageItemKeys = new Set(pageItems.map(h => h.key));
       
       existingRows.forEach(row => {
         const key = row.dataset.key;
