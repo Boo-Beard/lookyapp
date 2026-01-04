@@ -4261,6 +4261,12 @@ function filterAndSortHoldingsDOM() {
   // Get all holding rows
   const rows = Array.from(tbody.querySelectorAll('tr.holding-row, tr.holding-card-row'));
   
+  if (rows.length === 0) {
+    // No rows to filter/sort, might need to render first
+    scheduleRenderHoldingsTable();
+    return;
+  }
+  
   // Filter and sort rows
   rows.forEach(row => {
     const key = row.dataset.key;
@@ -4289,8 +4295,12 @@ function filterAndSortHoldingsDOM() {
     return bVal - aVal; // Descending by default
   });
 
-  // Reorder DOM
+  // Reorder DOM - append visible rows first, then hidden ones
   visibleRows.forEach(row => tbody.appendChild(row));
+  const hiddenRows = rows.filter(row => row.style.display === 'none');
+  hiddenRows.forEach(row => tbody.appendChild(row));
+  
+  try { syncWatchlistStars(); } catch {}
 }
 
 function getSortValue(holding, sortBy) {
