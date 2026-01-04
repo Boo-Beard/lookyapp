@@ -1305,6 +1305,7 @@ const holdingsTableCache = {
   totalPages: 1,
   filteredTotalValue: 0,
   htmlCache: new Map(),
+  lastRenderedKey: null,
 };
 const watchlistCache = {
   html: null,
@@ -1322,6 +1323,7 @@ function invalidateHoldingsTableCache() {
   holdingsTableCache.totalPages = 1;
   holdingsTableCache.filteredTotalValue = 0;
   holdingsTableCache.htmlCache.clear();
+  holdingsTableCache.lastRenderedKey = null;
 }
 
 function scheduleRenderHoldingsTable() {
@@ -4507,16 +4509,16 @@ function renderHoldingsTable() {
     const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
     const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
     
-    if (cachedHtml) {
-      if (tbody.innerHTML !== cachedHtml) {
-        tbody.innerHTML = cachedHtml;
-      }
+    if (cachedHtml && holdingsTableCache.lastRenderedKey === fullCacheKey) {
+      // Already rendered, skip DOM update
+    } else if (cachedHtml) {
+      tbody.innerHTML = cachedHtml;
+      holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
-      if (tbody.innerHTML !== newHtml) {
-        tbody.innerHTML = newHtml;
-      }
+      tbody.innerHTML = newHtml;
+      holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
       const htmlBase = pageItems.map((holding) => {
         const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
@@ -4594,9 +4596,8 @@ function renderHoldingsTable() {
 
       const newHtml = `${htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
-      if (tbody.innerHTML !== newHtml) {
-        tbody.innerHTML = newHtml;
-      }
+      tbody.innerHTML = newHtml;
+      holdingsTableCache.lastRenderedKey = fullCacheKey;
     }
   } else {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
@@ -4626,16 +4627,16 @@ function renderHoldingsTable() {
     const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
     const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
     
-    if (cachedHtml) {
-      if (tbody.innerHTML !== cachedHtml) {
-        tbody.innerHTML = cachedHtml;
-      }
+    if (cachedHtml && holdingsTableCache.lastRenderedKey === fullCacheKey) {
+      // Already rendered, skip DOM update
+    } else if (cachedHtml) {
+      tbody.innerHTML = cachedHtml;
+      holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
-      if (tbody.innerHTML !== newHtml) {
-        tbody.innerHTML = newHtml;
-      }
+      tbody.innerHTML = newHtml;
+      holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
       const htmlBase = pageItems.map((holding) => {
         const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
@@ -4778,9 +4779,8 @@ function renderHoldingsTable() {
 
       const newHtml = `${htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
-      if (tbody.innerHTML !== newHtml) {
-        tbody.innerHTML = newHtml;
-      }
+      tbody.innerHTML = newHtml;
+      holdingsTableCache.lastRenderedKey = fullCacheKey;
     }
   }
 
