@@ -52,7 +52,13 @@
             </div>
             <h1 class="logo-title">PEEEK!</h1>
             <div class="mode-toggle" role="tablist" aria-label="Mode">
-              <button id="watchlistModeBtn" class="mode-toggle-btn" type="button" role="tab" aria-selected="false">Favorites</button>
+              <button id="watchlistModeBtn" class="mode-toggle-btn" type="button" role="tab" aria-selected="false">
+                <span>Favorites</span>
+                <span class="watchlist-count" aria-hidden="true">
+                  <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                  <span class="watchlist-count-num">0</span>
+                </span>
+              </button>
               <button id="portfolioModeBtn" class="mode-toggle-btn is-active" type="button" role="tab" aria-selected="true">Portfolio</button>
               <button id="searchModeBtn" class="mode-toggle-btn" type="button" role="tab" aria-selected="false">Search</button>
             </div>
