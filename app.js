@@ -4470,148 +4470,209 @@ function renderHoldingsByWallet() {
 
   const ALLOC_MIN_VALUE = 0.000001;
 
-  const walletTotals = new Map();
+  // Group wallets by chain, then calculate totals
+  const chainWallets = new Map(); // chain -> Map(wallet -> value)
+  
   for (const h of holdings) {
     const v = Number(h?.value || 0) || 0;
+    const chain = String(h?.chain || 'unknown');
     const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean).map(String) : [];
     if (!sources.length || v <= 0) continue;
 
     const uniq = Array.from(new Set(sources));
     const per = v / Math.max(1, uniq.length);
-    for (const w of uniq) walletTotals.set(w, (walletTotals.get(w) || 0) + per);
+    
+    for (const w of uniq) {
+      if (!chainWallets.has(chain)) {
+        chainWallets.set(chain, new Map());
+      }
+      const walletMap = chainWallets.get(chain);
+      walletMap.set(w, (walletMap.get(w) || 0) + per);
+    }
   }
 
-  const walletRows = Array.from(walletTotals.entries())
-    .map(([wallet, value]) => {
-      const v = Number(value || 0) || 0;
+  // Build chain rows with nested wallet data
+  const chainRows = Array.from(chainWallets.entries())
+    .map(([chain, walletMap]) => {
+      const chainValue = Array.from(walletMap.values()).reduce((sum, v) => sum + v, 0);
+      const wallets = Array.from(walletMap.entries())
+        .map(([wallet, value]) => ({
+          wallet,
+          value,
+          pct: chainValue > 0 ? (value / chainValue) * 100 : 0,
+        }))
+        .filter(w => w.value > ALLOC_MIN_VALUE)
+        .sort((a, b) => b.value - a.value);
+      
       return {
-        wallet,
-        value: v,
-        pct: total > 0 ? (v / total) * 100 : 0,
+        chain,
+        value: chainValue,
+        pct: total > 0 ? (chainValue / total) * 100 : 0,
+        wallets,
       };
     })
     .filter(r => r.value > ALLOC_MIN_VALUE)
     .sort((a, b) => b.value - a.value);
 
-  // Build wallet sections with expandable token lists
-  const walletHtml = walletRows.map((r) => {
-    const pct = Math.max(0, Math.min(100, r.pct));
+  // Build chain sections with nested wallet sections
+  const chainHtml = chainRows.map((chainRow) => {
+    const chainPct = Math.max(0, Math.min(100, chainRow.pct));
     
-    // Get tokens for this wallet and calculate their actual value in this specific wallet
-    const walletTokens = holdings
-      .filter(h => {
-        const sources = Array.isArray(h?.sources) ? h.sources : [];
-        return sources.includes(r.wallet);
-      })
-      .map(h => {
-        const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean) : [];
-        const uniqueSources = Array.from(new Set(sources));
-        const totalValue = Number(h?.value || 0) || 0;
-        // Divide value equally among wallets that hold this token
-        const valueInThisWallet = totalValue / Math.max(1, uniqueSources.length);
-        return {
-          ...h,
-          valueInWallet: valueInThisWallet
-        };
-      })
-      .sort((a, b) => (Number(b?.valueInWallet || 0) || 0) - (Number(a?.valueInWallet || 0) || 0));
+    // Get chain display name
+    const chainName = chainRow.chain === 'solana' ? 'Solana' : 
+                      chainRow.chain === 'ethereum' ? 'Ethereum' :
+                      chainRow.chain === 'bsc' ? 'BNB Chain' :
+                      chainRow.chain === 'polygon' ? 'Polygon' :
+                      chainRow.chain === 'arbitrum' ? 'Arbitrum' :
+                      chainRow.chain === 'optimism' ? 'Optimism' :
+                      chainRow.chain === 'avalanche' ? 'Avalanche' :
+                      chainRow.chain === 'base' ? 'Base' :
+                      chainRow.chain.charAt(0).toUpperCase() + chainRow.chain.slice(1);
     
-    const tokenListHtml = walletTokens
-      .filter(token => {
-        const tokenValue = Number(token?.valueInWallet || 0) || 0;
-        const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
-        return tokenPct > 0.05; // Only show tokens with more than 0.0% (0.05% rounds to 0.1%)
-      })
-      .map(token => {
-        const tokenValue = Number(token?.valueInWallet || 0) || 0;
-        const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
-        const chain = String(token?.chain || '');
-        const network = String(token?.network || '');
-        const address = String(token?.address || '');
-        const isFavorite = isTokenInWatchlist({ chain, network, address });
-        const favoriteClass = isFavorite ? 'is-active' : '';
-        const favoriteIcon = isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
-        const logoUrl = String(token?.logoUrl || '');
-        const symbol = String(token?.symbol || '—');
-        const name = String(token?.name || '');
-        
-        return `
-          <div class="wallet-token-item" data-key="${escapeHtml(token?.key || '')}">
-            <div class="wallet-token-name">${escapeHtml(symbol)}</div>
-            <div class="wallet-token-value"><span class="redacted-field" tabindex="0">${formatCurrency(tokenValue)}</span></div>
-            <div class="wallet-token-pct">${formatPct(tokenPct)}</div>
-            <div class="wallet-token-actions">
-              <a class="holding-action ${favoriteClass}" href="#" data-action="watchlist-add" 
-                 data-chain="${escapeAttribute(chain)}" 
-                 data-network="${escapeAttribute(network)}" 
-                 data-address="${escapeAttribute(address)}"
-                 data-symbol="${escapeAttribute(symbol)}"
-                 data-name="${escapeAttribute(name)}"
-                 data-logo-url="${escapeAttribute(logoUrl)}"
-                 aria-label="${isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}">
-                <i class="${favoriteIcon}" aria-hidden="true"></i>
-              </a>
+    // Build wallet sections within this chain
+    const walletsHtml = chainRow.wallets.map((walletRow) => {
+      const walletPct = Math.max(0, Math.min(100, walletRow.pct));
+      
+      // Get tokens for this wallet and calculate their actual value in this specific wallet
+      const walletTokens = holdings
+        .filter(h => {
+          const sources = Array.isArray(h?.sources) ? h.sources : [];
+          const hChain = String(h?.chain || '');
+          return hChain === chainRow.chain && sources.includes(walletRow.wallet);
+        })
+        .map(h => {
+          const sources = Array.isArray(h?.sources) ? h.sources.filter(Boolean) : [];
+          const uniqueSources = Array.from(new Set(sources));
+          const totalValue = Number(h?.value || 0) || 0;
+          // Divide value equally among wallets that hold this token
+          const valueInThisWallet = totalValue / Math.max(1, uniqueSources.length);
+          return {
+            ...h,
+            valueInWallet: valueInThisWallet
+          };
+        })
+        .sort((a, b) => (Number(b?.valueInWallet || 0) || 0) - (Number(a?.valueInWallet || 0) || 0));
+    
+      const tokenListHtml = walletTokens
+        .filter(token => {
+          const tokenValue = Number(token?.valueInWallet || 0) || 0;
+          const tokenPct = walletRow.value > 0 ? (tokenValue / walletRow.value) * 100 : 0;
+          return tokenPct > 0.05; // Only show tokens with more than 0.0% (0.05% rounds to 0.1%)
+        })
+        .map(token => {
+          const tokenValue = Number(token?.valueInWallet || 0) || 0;
+          const tokenPct = walletRow.value > 0 ? (tokenValue / walletRow.value) * 100 : 0;
+          const chain = String(token?.chain || '');
+          const network = String(token?.network || '');
+          const address = String(token?.address || '');
+          const isFavorite = isTokenInWatchlist({ chain, network, address });
+          const favoriteClass = isFavorite ? 'is-active' : '';
+          const favoriteIcon = isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+          const logoUrl = String(token?.logoUrl || '');
+          const symbol = String(token?.symbol || '—');
+          const name = String(token?.name || '');
+          
+          return `
+            <div class="wallet-token-item" data-key="${escapeHtml(token?.key || '')}">
+              <div class="wallet-token-name">${escapeHtml(symbol)}</div>
+              <div class="wallet-token-value"><span class="redacted-field" tabindex="0">${formatCurrency(tokenValue)}</span></div>
+              <div class="wallet-token-pct">${formatPct(tokenPct)}</div>
+              <div class="wallet-token-actions">
+                <a class="holding-action ${favoriteClass}" href="#" data-action="watchlist-add" 
+                   data-chain="${escapeAttribute(chain)}" 
+                   data-network="${escapeAttribute(network)}" 
+                   data-address="${escapeAttribute(address)}"
+                   data-symbol="${escapeAttribute(symbol)}"
+                   data-name="${escapeAttribute(name)}"
+                   data-logo-url="${escapeAttribute(logoUrl)}"
+                   aria-label="${isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}">
+                  <i class="${favoriteIcon}" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      
+      const visibleTokenCount = walletTokens.filter(t => {
+        const tv = Number(t?.valueInWallet || 0) || 0;
+        const tp = walletRow.value > 0 ? (tv / walletRow.value) * 100 : 0;
+        return tp > 0.05;
+      }).length;
+      
+      return `
+        <div class="wallet-subsection" data-wallet="${escapeHtml(walletRow.wallet)}">
+          <div class="wallet-subheader" data-wallet="${escapeHtml(walletRow.wallet)}">
+            <div class="wallet-subheader-left">
+              <i class="wallet-subchevron fa-solid fa-chevron-right"></i>
+              <div class="wallet-address mono">${escapeHtml(shortenAddress(walletRow.wallet))}</div>
+            </div>
+            <div class="wallet-subheader-right">
+              <div class="wallet-stats">${visibleTokenCount} token${visibleTokenCount === 1 ? '' : 's'} · ${formatPct(walletPct)}</div>
+              <div class="wallet-value"><span class="redacted-field" tabindex="0">${formatCurrency(walletRow.value)}</span></div>
             </div>
           </div>
-        `;
-      }).join('');
-    
-    return `
-      <div class="wallet-section" data-wallet="${escapeHtml(r.wallet)}">
-        <div class="wallet-header" data-wallet="${escapeHtml(r.wallet)}">
-          <div class="wallet-header-left">
-            <i class="wallet-chevron fa-solid fa-chevron-right"></i>
-            <div class="wallet-address mono">${escapeHtml(shortenAddress(r.wallet))}</div>
-          </div>
-          <div class="wallet-header-right">
-            <div class="wallet-stats">${walletTokens.filter(t => {
-              const tv = Number(t?.valueInWallet || 0) || 0;
-              const tp = r.value > 0 ? (tv / r.value) * 100 : 0;
-              return tp > 0.05;
-            }).length} token${walletTokens.filter(t => {
-              const tv = Number(t?.valueInWallet || 0) || 0;
-              const tp = r.value > 0 ? (tv / r.value) * 100 : 0;
-              return tp > 0.05;
-            }).length === 1 ? '' : 's'} · ${formatPct(pct)}</div>
-            <div class="wallet-value"><span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
+          <div class="wallet-tokens hidden">
+            ${tokenListHtml}
           </div>
         </div>
-        <div class="wallet-tokens hidden">
-          ${tokenListHtml}
+      `;
+    }).join('');
+    
+    return `
+      <div class="chain-section" data-chain="${escapeHtml(chainRow.chain)}">
+        <div class="chain-header" data-chain="${escapeHtml(chainRow.chain)}">
+          <div class="chain-header-left">
+            <i class="chain-chevron fa-solid fa-chevron-right"></i>
+            <div class="chain-name">${escapeHtml(chainName)}</div>
+          </div>
+          <div class="chain-header-right">
+            <div class="chain-stats">${chainRow.wallets.length} wallet${chainRow.wallets.length === 1 ? '' : 's'} · ${formatPct(chainPct)}</div>
+            <div class="chain-value"><span class="redacted-field" tabindex="0">${formatCurrency(chainRow.value)}</span></div>
+          </div>
+        </div>
+        <div class="chain-wallets hidden">
+          ${walletsHtml}
         </div>
       </div>
     `;
   }).join('');
   
-  walletAllocationEl.innerHTML = walletHtml;
+  walletAllocationEl.innerHTML = chainHtml;
   
-  // Add click handlers for wallet expansion (accordion behavior)
-  walletAllocationEl.querySelectorAll('.wallet-header').forEach(header => {
+  // Add click handlers for chain expansion
+  walletAllocationEl.querySelectorAll('.chain-header').forEach(header => {
     header.addEventListener('click', () => {
+      const chain = header.dataset.chain;
+      const section = walletAllocationEl.querySelector(`.chain-section[data-chain="${chain}"]`);
+      if (!section) return;
+      
+      const walletsEl = section.querySelector('.chain-wallets');
+      const chevron = section.querySelector('.chain-chevron');
+      
+      if (walletsEl && chevron) {
+        const isExpanded = !walletsEl.classList.contains('hidden');
+        walletsEl.classList.toggle('hidden');
+        chevron.classList.toggle('fa-chevron-right', isExpanded);
+        chevron.classList.toggle('fa-chevron-down', !isExpanded);
+      }
+      
+      hapticFeedback('light');
+    });
+  });
+  
+  // Add click handlers for wallet expansion within chains
+  walletAllocationEl.querySelectorAll('.wallet-subheader').forEach(header => {
+    header.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent triggering chain header
       const wallet = header.dataset.wallet;
-      const section = walletAllocationEl.querySelector(`.wallet-section[data-wallet="${wallet}"]`);
+      const section = walletAllocationEl.querySelector(`.wallet-subsection[data-wallet="${wallet}"]`);
       if (!section) return;
       
       const tokensEl = section.querySelector('.wallet-tokens');
-      const chevron = section.querySelector('.wallet-chevron');
+      const chevron = section.querySelector('.wallet-subchevron');
       
       if (tokensEl && chevron) {
         const isExpanded = !tokensEl.classList.contains('hidden');
-        
-        // Collapse all other wallets (accordion behavior)
-        walletAllocationEl.querySelectorAll('.wallet-section').forEach(otherSection => {
-          if (otherSection !== section) {
-            const otherTokensEl = otherSection.querySelector('.wallet-tokens');
-            const otherChevron = otherSection.querySelector('.wallet-chevron');
-            if (otherTokensEl && otherChevron) {
-              otherTokensEl.classList.add('hidden');
-              otherChevron.classList.remove('fa-chevron-down');
-              otherChevron.classList.add('fa-chevron-right');
-            }
-          }
-        });
-        
-        // Toggle current wallet
         tokensEl.classList.toggle('hidden');
         chevron.classList.toggle('fa-chevron-right', isExpanded);
         chevron.classList.toggle('fa-chevron-down', !isExpanded);
