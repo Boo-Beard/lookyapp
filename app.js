@@ -423,54 +423,8 @@ function showInlineStarToast(anchorEl, message) {
 }
 
 function renderSearchTokenActions(model) {
-  const ext = normalizeExtensions(model?.extensions);
   const explorerHref = getExplorerTokenUrl(model);
   const explorerDisabled = explorerHref === '#';
-
-  const links = {
-    website: sanitizeUrl(ext?.links?.website),
-    twitter: sanitizeUrl(ext?.links?.twitter),
-    discord: sanitizeUrl(ext?.links?.discord),
-  };
-
-  const items = [];
-  items.push({
-    key: 'explorer',
-    href: explorerHref,
-    iconHtml: '<i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>',
-    label: 'View on Explorer',
-    disabled: explorerDisabled,
-  });
-
-  if (links.website) {
-    items.push({
-      key: 'website',
-      href: links.website,
-      iconHtml: '<i class="fa-solid fa-globe" aria-hidden="true"></i>',
-      label: 'Website',
-      disabled: false,
-    });
-  }
-  if (links.twitter) {
-    items.push({
-      key: 'twitter',
-      href: links.twitter,
-      iconHtml: '<i class="fa-brands fa-x-twitter" aria-hidden="true"></i>',
-      label: 'X (Twitter)',
-      disabled: false,
-    });
-  }
-  if (links.discord) {
-    items.push({
-      key: 'discord',
-      href: links.discord,
-      iconHtml: '<i class="fa-brands fa-discord" aria-hidden="true"></i>',
-      label: 'Discord',
-      disabled: false,
-    });
-  }
-
-  if (!items.length) return '';
 
   const wlActive = isTokenInWatchlist({
     chain: String(model?.chain || ''),
@@ -488,25 +442,19 @@ function renderSearchTokenActions(model) {
   preloadImage(chartIconDexscreener);
   preloadImage(chartIconBirdeye);
 
-  // expose for other renderers (holdings table/cards) so we avoid cross-origin icon loads
   window.__peeekChartIcons = window.__peeekChartIcons || { dexscreener: chartIconDexscreener, birdeye: chartIconBirdeye };
 
   return `
-    <div class="holding-card-actions search-token-actions" aria-label="Token links">
+    <div class="holding-card-actions" aria-label="Token actions">
       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(model?.chain || ''))}" data-network="${escapeAttribute(String(model?.network || ''))}" data-address="${escapeAttribute(String(model?.address || ''))}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" data-logo-url="${escapeAttribute(String(model?.logoUrl || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
         <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
       </a>
       <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(model?.address || ''))}" aria-label="Copy contract address">
         <i class="fa-regular fa-copy" aria-hidden="true"></i>
       </a>
-      ${items.map((it) => {
-        const disabled = !!it.disabled || !it.href || it.href === '#';
-        return `
-          <a class="holding-action ${disabled ? 'disabled' : ''}" href="${escapeAttribute(it.href || '#')}" target="_blank" rel="noopener noreferrer" aria-label="${escapeAttribute(it.label)}" ${disabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
-            ${it.iconHtml}
-          </a>
-        `;
-      }).join('')}
+      <a class="holding-action ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer" ${explorerDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
+        <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+      </a>
       <a class="holding-action" href="#" data-action="chart" data-chain="${escapeAttribute(chain)}" data-network="${escapeAttribute(network)}" data-address="${escapeAttribute(address)}" data-symbol="${escapeAttribute(String(model?.symbol || ''))}" data-name="${escapeAttribute(String(model?.name || ''))}" aria-label="View Chart">
         <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
       </a>
@@ -1865,15 +1813,29 @@ function renderWatchlist() {
             <div class="holding-card-header-right">
               ${chainBadge ? `<span class=\"chain-badge-small ${escapeAttribute(String(t.chain || ''))}\">${escapeHtml(chainBadge)}</span>` : ''}
               <div class="holding-card-actions" aria-label="Favorites actions">
-                <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
-                  <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+                <a class="holding-action is-active" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Favorites">
+                  <i class="fa-solid fa-heart" aria-hidden="true"></i>
                 </a>
                 <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(t.address || ''))}" aria-label="Copy contract address">
                   <i class="fa-regular fa-copy" aria-hidden="true"></i>
                 </a>
-                <a class="holding-action" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Favorites">
-                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                <a class="holding-action" href="${escapeAttribute(explorerHref)}" target="_blank" rel="noopener noreferrer" aria-label="View on Explorer">
+                  <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
                 </a>
+                <a class="holding-action" href="#" data-action="chart" data-chain="${escapeAttribute(String(t.chain || ''))}" data-network="${escapeAttribute(String(t.network || ''))}" data-address="${escapeAttribute(String(t.address || ''))}" data-symbol="${escapeAttribute(String(t.symbol || ''))}" data-name="${escapeAttribute(String(t.name || ''))}" aria-label="View Chart">
+                  <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+                </a>
+                <div class="chart-popover hidden" role="menu" aria-label="Chart providers">
+                  <a class="chart-popover-link" role="menuitem" data-provider="dexscreener" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dexscreener">
+                    <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.dexscreener) ? window.__peeekChartIcons.dexscreener : 'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64'}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=dexscreener.com&sz=64','D');">
+                  </a>
+                  <a class="chart-popover-link" role="menuitem" data-provider="dextools" href="#" target="_blank" rel="noopener noreferrer" aria-label="Dextools">
+                    <img class="chart-popover-icon" alt="" src="https://cdn.worldvectorlogo.com/logos/dextools.svg" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='T';">
+                  </a>
+                  <a class="chart-popover-link" role="menuitem" data-provider="birdeye" href="#" target="_blank" rel="noopener noreferrer" aria-label="Birdeye">
+                    <img class="chart-popover-icon" alt="" src="${(window.__peeekChartIcons && window.__peeekChartIcons.birdeye) ? window.__peeekChartIcons.birdeye : 'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64'}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="handleChartIconError(this,'https://www.google.com/s2/favicons?domain=birdeye.so&sz=64','B');">
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -5792,6 +5754,10 @@ function setupEventListeners() {
         } catch {}
         await refreshWatchlistMetrics({ force: true });
         hapticFeedback('light');
+        
+        try {
+          watchlistRefreshBtn.removeAttribute('aria-busy');
+        } catch {}
 
         const endsAt = Date.now() + 60_000;
         const tick = () => {
