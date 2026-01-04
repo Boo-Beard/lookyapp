@@ -4517,15 +4517,18 @@ function renderHoldingsTable() {
     const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
     const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
     
-    if (cachedHtml && holdingsTableCache.lastRenderedKey === fullCacheKey) {
-      // Already rendered, skip DOM update
+    // Check if this exact view is already rendered in the DOM
+    if (tbody.dataset.cacheKey === fullCacheKey) {
+      // Already rendered, skip DOM update entirely
     } else if (cachedHtml) {
       tbody.innerHTML = cachedHtml;
+      tbody.dataset.cacheKey = fullCacheKey;
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
+      tbody.dataset.cacheKey = fullCacheKey;
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
       const htmlBase = pageItems.map((holding) => {
@@ -4605,6 +4608,7 @@ function renderHoldingsTable() {
       const newHtml = `${htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
+      tbody.dataset.cacheKey = fullCacheKey;
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     }
   } else {
@@ -4635,15 +4639,18 @@ function renderHoldingsTable() {
     const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
     const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
     
-    if (cachedHtml && holdingsTableCache.lastRenderedKey === fullCacheKey) {
-      // Already rendered, skip DOM update
+    // Check if this exact view is already rendered in the DOM
+    if (tbody.dataset.cacheKey === fullCacheKey) {
+      // Already rendered, skip DOM update entirely
     } else if (cachedHtml) {
       tbody.innerHTML = cachedHtml;
+      tbody.dataset.cacheKey = fullCacheKey;
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
+      tbody.dataset.cacheKey = fullCacheKey;
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
       const htmlBase = pageItems.map((holding) => {
@@ -4788,6 +4795,7 @@ function renderHoldingsTable() {
       const newHtml = `${htmlBase}${skeletonRows}`;
       holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
+      tbody.dataset.cacheKey = fullCacheKey;
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     }
   }
