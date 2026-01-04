@@ -840,8 +840,7 @@ width: 44px;
 }
 
 .pnl-positive {
-  color: rgb(4, 130, 48);
-}
+    color: var(--peeek-accent);}
 
 .pnl-negative {
   color: rgb(154, 22, 22);

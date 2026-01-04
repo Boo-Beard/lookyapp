@@ -15,31 +15,49 @@
 
 .score-circle {
   position: relative;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  width: 200px;
+  height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.score-chart-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(1);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.score-progress-circle {
+  transition: stroke-dashoffset 1s ease-out;
 }
 
 .score-number {
   font-size: 56px;
   font-weight: 900;
-  color: white;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1;
   margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .score-label {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
 }
 
 .score-subscores {

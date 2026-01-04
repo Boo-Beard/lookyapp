@@ -3530,8 +3530,74 @@ function renderAiScoreSection() {
     return;
   }
 
-  valueEl.textContent = `${Math.round(s.score)}`;
+  const scoreValue = Math.round(s.score);
+  valueEl.textContent = `${scoreValue}`;
   metaEl.textContent = s?.label || '—';
+  
+  // Render circular chart
+  const scoreCircle = valueEl.closest('.score-circle');
+  if (scoreCircle) {
+    const existingSvg = scoreCircle.querySelector('.score-chart-svg');
+    if (existingSvg) existingSvg.remove();
+    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'score-chart-svg');
+    svg.setAttribute('viewBox', '0 0 200 200');
+    
+    const radius = 85;
+    const circumference = 2 * Math.PI * radius;
+    const progress = (scoreValue / 100) * circumference;
+    
+    // Background circle
+    const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bgCircle.setAttribute('cx', '100');
+    bgCircle.setAttribute('cy', '100');
+    bgCircle.setAttribute('r', radius);
+    bgCircle.setAttribute('fill', 'none');
+    bgCircle.setAttribute('stroke', 'rgba(255, 255, 255, 0.1)');
+    bgCircle.setAttribute('stroke-width', '12');
+    
+    // Progress circle
+    const progressCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    progressCircle.setAttribute('cx', '100');
+    progressCircle.setAttribute('cy', '100');
+    progressCircle.setAttribute('r', radius);
+    progressCircle.setAttribute('fill', 'none');
+    progressCircle.setAttribute('stroke', 'url(#scoreGradient)');
+    progressCircle.setAttribute('stroke-width', '12');
+    progressCircle.setAttribute('stroke-linecap', 'round');
+    progressCircle.setAttribute('stroke-dasharray', circumference);
+    progressCircle.setAttribute('stroke-dashoffset', circumference - progress);
+    progressCircle.setAttribute('transform', 'rotate(-90 100 100)');
+    progressCircle.setAttribute('class', 'score-progress-circle');
+    
+    // Gradient definition
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    gradient.setAttribute('id', 'scoreGradient');
+    gradient.setAttribute('x1', '0%');
+    gradient.setAttribute('y1', '0%');
+    gradient.setAttribute('x2', '100%');
+    gradient.setAttribute('y2', '100%');
+    
+    const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop1.setAttribute('offset', '0%');
+    stop1.setAttribute('style', 'stop-color:#ffffff;stop-opacity:1');
+    
+    const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    stop2.setAttribute('offset', '100%');
+    stop2.setAttribute('style', 'stop-color:rgba(255, 255, 255, 0.7);stop-opacity:1');
+    
+    gradient.appendChild(stop1);
+    gradient.appendChild(stop2);
+    defs.appendChild(gradient);
+    
+    svg.appendChild(defs);
+    svg.appendChild(bgCircle);
+    svg.appendChild(progressCircle);
+    
+    scoreCircle.insertBefore(svg, scoreCircle.firstChild);
+  }
 
   const penalties = Array.isArray(s?.penalties) ? s.penalties.slice() : [];
   const bonuses = Array.isArray(s?.bonuses) ? s.bonuses.slice() : [];
