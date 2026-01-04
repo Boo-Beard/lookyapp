@@ -1421,6 +1421,32 @@ const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
 const STORAGE_KEY_WATCHLIST_SORT = 'looky_watchlist_sort_v1';
 const WATCHLIST_MAX_TOKENS = 5;
 
+let lastWatchlistCount = null;
+function updateWatchlistModeBtnCount() {
+  try {
+    const header = $('inputHeaderBar') || document;
+    const badge = header.querySelector('.mode-toggle-wrap .watchlist-count') || header.querySelector('.watchlist-count');
+    const numEl = header.querySelector('.mode-toggle-wrap .watchlist-count-num') || header.querySelector('.watchlist-count-num');
+    if (!badge || !numEl) return;
+
+    const count = Array.isArray(state.watchlistTokens) ? state.watchlistTokens.length : 0;
+    numEl.textContent = String(count);
+    badge.classList.toggle('is-zero', count <= 0);
+
+    if (lastWatchlistCount == null) {
+      lastWatchlistCount = count;
+      return;
+    }
+
+    if (count !== lastWatchlistCount) {
+      lastWatchlistCount = count;
+      badge.classList.remove('is-bounce');
+      void badge.offsetWidth;
+      badge.classList.add('is-bounce');
+    }
+  } catch {}
+}
+
 function hiddenHoldingsStorageKey() {
   try {
     const profile = typeof getActiveProfileName === 'function' ? getActiveProfileName() : '';
