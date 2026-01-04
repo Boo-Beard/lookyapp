@@ -4356,27 +4356,29 @@ function renderAllocationAndRisk() {
 
     // Overall portfolio change
     if (deltaTotal !== 0) {
-      const sign = deltaTotal > 0 ? '+' : '-';
-      const direction = deltaTotal > 0 ? 'UP' : 'DOWN';
+      const arrow = deltaTotal > 0 ? '↑' : '↓';
+      const colorClass = deltaTotal > 0 ? 'pnl-positive' : 'pnl-negative';
       const pctChange = total > 0 ? (Math.abs(deltaTotal) / total) * 100 : 0;
-      changedItems.push(`Portfolio ${direction}: <strong>${sign}${formatCurrency(Math.abs(deltaTotal))}</strong> (${formatPct(pctChange)})`);
+      changedItems.push(`Portfolio <span class="${colorClass}">${arrow} ${formatCurrency(Math.abs(deltaTotal))}</span> (${formatPct(pctChange)})`);
     }
 
     if (Array.isArray(data?.topTokens) && data.topTokens.length) {
       data.topTokens.forEach((t) => {
-        const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '';
+        const arrow = t.deltaUsd > 0 ? '↑' : t.deltaUsd < 0 ? '↓' : '';
+        const colorClass = t.deltaUsd > 0 ? 'pnl-positive' : 'pnl-negative';
         const pctOfMove = deltaTotal !== 0 ? (Math.abs(t.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
         const pctOfPortfolio = total > 0 ? (Math.abs(t.deltaUsd) / total) * 100 : 0;
         const contribution = pctOfMove > 5 ? ` • <span style="color: var(--text-tertiary)">${formatPct(pctOfMove)} of move</span>` : '';
-        changedItems.push(`<strong>${escapeHtml(t.symbol)}</strong>: ${sign}${formatCurrency(Math.abs(t.deltaUsd))} (${formatPct(pctOfPortfolio)})${contribution}`);
+        changedItems.push(`<strong>${escapeHtml(t.symbol)}</strong>: <span class="${colorClass}">${arrow} ${formatCurrency(Math.abs(t.deltaUsd))}</span> (${formatPct(pctOfPortfolio)})${contribution}`);
       });
     }
 
     if (data?.topWallet && data.topWallet.wallet) {
-      const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '';
+      const arrow = data.topWallet.deltaUsd > 0 ? '↑' : data.topWallet.deltaUsd < 0 ? '↓' : '';
+      const colorClass = data.topWallet.deltaUsd > 0 ? 'pnl-positive' : 'pnl-negative';
       const label = data.topWallet.chain === 'solana' ? 'Solana' : evmNetworkLabel(data.topWallet.chain);
       const pctOfMove = deltaTotal !== 0 ? (Math.abs(data.topWallet.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
-      changedItems.push(`Top wallet: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> • ${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))} (${formatPct(pctOfMove)} of move)`);
+      changedItems.push(`Top wallet: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> • <span class="${colorClass}">${arrow} ${formatCurrency(Math.abs(data.topWallet.deltaUsd))}</span> (${formatPct(pctOfMove)} of move)`);
     }
   } catch {}
 
