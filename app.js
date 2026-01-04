@@ -317,6 +317,9 @@ const solTokenChangeCache = new Map();
 const SOL_OVERVIEW_CACHE_TTL_MS = 10 * 60 * 1000;
 const solTokenOverviewCache = new Map();
 
+const TOKEN_OVERVIEW_CACHE_TTL_MS = 10 * 60 * 1000;
+const tokenOverviewCache = new Map();
+
 const SOL_CHANGE_CACHE_TTL_ZERO_MS = 30 * 1000;
 
 let progressRaf = null;
@@ -621,6 +624,147 @@ function setSolTokenOverviewCache(address, data) {
   const key = String(address || '').trim();
   if (!key) return;
   solTokenOverviewCache.set(key, { ts: Date.now(), data });
+}
+
+function getTokenOverviewCache(address, chain) {
+  const addr = String(address || '').trim();
+  const ch = String(chain || '').trim();
+  if (!addr || !ch) return null;
+  if (ch === 'solana') return getSolTokenOverviewCache(addr);
+  const key = `${ch}:${addr}`;
+  const entry = tokenOverviewCache.get(key);
+  if (!entry) return null;
+  if ((Date.now() - entry.ts) > TOKEN_OVERVIEW_CACHE_TTL_MS) {
+    tokenOverviewCache.delete(key);
+    return null;
+  }
+  return entry.data || null;
+}
+
+function setTokenOverviewCache(address, chain, data) {
+  const addr = String(address || '').trim();
+  const ch = String(chain || '').trim();
+  if (!addr || !ch) return;
+  if (ch === 'solana') {
+    setSolTokenOverviewCache(addr, data);
+    return;
+  }
+  const key = `${ch}:${addr}`;
+  tokenOverviewCache.set(key, { ts: Date.now(), data });
+}
+
+function parseOverviewMeta(overview) {
+  const data = overview && typeof overview === 'object' ? overview : {};
+  const marketCapUsd = Number(
+    data?.marketCap ??
+    data?.market_cap ??
+    data?.marketcap ??
+    data?.fdv ??
+    data?.fdv_usd ??
+    0
+  ) || 0;
+  const volume24hUsd = Number(
+    data?.v24hUSD ??
+    data?.v24h_usd ??
+    data?.v24h ??
+    data?.volume24h ??
+    data?.volume24hUsd ??
+    data?.volume_24h ??
+    data?.volume_24h_usd ??
+    0
+  ) || 0;
+  const liquidityUsd = Number(
+    data?.liquidity ??
+    data?.liquidityUsd ??
+    data?.liquidity_usd ??
+    data?.liquidity_1d ??
+    0
+  ) || 0;
+  return { marketCapUsd, volume24hUsd, liquidityUsd };
+}
+
+function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
+  if (!Array.isArray(holdings) || holdings.length === 0) return;
+
+  const candidates = holdings
+    .filter((h) => h && h.address && h.chain)
+    .filter((h) => String(h.chain) !== 'evm' || isValidEvmContractAddress(String(h.address || '')))
+    .filter((h) => {
+      const needsVol = !(Number(h.volume24hUsd || 0) > 0);
+      const needsLiq = !(Number(h.liquidityUsd || 0) > 0);
+      const needsMcap = !(Number(h.mcap || 0) > 0);
+      return needsVol || needsLiq || needsMcap;
+    })
+    .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0))
+    .slice(0, 30);
+
+  if (!candidates.length) return;
+
+  let idx = 0;
+  let changed = false;
+  let lastRenderAt = 0;
+  const maybeRender = () => {
+    const now = Date.now();
+    if (now - lastRenderAt < 1000) return;
+    lastRenderAt = now;
+    holdingsDataVersion++;
+    invalidateHoldingsTableCache();
+    scheduleRenderHoldingsTable();
+    try { savePortfolioSnapshot(); } catch {}
+  };
+
+  const concurrency = 4;
+  const worker = async () => {
+    while (idx < candidates.length) {
+      const h = candidates[idx++];
+      if (!h) continue;
+      if (signal?.aborted) return;
+
+      const addr = String(h.address || '').trim();
+      const chain = String(h.chain || '').trim();
+      if (!addr || !chain) continue;
+
+      let overview = getTokenOverviewCache(addr, chain);
+      if (!overview) {
+        try {
+          overview = await fetchTokenOverview(addr, chain, { signal });
+          if (overview) setTokenOverviewCache(addr, chain, overview);
+        } catch {
+          setTokenOverviewCache(addr, chain, null);
+          continue;
+        }
+      }
+
+      if (!overview) continue;
+      const meta = parseOverviewMeta(overview);
+
+      if (Number(meta.marketCapUsd) > 0 && !(Number(h.mcap || 0) > 0)) {
+        h.mcap = Number(meta.marketCapUsd) || 0;
+        changed = true;
+      }
+      if (Number(meta.volume24hUsd) > 0 && !(Number(h.volume24hUsd || 0) > 0)) {
+        h.volume24hUsd = Number(meta.volume24hUsd) || 0;
+        changed = true;
+      }
+      if (Number(meta.liquidityUsd) > 0 && !(Number(h.liquidityUsd || 0) > 0)) {
+        h.liquidityUsd = Number(meta.liquidityUsd) || 0;
+        changed = true;
+      }
+
+      if (changed) maybeRender();
+    }
+  };
+
+  Promise.allSettled(Array.from({ length: Math.min(concurrency, candidates.length) }, () => worker()))
+    .then(() => {
+      if (signal?.aborted) return;
+      if (!changed) return;
+      holdingsDataVersion++;
+      invalidateHoldingsTableCache();
+      scheduleRenderHoldingsTable();
+      try { savePortfolioSnapshot(); } catch {}
+    })
+    .catch(() => {});
 }
 
 function getWalletPnlCache(chain, wallet) {
@@ -4946,37 +5090,7 @@ function recomputeAggregatesAndRender() {
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
 
   try {
-    const solOnly = (Array.isArray(state.holdings) ? state.holdings : [])
-      .filter((h) => String(h?.chain || '') === 'solana')
-      .filter((h) => {
-        const addr = String(h?.address || '').trim();
-        return !!addr && !/^0x/i.test(addr);
-      });
-
-    if (!solOnly.length) return;
-
-    enrichSolHoldingsWith24hChange(solOnly, { signal: state.scanAbortController?.signal })
-      .then((next) => {
-        try {
-          if (Array.isArray(next) && next.length) {
-            const byAddr = new Map(next.map((h) => [normalizeSolHoldingTokenAddress(h), h]));
-            const merged = (Array.isArray(state.holdings) ? state.holdings : []).map((h) => {
-              if (String(h?.chain || '') !== 'solana') return h;
-              const addr = normalizeSolHoldingTokenAddress(h);
-              const enriched = byAddr.get(addr);
-              return enriched ? { ...h, ...enriched } : h;
-            });
-
-            state.holdings = merged;
-            holdingsDataVersion++;
-            invalidateHoldingsTableCache();
-            renderHoldingsByWallet();
-            renderHoldingsTable();
-            try { savePortfolioSnapshot(); } catch {}
-          }
-        } catch {}
-      })
-      .catch(() => {});
+    enrichHoldingsWithOverviewMeta(state.holdings, { signal: state.scanAbortController?.signal });
   } catch {}
 }
 
