@@ -4053,9 +4053,9 @@ function formatPct(value, digits = 1) {
 function renderAllocationAndRisk() {
   const allocationEl = $('allocationBreakdown');
   const chainChartEl = $('chainAllocationChart');
-  const tokenAllocationEl = $('tokenAllocationList');
   const insightsEl = $('riskInsights');
-  if ((!allocationEl && (!chainChartEl || !tokenAllocationEl)) || !insightsEl) return;
+  const whatsChangedEl = $('whatsChangedToday');
+  if ((!allocationEl && !chainChartEl) || !insightsEl || !whatsChangedEl) return;
 
   const holdings = Array.isArray(state.holdings) ? state.holdings : [];
   const total = Number(state.totalValue || 0) || 0;
@@ -4063,8 +4063,8 @@ function renderAllocationAndRisk() {
   if (!holdings.length || total <= 0) {
     if (allocationEl) allocationEl.innerHTML = '';
     if (chainChartEl) chainChartEl.innerHTML = '';
-    if (tokenAllocationEl) tokenAllocationEl.innerHTML = '';
     insightsEl.innerHTML = '';
+    whatsChangedEl.innerHTML = '';
     return;
   }
 
@@ -4365,7 +4365,6 @@ function renderAllocationAndRisk() {
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
   // Render "What's Changed Today" section with expanded insights
-  const whatsChangedEl = $('whatsChangedToday');
   const changedItems = [];
   try {
     const data = computeWhatChangedToday();
@@ -4374,7 +4373,7 @@ function renderAllocationAndRisk() {
     // Overall portfolio change
     if (deltaTotal !== 0) {
       const sign = deltaTotal > 0 ? '+' : '-';
-      const direction = deltaTotal > 0 ? '📈' : '📉';
+      const direction = deltaTotal > 0 ? 'UP' : 'DOWN';
       const pctChange = total > 0 ? (Math.abs(deltaTotal) / total) * 100 : 0;
       changedItems.push(`Portfolio ${direction}: <strong>${sign}${formatCurrency(Math.abs(deltaTotal))}</strong> (${formatPct(pctChange)})`);
     }
@@ -4442,7 +4441,7 @@ function renderAllocationAndRisk() {
   }
   
   // Portfolio size assessment
-  const sizeCategory = total > 100000 ? '🐋 Whale' : total > 10000 ? '🦈 Large' : total > 1000 ? '🐟 Medium' : '🦐 Small';
+  const sizeCategory = total > 100000 ? 'Whale' : total > 10000 ? 'Large' : total > 1000 ? 'Medium' : 'Small';
   insights.push(`Portfolio size: <strong><span class="redacted-field" tabindex="0">${formatCurrency(total)}</span></strong> • ${sizeCategory}`);
 
   insightsEl.innerHTML = insights
