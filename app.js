@@ -751,6 +751,9 @@ function updateScanCooldownUi() {
   const btn = $('scanButton');
   if (!btn) return;
 
+  const labelEl = btn.querySelector('span:not(.btn-icon)') || btn.querySelector('span:last-child');
+  const baseLabel = labelEl ? String(labelEl.textContent || '').trim() : '';
+
   if (DISABLE_SCAN_COOLDOWN) {
     if (scanCooldownTimer) {
       window.clearInterval(scanCooldownTimer);
@@ -777,6 +780,7 @@ function updateScanCooldownUi() {
       btn.classList.add('is-cooldown');
       btn.style.setProperty('--cooldown-pct', String(pct));
       btn.setAttribute('aria-busy', 'true');
+      if (labelEl) labelEl.textContent = `${baseLabel || 'Scan'} (${formatCooldownMs(remaining)})`;
     } catch {}
     if (!scanCooldownTimer) {
       scanCooldownTimer = window.setInterval(updateScanCooldownUi, 1000);
@@ -794,6 +798,7 @@ function updateScanCooldownUi() {
     btn.classList.remove('is-cooldown');
     btn.style.removeProperty('--cooldown-pct');
     btn.removeAttribute('aria-busy');
+    if (labelEl) labelEl.textContent = baseLabel || 'Scan';
   } catch {}
 }
 
@@ -5776,6 +5781,9 @@ function setupEventListeners() {
           if (remaining > 0) {
             const pct = Math.max(0, Math.min(1, 1 - (remaining / 60_000)));
             try { watchlistRefreshBtn.style.setProperty('--cooldown-pct', String(pct)); } catch {}
+            try {
+              if (labelEl) labelEl.textContent = `${baseLabel || 'Refresh'} (${formatCooldownMs(remaining)})`;
+            } catch {}
             return;
           }
           try {
@@ -5787,6 +5795,7 @@ function setupEventListeners() {
             watchlistRefreshBtn.classList.remove('is-cooldown');
             watchlistRefreshBtn.style.removeProperty('--cooldown-pct');
             watchlistRefreshBtn.removeAttribute('aria-busy');
+            if (labelEl) labelEl.textContent = baseLabel || 'Refresh';
           } catch {}
         };
 
@@ -5839,6 +5848,11 @@ function setupEventListeners() {
           if (remaining > 0) {
             const pct = Math.max(0, Math.min(1, 1 - (remaining / 60_000)));
             try { portfolioRefreshBtn.style.setProperty('--cooldown-pct', String(pct)); } catch {}
+            try {
+              const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
+              const baseLabel = labelEl ? String(labelEl.textContent || '').replace(/\s*\(\d+:\d+\)\s*$/, '').trim() : '';
+              if (labelEl) labelEl.textContent = `${baseLabel || 'Refresh'} (${formatCooldownMs(remaining)})`;
+            } catch {}
             return;
           }
           try {
@@ -5850,6 +5864,10 @@ function setupEventListeners() {
             portfolioRefreshBtn.classList.remove('is-cooldown');
             portfolioRefreshBtn.style.removeProperty('--cooldown-pct');
             portfolioRefreshBtn.removeAttribute('aria-busy');
+            try {
+              const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
+              if (labelEl) labelEl.textContent = 'Refresh';
+            } catch {}
           } catch {}
         };
 
