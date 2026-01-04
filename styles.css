@@ -619,6 +619,11 @@ body.is-scanning.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon i.
   animation: peeek-spin 0.9s linear infinite;
 }
 
+#watchlistRefreshBtn.is-cooldown .btn-icon i.fa-rotate,
+#watchlistRefreshBtn[aria-busy="true"] .btn-icon i.fa-rotate {
+  animation: peeek-spin 0.9s linear infinite;
+}
+
 body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::before {
   content: '';
   position: absolute;
