@@ -4575,20 +4575,35 @@ function renderHoldingsTable() {
       : '';
 
     const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
-    const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
     
-    // Check if this exact view is already rendered in the DOM
-    if (tbody.dataset.cacheKey === fullCacheKey) {
-      // Already rendered, skip DOM update entirely
-    } else if (cachedHtml) {
-      tbody.innerHTML = cachedHtml;
-      tbody.dataset.cacheKey = fullCacheKey;
-      holdingsTableCache.lastRenderedKey = fullCacheKey;
+    // Check if we can manipulate existing DOM instead of using innerHTML
+    const existingRows = Array.from(tbody.querySelectorAll('tr.holding-row'));
+    const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true';
+    
+    if (canManipulateDOM) {
+      // Use DOM manipulation to avoid image re-requests
+      const pageItemKeys = new Set(pageItems.map(h => h.key));
+      
+      existingRows.forEach(row => {
+        const key = row.dataset.key;
+        if (!key || !pageItemKeys.has(key)) {
+          row.style.display = 'none';
+        } else {
+          row.style.display = '';
+        }
+      });
+      
+      // Sort rows based on pageItems order
+      pageItems.forEach((holding, index) => {
+        const row = existingRows.find(r => r.dataset.key === holding.key);
+        if (row) {
+          row.style.order = index;
+        }
+      });
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
-      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
-      tbody.dataset.cacheKey = fullCacheKey;
+      tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
       const htmlBase = pageItems.map((holding) => {
@@ -4666,9 +4681,8 @@ function renderHoldingsTable() {
       holdingsTableCache.filteredTotalValue = filteredTotalValue;
 
       const newHtml = `${htmlBase}${skeletonRows}`;
-      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
-      tbody.dataset.cacheKey = fullCacheKey;
+      tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     }
   } else {
@@ -4697,20 +4711,35 @@ function renderHoldingsTable() {
       : '';
 
     const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
-    const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
     
-    // Check if this exact view is already rendered in the DOM
-    if (tbody.dataset.cacheKey === fullCacheKey) {
-      // Already rendered, skip DOM update entirely
-    } else if (cachedHtml) {
-      tbody.innerHTML = cachedHtml;
-      tbody.dataset.cacheKey = fullCacheKey;
-      holdingsTableCache.lastRenderedKey = fullCacheKey;
+    // Check if we can manipulate existing DOM instead of using innerHTML
+    const existingRows = Array.from(tbody.querySelectorAll('tr.holding-card-row'));
+    const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true';
+    
+    if (canManipulateDOM) {
+      // Use DOM manipulation to avoid image re-requests
+      const pageItemKeys = new Set(pageItems.map(h => h.key));
+      
+      existingRows.forEach(row => {
+        const key = row.dataset.key;
+        if (!key || !pageItemKeys.has(key)) {
+          row.style.display = 'none';
+        } else {
+          row.style.display = '';
+        }
+      });
+      
+      // Sort rows based on pageItems order
+      pageItems.forEach((holding, index) => {
+        const row = existingRows.find(r => r.dataset.key === holding.key);
+        if (row) {
+          row.style.order = index;
+        }
+      });
     } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
-      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
-      tbody.dataset.cacheKey = fullCacheKey;
+      tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     } else {
       const htmlBase = pageItems.map((holding) => {
@@ -4853,9 +4882,8 @@ function renderHoldingsTable() {
       holdingsTableCache.filteredTotalValue = filteredTotalValue;
 
       const newHtml = `${htmlBase}${skeletonRows}`;
-      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       tbody.innerHTML = newHtml;
-      tbody.dataset.cacheKey = fullCacheKey;
+      tbody.dataset.hasRendered = 'true';
       holdingsTableCache.lastRenderedKey = fullCacheKey;
     }
   }
