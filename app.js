@@ -4472,20 +4472,71 @@ function renderHoldingsByWallet() {
     .filter(r => r.value > ALLOC_MIN_VALUE)
     .sort((a, b) => b.value - a.value);
 
-  walletAllocationEl.innerHTML = walletRows
-    .map((r) => {
-      const pct = Math.max(0, Math.min(100, r.pct));
+  // Build wallet sections with expandable token lists
+  const walletHtml = walletRows.map((r) => {
+    const pct = Math.max(0, Math.min(100, r.pct));
+    
+    // Get tokens for this wallet
+    const walletTokens = holdings
+      .filter(h => {
+        const sources = Array.isArray(h?.sources) ? h.sources : [];
+        return sources.includes(r.wallet);
+      })
+      .sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
+    
+    const tokenListHtml = walletTokens.map(token => {
+      const tokenValue = Number(token?.value || 0) || 0;
+      const tokenPct = r.value > 0 ? (tokenValue / r.value) * 100 : 0;
       return `
-        <div class="alloc-row" data-key="wallet:${escapeHtml(r.wallet)}">
-          <div class="alloc-row-top">
-            <div class="alloc-row-name mono">${escapeHtml(shortenAddress(r.wallet))}</div>
-            <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
-          </div>
-          <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
+        <div class="wallet-token-item">
+          <div class="wallet-token-name">${escapeHtml(token?.symbol || '—')}</div>
+          <div class="wallet-token-value"><span class="redacted-field" tabindex="0">${formatCurrency(tokenValue)}</span></div>
+          <div class="wallet-token-pct">${formatPct(tokenPct)}</div>
         </div>
       `;
-    })
-    .join('');
+    }).join('');
+    
+    return `
+      <div class="wallet-section" data-wallet="${escapeHtml(r.wallet)}">
+        <div class="wallet-header" data-wallet="${escapeHtml(r.wallet)}">
+          <div class="wallet-header-left">
+            <i class="wallet-chevron fa-solid fa-chevron-right"></i>
+            <div class="wallet-address mono">${escapeHtml(shortenAddress(r.wallet))}</div>
+          </div>
+          <div class="wallet-header-right">
+            <div class="wallet-stats">${walletTokens.length} token${walletTokens.length === 1 ? '' : 's'} · ${formatPct(pct)}</div>
+            <div class="wallet-value"><span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
+          </div>
+        </div>
+        <div class="wallet-tokens hidden">
+          ${tokenListHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  walletAllocationEl.innerHTML = walletHtml;
+  
+  // Add click handlers for wallet expansion
+  walletAllocationEl.querySelectorAll('.wallet-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const wallet = header.dataset.wallet;
+      const section = walletAllocationEl.querySelector(`.wallet-section[data-wallet="${wallet}"]`);
+      if (!section) return;
+      
+      const tokensEl = section.querySelector('.wallet-tokens');
+      const chevron = section.querySelector('.wallet-chevron');
+      
+      if (tokensEl && chevron) {
+        const isExpanded = !tokensEl.classList.contains('hidden');
+        tokensEl.classList.toggle('hidden');
+        chevron.classList.toggle('fa-chevron-right', isExpanded);
+        chevron.classList.toggle('fa-chevron-down', !isExpanded);
+      }
+      
+      hapticFeedback('light');
+    });
+  });
 }
 
 function filterAndSortHoldingsDOM() {
