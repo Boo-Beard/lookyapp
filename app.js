@@ -4250,6 +4250,62 @@ function renderHoldingsByWallet() {
     .join('');
 }
 
+function filterAndSortHoldingsDOM() {
+  const tbody = $('tableBody');
+  if (!tbody) return;
+
+  const hideDust = $('hideDust')?.checked ?? true;
+  const sortBy = $('sortSelect')?.value || 'valueDesc';
+  const showHidden = $('showHiddenHoldings')?.checked ?? !!state.showHiddenHoldings;
+
+  // Get all holding rows
+  const rows = Array.from(tbody.querySelectorAll('tr.holding-row, tr.holding-card-row'));
+  
+  // Filter and sort rows
+  rows.forEach(row => {
+    const key = row.dataset.key;
+    if (!key) return;
+    
+    const holding = state.holdings.find(h => h.key === key);
+    if (!holding) {
+      row.style.display = 'none';
+      return;
+    }
+
+    // Apply filters
+    let shouldShow = true;
+    if (!showHidden && isHoldingHidden(holding.key)) shouldShow = false;
+    if (hideDust && holding.value < 1) shouldShow = false;
+    
+    row.style.display = shouldShow ? '' : 'none';
+    row.dataset.sortValue = getSortValue(holding, sortBy);
+  });
+
+  // Sort visible rows
+  const visibleRows = rows.filter(row => row.style.display !== 'none');
+  visibleRows.sort((a, b) => {
+    const aVal = parseFloat(a.dataset.sortValue) || 0;
+    const bVal = parseFloat(b.dataset.sortValue) || 0;
+    return bVal - aVal; // Descending by default
+  });
+
+  // Reorder DOM
+  visibleRows.forEach(row => tbody.appendChild(row));
+}
+
+function getSortValue(holding, sortBy) {
+  switch (sortBy) {
+    case 'valueAsc': return holding.value;
+    case 'valueDesc': return holding.value;
+    case 'pnlAsc': return holding.changeUsd || 0;
+    case 'pnlDesc': return holding.changeUsd || 0;
+    case 'mcapAsc': return holding.mcap || 0;
+    case 'mcapDesc': return holding.mcap || 0;
+    case 'nameAsc': return 0; // Handle separately
+    default: return holding.value;
+  }
+}
+
 function renderHoldingsTable() {
   const tbody = $('tableBody');
   if (!tbody) return;
@@ -6668,12 +6724,21 @@ function setupEventListeners() {
     });
   }
 
-  $('sortSelect')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
-  $('hideDust')?.addEventListener('change', () => { setHoldingsPage(1); scheduleRenderHoldingsTable(); });
+  $('sortSelect')?.addEventListener('change', () => { 
+    setHoldingsPage(1); 
+    filterAndSortHoldingsDOM();
+  });
+  $('hideDust')?.addEventListener('change', () => { 
+    setHoldingsPage(1); 
+    filterAndSortHoldingsDOM();
+  });
   $('showHiddenHoldings')?.addEventListener('change', (e) => {
     const el = e?.target;
     const checked = !!(el && el.checked);
-    applyShowHiddenHoldings(checked);
+    state.showHiddenHoldings = !!checked;
+    try { setShowHiddenHoldingsPreference(state.showHiddenHoldings); } catch {}
+    setHoldingsPage(1);
+    filterAndSortHoldingsDOM();
   });
 
   $('pagePrev')?.addEventListener('click', () => {
