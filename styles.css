@@ -2009,6 +2009,10 @@ body.is-scanning .logo-lockup .eye::after {
   background: var(--card-bg);
 }
 
+#watchlistBody .holding-metric.holding-metric-whatif {
+  grid-column: 1 / -1;
+}
+
 #watchlistBody .holding-metric {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -2165,9 +2169,24 @@ body.is-scanning .logo-lockup .eye::after {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  flex-wrap: wrap;
   border-bottom: 2px solid var(--border);
   background: var(--bg-secondary);
+}
+
+@media (max-width: 640px) {
+  #watchlistBody .holding-card-header {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  
+  #watchlistBody .holding-card-header .token-cell {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  #watchlistBody .holding-card-header .holding-card-actions {
+    flex-shrink: 0;
+  }
 }
 
 #searchResults .holding-metric-value {
@@ -2179,6 +2198,32 @@ body.is-scanning .logo-lockup .eye::after {
 
 #searchResults .holding-metric-value strong {
   font-weight: 700;
+}
+
+#searchResults .holding-card-header {
+  padding: 18px 18px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 2px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+@media (max-width: 640px) {
+  #searchResults .holding-card-header {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  
+  #searchResults .holding-card-header .token-cell {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  #searchResults .holding-card-header .search-token-actions {
+    flex-shrink: 0;
+  }
 }
 
 #searchResults .holding-card-header .token-cell {
@@ -3076,11 +3121,20 @@ body.ui-results .table-header {
 .table-pagination-top .page-indicator {
   font-family: var(--mono);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-secondary);
   user-select: none;
   min-width: 92px;
   text-align: center;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-sm {
@@ -3091,14 +3145,48 @@ body.ui-results .table-header {
 
 #holdingsCard #pagePrev,
 #holdingsCard #pageNext {
-  height: 32px;
-  padding: 0 10px;
-  font-size: 12px;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+#holdingsCard #pagePrev:hover,
+#holdingsCard #pageNext:hover {
+  border-color: var(--text-tertiary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+#holdingsCard #pagePrev:active,
+#holdingsCard #pageNext:active {
+  transform: translateY(0);
 }
 
 #holdingsCard #exportButton {
-  padding: 10px 12px;
+  padding: 10px 16px;
   font-size: 13px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+#holdingsCard #exportButton:hover {
+  border-color: var(--text-tertiary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+#holdingsCard #exportButton:active {
+  transform: translateY(0);
 }
 
 
@@ -3621,9 +3709,24 @@ body.holdings-cards .holding-card-header {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  flex-wrap: wrap;
   border-bottom: 2px solid var(--border);
   background: var(--bg-secondary);
+}
+
+@media (max-width: 640px) {
+  body.holdings-cards .holding-card-header {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  
+  body.holdings-cards .holding-card-header .token-cell {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  body.holdings-cards .holding-card-header .holding-card-actions {
+    flex-shrink: 0;
+  }
 }
 
 body.holdings-cards .holding-card-header-right {
@@ -3711,6 +3814,10 @@ body.holdings-cards .holding-card-metrics {
   z-index: 2;
   pointer-events: auto;
   background: var(--card-bg);
+}
+
+body.holdings-cards .holding-metric.holding-metric-whatif {
+  grid-column: 1 / -1;
 }
 
 body.holdings-cards .holding-metric {
@@ -3831,13 +3938,14 @@ body.ui-results .chain-badge-small {
 }
 
 .table-footer {
-  padding: 24px 32px;
+  padding: 20px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--border);
+  background: var(--bg-secondary);
 }
 
 .table-footer-actions {
