@@ -4406,12 +4406,6 @@ function renderHoldingsTable() {
   ].join('|');
 
   const currentPage = state.holdingsPage || 1;
-  const earlyExitKey = `${cacheKey}|p:${currentPage}|c:${useCardRows ? 1 : 0}`;
-  
-  // Early exit if we're already showing this exact view
-  if (holdingsTableCache.lastRenderedKey === earlyExitKey) {
-    return;
-  }
 
   const canReuseFiltered = holdingsTableCache.key === cacheKey
     && holdingsTableCache.useCardRows === useCardRows
@@ -6736,19 +6730,16 @@ function setupEventListeners() {
 
   $('sortSelect')?.addEventListener('change', () => { 
     setHoldingsPage(1); 
-    filterAndSortHoldingsDOM();
+    scheduleRenderHoldingsTable();
   });
   $('hideDust')?.addEventListener('change', () => { 
     setHoldingsPage(1); 
-    filterAndSortHoldingsDOM();
+    scheduleRenderHoldingsTable();
   });
   $('showHiddenHoldings')?.addEventListener('change', (e) => {
     const el = e?.target;
     const checked = !!(el && el.checked);
-    state.showHiddenHoldings = !!checked;
-    try { setShowHiddenHoldingsPreference(state.showHiddenHoldings); } catch {}
-    setHoldingsPage(1);
-    filterAndSortHoldingsDOM();
+    applyShowHiddenHoldings(checked);
   });
 
   $('pagePrev')?.addEventListener('click', () => {
