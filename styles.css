@@ -3789,6 +3789,7 @@ body.holdings-cards .holding-card-header-right {
 
 
 body.holdings-cards .holding-card-actions {
+  display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
