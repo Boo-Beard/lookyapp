@@ -3496,6 +3496,8 @@ body.ui-results .holding-row::after {
 
 .token-info {
   min-width: 0;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .token-icon {
@@ -3510,11 +3512,17 @@ body.ui-results .holding-row::after {
   font-weight: 900;
   font-size: 15px;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .token-name {
   font-size: 13px;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 body.ui-results .token-name {
