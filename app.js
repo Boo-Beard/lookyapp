@@ -4234,10 +4234,11 @@ function renderAllocationAndRisk() {
     allocationEl.innerHTML = svg;
   }
 
-  // Render chain legend
+  // Render chain legend (only show chains > 0.0%)
   const legendEl = $('chainLegend');
   if (legendEl && segments.length) {
-    const legendHtml = segments.map(s => `
+    const visibleSegments = segments.filter(s => s.pct > 0.05); // Filter out chains with 0.0%
+    const legendHtml = visibleSegments.map(s => `
       <div class="chain-legend-item">
         <div class="chain-legend-color" style="background-color: ${s.color}"></div>
         <div class="chain-legend-name">${escapeHtml(s.name)}</div>
@@ -4363,45 +4364,49 @@ function renderAllocationAndRisk() {
   }
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
-  const insights = [];
+  // Render "What's Changed Today" section
+  const whatsChangedEl = $('whatsChangedToday');
+  const changedItems = [];
   try {
     const data = computeWhatChangedToday();
 
     if (Array.isArray(data?.topTokens) && data.topTokens.length) {
-      const deltaTotal = Number(data.totalDeltaUsd || 0) || 0;
-      const lines = data.topTokens.map((t) => {
+      data.topTokens.forEach((t) => {
         const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '+';
-        const pct = (deltaTotal !== 0) ? (Math.abs(t.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
-        const pctPart = (pct > 0.05) ? ` · ${formatPct(pct, 1)} of move` : '';
-        return `${escapeHtml(t.symbol)}: <strong>${sign}${formatCurrency(Math.abs(t.deltaUsd))}</strong>${pctPart}`;
+        changedItems.push(`${escapeHtml(t.symbol)}: <strong>${sign}${formatCurrency(Math.abs(t.deltaUsd))}</strong>`);
       });
-      insights.push(`<strong>What changed today</strong><br/>${lines.join('<br/>')}`);
     }
 
     if (data?.topWallet && data.topWallet.wallet) {
       const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '+';
       const label = data.topWallet.chain === 'solana' ? 'Solana' : evmNetworkLabel(data.topWallet.chain);
-      insights.push(`Wallet driving the move: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> (${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))})`);
+      changedItems.push(`Wallet: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> (${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))})`);
     }
   } catch {}
 
-  insights.push(`Top holding concentration: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
+  if (whatsChangedEl) {
+    whatsChangedEl.innerHTML = changedItems.length
+      ? changedItems.map((t) => `<div class="allocation-item">${t}</div>`).join('')
+      : '<div class="allocation-item">No changes detected</div>';
+  }
+
+  // Render Key Insights section (each insight as separate item)
+  const insights = [];
+  insights.push(`Top holding: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
   insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> of portfolio`);
   if (topChain) {
-    insights.push(`Top chain concentration: <strong>${formatPct(topChainPct)}</strong> on ${escapeHtml(topChain.name || '—')}`);
-    insights.push(`Top 3 chains: <strong>${formatPct(top3ChainsPct)}</strong> of portfolio`);
-    insights.push(`Chains with meaningful exposure: <strong>${chainsOver5}</strong> chain${chainsOver5 === 1 ? '' : 's'} ≥ 5%`);
+    insights.push(`Top chain: <strong>${formatPct(topChainPct)}</strong> on ${escapeHtml(topChain.name || '—')}`);
+    insights.push(`Chains ≥ 5%: <strong>${chainsOver5}</strong> chain${chainsOver5 === 1 ? '' : 's'}`);
   }
-  insights.push(`Stablecoin exposure: <strong>${formatPct(stablePct)}</strong> (est.)`);
+  insights.push(`Stablecoins: <strong>${formatPct(stablePct)}</strong>`);
   if (dust.count > 0 && dust.value > 0) {
-    insights.push(`Dust exposure: <strong><span class="redacted-field" tabindex="0">${formatCurrency(dust.value)}</span></strong> across <strong>${dust.count}</strong> token${dust.count === 1 ? '' : 's'} (&lt; <span class="redacted-field" tabindex="0">${formatCurrency(DUST_USD)}</span>)`);
+    insights.push(`Dust: <strong><span class="redacted-field" tabindex="0">${formatCurrency(dust.value)}</span></strong> in <strong>${dust.count}</strong> token${dust.count === 1 ? '' : 's'}`);
   }
   if (topWallet && topWallet.value > 0) {
-    insights.push(`Wallet concentration: <strong>${formatPct(topWalletPct)}</strong> in top wallet`);
+    insights.push(`Top wallet: <strong>${formatPct(topWalletPct)}</strong>`);
   }
 
   insightsEl.innerHTML = insights
-    .slice(0, 5)
     .map((t) => `<div class="allocation-item">${t}</div>`)
     .join('') || '<div class="allocation-item">No insights available</div>';
 }

@@ -32,6 +32,9 @@
 
 .chain-tooltip {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: var(--panel);
   border: 2px solid var(--border);
   border-radius: var(--radius-md);
@@ -43,6 +46,7 @@
   z-index: 10;
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
 }
 
 .chain-legend {
@@ -90,7 +94,7 @@
 
 .allocation-details {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
   width: 100%;
 }
@@ -129,7 +133,6 @@
 }
 
 .allocation-item {
-  display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
