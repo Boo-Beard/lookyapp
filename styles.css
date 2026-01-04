@@ -3165,12 +3165,14 @@ body.ui-results .table-header {
   #holdingsCard .table-controls .dust-toggle {
     grid-area: dust;
     width: 100% !important;
+    min-width: 0 !important;
     justify-content: center;
   }
 
   #holdingsCard .table-controls .show-hidden-toggle {
     grid-area: hidden;
     width: 100% !important;
+    min-width: 0 !important;
     justify-content: center;
   }
 
