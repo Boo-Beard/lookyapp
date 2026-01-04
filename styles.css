@@ -576,7 +576,7 @@ body.ui-results .amend-wallets-row {
 }
 
 body.ui-results .amend-wallets-row {
-    background: var(--paper);
+    background: var(--panel);
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -1993,7 +1993,6 @@ body.is-scanning .logo-lockup .eye::after {
   transform: translateX(-50%);
   border-radius: var(--radius-lg);
   border: 2px solid var(--border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.2s ease;
   background: var(--paper);
