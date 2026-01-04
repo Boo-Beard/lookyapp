@@ -1304,6 +1304,7 @@ const holdingsTableCache = {
   totalItems: 0,
   totalPages: 1,
   filteredTotalValue: 0,
+  htmlCache: new Map(),
 };
 const watchlistCache = {
   html: null,
@@ -1320,6 +1321,7 @@ function invalidateHoldingsTableCache() {
   holdingsTableCache.totalItems = 0;
   holdingsTableCache.totalPages = 1;
   holdingsTableCache.filteredTotalValue = 0;
+  holdingsTableCache.htmlCache.clear();
 }
 
 function scheduleRenderHoldingsTable() {
@@ -4502,8 +4504,16 @@ function renderHoldingsTable() {
         `).join('')
       : '';
 
-    if (canReuseHtmlBase) {
+    const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
+    const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
+    
+    if (cachedHtml) {
+      if (tbody.innerHTML !== cachedHtml) {
+        tbody.innerHTML = cachedHtml;
+      }
+    } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       if (tbody.innerHTML !== newHtml) {
         tbody.innerHTML = newHtml;
       }
@@ -4582,7 +4592,11 @@ function renderHoldingsTable() {
       holdingsTableCache.totalPages = totalPages;
       holdingsTableCache.filteredTotalValue = filteredTotalValue;
 
-      tbody.innerHTML = `${htmlBase}${skeletonRows}`;
+      const newHtml = `${htmlBase}${skeletonRows}`;
+      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
+      if (tbody.innerHTML !== newHtml) {
+        tbody.innerHTML = newHtml;
+      }
     }
   } else {
     const skeletonRows = state.scanning && scanSkeletonCount > 0
@@ -4609,8 +4623,16 @@ function renderHoldingsTable() {
         `).join('')
       : '';
 
-    if (canReuseHtmlBase) {
+    const fullCacheKey = `${cacheKey}|p:${page}|c:${useCardRows ? 1 : 0}`;
+    const cachedHtml = holdingsTableCache.htmlCache.get(fullCacheKey);
+    
+    if (cachedHtml) {
+      if (tbody.innerHTML !== cachedHtml) {
+        tbody.innerHTML = cachedHtml;
+      }
+    } else if (canReuseHtmlBase) {
       const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
       if (tbody.innerHTML !== newHtml) {
         tbody.innerHTML = newHtml;
       }
@@ -4754,7 +4776,11 @@ function renderHoldingsTable() {
       holdingsTableCache.totalPages = totalPages;
       holdingsTableCache.filteredTotalValue = filteredTotalValue;
 
-      tbody.innerHTML = `${htmlBase}${skeletonRows}`;
+      const newHtml = `${htmlBase}${skeletonRows}`;
+      holdingsTableCache.htmlCache.set(fullCacheKey, newHtml);
+      if (tbody.innerHTML !== newHtml) {
+        tbody.innerHTML = newHtml;
+      }
     }
   }
 
