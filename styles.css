@@ -3167,7 +3167,8 @@ body.ui-results .table-header {
     width: 100% !important;
     min-width: 0 !important;
     justify-content: center;
-    align-self: center;
+    display: flex !important;
+    align-items: center !important;
   }
 
   #holdingsCard .table-controls .show-hidden-toggle {
@@ -3175,7 +3176,8 @@ body.ui-results .table-header {
     width: 100% !important;
     min-width: 0 !important;
     justify-content: center;
-    align-self: center;
+    display: flex !important;
+    align-items: center !important;
   }
 
   #holdingsCard .table-controls .search-input,
