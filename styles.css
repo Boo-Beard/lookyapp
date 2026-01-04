@@ -576,7 +576,7 @@ body.ui-results .amend-wallets-row {
 }
 
 body.ui-results .amend-wallets-row {
-    background: rgba(255, 255, 255, 0.45);
+    background: var(--paper);
     border: 2px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -586,6 +586,13 @@ body.ui-results .amend-wallets-row {
     width: var(--results-rail);
     margin-left: auto;
     margin-right: auto;
+    transition: all 0.2s ease;
+}
+
+body.ui-results .amend-wallets-row:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
 
 body.ui-results #inputHeaderBar {
