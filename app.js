@@ -4546,7 +4546,7 @@ function renderHoldingsByWallet() {
         <div class="wallet-header" data-wallet="${escapeHtml(r.wallet)}">
           <div class="wallet-header-left">
             <i class="wallet-chevron fa-solid fa-chevron-right"></i>
-            <div class="wallet-address mono">${escapeHtml(r.wallet)}</div>
+            <div class="wallet-address mono">${escapeHtml(shortenAddress(r.wallet))}</div>
           </div>
           <div class="wallet-header-right">
             <div class="wallet-stats">${walletTokens.filter(t => {
@@ -4610,6 +4610,7 @@ function renderHoldingsByWallet() {
   walletAllocationEl.querySelectorAll('.favorite-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      e.preventDefault();
       const key = btn.dataset.key;
       if (!key) return;
       
@@ -4641,6 +4642,7 @@ function renderHoldingsByWallet() {
   walletAllocationEl.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      e.preventDefault();
       const address = btn.dataset.address;
       if (!address) return;
       
@@ -4662,6 +4664,7 @@ function renderHoldingsByWallet() {
   walletAllocationEl.querySelectorAll('.chart-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      e.preventDefault();
       const key = btn.dataset.key;
       if (!key) return;
       
