@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <link rel="stylesheet" href="./styles.css?v=22" />
+  <link rel="stylesheet" href="./portfolio-score.css?v=1" />
 </head>
 
 <body class="ui-landing">
@@ -388,26 +389,28 @@
             </button>
           </div>
           <div id="aiScoreContent" class="alloc-risk-body collapsible-content hidden">
-            <div class="alloc-risk-cols">
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Score</div>
-                <div id="aiScoreValue" class="summary-value">—</div>
-                <div id="aiScoreMeta" class="table-subtitle">—</div>
+            <div class="portfolio-score-container">
+              <div class="score-main">
+                <div class="score-circle">
+                  <div id="aiScoreValue" class="score-number">—</div>
+                  <div id="aiScoreMeta" class="score-label">—</div>
+                </div>
               </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Key drivers</div>
-                <div id="aiScoreDrivers" class="alloc-risk-insights"></div>
+              
+              <div class="score-subscores">
+                <div id="aiScoreSubscores" class="subscores-grid"></div>
               </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Subscores</div>
-                <div id="aiScoreSubscores" class="alloc-risk-insights"></div>
-              </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Recommendations</div>
-                <div id="aiScoreRecs" class="alloc-risk-insights"></div>
+              
+              <div class="score-details">
+                <div class="score-section">
+                  <div class="score-section-title">Key Drivers</div>
+                  <div id="aiScoreDrivers" class="score-items"></div>
+                </div>
+                
+                <div class="score-section">
+                  <div class="score-section-title">Top Recommendations</div>
+                  <div id="aiScoreRecs" class="score-items"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -501,6 +504,6 @@
     </footer>
   </div>
 
-  <script src="app.js?v=31" defer></script>
+  <script src="app.js?v=32" defer></script>
 </body>
 </html>

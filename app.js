@@ -3530,8 +3530,8 @@ function renderAiScoreSection() {
     return;
   }
 
-  valueEl.textContent = `${Math.round(s.score)}/100`;
-  metaEl.textContent = s?.meta || '—';
+  valueEl.textContent = `${Math.round(s.score)}`;
+  metaEl.textContent = s?.label || '—';
 
   const penalties = Array.isArray(s?.penalties) ? s.penalties.slice() : [];
   const bonuses = Array.isArray(s?.bonuses) ? s.bonuses.slice() : [];
@@ -3540,40 +3540,38 @@ function renderAiScoreSection() {
   bonuses.sort((a, b) => (Number(b?.points || 0) || 0) - (Number(a?.points || 0) || 0));
 
   const items = [];
-  for (const b of bonuses.slice(0, 3)) {
+  for (const b of bonuses.slice(0, 2)) {
     const pts = Math.round(Number(b?.points || 0) || 0);
     const reason = String(b?.reason || '').trim() || '—';
     if (pts > 0) items.push({ kind: 'bonus', pts, reason });
   }
-  for (const p of penalties.slice(0, 6)) {
+  for (const p of penalties.slice(0, 4)) {
     const pts = Math.round(Number(p?.points || 0) || 0);
     const reason = String(p?.reason || '').trim() || '—';
     if (pts > 0) items.push({ kind: 'penalty', pts, reason });
   }
 
-  const top = items.slice(0, 8);
+  const top = items.slice(0, 5);
   if (!top.length) {
-    driversEl.innerHTML = '<div class="insight-item">Balanced portfolio</div>';
+    driversEl.innerHTML = '<div class="score-item">Balanced portfolio</div>';
     return;
   }
 
   driversEl.innerHTML = top
     .map((it) => {
-      const suffix = it.kind === 'bonus'
-        ? `<span style="opacity:0.75">(+${it.pts})</span>`
-        : `<span style="opacity:0.75">(-${it.pts})</span>`;
-      return `<div class="insight-item">${escapeHtml(it.reason)} ${suffix}</div>`;
+      const iconClass = it.kind === 'bonus' ? 'fa-arrow-up pnl-positive' : 'fa-arrow-down pnl-negative';
+      return `<div class="score-item"><i class="fa-solid ${iconClass}"></i> ${escapeHtml(it.reason)}</div>`;
     })
     .join('');
 
   if (subscoresEl) {
     const sub = s?.subscores && typeof s.subscores === 'object' ? s.subscores : null;
     const parts = sub ? [
-      { k: 'diversification', label: '🎯 Diversification', emoji: '🎯' },
-      { k: 'quality', label: '💎 Quality', emoji: '💎' },
-      { k: 'stability', label: '⚖️ Stability', emoji: '⚖️' },
-      { k: 'cleanliness', label: '✨ Cleanliness', emoji: '✨' },
-      { k: 'custody', label: '🔐 Custody', emoji: '🔐' },
+      { k: 'diversification', label: 'Diversification' },
+      { k: 'quality', label: 'Quality' },
+      { k: 'stability', label: 'Stability' },
+      { k: 'cleanliness', label: 'Cleanliness' },
+      { k: 'custody', label: 'Custody' },
     ] : [];
 
     const rows = parts
@@ -3582,23 +3580,30 @@ function renderAiScoreSection() {
 
     subscoresEl.innerHTML = rows.length
       ? rows.map((r) => {
-          const scoreClass = r.score >= 80 ? 'pnl-positive' : r.score >= 60 ? '' : 'pnl-negative';
-          return `<div class="insight-item">${escapeHtml(r.label)} <span class="${scoreClass}" style="opacity:0.85; font-weight:600">${r.score}/100</span></div>`;
+          const scoreClass = r.score >= 80 ? 'score-excellent' : r.score >= 60 ? 'score-good' : 'score-poor';
+          const percentage = Math.min(100, Math.max(0, r.score));
+          return `
+            <div class="subscore-card ${scoreClass}">
+              <div class="subscore-label">${escapeHtml(r.label)}</div>
+              <div class="subscore-value">${r.score}</div>
+              <div class="subscore-bar">
+                <div class="subscore-bar-fill" style="width: ${percentage}%"></div>
+              </div>
+            </div>
+          `;
         }).join('')
-      : '<div class="insight-item">—</div>';
+      : '<div class="subscore-card">—</div>';
   }
 
   if (recsEl) {
     const recs = Array.isArray(s?.recommendations) ? s.recommendations : [];
-    const topRecs = recs.slice(0, 5);
+    const topRecs = recs.slice(0, 3);
     recsEl.innerHTML = topRecs.length
       ? topRecs.map((r) => {
-        const pts = Math.round(Number(r?.impactPoints || 0) || 0);
         const txt = String(r?.text || '').trim() || '—';
-        const suffix = pts > 0 ? `<span style="opacity:0.75">(+${pts})</span>` : '';
-        return `<div class="insight-item">${escapeHtml(txt)} ${suffix}</div>`;
+        return `<div class="score-item"><i class="fa-solid fa-lightbulb"></i> ${escapeHtml(txt)}</div>`;
       }).join('')
-      : '<div class="insight-item">No recommendations yet</div>';
+      : '<div class="score-item">Portfolio is well-optimized</div>';
   }
 }
 
@@ -3875,14 +3880,14 @@ function computePortfolioBlendScore(options = {}) {
   const totalBonus = bonuses.reduce((s, b) => s + b.points, 0);
   const score = clamp(100 - totalPenalty + totalBonus, 0, 100);
 
-  // Enhanced scoring labels with emojis
-  const label = score >= 90 ? '🏆 Elite'
-    : score >= 80 ? '💎 Excellent'
-      : score >= 70 ? '✨ Strong'
-        : score >= 60 ? '👍 Good'
-          : score >= 50 ? '⚠️ Fair'
-            : score >= 40 ? '📉 Weak'
-              : '🚨 High Risk';
+  // Enhanced scoring labels
+  const label = score >= 90 ? 'Elite'
+    : score >= 80 ? 'Excellent'
+      : score >= 70 ? 'Strong'
+        : score >= 60 ? 'Good'
+          : score >= 50 ? 'Fair'
+            : score >= 40 ? 'Weak'
+              : 'High Risk';
 
   penalties.sort((a, b) => b.points - a.points);
   bonuses.sort((a, b) => b.points - a.points);
