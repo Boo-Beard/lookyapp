@@ -4856,18 +4856,13 @@ body.ui-results .wallet-count {
 
 }
 
-.holding-action-explorer {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
 .chain-logo-action {
     width: 18px;
     height: 18px;
     border-radius: 50%;
     object-fit: cover;
-    vertical-align: middle;
+    position: relative;
+    top: 2px;
 }
 
 .footer-rotator {
