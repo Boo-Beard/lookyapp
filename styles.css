@@ -3134,7 +3134,7 @@ body.ui-results .table-header {
 @media (max-width: 820px) {
   #holdingsCard .table-controls {
     display: grid !important;
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) !important;
+    grid-template-columns: 1fr 1fr !important;
     grid-template-areas:
       "search dust"
       "sort hidden";
