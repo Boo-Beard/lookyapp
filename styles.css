@@ -2174,7 +2174,7 @@ body.is-scanning .logo-lockup .eye::after {
 #watchlistBody .holding-card-header {
   padding: 18px 18px 16px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   border-bottom: 2px solid var(--border);
@@ -2223,7 +2223,7 @@ body.is-scanning .logo-lockup .eye::after {
 #searchResults .holding-card-header {
   padding: 18px 18px 16px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   border-bottom: 2px solid var(--border);
@@ -3492,6 +3492,13 @@ body.ui-results .holding-row::after {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.token-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .token-icon {
@@ -3737,11 +3744,18 @@ body.holdings-cards .holding-card:hover {
 body.holdings-cards .holding-card-header {
     padding: 18px 18px 16px;
     display: flex;
-    align-items: flex-start;
-    /* justify-content: unset; */
-    gap: 54px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     border-bottom: 2px solid var(--border);
     background: var(--bg-secondary);
+}
+
+body.holdings-cards .holding-card-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
 @media (max-width: 640px) {
@@ -3769,22 +3783,14 @@ body.holdings-cards .holding-card-header {
     right: -12px;
     z-index: 2;
   }
-}
-
-body.holdings-cards .holding-card-header-right {
-        width: 100%;
-        justify-content: space-between;
-        flex: 1 1;
-
-}
-
-@media (max-width: 640px) {
+  
   body.holdings-cards .holding-card-header-right {
     width: 100%;
     justify-content: space-between;
-        flex: 1 1;
+    flex: 1 1;
   }
 }
+
 
 body.holdings-cards .holding-card-actions {
   align-items: center;
