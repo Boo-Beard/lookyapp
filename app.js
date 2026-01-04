@@ -3569,10 +3569,11 @@ function renderAiScoreSection() {
   if (subscoresEl) {
     const sub = s?.subscores && typeof s.subscores === 'object' ? s.subscores : null;
     const parts = sub ? [
-      { k: 'diversification', label: 'Diversification' },
-      { k: 'stability', label: 'Stability' },
-      { k: 'cleanliness', label: 'Cleanliness' },
-      { k: 'custody', label: 'Custody' },
+      { k: 'diversification', label: '🎯 Diversification', emoji: '🎯' },
+      { k: 'quality', label: '💎 Quality', emoji: '💎' },
+      { k: 'stability', label: '⚖️ Stability', emoji: '⚖️' },
+      { k: 'cleanliness', label: '✨ Cleanliness', emoji: '✨' },
+      { k: 'custody', label: '🔐 Custody', emoji: '🔐' },
     ] : [];
 
     const rows = parts
@@ -3580,7 +3581,10 @@ function renderAiScoreSection() {
       .filter((r) => Number.isFinite(r.score));
 
     subscoresEl.innerHTML = rows.length
-      ? rows.map((r) => `<div class="insight-item">${escapeHtml(r.label)} <span style="opacity:0.75">${r.score}/100</span></div>`).join('')
+      ? rows.map((r) => {
+          const scoreClass = r.score >= 80 ? 'pnl-positive' : r.score >= 60 ? '' : 'pnl-negative';
+          return `<div class="insight-item">${escapeHtml(r.label)} <span class="${scoreClass}" style="opacity:0.85; font-weight:600">${r.score}/100</span></div>`;
+        }).join('')
       : '<div class="insight-item">—</div>';
   }
 
@@ -3615,12 +3619,19 @@ function computePortfolioBlendScore(options = {}) {
   const pct = (v) => total > 0 ? (Number(v || 0) / total) * 100 : 0;
   const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
   const top1Value = Number(sortedByValue[0]?.value || 0) || 0;
+  const top3Value = sortedByValue.slice(0, 3).reduce((s, h) => s + (Number(h?.value || 0) || 0), 0);
   const top5Value = sortedByValue.slice(0, 5).reduce((s, h) => s + (Number(h?.value || 0) || 0), 0);
+  const top10Value = sortedByValue.slice(0, 10).reduce((s, h) => s + (Number(h?.value || 0) || 0), 0);
   const top1Pct = pct(top1Value);
+  const top3Pct = pct(top3Value);
   const top5Pct = pct(top5Value);
+  const top10Pct = pct(top10Value);
   const top1Symbol = String(sortedByValue[0]?.symbol || sortedByValue[0]?.name || 'Top holding');
+  
+  // Enhanced stablecoin detection
   const stableSymbols = new Set([
     'USDC', 'USDT', 'DAI', 'USDE', 'FDUSD', 'TUSD', 'USDP', 'PYUSD', 'USDY', 'FRAX', 'LUSD', 'SUSD', 'GUSD',
+    'BUSD', 'UST', 'USDJ', 'HUSD', 'USDN', 'USDK', 'USDX', 'CUSD', 'EURS', 'EURT', 'XAUT', 'PAXG'
   ]);
   const stableValue = holdings.reduce((s, h) => {
     const sym = String(h?.symbol || '').toUpperCase();
@@ -3628,6 +3639,15 @@ function computePortfolioBlendScore(options = {}) {
     return s + (Number(h?.value || 0) || 0);
   }, 0);
   const stablePct = pct(stableValue);
+  
+  // Blue chip detection (major tokens)
+  const blueChipSymbols = new Set(['BTC', 'ETH', 'SOL', 'BNB', 'AVAX', 'MATIC', 'ARB', 'OP']);
+  const blueChipValue = holdings.reduce((s, h) => {
+    const sym = String(h?.symbol || '').toUpperCase();
+    if (!blueChipSymbols.has(sym)) return s;
+    return s + (Number(h?.value || 0) || 0);
+  }, 0);
+  const blueChipPct = pct(blueChipValue);
   const chainTotals = new Map();
   for (const h of holdings) {
     const v = Number(h?.value || 0) || 0;
@@ -3706,75 +3726,163 @@ function computePortfolioBlendScore(options = {}) {
     5,
     90
   );
+  // CONCENTRATION RISK - More granular penalties
   addPenalty(
     'concentration_top1',
-    clamp(((top1Pct - top1TargetPct) / 50) * 18, 0, 18),
-    `High concentration: top holding ${formatPct(top1Pct)} (target ${formatPct(top1TargetPct)})`
+    clamp(((top1Pct - top1TargetPct) / 50) * 20, 0, 20),
+    `${top1Symbol} dominates at ${formatPct(top1Pct)}`
+  );
+  addPenalty(
+    'concentration_top3',
+    clamp(((top3Pct - 50) / 50) * 12, 0, 12),
+    `Top 3 holdings control ${formatPct(top3Pct)}`
   );
   addPenalty(
     'concentration_top5',
-    clamp(((top5Pct - 60) / 40) * 12, 0, 12),
+    clamp(((top5Pct - 65) / 35) * 10, 0, 10),
     `Top 5 holdings ${formatPct(top5Pct)}`
   );
+  
+  // QUALITY & STABILITY
   const stableDistance = Math.abs(stablePct - targetStablePct);
   addPenalty(
     'stable_balance',
-    clamp((stableDistance / Math.max(10, targetStablePct || 25)) * 10, 0, 10),
-    `Stablecoin balance ${formatPct(stablePct)} (target ${formatPct(targetStablePct)})`
+    clamp((stableDistance / Math.max(10, targetStablePct || 25)) * 8, 0, 8),
+    `Stablecoin ${stablePct < targetStablePct ? 'under' : 'over'}weight at ${formatPct(stablePct)}`
   );
   addPenalty(
     'stable_too_high',
-    stablePct > 80 ? clamp(((stablePct - 80) / 20) * 10, 0, 10) : 0,
-    `High stablecoin allocation ${formatPct(stablePct)}`
+    stablePct > 85 ? clamp(((stablePct - 85) / 15) * 12, 0, 12) : 0,
+    `Excessive cash position ${formatPct(stablePct)}`
   );
+  
+  // Blue chip bonus
+  if (blueChipPct >= 20) {
+    addBonus(
+      'blue_chip_exposure',
+      clamp((blueChipPct / 10) * 3, 0, 15),
+      `Strong blue chip allocation ${formatPct(blueChipPct)}`
+    );
+  }
+  
+  // CHAIN DIVERSIFICATION
   addPenalty(
     'chain_domination',
-    clamp(((topChainPct - 70) / 30) * 8, 0, 8),
-    `Chain concentration ${formatPct(topChainPct)}`
+    clamp(((topChainPct - 75) / 25) * 10, 0, 10),
+    `Single chain dominance ${formatPct(topChainPct)}`
   );
   addPenalty(
     'chain_diversification',
-    clamp(((hhi - 0.35) / 0.65) * 7, 0, 7),
-    'Low chain diversification'
+    clamp(((hhi - 0.4) / 0.6) * 8, 0, 8),
+    'Poor cross-chain distribution'
   );
+  
+  // Multi-chain bonus
+  const chainCount = chainTotals.size;
+  if (chainCount >= 3) {
+    addBonus(
+      'multi_chain',
+      clamp((chainCount - 2) * 3, 0, 12),
+      `Multi-chain strategy (${chainCount} chains)`
+    );
+  }
+  
+  // PORTFOLIO CLEANLINESS
   addPenalty(
     'dust_value',
-    clamp((dustPct / 5) * 10, 0, 10),
-    `Dust exposure ${formatPct(dustPct)} (${dust.count} tokens)`
+    clamp((dustPct / 3) * 12, 0, 12),
+    `Dust drag ${formatPct(dustPct)} (${dust.count} tokens)`
   );
   addPenalty(
     'dust_count',
-    clamp((dust.count / 20) * 5, 0, 5),
-    `Many tiny positions (${dust.count})`
+    clamp((dust.count / 15) * 8, 0, 8),
+    `Portfolio bloat: ${dust.count} micro positions`
   );
+  
+  // CUSTODY RISK
   addPenalty(
     'wallet_concentration',
-    clamp(((topWalletPct - 85) / 15) * 10, 0, 10),
-    `Wallet concentration ${formatPct(topWalletPct)}`
+    clamp(((topWalletPct - 90) / 10) * 12, 0, 12),
+    `Single wallet risk ${formatPct(topWalletPct)}`
   );
+  
+  // Multi-wallet bonus
+  const walletCount = walletTotals.size;
+  if (walletCount >= 3) {
+    addBonus(
+      'multi_wallet',
+      clamp((walletCount - 2) * 2, 0, 10),
+      `Distributed custody (${walletCount} wallets)`
+    );
+  }
+  
+  // VOLATILITY & RISK
   addPenalty(
     'volatility',
-    clamp((movePct / 20) * 10, 0, 10),
-    `24h move magnitude ${formatPct(movePct)}`
+    clamp((movePct / 15) * 10, 0, 10),
+    `High volatility: ${formatPct(movePct)} 24h swing`
   );
-
-  const sizeSteps = Math.floor(total / 5000);
-  const sizeBonus = clamp(sizeSteps * 5, 0, 25);
-  addBonus(
-    'portfolio_size',
-    sizeBonus,
-    `Portfolio size bonus ${formatCurrency(total)}`
-  );
+  
+  // Stability bonus for low volatility
+  if (movePct < 5 && total > 1000) {
+    addBonus(
+      'low_volatility',
+      clamp((5 - movePct) * 1.5, 0, 7),
+      `Stable portfolio: ${formatPct(movePct)} 24h move`
+    );
+  }
+  
+  // PORTFOLIO SIZE & MATURITY
+  const sizeBonus = total >= 100000 ? 20
+    : total >= 50000 ? 15
+    : total >= 25000 ? 12
+    : total >= 10000 ? 8
+    : total >= 5000 ? 5
+    : total >= 1000 ? 3
+    : 0;
+  
+  if (sizeBonus > 0) {
+    addBonus(
+      'portfolio_size',
+      sizeBonus,
+      `Established portfolio ${formatCurrency(total)}`
+    );
+  }
+  
+  // DIVERSIFICATION BONUS
+  const uniqueTokens = holdings.length;
+  if (uniqueTokens >= 10 && uniqueTokens <= 30) {
+    addBonus(
+      'optimal_diversification',
+      clamp((Math.min(uniqueTokens, 20) - 9) * 1.5, 0, 15),
+      `Well-diversified: ${uniqueTokens} tokens`
+    );
+  } else if (uniqueTokens > 50) {
+    addPenalty(
+      'over_diversification',
+      clamp((uniqueTokens - 50) / 10, 0, 10),
+      `Over-diversified: ${uniqueTokens} tokens`
+    );
+  } else if (uniqueTokens < 5 && total > 5000) {
+    addPenalty(
+      'under_diversification',
+      clamp((5 - uniqueTokens) * 3, 0, 12),
+      `Under-diversified: only ${uniqueTokens} tokens`
+    );
+  }
 
   const totalPenalty = penalties.reduce((s, p) => s + p.points, 0);
   const totalBonus = bonuses.reduce((s, b) => s + b.points, 0);
   const score = clamp(100 - totalPenalty + totalBonus, 0, 100);
 
-  const label = score >= 85 ? 'Excellent'
-    : score >= 75 ? 'Great'
-      : score >= 65 ? 'Good'
-        : score >= 50 ? 'Fair'
-          : 'Risky';
+  // Enhanced scoring labels with emojis
+  const label = score >= 90 ? '🏆 Elite'
+    : score >= 80 ? '💎 Excellent'
+      : score >= 70 ? '✨ Strong'
+        : score >= 60 ? '👍 Good'
+          : score >= 50 ? '⚠️ Fair'
+            : score >= 40 ? '📉 Weak'
+              : '🚨 High Risk';
 
   penalties.sort((a, b) => b.points - a.points);
   bonuses.sort((a, b) => b.points - a.points);
@@ -3854,11 +3962,24 @@ function computePortfolioBlendScore(options = {}) {
 
   recs.sort((a, b) => (Number(b?.impactPoints || 0) || 0) - (Number(a?.impactPoints || 0) || 0));
 
+  // Enhanced subscores with better calculation
+  const pTop3 = Number(penaltyByKey.get('concentration_top3')?.points || 0) || 0;
+  const pStableHigh = Number(penaltyByKey.get('stable_too_high')?.points || 0) || 0;
+  const pOverDiv = Number(penaltyByKey.get('over_diversification')?.points || 0) || 0;
+  const pUnderDiv = Number(penaltyByKey.get('under_diversification')?.points || 0) || 0;
+  
+  const bBlueChip = Number(bonuses.find(b => b.key === 'blue_chip_exposure')?.points || 0) || 0;
+  const bMultiChain = Number(bonuses.find(b => b.key === 'multi_chain')?.points || 0) || 0;
+  const bOptimalDiv = Number(bonuses.find(b => b.key === 'optimal_diversification')?.points || 0) || 0;
+  const bLowVol = Number(bonuses.find(b => b.key === 'low_volatility')?.points || 0) || 0;
+  const bMultiWallet = Number(bonuses.find(b => b.key === 'multi_wallet')?.points || 0) || 0;
+
   const subscores = {
-    diversification: clamp(100 - ((pTop1 + pTop5 + pChainDom + pChainDiv) / 45) * 100, 0, 100),
-    stability: clamp(100 - ((pStable + pVol) / 20) * 100, 0, 100),
-    cleanliness: clamp(100 - ((pDustValue + pDustCount) / 15) * 100, 0, 100),
-    custody: clamp(100 - (pWallet / 10) * 100, 0, 100),
+    diversification: clamp(100 - pTop1 - pTop3 - pTop5 - pChainDom - pChainDiv - pOverDiv - pUnderDiv + bMultiChain + bOptimalDiv, 0, 100),
+    quality: clamp(100 - pStable - pStableHigh + bBlueChip, 0, 100),
+    stability: clamp(100 - pVol + bLowVol, 0, 100),
+    cleanliness: clamp(100 - pDustValue - pDustCount, 0, 100),
+    custody: clamp(100 - pWallet + bMultiWallet, 0, 100),
   };
 
   return { score, label, meta, penalties, bonuses, subscores, recommendations: recs, config: { targetStablePct, top1TargetPct } };
