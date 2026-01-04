@@ -1171,11 +1171,11 @@ body.ui-results .input-section.is-minimized {
   display: inline-grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
-  border: 2px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  overflow: visible;
   margin-top: -4px;
 }
 
