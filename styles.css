@@ -2888,12 +2888,27 @@ body.ui-results .table-header {
 }
 
 #holdingsCard .table-controls {
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 18px;
-  align-items: center;
-  margin-bottom: 15px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 15px;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-areas:
+        "search dust"
+        "sort hidden";
+    gap: 10px !important;
+    align-items: center;
+    width: 100% !important;
+    max-width: calc(80% - 24px) !important;
+    margin: 0 auto 15px;
+    padding: 0;
+    border-radius: 0;
+    border-width: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 #holdingsCard .table-controls .search-box,

@@ -4475,7 +4475,10 @@ function renderHoldingsTable() {
       : '';
 
     if (canReuseHtmlBase) {
-      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      if (tbody.innerHTML !== newHtml) {
+        tbody.innerHTML = newHtml;
+      }
     } else {
       const htmlBase = pageItems.map((holding) => {
         const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
@@ -4579,7 +4582,10 @@ function renderHoldingsTable() {
       : '';
 
     if (canReuseHtmlBase) {
-      tbody.innerHTML = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      const newHtml = `${holdingsTableCache.htmlBase}${skeletonRows}`;
+      if (tbody.innerHTML !== newHtml) {
+        tbody.innerHTML = newHtml;
+      }
     } else {
       const htmlBase = pageItems.map((holding) => {
         const displayAddress = (holding.chain === 'evm' && isValidEvmContractAddress(holding.contractAddress)) ? holding.contractAddress : holding.address;
