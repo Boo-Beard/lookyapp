@@ -1853,11 +1853,11 @@ function renderWatchlist() {
               <div class="token-info">
                 <div class="token-symbol">${escapeHtml(t.symbol || tokenIconLabel(t.name))}</div>
                 <div class="token-name">${escapeHtml(t.name || '')}</div>
+                ${chainBadge ? `<span class="chain-badge-small ${escapeAttribute(String(t.chain || ''))}">${escapeHtml(chainBadge)}</span>` : ''}
               </div>
             </div>
 
             <div class="holding-card-header-right">
-              ${chainBadge ? `<span class=\"chain-badge-small ${escapeAttribute(String(t.chain || ''))}\">${escapeHtml(chainBadge)}</span>` : ''}
               <div class="holding-card-actions" aria-label="Favorites actions">
                 <a class="holding-action is-active" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Favorites">
                   <i class="fa-solid fa-heart" aria-hidden="true"></i>
@@ -5077,8 +5077,8 @@ function renderHoldingsTable() {
                 <div class="token-info">
                   <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
                   <div class="token-name">${escapeHtml(holding.name)}</div>
+                  <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                 </div>
-                <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                 <div class="holding-card-actions" aria-label="Holding actions">
                   <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                     <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
@@ -5249,11 +5249,11 @@ function renderHoldingsTable() {
                     <div class="token-info">
                       <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
                       <div class="token-name">${escapeHtml(holding.name)}</div>
+                      <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                     </div>
                   </div>
 
                   <div class="holding-card-header-right">
-                    <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
                     <div class="holding-card-actions" aria-label="Holding actions">
                       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                         <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
