@@ -440,16 +440,6 @@ body.ui-landing .scan-status.hidden {
   min-width: 0;
 }
 
-.holding-card-header {
-  position: relative;
-}
-
-.holding-card-header .chain-badge-small {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 1;
-}
 
 .scan-progress {
   display: flex;
@@ -2195,7 +2185,6 @@ body.is-scanning .logo-lockup .eye::after {
   #watchlistBody .holding-card-header {
     flex-wrap: nowrap;
     align-items: center;
-    padding-top: 42px;
   }
   
   #watchlistBody .holding-card-header .token-cell {
@@ -2205,11 +2194,6 @@ body.is-scanning .logo-lockup .eye::after {
   
   #watchlistBody .holding-card-header .holding-card-actions {
     flex-shrink: 0;
-  }
-  
-  #watchlistBody .holding-card-header .chain-badge-small {
-    top: 12px;
-    right: 12px;
   }
 }
 
@@ -2238,7 +2222,6 @@ body.is-scanning .logo-lockup .eye::after {
   #searchResults .holding-card-header {
     flex-wrap: nowrap;
     align-items: center;
-    padding-top: 42px;
   }
   
   #searchResults .holding-card-header .token-cell {
@@ -2248,11 +2231,6 @@ body.is-scanning .logo-lockup .eye::after {
   
   #searchResults .holding-card-header .search-token-actions {
     flex-shrink: 0;
-  }
-  
-  #searchResults .holding-card-header .chain-badge-small {
-    top: 12px;
-    right: 12px;
   }
 }
 
@@ -3750,7 +3728,6 @@ body.holdings-cards .holding-card-header {
   body.holdings-cards .holding-card-header {
     flex-wrap: nowrap;
     align-items: center;
-    padding-top: 42px;
   }
   
   body.holdings-cards .holding-card-header .token-cell {
@@ -3760,11 +3737,6 @@ body.holdings-cards .holding-card-header {
   
   body.holdings-cards .holding-card-header .holding-card-actions {
     flex-shrink: 0;
-  }
-  
-  body.holdings-cards .holding-card-header .chain-badge-small {
-    top: 12px;
-    right: 12px;
   }
 }
 
