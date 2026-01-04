@@ -4364,47 +4364,86 @@ function renderAllocationAndRisk() {
   }
   const topWalletPct = topWallet ? (topWallet.value / total) * 100 : 0;
 
-  // Render "What's Changed Today" section
+  // Render "What's Changed Today" section with expanded insights
   const whatsChangedEl = $('whatsChangedToday');
   const changedItems = [];
   try {
     const data = computeWhatChangedToday();
+    const deltaTotal = Number(data?.totalDeltaUsd || 0) || 0;
+
+    // Overall portfolio change
+    if (deltaTotal !== 0) {
+      const sign = deltaTotal > 0 ? '+' : '-';
+      const direction = deltaTotal > 0 ? '📈' : '📉';
+      const pctChange = total > 0 ? (Math.abs(deltaTotal) / total) * 100 : 0;
+      changedItems.push(`Portfolio ${direction}: <strong>${sign}${formatCurrency(Math.abs(deltaTotal))}</strong> (${formatPct(pctChange)})`);
+    }
 
     if (Array.isArray(data?.topTokens) && data.topTokens.length) {
       data.topTokens.forEach((t) => {
-        const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '+';
-        changedItems.push(`${escapeHtml(t.symbol)}: <strong>${sign}${formatCurrency(Math.abs(t.deltaUsd))}</strong>`);
+        const sign = t.deltaUsd > 0 ? '+' : t.deltaUsd < 0 ? '-' : '';
+        const pctOfMove = deltaTotal !== 0 ? (Math.abs(t.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
+        const pctOfPortfolio = total > 0 ? (Math.abs(t.deltaUsd) / total) * 100 : 0;
+        const contribution = pctOfMove > 5 ? ` • <span style="color: var(--text-tertiary)">${formatPct(pctOfMove)} of move</span>` : '';
+        changedItems.push(`<strong>${escapeHtml(t.symbol)}</strong>: ${sign}${formatCurrency(Math.abs(t.deltaUsd))} (${formatPct(pctOfPortfolio)})${contribution}`);
       });
     }
 
     if (data?.topWallet && data.topWallet.wallet) {
-      const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '+';
+      const sign = data.topWallet.deltaUsd > 0 ? '+' : data.topWallet.deltaUsd < 0 ? '-' : '';
       const label = data.topWallet.chain === 'solana' ? 'Solana' : evmNetworkLabel(data.topWallet.chain);
-      changedItems.push(`Wallet: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> (${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))})`);
+      const pctOfMove = deltaTotal !== 0 ? (Math.abs(data.topWallet.deltaUsd) / Math.abs(deltaTotal)) * 100 : 0;
+      changedItems.push(`Top wallet: <strong>${escapeHtml(label)} ${escapeHtml(shortenAddress(data.topWallet.wallet))}</strong> • ${sign}${formatCurrency(Math.abs(data.topWallet.deltaUsd))} (${formatPct(pctOfMove)} of move)`);
     }
   } catch {}
 
   if (whatsChangedEl) {
     whatsChangedEl.innerHTML = changedItems.length
       ? changedItems.map((t) => `<div class="allocation-item">${t}</div>`).join('')
-      : '<div class="allocation-item">No changes detected</div>';
+      : '<div class="allocation-item">No significant changes detected today</div>';
   }
 
-  // Render Key Insights section (each insight as separate item)
+  // Render Key Insights section with enhanced metrics
   const insights = [];
-  insights.push(`Top holding: <strong>${formatPct(top1Pct)}</strong> of portfolio`);
-  insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> of portfolio`);
+  
+  // Concentration insights with risk assessment
+  const top1Symbol = sortedByValue[0]?.symbol || '—';
+  const concentrationRisk = top1Pct > 50 ? '⚠️ High risk' : top1Pct > 30 ? '⚡ Moderate' : '✓ Balanced';
+  insights.push(`<strong>${escapeHtml(top1Symbol)}</strong> dominates: <strong>${formatPct(top1Pct)}</strong> • ${concentrationRisk}`);
+  
+  // Top 5 concentration
+  const top5Risk = top5Pct > 80 ? '⚠️ Very concentrated' : top5Pct > 60 ? '⚡ Concentrated' : '✓ Diversified';
+  insights.push(`Top 5 holdings: <strong>${formatPct(top5Pct)}</strong> • ${top5Risk}`);
+  
+  // Chain distribution
   if (topChain) {
-    insights.push(`Top chain: <strong>${formatPct(topChainPct)}</strong> on ${escapeHtml(topChain.name || '—')}`);
-    insights.push(`Chains ≥ 5%: <strong>${chainsOver5}</strong> chain${chainsOver5 === 1 ? '' : 's'}`);
+    const chainRisk = topChainPct > 80 ? '⚠️ Single chain risk' : topChainPct > 50 ? '⚡ Chain dependent' : '✓ Multi-chain';
+    insights.push(`<strong>${escapeHtml(topChain.name)}</strong> chain: <strong>${formatPct(topChainPct)}</strong> • ${chainRisk}`);
+    
+    const diversityScore = chainsOver5 >= 3 ? '✓ Well distributed' : chainsOver5 === 2 ? '⚡ Limited spread' : '⚠️ Narrow exposure';
+    insights.push(`Active chains: <strong>${chainsOver5}</strong> with ≥5% • ${diversityScore}`);
   }
-  insights.push(`Stablecoins: <strong>${formatPct(stablePct)}</strong>`);
+  
+  // Stablecoin analysis
+  const stableHealth = stablePct > 50 ? '⚠️ Too defensive' : stablePct > 20 ? '✓ Good buffer' : stablePct > 5 ? '⚡ Low cushion' : '⚠️ No safety net';
+  insights.push(`Stablecoins: <strong>${formatPct(stablePct)}</strong> • ${stableHealth}`);
+  
+  // Dust exposure
   if (dust.count > 0 && dust.value > 0) {
-    insights.push(`Dust: <strong><span class="redacted-field" tabindex="0">${formatCurrency(dust.value)}</span></strong> in <strong>${dust.count}</strong> token${dust.count === 1 ? '' : 's'}`);
+    const dustPct = (dust.value / total) * 100;
+    const dustImpact = dustPct > 5 ? '⚠️ Clean up needed' : dustPct > 1 ? '⚡ Minor clutter' : '✓ Minimal impact';
+    insights.push(`Dust tokens: <strong>${dust.count}</strong> worth <strong><span class="redacted-field" tabindex="0">${formatCurrency(dust.value)}</span></strong> • ${dustImpact}`);
   }
+  
+  // Wallet concentration
   if (topWallet && topWallet.value > 0) {
-    insights.push(`Top wallet: <strong>${formatPct(topWalletPct)}</strong>`);
+    const walletRisk = topWalletPct > 80 ? '⚠️ Single point of failure' : topWalletPct > 50 ? '⚡ Wallet dependent' : '✓ Distributed custody';
+    insights.push(`Top wallet holds: <strong>${formatPct(topWalletPct)}</strong> • ${walletRisk}`);
   }
+  
+  // Portfolio size assessment
+  const sizeCategory = total > 100000 ? '🐋 Whale' : total > 10000 ? '🦈 Large' : total > 1000 ? '🐟 Medium' : '🦐 Small';
+  insights.push(`Portfolio size: <strong><span class="redacted-field" tabindex="0">${formatCurrency(total)}</span></strong> • ${sizeCategory}`);
 
   insightsEl.innerHTML = insights
     .map((t) => `<div class="allocation-item">${t}</div>`)
