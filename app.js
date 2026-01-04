@@ -6333,6 +6333,8 @@ function setupEventListeners() {
         
         try {
           watchlistRefreshBtn.removeAttribute('aria-busy');
+          // Remove is-cooldown class to stop spinner after refresh completes
+          watchlistRefreshBtn.classList.remove('is-cooldown');
         } catch {}
 
         const endsAt = Date.now() + 60_000;
