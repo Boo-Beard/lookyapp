@@ -3767,9 +3767,7 @@ body.holdings-cards .holding-metric-value strong {
   font-weight: 900;
 }
 
-body.holdings-cards .holding-metric-whatif {
-  grid-column: 2;
-}
+
 
 body.holdings-cards .whatif-chips {
   display: inline-flex;
