@@ -17,7 +17,7 @@ function shouldIgnoreGlobalError(message, source) {
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 
 const WHATIF_PRESETS = [2, 5, 8, 10, 100];
-const WHATIF_AUTO_RESET_MS = 2_000;
+const WHATIF_AUTO_RESET_MS = 3_000;
 const whatIfHolding = new Map();
 const whatIfTimers = new Map();
 
@@ -5950,7 +5950,7 @@ function setupEventListeners() {
   bindChartPopoverDelegation($('searchResults'));
 
   document.addEventListener('click', (e) => {
-    const whatIfBtn = e.target.closest('button[data-action="whatif-mult"]');
+    const whatIfBtn = e.target.closest('button.whatif-chip[data-action="whatif-mult"]');
     if (whatIfBtn) {
       e.preventDefault();
       try { e.stopPropagation(); } catch {}
@@ -5963,9 +5963,23 @@ function setupEventListeners() {
         if (card) applyHoldingWhatIfToCard(card, mult);
         const chipsWrap = whatIfBtn.closest('.whatif-chips');
         if (chipsWrap) {
+          const metric = chipsWrap.closest('.holding-metric-whatif');
+          if (metric) metric.classList.toggle('is-whatif-active', Number(mult) !== 1);
           chipsWrap.querySelectorAll('button.whatif-chip').forEach((b) => {
             b.classList.toggle('is-active', b === whatIfBtn);
           });
+
+          if (String(whatIfBtn.dataset.mult) === '100') {
+            try {
+              const sparkTarget = whatIfBtn;
+              sparkTarget.classList.remove('is-sparking');
+              void sparkTarget.offsetWidth;
+              sparkTarget.classList.add('is-sparking');
+              window.setTimeout(() => {
+                try { sparkTarget.classList.remove('is-sparking'); } catch {}
+              }, 520);
+            } catch {}
+          }
         }
       } catch {}
       try { scheduleHoldingWhatIfReset(key); } catch {}
