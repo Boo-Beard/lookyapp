@@ -3812,7 +3812,7 @@ body.holdings-cards .whatif-chip {
     overflow-y: hidden;
     padding-bottom: 2px;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: none;
     scrollbar-width: thin;
   }
 
@@ -3833,10 +3833,10 @@ body.holdings-cards .whatif-chip {
 
   body.holdings-cards .whatif-chip {
     flex: 0 0 auto;
-    min-width: 62px;
+    min-width: 72px;
     padding: 6px 12px;
     font-size: 11px;
-    scroll-snap-align: start;
+    scroll-snap-align: none;
   }
 }
 
