@@ -4593,11 +4593,11 @@ function renderHoldingsTable() {
         }
       });
       
-      // Sort rows based on pageItems order
-      pageItems.forEach((holding, index) => {
+      // Sort rows based on pageItems order by reordering DOM
+      pageItems.forEach((holding) => {
         const row = existingRows.find(r => r.dataset.key === holding.key);
         if (row) {
-          row.style.order = index;
+          tbody.appendChild(row);  // Move to end in correct order
         }
       });
     } else if (canReuseHtmlBase) {
@@ -4729,11 +4729,11 @@ function renderHoldingsTable() {
         }
       });
       
-      // Sort rows based on pageItems order
-      pageItems.forEach((holding, index) => {
+      // Sort rows based on pageItems order by reordering DOM
+      pageItems.forEach((holding) => {
         const row = existingRows.find(r => r.dataset.key === holding.key);
         if (row) {
-          row.style.order = index;
+          tbody.appendChild(row);  // Move to end in correct order
         }
       });
     } else if (canReuseHtmlBase) {
