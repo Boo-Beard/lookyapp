@@ -1305,6 +1305,11 @@ const holdingsTableCache = {
   totalPages: 1,
   filteredTotalValue: 0,
 };
+const watchlistCache = {
+  html: null,
+  version: 0,
+  sortKey: null,
+};
 
 function invalidateHoldingsTableCache() {
   holdingsTableCache.key = null;
@@ -1761,18 +1766,33 @@ function renderWatchlist() {
 
   if (controls) controls.classList.toggle('hidden', !list.length);
   if (!list.length) {
-    body.innerHTML = `
+    const emptyHtml = `
       <div class="empty-state">
         <div class="empty-text">Your favorites are empty. Add tokens using the <strong>heart</strong> on Search results or Portfolio holdings.</div>
       </div>
     `;
+    if (body.innerHTML !== emptyHtml) {
+      body.innerHTML = emptyHtml;
+    }
     try { lockInputBodyHeight(); } catch {}
     try { syncWatchlistStars(); } catch {}
     try { updateWatchlistModeBtnCount(); } catch {}
     return;
   }
 
-  body.innerHTML = list.map((t) => {
+  const canUseCache = watchlistCache.version === watchlistDataVersion && watchlistCache.sortKey === sortKey && watchlistCache.html;
+  
+  if (canUseCache) {
+    if (body.innerHTML !== watchlistCache.html) {
+      body.innerHTML = watchlistCache.html;
+    }
+    try { lockInputBodyHeight(); } catch {}
+    try { syncWatchlistStars(); } catch {}
+    try { updateWatchlistModeBtnCount(); } catch {}
+    return;
+  }
+
+  const html = list.map((t) => {
     const icon = resolveTokenIcon(t.logoUrl, t.symbol || t.name, { preferFast: false });
     const key = normalizeWatchlistTokenKey(t);
     const ipfsAttrs = icon.cid
@@ -1853,6 +1873,14 @@ function renderWatchlist() {
       </div>
     `;
   }).join('');
+
+  watchlistCache.html = html;
+  watchlistCache.version = watchlistDataVersion;
+  watchlistCache.sortKey = sortKey;
+
+  if (body.innerHTML !== html) {
+    body.innerHTML = html;
+  }
 
   try { lockInputBodyHeight(); } catch {}
   try { syncWatchlistStars(); } catch {}
