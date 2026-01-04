@@ -2182,6 +2182,10 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 @media (max-width: 640px) {
+  #watchlistBody .holding-card {
+    position: relative;
+  }
+  
   #watchlistBody .holding-card-header {
     flex-wrap: nowrap;
     align-items: center;
@@ -2194,6 +2198,13 @@ body.is-scanning .logo-lockup .eye::after {
   
   #watchlistBody .holding-card-header .holding-card-actions {
     flex-shrink: 0;
+  }
+  
+  #watchlistBody .holding-card-header .chain-badge-small {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    z-index: 2;
   }
 }
 
@@ -2219,6 +2230,10 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 @media (max-width: 640px) {
+  #searchResults .holding-card {
+    position: relative;
+  }
+  
   #searchResults .holding-card-header {
     flex-wrap: nowrap;
     align-items: center;
@@ -2231,6 +2246,13 @@ body.is-scanning .logo-lockup .eye::after {
   
   #searchResults .holding-card-header .search-token-actions {
     flex-shrink: 0;
+  }
+  
+  #searchResults .holding-card-header .chain-badge-small {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    z-index: 2;
   }
 }
 
@@ -3725,6 +3747,10 @@ body.holdings-cards .holding-card-header {
 }
 
 @media (max-width: 640px) {
+  body.holdings-cards .holding-card {
+    position: relative;
+  }
+  
   body.holdings-cards .holding-card-header {
     flex-wrap: nowrap;
     align-items: center;
@@ -3737,6 +3763,13 @@ body.holdings-cards .holding-card-header {
   
   body.holdings-cards .holding-card-header .holding-card-actions {
     flex-shrink: 0;
+  }
+  
+  body.holdings-cards .holding-card-header .chain-badge-small {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    z-index: 2;
   }
 }
 
