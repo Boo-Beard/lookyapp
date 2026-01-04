@@ -2094,13 +2094,6 @@ body.is-scanning .logo-lockup .eye::after {
   grid-column: 1 / -1;
 }
 
-.holding-metric.holding-metric-whatif .whatif-chips {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
 .whatif-chips {
   display: inline-flex;
   align-items: center;
