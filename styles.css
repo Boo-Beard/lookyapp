@@ -2202,8 +2202,8 @@ body.is-scanning .logo-lockup .eye::after {
   
   #watchlistBody .holding-card-header .chain-badge-small {
     position: absolute;
-    top: -6px;
-    right: -6px;
+    top: -12px;
+    right: -12px;
     z-index: 2;
   }
 }
@@ -2250,8 +2250,8 @@ body.is-scanning .logo-lockup .eye::after {
   
   #searchResults .holding-card-header .chain-badge-small {
     position: absolute;
-    top: -6px;
-    right: -6px;
+    top: -12px;
+    right: -12px;
     z-index: 2;
   }
 }
@@ -3767,8 +3767,8 @@ body.holdings-cards .holding-card-header {
   
   body.holdings-cards .holding-card-header .chain-badge-small {
     position: absolute;
-    top: -6px;
-    right: -6px;
+    top: -12px;
+    right: -12px;
     z-index: 2;
   }
 }
@@ -3784,12 +3784,11 @@ body.holdings-cards .holding-card-header-right {
   body.holdings-cards .holding-card-header-right {
     width: 100%;
     justify-content: space-between;
-    flex: 1 1 auto;
+        flex: 1 1;
   }
 }
 
 body.holdings-cards .holding-card-actions {
-  display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
