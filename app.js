@@ -4543,12 +4543,6 @@ function renderHoldingsByWallet() {
                  aria-label="${isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}">
                 <i class="${favoriteIcon}" aria-hidden="true"></i>
               </a>
-              <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(address)}" aria-label="Copy contract address">
-                <i class="fa-solid fa-copy" aria-hidden="true"></i>
-              </a>
-              <a class="holding-action" href="#" data-action="chart" data-key="${escapeHtml(token?.key || '')}" aria-label="View chart">
-                <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
-              </a>
             </div>
           </div>
         `;
