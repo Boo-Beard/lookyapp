@@ -5,6 +5,7 @@
   --bg-primary: #FFF4D3;
   --bg-secondary: #FFE7A0;
   --bg-card: rgba(255, 255, 255, 0.94);
+  --card-bg: rgba(255, 255, 255, 0.94);
   --bg-overlay: rgba(8, 8, 10, 0.72);
 
   --ink: #0B0B10;
@@ -57,6 +58,7 @@
   --bg-primary: #0B1022;
   --bg-secondary: #0E1630;
   --bg-card: rgba(16, 22, 42, 0.92);
+  --card-bg: rgba(16, 22, 42, 0.92);
   --bg-overlay: rgba(0, 0, 0, 0.72);
 
   --ink: #F7F3E8;
