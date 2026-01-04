@@ -1967,10 +1967,24 @@ body.is-scanning .logo-lockup .eye::after {
   position: relative;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  transition: all 0.2s ease;
+  background: var(--card-bg);
+}
+
+#watchlistBody .holding-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateX(-50%) translateY(-2px);
+}
+
+@media (min-width: 641px) {
+  #watchlistBody .holding-card {
+    width: min(calc(100vw - 32px), calc(80% + 35%));
+  }
 }
 
 #watchlistBody .holding-row::before,
@@ -1984,36 +1998,77 @@ body.is-scanning .logo-lockup .eye::after {
   opacity: 0 !important;
 }
 
-@media (min-width: 641px) {
-  #watchlistBody .holding-card {
-    width: min(calc(100vw - 32px), calc(80% + 35%));
-  }
+#watchlistBody .holding-card-metrics {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  background: var(--card-bg);
 }
 
-#watchlistBody .holding-card-header {
-  padding: 16px 16px 14px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  border-bottom: 3px solid var(--border);
+#watchlistBody .holding-metric {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   background: var(--panel);
+  padding: 12px;
+  pointer-events: auto;
+  transition: all 0.2s ease;
 }
 
-#watchlistBody .holding-card-header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 0;
+#watchlistBody .holding-metric:hover {
+  background: var(--bg-secondary);
+  border-color: var(--text-tertiary);
 }
 
-@media (max-width: 640px) {
-  #watchlistBody .holding-card-header-right {
-    width: 100%;
-    justify-content: space-between;
-    flex: 1 1 auto;
-  }
+#watchlistBody .holding-metric.holding-metric-whatif {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+#watchlistBody .holding-metric-label {
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+#watchlistBody .holding-metric-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+#watchlistBody .holding-metric-value strong {
+  font-weight: 700;
+}
+
+#watchlistBody .holding-card-header .token-cell {
+  min-width: 0;
+}
+
+#watchlistBody .holding-card-header .token-info {
+  min-width: 0;
+}
+
+#watchlistBody .holding-card-header .token-symbol {
+  font-size: 17px;
+}
+
+#watchlistBody .holding-card-header .token-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  max-width: none;
 }
 
 #watchlistBody .holding-card-actions {
@@ -2067,236 +2122,17 @@ body.is-scanning .logo-lockup .eye::after {
   background: rgba(255, 45, 85, 0.14);
 }
 
-#watchlistBody .holding-card-metrics {
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-#watchlistBody .holding-metric {
-  border-radius: 16px;
-  border: 2px solid var(--border);
-  background: var(--panel);
-  padding: 10px;
-}
-
-#watchlistBody .holding-metric.holding-metric-whatif {
-  border: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-
-#watchlistBody .holding-metric.holding-metric-whatif .holding-metric-label {
-  margin-bottom: 0;
-}
-
-#watchlistBody .holding-metric-label {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-family: var(--mono);
-  color: var(--text-tertiary);
-  margin-bottom: 6px;
-}
-
-.holding-metric-whatif {
-  grid-column: 1 / -1;
-}
-
-.whatif-chips {
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: 999px;
-  border: 2px solid rgba(0, 0, 0, 0.92);
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.04));
-  box-shadow: 0 10px 0 rgba(0,0,0,0.14), var(--shadow-sm);
-}
-
-.whatif-chip {
-  appearance: none;
-  border: 2px solid rgba(0, 0, 0, 0.92);
-  background: var(--panel);
-  color: var(--text-primary);
-  font-family: var(--mono);
-  font-weight: 900;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  border-radius: 999px;
-  padding: 7px 12px;
-  line-height: 1;
-  cursor: pointer;
-  margin: 0 4px;
-  box-shadow: 0 6px 0 rgba(0,0,0,0.12);
-  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, color 120ms ease;
-}
-
-.whatif-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 0 rgba(0,0,0,0.14);
-}
-
-.whatif-chip:active {
-  transform: translateY(0px);
-  box-shadow: 0 4px 0 rgba(0,0,0,0.12);
-}
-
-.whatif-chip.is-active {
-  background: var(--peeek-accent);
-  border-color: rgba(0, 0, 0, 0.95);
-  color: rgba(0, 0, 0, 0.92);
-  animation: peeek-check-pop 0.18s ease-out;
-}
-
-.whatif-chip[data-mult="100"] {
-  background: rgba(255, 45, 85, 0.10);
-  border-color: rgba(255, 45, 85, 0.95);
-}
-
-.whatif-chip.is-active[data-mult="100"] {
-  background: #ff2d55;
-  border-color: rgba(0, 0, 0, 0.95);
-  color: rgba(255, 255, 255, 0.98);
-}
-
-#watchlistBody .holding-metric-value {
-  font-size: 15px;
-  color: var(--text-primary);
-}
-
-#watchlistBody .holding-metric-value strong {
-  font-weight: 900;
-}
-
-#watchlistBody .holding-card-header .token-cell {
-  min-width: 0;
-}
-
-#watchlistBody .holding-card-header .token-info {
-  min-width: 0;
-}
-
-#watchlistBody .holding-card-header .token-symbol {
-  font-size: 17px;
-}
-
-#watchlistBody .holding-card-header .token-name {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: none;
-}
-
-#searchResults .holding-card {
-  width: min(calc(100vw - 32px), calc(80% + 40%));
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: var(--radius-xl);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
-@media (min-width: 641px) {
-  #searchResults .holding-card {
-    width: min(calc(100vw - 32px), calc(80% + 35%));
-  }
-}
-
-#searchResults .holding-card-header {
-  padding: 16px 16px 14px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  border-bottom: 3px solid var(--border);
-  background: var(--panel);
-}
-
-#searchResults .holding-card-header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 0 0 auto;
-}
-
-@media (max-width: 640px) {
-  #searchResults .holding-card-header-right {
-    width: 100%;
-    justify-content: space-between;
-    flex: 1 1 auto;
-  }
-}
-
-#searchResults .holding-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-}
-
-#holdingsTable .holding-card-actions {
-  position: relative;
-}
-
-#searchResults .holding-action {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  background: var(--panel);
-  color: var(--text-secondary);
-  text-decoration: none;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55), var(--shadow-sm);
-  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-#searchResults .holding-action:hover {
-  transform: translateY(-1px);
-  background: rgba(0, 194, 255, 0.10);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.60), var(--shadow-md);
-}
-
-#searchResults .holding-action:focus-visible {
-  outline: 3px solid rgba(0, 194, 255, 0.55);
-  outline-offset: 2px;
-}
-
-#searchResults .holding-action:active {
-  transform: translateY(2px) scale(0.985);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.50), var(--shadow-sm);
-}
-
-#searchResults .holding-action.disabled {
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-#searchResults .holding-action.is-active {
-  color: var(--accent);
-}
-
 #watchlistBody a.holding-action[data-action="watchlist-add"],
 #holdingsTable a.holding-action[data-action="watchlist-add"],
 #searchResults a.holding-action[data-action="watchlist-add"] {
   color: rgba(11, 11, 16, 0.82);
 }
 
- :root[data-theme="dark"] #watchlistBody a.holding-action[data-action="watchlist-add"]:not(.is-active),
- :root[data-theme="dark"] #holdingsTable a.holding-action[data-action="watchlist-add"]:not(.is-active),
- :root[data-theme="dark"] #searchResults a.holding-action[data-action="watchlist-add"]:not(.is-active) {
-   color: rgba(255, 255, 255, 0.86);
- }
+:root[data-theme="dark"] #watchlistBody a.holding-action[data-action="watchlist-add"]:not(.is-active),
+:root[data-theme="dark"] #holdingsTable a.holding-action[data-action="watchlist-add"]:not(.is-active),
+:root[data-theme="dark"] #searchResults a.holding-action[data-action="watchlist-add"]:not(.is-active) {
+  color: rgba(255, 255, 255, 0.86);
+}
 
 #watchlistBody a.holding-action[data-action="watchlist-add"].is-active,
 #holdingsTable a.holding-action[data-action="watchlist-add"].is-active,
@@ -2323,40 +2159,26 @@ body.is-scanning .logo-lockup .eye::after {
   filter: drop-shadow(0 6px 0 rgba(0,0,0,0.18));
 }
 
-:root[data-theme="dark"] #searchResults .holding-action.is-active {
-  background: rgba(255, 45, 85, 0.14);
-}
-
-#searchResults .holding-card-metrics {
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  background: var(--paper);}
-
-#searchResults .holding-metric {
-  border-radius: 16px;
-  border: 2px solid var(--border);
-  background: var(--panel);
-  padding: 10px;
-}
-
-#searchResults .holding-metric-label {
-  font-family: var(--mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 11px;
-  color: var(--text-tertiary);
-  margin-bottom: 6px;
+#watchlistBody .holding-card-header {
+  padding: 18px 18px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--border);
+  background: var(--bg-secondary);
 }
 
 #searchResults .holding-metric-value {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 #searchResults .holding-metric-value strong {
-  font-weight: 900;
+  font-weight: 700;
 }
 
 #searchResults .holding-card-header .token-cell {
@@ -3806,52 +3628,6 @@ body.holdings-cards .holding-card-actions {
   position: relative;
 }
 
-body.holdings-cards .holding-card .holding-hide-toggle {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 3px solid var(--border);
-  background: rgba(255, 255, 255, 0.75);
-  color: var(--ink);
-  text-decoration: none;
-  box-shadow: var(--shadow-sm);
-}
-
-body.holdings-cards .holding-card .holding-hide-toggle:hover {
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.inline-star-toast {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  transform: translateY(-6px);
-  opacity: 0;
-  pointer-events: none;
-  padding: 8px 10px;
-  border-radius: 14px;
-  border: 2px solid var(--border);
-  background: var(--panel);
-  box-shadow: var(--shadow-md);
-  font-weight: 900;
-  font-size: 12px;
-  color: var(--text-primary);
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
-  white-space: nowrap;
-  z-index: 5;
-}
-
-.inline-star-toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 body.holdings-cards .holding-action {
   width: 36px;
   height: 36px;
@@ -3929,13 +3705,6 @@ body.holdings-cards .holding-metric {
 body.holdings-cards .holding-metric:hover {
   background: var(--bg-secondary);
   border-color: var(--text-tertiary);
-}
-
-body.holdings-cards .holding-metric.holding-metric-whatif {
-  border: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
 }
 
 body.holdings-cards .holding-metric-label {
