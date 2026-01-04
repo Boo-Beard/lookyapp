@@ -4860,6 +4860,14 @@ body.ui-results .wallet-count {
 
 }
 
+.chain-logo-action {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
 .footer-rotator {
   display: inline-flex;
   align-items: baseline;
