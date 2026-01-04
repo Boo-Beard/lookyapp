@@ -966,7 +966,7 @@ async function fetchSolTokenOverview(addr, { signal } = {}) {
 
 function extractBirdeyePriceValue(obj) {
   const d = obj?.data || obj || {};
-  const v = d?.value || d?.data || d?.result || {};
+  const v = d?.value || d?.data || {};
   const price = Number(
     d?.value ??
     d?.price ??
@@ -1237,20 +1237,20 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
   async function fetchSolTokenMeta(addr) {
     const d = (await fetchSolTokenOverview(addr, { signal })) || {};
     const liquidityUsd = Number(
-      d?.liquidity ?? 
-      d?.liquidityUsd ?? 
-      d?.liquidity_usd ?? 
-      d?.liquidity_1d ?? 
+      d?.liquidity ??
+      d?.liquidityUsd ??
+      d?.liquidity_usd ??
+      d?.liquidity_1d ??
       0
     ) || 0;
     const volume24hUsd = Number(
-      d?.v24hUSD ?? 
-      d?.v24h ?? 
-      d?.volume24h ?? 
-      d?.volume_24h ?? 
-      d?.volume24hUsd ?? 
-      d?.volume_24h_usd ?? 
-      d?.volume24hUSD ?? 
+      d?.v24hUSD ??
+      d?.v24h ??
+      d?.volume24h ??
+      d?.volume_24h ??
+      d?.volume24hUsd ??
+      d?.volume_24h_usd ??
+      d?.volume24hUSD ??
       0
     ) || 0;
     return { liquidityUsd, volume24hUsd };

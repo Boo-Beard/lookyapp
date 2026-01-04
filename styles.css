@@ -1086,6 +1086,7 @@ body.ui-results #resultsSection .card::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+      z-index: -1;
  }
 
  .settings-menu {
