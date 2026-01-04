@@ -64,7 +64,7 @@ function applyHoldingWhatIfToCard(cardEl, mult) {
 
   if (Number.isFinite(nextPrice) && basePrice > 0) setTextSafely(priceEl, formatPrice(nextPrice));
   if (Number.isFinite(nextMcap) && baseMcap > 0) setTextSafely(mcapEl, formatCurrency(nextMcap));
-  if (Number.isFinite(nextValue) && baseValue >= 0) setTextSafely(valueEl, `${formatCurrency(nextValue)} (${nextMult}x)`);
+  if (Number.isFinite(nextValue) && baseValue >= 0) setTextSafely(valueEl, `${formatCurrency(nextValue)}`);
   try { valueEl?.classList?.add('is-whatif'); } catch {}
   try {
     card.classList.add('is-whatif-active');
@@ -4894,7 +4894,7 @@ function renderHoldingsTable() {
                       return `<button class="whatif-chip ${isActive ? 'is-active' : ''}" type="button" data-action="whatif-mult" data-holding-key="${escapeAttribute(key)}" data-mult="${escapeAttribute(String(m))}" aria-label="What if ${escapeAttribute(String(m))}x">${escapeHtml(String(m))}x</button>`;
                     }).join('');
                     return `<div class="holding-metric holding-metric-whatif">
-                      <div class="holding-metric-label">Deep Peeek!</div>
+                      <div class="holding-metric-label">Projection</div>
                       <div class="holding-metric-value">
                         <div class="whatif-chips" role="group" aria-label="What if multipliers">${buttons}</div>
                       </div>
