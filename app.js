@@ -4530,6 +4530,9 @@ function renderHoldingsTable() {
   const page = state.holdingsPage || 1;
   const startIdx = (page - 1) * HOLDINGS_PAGE_SIZE;
   const pageItems = filtered.slice(startIdx, startIdx + HOLDINGS_PAGE_SIZE);
+  
+  // For DOM manipulation, we need all filtered items, not just current page
+  const allFilteredItems = filtered;
 
   const canReuseHtmlBase =
     holdingsTableCache.key === cacheKey &&
@@ -4579,29 +4582,31 @@ function renderHoldingsTable() {
     // Check if we can manipulate existing DOM instead of using innerHTML
     const existingRows = Array.from(tbody.querySelectorAll('tr.holding-row'));
     const existingKeys = new Set(existingRows.map(r => r.dataset.key).filter(Boolean));
+    const allFilteredKeys = new Set(allFilteredItems.map(h => h.key));
     const pageItemKeys = new Set(pageItems.map(h => h.key));
     
-    // Check if all pageItems exist in the DOM
-    const allItemsExist = pageItems.every(item => existingKeys.has(item.key));
+    // Check if all filtered items exist in the DOM (not just current page)
+    const allItemsExist = allFilteredItems.every(item => existingKeys.has(item.key));
     const canManipulateDOM = existingRows.length > 0 && tbody.dataset.hasRendered === 'true' && allItemsExist;
     
     if (canManipulateDOM) {
       // Use DOM manipulation to avoid image re-requests
       
+      // First, reorder all rows based on allFilteredItems order
+      allFilteredItems.forEach((holding) => {
+        const row = existingRows.find(r => r.dataset.key === holding.key);
+        if (row) {
+          tbody.appendChild(row);  // Move to end in correct order
+        }
+      });
+      
+      // Then show/hide based on current page
       existingRows.forEach(row => {
         const key = row.dataset.key;
         if (!key || !pageItemKeys.has(key)) {
           row.style.display = 'none';
         } else {
           row.style.display = '';
-        }
-      });
-      
-      // Sort rows based on pageItems order by reordering DOM
-      pageItems.forEach((holding) => {
-        const row = existingRows.find(r => r.dataset.key === holding.key);
-        if (row) {
-          tbody.appendChild(row);  // Move to end in correct order
         }
       });
     } else if (canReuseHtmlBase) {
