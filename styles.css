@@ -1993,6 +1993,10 @@ body.is-scanning .logo-lockup .eye::after {
   #watchlistBody .holding-card {
     width: min(calc(100vw - 32px), calc(80% + 35%));
   }
+  
+  .token-info {
+    max-width: 120px;
+  }
 }
 
 #watchlistBody .holding-row::before,
@@ -3496,7 +3500,6 @@ body.ui-results .holding-row::after {
 
 .token-info {
   min-width: 0;
-  max-width: 120px;
   overflow: hidden;
 }
 
