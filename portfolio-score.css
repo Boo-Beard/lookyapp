@@ -88,7 +88,7 @@
 }
 
 .subscore-card.score-excellent {
-  border-color: var(--success);
+  border-color: var(--peeek-accent);
 }
 
 .subscore-card.score-good {
