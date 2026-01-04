@@ -2200,7 +2200,8 @@ body.is-scanning .logo-lockup .eye::after {
     flex-shrink: 0;
   }
   
-  #watchlistBody .holding-card-header .chain-badge-small {
+  #watchlistBody .holding-card-header .chain-badge-small,
+  #watchlistBody .holding-card-header .chain-badge-logo {
     position: absolute;
     top: -12px;
     right: -12px;
@@ -2248,7 +2249,8 @@ body.is-scanning .logo-lockup .eye::after {
     flex-shrink: 0;
   }
   
-  #searchResults .holding-card-header .chain-badge-small {
+  #searchResults .holding-card-header .chain-badge-small,
+  #searchResults .holding-card-header .chain-badge-logo {
     position: absolute;
     top: -12px;
     right: -12px;
@@ -3765,7 +3767,8 @@ body.holdings-cards .holding-card-header {
     flex-shrink: 0;
   }
   
-  body.holdings-cards .holding-card-header .chain-badge-small {
+  body.holdings-cards .holding-card-header .chain-badge-small,
+  body.holdings-cards .holding-card-header .chain-badge-logo {
     position: absolute;
     top: -12px;
     right: -12px;
@@ -4843,6 +4846,17 @@ body.ui-results .wallet-count {
   border-color: rgba(98, 126, 234, 0.3);
   background: rgba(98, 126, 234, 0.1);
   color: var(--ink);
+}
+
+.chain-badge-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
 }
 
 .footer-rotator {

@@ -1840,9 +1840,8 @@ function renderWatchlist() {
       ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
       : '';
 
-    const chainBadge = t.chain === 'solana'
-      ? 'SOL'
-      : evmNetworkLabel(t.network);
+    const chainLogoUrl = getChainLogoUrl(t.chain, t.network);
+    const chainLabel = t.chain === 'solana' ? 'SOL' : evmNetworkLabel(t.network);
 
     return `
       <div class="holding-row holding-card-row" data-key="${escapeAttribute(key)}">
@@ -1857,7 +1856,7 @@ function renderWatchlist() {
             </div>
 
             <div class="holding-card-header-right">
-              ${chainBadge ? `<span class="chain-badge-small ${escapeAttribute(String(t.chain || ''))}">${escapeHtml(chainBadge)}</span>` : ''}
+              ${chainLogoUrl ? `<img class="chain-badge-logo ${escapeAttribute(String(t.chain || ''))}" src="${escapeAttribute(chainLogoUrl)}" alt="${escapeAttribute(chainLabel)}" title="${escapeAttribute(chainLabel)}" />` : ''}
               <div class="holding-card-actions" aria-label="Favorites actions">
                 <a class="holding-action is-active" href="#" data-action="watchlist-remove" data-watchlist-key="${escapeAttribute(key)}" aria-label="Remove from Favorites">
                   <i class="fa-solid fa-heart" aria-hidden="true"></i>
@@ -3115,6 +3114,25 @@ function evmNetworkLabel(network) {
     case 'fantom': return 'FTM';
     case 'gnosis': return 'GNO';
     default: return 'EVM';
+  }
+}
+
+function getChainLogoUrl(chain, network) {
+  if (chain === 'solana') {
+    return 'https://cryptologos.cc/logos/solana-sol-logo.png';
+  }
+  
+  switch (normalizeEvmNetwork(network)) {
+    case 'ethereum': return 'https://cryptologos.cc/logos/ethereum-eth-logo.png';
+    case 'bsc': return 'https://cryptologos.cc/logos/bnb-bnb-logo.png';
+    case 'arbitrum': return 'https://cryptologos.cc/logos/arbitrum-arb-logo.png';
+    case 'optimism': return 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.png';
+    case 'polygon': return 'https://cryptologos.cc/logos/polygon-matic-logo.png';
+    case 'base': return 'https://assets.coingecko.com/coins/images/31164/standard/base.png';
+    case 'avalanche': return 'https://cryptologos.cc/logos/avalanche-avax-logo.png';
+    case 'fantom': return 'https://cryptologos.cc/logos/fantom-ftm-logo.png';
+    case 'gnosis': return 'https://cryptologos.cc/logos/gnosis-gno-gno-logo.png';
+    default: return '';
   }
 }
 
@@ -5078,7 +5096,11 @@ function renderHoldingsTable() {
                   <div class="token-symbol">${escapeHtml(holding.symbol)}</div>
                   <div class="token-name">${escapeHtml(holding.name)}</div>
                 </div>
-                <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+                ${(() => {
+                  const chainLogoUrl = getChainLogoUrl(holding.chain, holding.network);
+                  const chainLabel = holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network);
+                  return chainLogoUrl ? `<img class=\"chain-badge-logo ${escapeAttribute(String(holding.chain || ''))}\" src=\"${escapeAttribute(chainLogoUrl)}\" alt=\"${escapeAttribute(chainLabel)}\" title=\"${escapeAttribute(chainLabel)}\" />` : '';
+                })()}
                 <div class="holding-card-actions" aria-label="Holding actions">
                   <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                     <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
@@ -5253,7 +5275,11 @@ function renderHoldingsTable() {
                   </div>
 
                   <div class="holding-card-header-right">
-                    <span class="chain-badge-small ${escapeAttribute(String(holding.chain || ''))}">${holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network)}</span>
+                    ${(() => {
+                      const chainLogoUrl = getChainLogoUrl(holding.chain, holding.network);
+                      const chainLabel = holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network);
+                      return chainLogoUrl ? `<img class=\"chain-badge-logo ${escapeAttribute(String(holding.chain || ''))}\" src=\"${escapeAttribute(chainLogoUrl)}\" alt=\"${escapeAttribute(chainLabel)}\" title=\"${escapeAttribute(chainLabel)}\" />` : '';
+                    })()}
                     <div class="holding-card-actions" aria-label="Holding actions">
                       <a class="holding-action ${wlActive ? 'is-active' : ''}" href="#" data-action="watchlist-add" data-chain="${escapeAttribute(String(holding.chain || ''))}" data-network="${escapeAttribute(String(holding.network || ''))}" data-address="${escapeAttribute(String(chartAddress || ''))}" data-symbol="${escapeAttribute(String(holding.symbol || ''))}" data-name="${escapeAttribute(String(holding.name || ''))}" data-logo-url="${escapeAttribute(String(holding.logo || ''))}" aria-label="${wlActive ? 'Remove from Watchlist' : 'Add to Watchlist'}">
                         <i class="${wlActive ? 'fa-solid' : 'fa-regular'} fa-heart" aria-hidden="true"></i>
