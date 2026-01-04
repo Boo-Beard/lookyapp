@@ -10,13 +10,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 0;
+  padding: 10px 0;
 }
 
 .score-circle {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 160px;
+  height: 160px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,21 +42,21 @@
 }
 
 .score-number {
-  font-size: 64px;
+  font-size: 42px;
   font-weight: 900;
   color: var(--text-primary);
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   position: relative;
   z-index: 1;
 }
 
 .score-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   position: relative;
   z-index: 1;
 }
@@ -75,10 +75,10 @@
   background: var(--panel);
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 14px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.2s ease;
 }
 
@@ -88,7 +88,7 @@
 }
 
 .subscore-card.score-excellent {
-  border-color: var(--peeek-accent);
+border-color: rgb(0 0 0 / 100%);
 }
 
 .subscore-card.score-good {
@@ -100,7 +100,7 @@
 }
 
 .subscore-label {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -108,14 +108,14 @@
 }
 
 .subscore-value {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 900;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .score-excellent .subscore-value {
-  color: var(--success);
+    color: #000000;
 }
 
 .score-poor .subscore-value {
@@ -123,8 +123,8 @@
 }
 
 .subscore-bar {
-  height: 6px;
-  background: var(--bg-secondary);
+  height: 4px;
+  background: var(--peeek-accent);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -137,8 +137,7 @@
 }
 
 .score-excellent .subscore-bar-fill {
-  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-}
+    background: var(--peeek-accent);}
 
 .score-poor .subscore-bar-fill {
   background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
@@ -197,7 +196,7 @@
 }
 
 .score-item .fa-arrow-up {
-  color: var(--success);
+  color: var(--peeek-accent);
 }
 
 .score-item .fa-arrow-down {

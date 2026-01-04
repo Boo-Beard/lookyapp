@@ -825,18 +825,18 @@ width: 44px;
 }
 
 #aiScoreValue {
-  margin-bottom: 10px;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--panel);
-  padding: 10px 12px;
-  font-weight: 800;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 18px;
-  line-height: 1.1;
-  letter-spacing: 0;
-  display: inline-block;
+    margin-bottom: 10px;
+    /* border: 2px solid var(--border); */
+    border-radius: var(--radius-lg);
+    /* background: var(--panel); */
+    padding: 10px 12px;
+    font-weight: 800;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 50px;
+    line-height: 1.1;
+    letter-spacing: 0;
+    display: inline-block;
 }
 
 .pnl-positive {

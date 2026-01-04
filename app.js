@@ -3548,13 +3548,8 @@ function renderAiScoreSection() {
     const circumference = 2 * Math.PI * radius;
     const progress = (scoreValue / 100) * circumference;
     
-    // Determine color based on score
-    let strokeColor = '#10b981'; // Green for good scores
-    if (scoreValue < 50) {
-      strokeColor = '#ef4444'; // Red for poor scores
-    } else if (scoreValue < 70) {
-      strokeColor = '#f59e0b'; // Orange for fair scores
-    }
+    // Use cyan color for all scores
+    const strokeColor = 'rgba(0, 194, 255, 0.95)';
     
     // Background circle
     const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
