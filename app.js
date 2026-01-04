@@ -1784,12 +1784,27 @@ function renderWatchlist() {
     return;
   }
 
-  const canUseCache = watchlistCache.version === watchlistDataVersion && watchlistCache.sortKey === sortKey && watchlistCache.html;
+  // Check if we can manipulate existing DOM instead of using innerHTML
+  const existingRows = Array.from(body.querySelectorAll('.holding-row.holding-card-row'));
+  const existingKeys = new Set(existingRows.map(r => r.dataset.key).filter(Boolean));
+  const listKeys = new Set(list.map(t => normalizeWatchlistTokenKey(t)));
   
-  if (canUseCache) {
-    if (body.innerHTML !== watchlistCache.html) {
-      body.innerHTML = watchlistCache.html;
-    }
+  // Check if all items exist in the DOM
+  const allItemsExist = list.every(t => existingKeys.has(normalizeWatchlistTokenKey(t)));
+  const canManipulateDOM = existingRows.length > 0 && body.dataset.hasRendered === 'true' && allItemsExist;
+  
+  if (canManipulateDOM) {
+    // Use DOM manipulation to avoid image re-requests
+    
+    // Reorder rows based on sorted list
+    list.forEach((token) => {
+      const key = normalizeWatchlistTokenKey(token);
+      const row = existingRows.find(r => r.dataset.key === key);
+      if (row) {
+        body.appendChild(row);  // Move to end in correct order
+      }
+    });
+    
     try { lockInputBodyHeight(); } catch {}
     try { syncWatchlistStars(); } catch {}
     try { updateWatchlistModeBtnCount(); } catch {}
@@ -1884,6 +1899,7 @@ function renderWatchlist() {
 
   if (body.innerHTML !== html) {
     body.innerHTML = html;
+    body.dataset.hasRendered = 'true';
   }
 
   try { lockInputBodyHeight(); } catch {}
