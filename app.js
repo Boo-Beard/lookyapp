@@ -3130,7 +3130,7 @@ function getChainLogoUrl(chain, network) {
     case 'arbitrum': return 'https://cryptologos.cc/logos/arbitrum-arb-logo.png';
     case 'optimism': return 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.png';
     case 'polygon': return 'https://cryptologos.cc/logos/polygon-matic-logo.png';
-    case 'base': return 'https://assets.coingecko.com/coins/images/31164/standard/base.png';
+    case 'base': return 'https://www.base.org/document/favicon-32x32.png';
     case 'avalanche': return 'https://cryptologos.cc/logos/avalanche-avax-logo.png';
     case 'fantom': return 'https://cryptologos.cc/logos/fantom-ftm-logo.png';
     case 'gnosis': return 'https://cryptologos.cc/logos/gnosis-gno-gno-logo.png';
