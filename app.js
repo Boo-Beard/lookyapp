@@ -16,7 +16,7 @@ function shouldIgnoreGlobalError(message, source) {
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 
-const WHATIF_PRESETS = [2, 5, 8, 10, 100];
+const WHATIF_PRESETS = [2, 5, 8, 10];
 const WHATIF_AUTO_RESET_MS = 2_000;
 const whatIfHolding = new Map();
 const whatIfTimers = new Map();

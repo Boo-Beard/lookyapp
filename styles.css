@@ -3796,50 +3796,6 @@ body.holdings-cards .whatif-chip {
   pointer-events: auto;
 }
 
-@media (max-width: 420px) {
-  body.holdings-cards .holding-metric-whatif .holding-metric-value {
-    display: block;
-  }
-
-  body.holdings-cards .whatif-chips {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 2px;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: none;
-    scrollbar-width: thin;
-  }
-
-  body.holdings-cards .holding-metric-whatif .holding-metric-value {
-    position: relative;
-  }
-
-  body.holdings-cards .holding-metric-whatif .holding-metric-value::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 18px;
-    background: linear-gradient(to left, var(--panel), rgba(0,0,0,0));
-    pointer-events: none;
-  }
-
-  body.holdings-cards .whatif-chip {
-    flex: 0 0 auto;
-    min-width: 72px;
-    padding: 6px 12px;
-    font-size: 11px;
-    scroll-snap-align: none;
-  }
-}
-
 body.holdings-cards .whatif-chip.is-active {
   background: var(--peeek-accent);
   border-color: rgba(0, 0, 0, 0.95);
