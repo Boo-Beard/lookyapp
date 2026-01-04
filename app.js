@@ -2459,9 +2459,9 @@ function forceCollapseResultsSections() {
   const walletHoldingsToggle = $('walletHoldingsToggle');
   const walletHoldingsContent = $('walletHoldingsContent');
 
-  const aiScoreCard = $('aiScoreCard');
-  const aiScoreToggle = $('aiScoreToggle');
-  const aiScoreContent = $('aiScoreContent');
+  const portfolioScoreCard = $('portfolioScoreCard');
+  const portfolioScoreToggle = $('portfolioScoreToggle');
+  const portfolioScoreContent = $('portfolioScoreContent');
 
   if (holdingsCard && holdingsToggle && holdingsContent) {
     holdingsCard.classList.add('is-collapsed');
@@ -2481,17 +2481,17 @@ function forceCollapseResultsSections() {
     walletHoldingsContent.classList.add('hidden');
   }
 
-  if (aiScoreCard && aiScoreToggle && aiScoreContent) {
-    aiScoreCard.classList.add('is-collapsed');
-    aiScoreToggle.setAttribute('aria-expanded', 'false');
-    aiScoreContent.classList.add('hidden');
+  if (portfolioScoreCard && portfolioScoreToggle && portfolioScoreContent) {
+    portfolioScoreCard.classList.add('is-collapsed');
+    portfolioScoreToggle.setAttribute('aria-expanded', 'false');
+    portfolioScoreContent.classList.add('hidden');
   }
 
   const uiSections = loadUiSectionState();
   uiSections.holdings = false;
   uiSections.allocRisk = false;
   uiSections.walletHoldings = false;
-  uiSections.aiScore = false;
+  uiSections.portfolioScore = false;
   saveUiSectionState(uiSections);
 }
 
@@ -3507,16 +3507,16 @@ function updateSummary() {
     chainCountMetaEl.textContent = n > 0 ? `chain${n === 1 ? '' : 's'}` : '—';
   }
 
-  renderAiScoreSection();
+  renderPortfolioScoreSection();
 }
 
-function renderAiScoreSection() {
-  const card = $('aiScoreCard');
-  const valueEl = $('aiScoreValue');
-  const metaEl = $('aiScoreMeta');
-  const driversEl = $('aiScoreDrivers');
-  const subscoresEl = $('aiScoreSubscores');
-  const recsEl = $('aiScoreRecs');
+function renderPortfolioScoreSection() {
+  const card = $('portfolioScoreCard');
+  const valueEl = $('portfolioScoreValue');
+  const metaEl = $('portfolioScoreMeta');
+  const driversEl = $('portfolioScoreDrivers');
+  const subscoresEl = $('portfolioScoreSubscores');
+  const recsEl = $('portfolioScoreRecs');
 
   if (!card || !valueEl || !metaEl || !driversEl) return;
 
@@ -6926,9 +6926,9 @@ function setupEventListeners() {
   const walletHoldingsToggle = $('walletHoldingsToggle');
   const walletHoldingsContent = $('walletHoldingsContent');
 
-  const aiScoreCard = $('aiScoreCard');
-  const aiScoreToggle = $('aiScoreToggle');
-  const aiScoreContent = $('aiScoreContent');
+  const portfolioScoreCard = $('portfolioScoreCard');
+  const portfolioScoreToggle = $('portfolioScoreToggle');
+  const portfolioScoreContent = $('portfolioScoreContent');
 
   function setCollapsed({ card, toggle, content, key, collapsed }) {
     if (!card || !toggle || !content) return;
@@ -6949,8 +6949,8 @@ function setupEventListeners() {
   const walletHoldingsOpen = Object.prototype.hasOwnProperty.call(uiSections, 'walletHoldings') ? !!uiSections.walletHoldings : false;
   setCollapsed({ card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings', collapsed: !walletHoldingsOpen });
 
-  const aiScoreOpen = Object.prototype.hasOwnProperty.call(uiSections, 'aiScore') ? !!uiSections.aiScore : false;
-  setCollapsed({ card: aiScoreCard, toggle: aiScoreToggle, content: aiScoreContent, key: 'aiScore', collapsed: !aiScoreOpen });
+  const portfolioScoreOpen = Object.prototype.hasOwnProperty.call(uiSections, 'portfolioScore') ? !!uiSections.portfolioScore : false;
+  setCollapsed({ card: portfolioScoreCard, toggle: portfolioScoreToggle, content: portfolioScoreContent, key: 'portfolioScore', collapsed: !portfolioScoreOpen });
 
   allocRiskToggle?.addEventListener('click', () => {
     const open = !(allocRiskCard?.classList.contains('is-collapsed'));
@@ -6970,9 +6970,9 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  aiScoreToggle?.addEventListener('click', () => {
-    const open = !(aiScoreCard?.classList.contains('is-collapsed'));
-    setCollapsed({ card: aiScoreCard, toggle: aiScoreToggle, content: aiScoreContent, key: 'aiScore', collapsed: open });
+  portfolioScoreToggle?.addEventListener('click', () => {
+    const open = !(portfolioScoreCard?.classList.contains('is-collapsed'));
+    setCollapsed({ card: portfolioScoreCard, toggle: portfolioScoreToggle, content: portfolioScoreContent, key: 'portfolioScore', collapsed: open });
     hapticFeedback('light');
   });
 

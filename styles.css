@@ -824,7 +824,7 @@ width: 44px;
   min-width: 0;
 }
 
-#aiScoreValue {
+#portfolioScoreValue {
     margin-bottom: -7px;
     /* border: 2px solid var(--border); */
     border-radius: var(--radius-lg);
@@ -851,7 +851,7 @@ width: 44px;
 }
 
 .summary-card .summary-value.pnl-positive {
-  color: var(--peeek-accent);}
+  color: var(--peeek-accent);
 }
 
 .summary-card .summary-value.pnl-negative {
@@ -863,7 +863,7 @@ width: 44px;
 }
 
 .summary-card .summary-sub.summary-change.positive {
-  color: var(--peeek-accent);}
+  color: var(--peeek-accent);
 }
 
 .summary-card .summary-sub.summary-change.negative {
