@@ -4611,7 +4611,6 @@ body.ui-results .table-stats {
 
   .alloc-risk-header {
     position: relative;
-    flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
