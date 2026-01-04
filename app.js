@@ -5180,6 +5180,10 @@ async function refreshPortfolioMetrics({ force } = {}) {
       syncPortfolioHoldingsInPlace();
     } catch {}
 
+    try {
+      enrichHoldingsWithOverviewMeta(state.holdings, { signal: state.scanAbortController?.signal });
+    } catch {}
+
     try { savePortfolioSnapshot(); } catch {}
   } finally {
     portfolioRefreshInFlight = false;
