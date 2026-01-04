@@ -645,8 +645,14 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::before {
   inset: 0;
   background: var(--panel);
   transform: translateX(calc((-100% + (var(--cooldown-pct, 0) * 100%))));
-  transition: transform 900ms linear;
+  animation: peeek-cooldown-fill 60s linear forwards;
+  animation-play-state: running;
   pointer-events: none;
+}
+
+@keyframes peeek-cooldown-fill {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0%); }
 }
 
 .btn.is-cooldown > *,
