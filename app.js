@@ -4713,7 +4713,6 @@ function renderHoldingsTable() {
                       return `<button class="whatif-chip ${isActive ? 'is-active' : ''}" type="button" data-action="whatif-mult" data-holding-key="${escapeAttribute(key)}" data-mult="${escapeAttribute(String(m))}" aria-label="What if ${escapeAttribute(String(m))}x">${escapeHtml(String(m))}x</button>`;
                     }).join('');
                     return `<div class="holding-metric holding-metric-whatif">
-                      <div class="holding-metric-label">Peeek Ahead</div>
                       <div class="holding-metric-value">
                         <div class="whatif-chips" role="group" aria-label="What if multipliers">${buttons}</div>
                       </div>
@@ -5963,23 +5962,9 @@ function setupEventListeners() {
         if (card) applyHoldingWhatIfToCard(card, mult);
         const chipsWrap = whatIfBtn.closest('.whatif-chips');
         if (chipsWrap) {
-          const metric = chipsWrap.closest('.holding-metric-whatif');
-          if (metric) metric.classList.toggle('is-whatif-active', Number(mult) !== 1);
           chipsWrap.querySelectorAll('button.whatif-chip').forEach((b) => {
             b.classList.toggle('is-active', b === whatIfBtn);
           });
-
-          if (String(whatIfBtn.dataset.mult) === '100') {
-            try {
-              const sparkTarget = whatIfBtn;
-              sparkTarget.classList.remove('is-sparking');
-              void sparkTarget.offsetWidth;
-              sparkTarget.classList.add('is-sparking');
-              window.setTimeout(() => {
-                try { sparkTarget.classList.remove('is-sparking'); } catch {}
-              }, 520);
-            } catch {}
-          }
         }
       } catch {}
       try { scheduleHoldingWhatIfReset(key); } catch {}
