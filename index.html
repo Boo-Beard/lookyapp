@@ -19,6 +19,7 @@
 
   <link rel="stylesheet" href="./styles.css?v=22" />
   <link rel="stylesheet" href="./portfolio-score.css?v=4" />
+  <link rel="stylesheet" href="./allocation.css?v=1" />
 </head>
 
 <body class="ui-landing">
@@ -422,29 +423,30 @@
               <h3 class="table-title">Allocation &amp; Risk</h3>
               <div class="table-subtitle">Chain distribution and concentration metrics</div>
             </div>
-            <div class="section-scan-indicator" aria-hidden="true"></div>
             <button id="allocRiskToggle" class="collapse-toggle" type="button" aria-label="Toggle Allocation and Risk" aria-controls="allocRiskContent" aria-expanded="false">
               <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
             </button>
           </div>
           <div id="allocRiskContent" class="alloc-risk-body collapsible-content hidden">
-            <div class="alloc-risk-cols">
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Chains</div>
-                <div class="alloc-chain-wrap">
-                  <div id="chainAllocationChart" class="alloc-chain-chart" aria-label="Chain allocation chart"></div>
-                  <div id="chainAllocationTooltip" class="alloc-chain-tooltip hidden" role="status" aria-live="polite"></div>
+            <div class="allocation-container">
+              <div class="allocation-main">
+                <div class="chain-chart-wrapper">
+                  <div id="chainAllocationChart" class="chain-donut-chart" aria-label="Chain allocation chart"></div>
+                  <div id="chainAllocationTooltip" class="chain-tooltip hidden" role="status" aria-live="polite"></div>
                 </div>
+                <div id="chainLegend" class="chain-legend"></div>
               </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Top Tokens</div>
-                <div id="tokenAllocationList" class="alloc-risk-list"></div>
-              </div>
-
-              <div class="alloc-risk-col full-width">
-                <div class="alloc-risk-section-title">Insights</div>
-                <div id="riskInsights" class="alloc-risk-insights"></div>
+              
+              <div class="allocation-details">
+                <div class="allocation-section">
+                  <div class="allocation-section-title">Top Holdings</div>
+                  <div id="tokenAllocationList" class="allocation-items"></div>
+                </div>
+                
+                <div class="allocation-section">
+                  <div class="allocation-section-title">Key Insights</div>
+                  <div id="riskInsights" class="allocation-items"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -504,6 +506,6 @@
     </footer>
   </div>
 
-  <script src="app.js?v=37" defer></script>
+  <script src="app.js?v=38" defer></script>
 </body>
 </html>

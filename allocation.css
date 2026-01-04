@@ -1,0 +1,173 @@
+/* Allocation & Risk - Visual Design */
+.allocation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0;
+}
+
+.allocation-main {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.chain-chart-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.chain-donut-chart {
+  width: 190px;
+  height: 190px;
+  position: relative;
+}
+
+.chain-donut-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chain-tooltip {
+  position: absolute;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.chain-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.chain-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.chain-legend-item:hover {
+  transform: translateX(4px);
+  border-color: var(--primary);
+}
+
+.chain-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.chain-legend-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.chain-legend-value {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.allocation-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .allocation-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .allocation-main {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.allocation-section {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.allocation-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.allocation-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.allocation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  gap: 12px;
+}
+
+.allocation-item-name {
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.allocation-item-value {
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.allocation-item-pct {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* Hover effects for interactive segments */
+.alloc-seg {
+  cursor: pointer;
+  transition: stroke-opacity 0.2s ease;
+}
+
+.alloc-seg:hover {
+  stroke-opacity: 0.8;
+}

@@ -4234,6 +4234,21 @@ function renderAllocationAndRisk() {
     allocationEl.innerHTML = svg;
   }
 
+  // Render chain legend
+  const legendEl = $('chainLegend');
+  if (legendEl && segments.length) {
+    const legendHtml = segments.map(s => `
+      <div class="chain-legend-item">
+        <div class="chain-legend-color" style="background-color: ${s.color}"></div>
+        <div class="chain-legend-name">${escapeHtml(s.name)}</div>
+        <div class="chain-legend-value">${formatPct(s.pct)}</div>
+      </div>
+    `).join('');
+    legendEl.innerHTML = legendHtml;
+  } else if (legendEl) {
+    legendEl.innerHTML = '';
+  }
+
   const tooltipEl = $('chainAllocationTooltip');
   const chartHost = chainChartEl || allocationEl;
   if (tooltipEl && chartHost) {
@@ -4286,18 +4301,16 @@ function renderAllocationAndRisk() {
   const tokenHtml = tokenRows.map((r) => {
     const pct = Math.max(0, Math.min(100, r.pct));
     return `
-      <div class="alloc-row" data-key="${escapeHtml(r.key)}">
-        <div class="alloc-row-top">
-          <div class="alloc-row-name">${escapeHtml(r.name)}</div>
-          <div class="alloc-row-meta">${formatPct(pct)} · <span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
-        </div>
-        <div class="alloc-bar"><div class="alloc-bar-fill" style="width:${pct.toFixed(2)}%"></div></div>
+      <div class="allocation-item" data-key="${escapeHtml(r.key)}">
+        <div class="allocation-item-name">${escapeHtml(r.name)}</div>
+        <div class="allocation-item-value"><span class="redacted-field" tabindex="0">${formatCurrency(r.value)}</span></div>
+        <div class="allocation-item-pct">${formatPct(pct)}</div>
       </div>
     `;
   }).join('');
 
   if (tokenAllocationEl) {
-    tokenAllocationEl.innerHTML = tokenHtml;
+    tokenAllocationEl.innerHTML = tokenHtml || '<div class="allocation-item">No holdings</div>';
   }
 
   const sortedByValue = holdings.slice().sort((a, b) => (Number(b?.value || 0) || 0) - (Number(a?.value || 0) || 0));
@@ -4388,9 +4401,9 @@ function renderAllocationAndRisk() {
   }
 
   insightsEl.innerHTML = insights
-    .slice(0, 7)
-    .map((t) => `<div class="insight-item">${t}</div>`)
-    .join('');
+    .slice(0, 5)
+    .map((t) => `<div class="allocation-item">${t}</div>`)
+    .join('') || '<div class="allocation-item">No insights available</div>';
 }
 
 function renderHoldingsByWallet() {
