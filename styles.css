@@ -2087,6 +2087,12 @@ body.is-scanning .logo-lockup .eye::after {
   padding: 0;
 }
 
+#watchlistBody .holding-card-metrics .holding-metric.holding-metric-whatif {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
 #watchlistBody .holding-metric-label {
   font-size: 11px;
   letter-spacing: 0.12em;
