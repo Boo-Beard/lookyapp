@@ -4339,6 +4339,14 @@ function renderHoldingsTable() {
     `sh:${showHidden ? 1 : 0}`,
   ].join('|');
 
+  const currentPage = state.holdingsPage || 1;
+  const earlyExitKey = `${cacheKey}|p:${currentPage}|c:${useCardRows ? 1 : 0}`;
+  
+  // Early exit if we're already showing this exact view
+  if (holdingsTableCache.lastRenderedKey === earlyExitKey) {
+    return;
+  }
+
   const canReuseFiltered = holdingsTableCache.key === cacheKey
     && holdingsTableCache.useCardRows === useCardRows
     && Array.isArray(holdingsTableCache.filtered);
