@@ -4570,7 +4570,7 @@ function renderHoldingsByWallet() {
   
   walletAllocationEl.innerHTML = walletHtml;
   
-  // Add click handlers for wallet expansion
+  // Add click handlers for wallet expansion (accordion behavior)
   walletAllocationEl.querySelectorAll('.wallet-header').forEach(header => {
     header.addEventListener('click', () => {
       const wallet = header.dataset.wallet;
@@ -4582,6 +4582,21 @@ function renderHoldingsByWallet() {
       
       if (tokensEl && chevron) {
         const isExpanded = !tokensEl.classList.contains('hidden');
+        
+        // Collapse all other wallets (accordion behavior)
+        walletAllocationEl.querySelectorAll('.wallet-section').forEach(otherSection => {
+          if (otherSection !== section) {
+            const otherTokensEl = otherSection.querySelector('.wallet-tokens');
+            const otherChevron = otherSection.querySelector('.wallet-chevron');
+            if (otherTokensEl && otherChevron) {
+              otherTokensEl.classList.add('hidden');
+              otherChevron.classList.remove('fa-chevron-down');
+              otherChevron.classList.add('fa-chevron-right');
+            }
+          }
+        });
+        
+        // Toggle current wallet
         tokensEl.classList.toggle('hidden');
         chevron.classList.toggle('fa-chevron-right', isExpanded);
         chevron.classList.toggle('fa-chevron-down', !isExpanded);
@@ -4601,16 +4616,25 @@ function renderHoldingsByWallet() {
       const holding = holdings.find(h => h.key === key);
       if (!holding) return;
       
-      toggleWatchlistToken(holding);
+      // Toggle watchlist - add or remove
+      const isFavorite = isTokenInWatchlist(key);
+      if (isFavorite) {
+        removeTokenFromWatchlistByKey(key);
+      } else {
+        addTokenToWatchlist(holding);
+      }
       hapticFeedback('medium');
       
       // Update button state
-      const isFavorite = isTokenInWatchlist(key);
-      btn.classList.toggle('is-favorite', isFavorite);
+      const newFavoriteState = isTokenInWatchlist(key);
+      btn.classList.toggle('is-favorite', newFavoriteState);
       const icon = btn.querySelector('i');
       if (icon) {
-        icon.className = isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+        icon.className = newFavoriteState ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
       }
+      
+      // Re-render holdings to update favorite icons everywhere
+      renderHoldingsByWallet();
     });
   });
   
@@ -7156,26 +7180,74 @@ function setupEventListeners() {
   const portfolioScoreOpen = Object.prototype.hasOwnProperty.call(uiSections, 'portfolioScore') ? !!uiSections.portfolioScore : false;
   setCollapsed({ card: portfolioScoreCard, toggle: portfolioScoreToggle, content: portfolioScoreContent, key: 'portfolioScore', collapsed: !portfolioScoreOpen });
 
+  // Accordion behavior for main sections
+  const allSections = [
+    { card: holdingsCard, toggle: holdingsToggle, content: holdingsContent, key: 'holdings' },
+    { card: portfolioScoreCard, toggle: portfolioScoreToggle, content: portfolioScoreContent, key: 'portfolioScore' },
+    { card: allocRiskCard, toggle: allocRiskToggle, content: allocRiskContent, key: 'allocRisk' },
+    { card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings' }
+  ];
+
   allocRiskToggle?.addEventListener('click', () => {
     const open = !(allocRiskCard?.classList.contains('is-collapsed'));
+    
+    // Collapse all other sections (accordion behavior)
+    if (!open) {
+      allSections.forEach(section => {
+        if (section.card !== allocRiskCard && section.card) {
+          setCollapsed({ ...section, collapsed: true });
+        }
+      });
+    }
+    
     setCollapsed({ card: allocRiskCard, toggle: allocRiskToggle, content: allocRiskContent, key: 'allocRisk', collapsed: open });
     hapticFeedback('light');
   });
 
   holdingsToggle?.addEventListener('click', () => {
     const open = !(holdingsCard?.classList.contains('is-collapsed'));
+    
+    // Collapse all other sections (accordion behavior)
+    if (!open) {
+      allSections.forEach(section => {
+        if (section.card !== holdingsCard && section.card) {
+          setCollapsed({ ...section, collapsed: true });
+        }
+      });
+    }
+    
     setCollapsed({ card: holdingsCard, toggle: holdingsToggle, content: holdingsContent, key: 'holdings', collapsed: open });
     hapticFeedback('light');
   });
 
   walletHoldingsToggle?.addEventListener('click', () => {
     const open = !(walletHoldingsCard?.classList.contains('is-collapsed'));
+    
+    // Collapse all other sections (accordion behavior)
+    if (!open) {
+      allSections.forEach(section => {
+        if (section.card !== walletHoldingsCard && section.card) {
+          setCollapsed({ ...section, collapsed: true });
+        }
+      });
+    }
+    
     setCollapsed({ card: walletHoldingsCard, toggle: walletHoldingsToggle, content: walletHoldingsContent, key: 'walletHoldings', collapsed: open });
     hapticFeedback('light');
   });
 
   portfolioScoreToggle?.addEventListener('click', () => {
     const open = !(portfolioScoreCard?.classList.contains('is-collapsed'));
+    
+    // Collapse all other sections (accordion behavior)
+    if (!open) {
+      allSections.forEach(section => {
+        if (section.card !== portfolioScoreCard && section.card) {
+          setCollapsed({ ...section, collapsed: true });
+        }
+      });
+    }
+    
     setCollapsed({ card: portfolioScoreCard, toggle: portfolioScoreToggle, content: portfolioScoreContent, key: 'portfolioScore', collapsed: open });
     hapticFeedback('light');
   });
