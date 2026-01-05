@@ -603,16 +603,6 @@ body.ui-results .amend-wallets-row .btn {
   color: var(--text);
   font-weight: 600;
   box-shadow: 0.3em 0.3em 0 #000;
-  transition: all 0.25s ease;
-}
-
-body.ui-results .amend-wallets-row .btn:hover {
-  box-shadow: -0.3em -0.3em 0 #000;
-}
-
-body.ui-results .amend-wallets-row .btn:active {
-  box-shadow: 0 0 0 #000;
-  transform: translate(0.15em, 0.15em);
 }
 
 body.ui-results .amend-wallets-row .btn .btn-icon {
