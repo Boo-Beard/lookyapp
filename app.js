@@ -7345,9 +7345,13 @@ function setupEventListeners() {
     currentQrCode = null;
   }
 
-  closeShareModal?.addEventListener('click', closeShareModalFn);
-  
-  shareLinkModal?.querySelector('.modal-backdrop')?.addEventListener('click', closeShareModalFn);
+  // Close modal when clicking backdrop or anywhere outside the modal content
+  shareLinkModal?.addEventListener('click', (e) => {
+    // Close if clicking the modal itself (backdrop) or modal-content, but not its children
+    if (e.target === shareLinkModal || e.target.classList.contains('modal-backdrop') || e.target.classList.contains('share-modal-content')) {
+      closeShareModalFn();
+    }
+  });
 
   // Copy button in modal
   copyShareLinkBtn?.addEventListener('click', async () => {

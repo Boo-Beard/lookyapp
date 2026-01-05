@@ -27,6 +27,15 @@
   min-width: 200px;
 }
 
+/* Prevent QR code from being blurred by redacted mode */
+body.is-redacted .share-qr-code,
+body.is-redacted .share-qr-code *,
+body.is-redacted #shareQrCode,
+body.is-redacted #shareQrCode * {
+  filter: none !important;
+  user-select: auto !important;
+}
+
 .share-qr-code canvas,
 .share-qr-code img {
   display: block;
