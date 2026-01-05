@@ -7301,14 +7301,47 @@ function setupEventListeners() {
       return;
     }
 
-    const url = buildShareUrlFromCurrent();
+    // Show loading state
+    const originalText = shareLinkBtn.innerHTML;
+    shareLinkBtn.innerHTML = '<span class="btn-icon"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span><span>Generating...</span>';
+    shareLinkBtn.disabled = true;
+
     try {
-      await navigator.clipboard.writeText(url);
-      showInputHint('Share link copied', 'success');
-      hapticFeedback('success');
-    } catch {
-      showInputHint('Copy share link', 'info');
-      prompt('Copy share link', url);
+      const longUrl = buildShareUrlFromCurrent();
+      
+      // Use TinyURL API to shorten the URL
+      const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+      
+      if (!response.ok) {
+        throw new Error('URL shortening failed');
+      }
+      
+      const shortUrl = await response.text();
+      
+      // Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shortUrl);
+        showInputHint('Short link copied!', 'success');
+        hapticFeedback('success');
+      } catch {
+        showInputHint('Copy share link', 'info');
+        prompt('Copy share link', shortUrl);
+      }
+    } catch (error) {
+      // Fallback to long URL if shortening fails
+      const url = buildShareUrlFromCurrent();
+      try {
+        await navigator.clipboard.writeText(url);
+        showInputHint('Share link copied', 'success');
+        hapticFeedback('success');
+      } catch {
+        showInputHint('Copy share link', 'info');
+        prompt('Copy share link', url);
+      }
+    } finally {
+      // Restore button state
+      shareLinkBtn.innerHTML = originalText;
+      shareLinkBtn.disabled = false;
     }
   });
 
