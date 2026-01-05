@@ -654,8 +654,12 @@ body.ui-results .amend-wallets-row .btn .btn-icon {
 }
 
 body.ui-results .amend-wallets-row .btn .btn-icon i {
-  color: #fff;
+  color: #000;
   font-size: 14px;
+}
+
+:root[data-theme="dark"] body.ui-results .amend-wallets-row .btn .btn-icon i {
+  color: #fff;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
@@ -2087,8 +2091,12 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 .watchlist-controls .btn .btn-icon i {
-  color: #fff;
+  color: #000;
   font-size: 14px;
+}
+
+:root[data-theme="dark"] .watchlist-controls .btn .btn-icon i {
+  color: #fff;
 }
 
 .watchlist-controls .select {
