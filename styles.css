@@ -2103,9 +2103,8 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 .watchlist-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  flex: 1;
+  display: flex;
 }
 
 .watchlist-controls .control-label {
@@ -2118,6 +2117,8 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 .watchlist-controls .btn {
+  width: 100%;
+  margin: 0;
   border: 2px solid #000;
   border-radius: 8px;
   background: var(--panel);
@@ -2142,6 +2143,11 @@ body.is-scanning .logo-lockup .eye::after {
   transform: translate(0.15em, 0.15em);
 }
 
+.watchlist-controls .btn .btn-icon {
+  margin-right: 6px;
+  transition: all 0.25s ease;
+}
+
 .watchlist-controls .btn .btn-icon i {
   color: #000;
   transition: color 0.25s ease;
@@ -2152,7 +2158,9 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 .watchlist-controls .select {
-  width: auto;
+  flex: 1;
+  width: 100%;
+  margin: 0;
   border: 2px solid #000;
   border-radius: 8px;
   background: var(--panel);
@@ -2162,6 +2170,7 @@ body.is-scanning .logo-lockup .eye::after {
   transition: all 0.25s ease;
   position: relative;
   min-height: 44px;
+  padding: 0 12px;
 }
 
 .watchlist-controls .select:hover {
