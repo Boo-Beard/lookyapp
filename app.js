@@ -7302,31 +7302,56 @@ function setupEventListeners() {
   const shareQrCode = $('shareQrCode');
 
   function generateQRCode(url) {
-    if (!shareQrCode || typeof QRCode === 'undefined') return;
+    console.log('generateQRCode called with URL:', url);
     
-    // Clear previous QR code
+    if (!shareQrCode) {
+      console.error('shareQrCode element not found');
+      return;
+    }
+    
+    if (typeof QRCode === 'undefined') {
+      console.error('QRCode library not loaded');
+      return;
+    }
+    
+    console.log('Clearing previous QR code');
     shareQrCode.innerHTML = '';
     
-    // Generate new QR code
-    new QRCode(shareQrCode, {
-      text: url,
-      width: 200,
-      height: 200,
-      colorDark: '#000000',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.H
-    });
+    console.log('Creating new QR code');
+    try {
+      new QRCode(shareQrCode, {
+        text: url,
+        width: 200,
+        height: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      console.log('QR code created successfully');
+    } catch (e) {
+      console.error('Failed to create QR code:', e);
+      return;
+    }
     
     // Add logo overlay after a short delay
     setTimeout(() => {
+      console.log('Attempting to add logo overlay');
       const canvas = shareQrCode.querySelector('canvas');
-      if (!canvas) return;
+      if (!canvas) {
+        console.error('Canvas not found in shareQrCode');
+        return;
+      }
+      console.log('Canvas found, dimensions:', canvas.width, 'x', canvas.height);
       
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        console.error('Could not get canvas context');
+        return;
+      }
       
       const img = new Image();
       img.onload = () => {
+        console.log('Logo image loaded');
         const logoSize = 40;
         const x = (canvas.width - logoSize) / 2;
         const y = (canvas.height - logoSize) / 2;
@@ -7339,7 +7364,9 @@ function setupEventListeners() {
         
         // Draw logo
         ctx.drawImage(img, x, y, logoSize, logoSize);
+        console.log('Logo drawn successfully');
       };
+      img.onerror = () => console.error('Failed to load logo image');
       img.src = 'peeek-icon.png';
     }, 200);
   }
