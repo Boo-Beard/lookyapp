@@ -787,6 +787,42 @@ body.is-redacted .redacted-field.is-revealed {
   content: '';
 }
 
+/* Prevent share modal and QR code from being blurred */
+body.is-redacted #shareLinkModal,
+body.is-redacted #shareLinkModal *,
+body.is-redacted #shareLinkModal canvas,
+body.is-redacted #shareLinkModal img,
+body.is-redacted #shareQrCode,
+body.is-redacted #shareQrCode *,
+body.is-redacted #shareQrCode canvas,
+body.is-redacted #shareQrCode img,
+body.is-redacted .share-qr-code,
+body.is-redacted .share-qr-code *,
+body.is-redacted .share-qr-code canvas,
+body.is-redacted .share-qr-code img,
+body.is-redacted .share-modal-content,
+body.is-redacted .share-modal-content *,
+body.is-redacted .share-qr-container,
+body.is-redacted .share-qr-container * {
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Extra specificity for canvas and img elements */
+#shareLinkModal canvas,
+#shareLinkModal img,
+#shareQrCode canvas,
+#shareQrCode img,
+.share-qr-code canvas,
+.share-qr-code img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  image-rendering: crisp-edges !important;
+  image-rendering: -webkit-crisp-edges !important;
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
