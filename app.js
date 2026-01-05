@@ -7333,6 +7333,7 @@ function setupEventListeners() {
           if (canvas) {
             const ctx = canvas.getContext('2d');
             const img = new Image();
+            img.crossOrigin = 'anonymous';
             img.onload = () => {
               const logoSize = 40;
               const x = (canvas.width - logoSize) / 2;
@@ -7347,9 +7348,12 @@ function setupEventListeners() {
               // Draw logo
               ctx.drawImage(img, x, y, logoSize, logoSize);
             };
-            img.src = '/peeek-icon.png';
+            img.onerror = (e) => {
+              console.error('Failed to load logo image:', e);
+            };
+            img.src = './peeek-icon.png';
           }
-        }, 100);
+        }, 200);
       } catch (e) {
         console.error('QR code generation failed:', e);
       }
