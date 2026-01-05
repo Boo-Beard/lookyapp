@@ -2092,6 +2092,7 @@ body.is-scanning .logo-lockup .eye::after {
     padding: 12px;
     display: flex;
     gap: 12px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
     transition: all 0.2s ease;
@@ -2127,7 +2128,9 @@ body.is-scanning .logo-lockup .eye::after {
   box-shadow: 0.3em 0.3em 0 #000;
   transition: all 0.25s ease;
   position: relative;
-  min-height: 44px;
+  min-height: 40px;
+  height: 40px;
+  padding: 0 12px;
 }
 
 .watchlist-controls .btn:hover {
@@ -2169,7 +2172,8 @@ body.is-scanning .logo-lockup .eye::after {
   box-shadow: 0.3em 0.3em 0 #000;
   transition: all 0.25s ease;
   position: relative;
-  min-height: 44px;
+  min-height: 40px;
+  height: 40px;
   padding: 0 12px;
 }
 
