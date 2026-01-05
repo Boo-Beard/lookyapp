@@ -1856,6 +1856,22 @@ body.is-scanning .logo-lockup .eye::after {
 
  #portfolioPanel .profiles-bar .btn {
   white-space: nowrap;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  box-shadow: 0.2em 0.2em 0 var(--border);
+  font-weight: 700;
+  transition: all 0.15s ease;
+ }
+
+ #portfolioPanel .profiles-bar .btn:hover {
+  background: var(--panel-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 0.3em 0.3em 0 var(--border);
+ }
+
+ #portfolioPanel .profiles-bar .btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0.1em 0.1em 0 var(--border);
  }
 
 .select.select-sm {
