@@ -4008,7 +4008,7 @@ body.holdings-cards .holding-metric {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--panel);
-  padding: 12px;
+  padding: 5px;
   pointer-events: auto;
   transition: all 0.2s ease;
 }

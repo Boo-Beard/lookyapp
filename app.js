@@ -1984,6 +1984,7 @@ async function refreshWatchlistMetrics({ force } = {}) {
   }
 
   state.watchlistTokens = updated;
+  watchlistDataVersion++;
   saveWatchlistTokens(updated);
   renderWatchlist();
 }
