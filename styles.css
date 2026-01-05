@@ -2024,12 +2024,6 @@ body.is-scanning .logo-lockup .eye::after {
   margin: 0 auto;
 }
 
-.watchlist-refresh {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-}
-
 .watchlist-controls .btn {
   flex: 1 1 0;
   min-width: 0;
