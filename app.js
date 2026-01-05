@@ -7328,47 +7328,68 @@ function setupEventListeners() {
         });
         
         // Add logo in center after QR code is generated
-        setTimeout(() => {
-          const canvas = shareQrCode.querySelector('canvas');
-          if (!canvas) {
-            console.error('QR code canvas not found');
-            return;
-          }
-          
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            console.error('Canvas context not available');
-            return;
-          }
-          
-          const img = new Image();
-          img.onload = () => {
-            try {
-              const logoSize = 40;
-              const x = (canvas.width - logoSize) / 2;
-              const y = (canvas.height - logoSize) / 2;
-              
-              // Draw white background circle
-              ctx.fillStyle = '#ffffff';
-              ctx.beginPath();
-              ctx.arc(canvas.width / 2, canvas.height / 2, logoSize / 2 + 4, 0, 2 * Math.PI);
-              ctx.fill();
-              
-              // Draw logo
-              ctx.drawImage(img, x, y, logoSize, logoSize);
-              console.log('Logo drawn successfully');
-            } catch (e) {
-              console.error('Error drawing logo:', e);
+        // Use requestAnimationFrame to ensure canvas is fully rendered
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            const canvas = shareQrCode.querySelector('canvas');
+            if (!canvas) {
+              console.error('QR code canvas not found');
+              return;
             }
-          };
-          img.onerror = (e) => {
-            console.error('Failed to load logo image. Trying alternative path...');
-            // Try alternative path
-            img.src = '/peeek-icon.png';
-          };
-          // Try relative path first
-          img.src = 'peeek-icon.png';
-        }, 300);
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              console.error('Canvas context not available');
+              return;
+            }
+            
+            const img = new Image();
+            img.onload = () => {
+              try {
+                const logoSize = 40;
+                const x = (canvas.width - logoSize) / 2;
+                const y = (canvas.height - logoSize) / 2;
+                
+                // Draw white background circle with slight padding
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, (logoSize / 2) + 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw logo
+                ctx.drawImage(img, x, y, logoSize, logoSize);
+                console.log('Logo drawn successfully at', x, y, 'size:', logoSize);
+              } catch (e) {
+                console.error('Error drawing logo:', e);
+              }
+            };
+            img.onerror = (e) => {
+              console.error('Failed to load logo image:', e);
+              console.log('Trying alternative path...');
+              // Try alternative path
+              const altImg = new Image();
+              altImg.onload = () => {
+                try {
+                  const logoSize = 40;
+                  const x = (canvas.width - logoSize) / 2;
+                  const y = (canvas.height - logoSize) / 2;
+                  ctx.fillStyle = '#ffffff';
+                  ctx.beginPath();
+                  ctx.arc(canvas.width / 2, canvas.height / 2, (logoSize / 2) + 6, 0, 2 * Math.PI);
+                  ctx.fill();
+                  ctx.drawImage(altImg, x, y, logoSize, logoSize);
+                  console.log('Logo drawn with alternative path');
+                } catch (e2) {
+                  console.error('Error with alternative path:', e2);
+                }
+              };
+              altImg.onerror = () => console.error('Both logo paths failed');
+              altImg.src = '/peeek-icon.png';
+            };
+            // Try relative path first
+            img.src = 'peeek-icon.png';
+          }, 100);
+        });
       } catch (e) {
         console.error('QR code generation failed:', e);
       }
@@ -7388,7 +7409,8 @@ function setupEventListeners() {
   // Close popover when clicking outside
   document.addEventListener('click', (e) => {
     if (!sharePopover || sharePopover.classList.contains('hidden')) return;
-    if (!sharePopover.contains(e.target) && e.target !== shareLinkBtn) {
+    const shareBtn = $('shareLinkBtn');
+    if (!sharePopover.contains(e.target) && e.target !== shareBtn && !shareBtn?.contains(e.target)) {
       closeSharePopover();
     }
   });
