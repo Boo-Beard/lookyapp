@@ -2085,23 +2085,21 @@ body.is-scanning .logo-lockup .eye::after {
 }
 
 .watchlist-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 12px;
-  transition: all 0.2s ease;
-  margin-bottom: 16px;
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: all 0.2s ease;
 }
 
 .watchlist-controls:hover {
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  border-color: var(--border);
+  box-shadow: var(--shadow-md);
 }
 
 .watchlist-refresh {
@@ -2119,8 +2117,63 @@ body.is-scanning .logo-lockup .eye::after {
   user-select: none;
 }
 
+.watchlist-controls .btn {
+  border: 2px solid #000;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0.3em 0.3em 0 #000;
+  transition: all 0.25s ease;
+  position: relative;
+  min-height: 44px;
+}
+
+.watchlist-controls .btn:hover {
+  box-shadow: -0.3em -0.3em 0 #000;
+  background-color: var(--panel);
+  border-color: #000;
+  color: var(--text);
+  transform: none;
+}
+
+.watchlist-controls .btn:active {
+  box-shadow: 0 0 0 #000;
+  transform: translate(0.15em, 0.15em);
+}
+
+.watchlist-controls .btn .btn-icon i {
+  color: #000;
+  transition: color 0.25s ease;
+}
+
+.watchlist-controls .btn:hover .btn-icon i {
+  color: #000;
+}
+
 .watchlist-controls .select {
   width: auto;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0.3em 0.3em 0 #000;
+  transition: all 0.25s ease;
+  position: relative;
+  min-height: 44px;
+}
+
+.watchlist-controls .select:hover {
+  box-shadow: -0.3em -0.3em 0 #000;
+  background-color: var(--panel);
+  border-color: #000;
+}
+
+.watchlist-controls .select:focus {
+  box-shadow: -0.3em -0.3em 0 #000;
+  border-color: #000;
+  outline: none;
 }
 
 @media (max-width: 420px) {
