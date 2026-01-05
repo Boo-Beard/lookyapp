@@ -1926,6 +1926,16 @@ background: var(--panel);
   box-shadow: 0.1em 0.1em 0 var(--border);
  }
 
+ /* Share button in header toggles */
+ #shareLinkBtn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+ }
+
 .select.select-sm {
   height: 38px;
   padding: 0 12px;
@@ -2847,19 +2857,19 @@ a.holding-action[data-action="copy-contract"]:active i {
 }
 
 .address-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  min-height: 36px;
-  border-radius: var(--radius-full);
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.06);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  max-width: 100%;
-  width: 100%;
-  min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0px 10px;
+    min-height: 36px;
+    border-radius: var(--radius-full);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
 }
 
 .address-chip.chip-new {
@@ -4217,6 +4227,8 @@ body.holdings-cards .holding-metric-label {
   font-size: 10px;
   color: var(--text-tertiary);
   font-weight: 600;
+      text-align: center;
+
 }
 
 body.holdings-cards .holding-metric-value {
