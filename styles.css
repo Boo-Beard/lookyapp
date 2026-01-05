@@ -572,28 +572,15 @@ body.ui-results #summaryGrid {
 }
 
 body.ui-results .amend-wallets-row {
-  margin: 0;
-}
-
-body.ui-results .amend-wallets-row {
-background: var(--panel);
-    border: 2px solid var(--border);
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    padding: 12px;
-    display: flex;
-    gap: 12px;
-    /* width: var(--results-rail); */
-    margin-left: auto;
-    margin-right: auto;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-md);
-}
-
-body.ui-results .amend-wallets-row:hover {
-    border-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 body.ui-results #inputHeaderBar {
@@ -606,9 +593,10 @@ body.ui-results #inputHeaderBar .logo-lockup {
 }
 
 body.ui-results .amend-wallets-row .btn {
-  width: 100%;
+  flex: 1;
   margin: 0;
-  min-height: 44px;
+  padding: 0 16px;
+  height: 40px;
   background: var(--panel);
   border: 2px solid #000;
   border-radius: 8px;
@@ -616,15 +604,10 @@ body.ui-results .amend-wallets-row .btn {
   font-weight: 600;
   box-shadow: 0.3em 0.3em 0 #000;
   transition: all 0.25s ease;
-  position: relative;
 }
 
 body.ui-results .amend-wallets-row .btn:hover {
   box-shadow: -0.3em -0.3em 0 #000;
-  background-color: var(--panel);
-  border-color: #000;
-  color: var(--text);
-  transform: none;
 }
 
 body.ui-results .amend-wallets-row .btn:active {
@@ -634,68 +617,20 @@ body.ui-results .amend-wallets-row .btn:active {
 
 body.ui-results .amend-wallets-row .btn .btn-icon {
   margin-right: 6px;
-  transition: all 0.25s ease;
 }
 
-body.ui-results .amend-wallets-row .btn:hover .btn-icon i {
+body.ui-results .amend-wallets-row .btn .btn-icon i {
   color: #000;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-    border-radius: 19px;
-    min-width: 0;
-    position: relative;
-    overflow: hidden;
-    border-color: #000;
-}
-
-body.ui-results .amend-wallets-row #portfolioRefreshBtn:hover {
-  box-shadow: -0.3em -0.3em 0 #000;
-  background-color: var(--panel);
-  border-color: #000;
-}
-
-body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
-  margin: 0;
-}
-
-body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
-  font-size: 16px;
-  color: #000;
-  transition: color 0.25s ease;
-}
-
-body.ui-results .amend-wallets-row #portfolioRefreshBtn:hover i {
-  color: #000;
-}
-
-body.ui-results .amend-wallets-row #amendWalletsBtn {
-    border-radius: 19px;
-    min-width: 0;
-    position: relative;
-    overflow: hidden;
-    border-color: #000;
-}
-
-body.ui-results .amend-wallets-row #amendWalletsBtn:hover {
-  box-shadow: -0.3em -0.3em 0 #000;
-  background-color: var(--panel);
-  border-color: #000;
-}
-
-body.ui-results .amend-wallets-row #amendWalletsBtn .btn-icon i {
-  color: #000;
-  transition: color 0.25s ease;
-}
-
-body.ui-results .amend-wallets-row #amendWalletsBtn:hover .btn-icon i {
-  color: #000;
+  position: relative;
+  overflow: hidden;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown {
   opacity: 0.5;
   pointer-events: none;
-  box-shadow: 0.15em 0.15em 0 #000;
 }
 
 body.is-scanning.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon i.fa-rotate {
