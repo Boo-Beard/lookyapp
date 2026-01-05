@@ -7295,6 +7295,80 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
+  // Share Link Modal
+  const shareLinkModal = $('shareLinkModal');
+  const closeShareModal = $('closeShareModal');
+  const shareLinkInput = $('shareLinkInput');
+  const copyShareLinkBtn = $('copyShareLinkBtn');
+  const shareQrCode = $('shareQrCode');
+  let currentQrCode = null;
+
+  function openShareModal(url) {
+    if (!shareLinkModal) return;
+    
+    // Set the URL in the input
+    if (shareLinkInput) {
+      shareLinkInput.value = url;
+    }
+    
+    // Clear previous QR code
+    if (shareQrCode) {
+      shareQrCode.innerHTML = '';
+    }
+    
+    // Generate QR code
+    if (typeof QRCode !== 'undefined' && shareQrCode) {
+      try {
+        currentQrCode = new QRCode(shareQrCode, {
+          text: url,
+          width: 200,
+          height: 200,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.error('QR code generation failed:', e);
+      }
+    }
+    
+    // Show modal
+    shareLinkModal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    hapticFeedback('light');
+  }
+
+  function closeShareModalFn() {
+    if (!shareLinkModal) return;
+    shareLinkModal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    currentQrCode = null;
+  }
+
+  closeShareModal?.addEventListener('click', closeShareModalFn);
+  
+  shareLinkModal?.querySelector('.modal-backdrop')?.addEventListener('click', closeShareModalFn);
+
+  // Copy button in modal
+  copyShareLinkBtn?.addEventListener('click', async () => {
+    const url = shareLinkInput?.value;
+    if (!url) return;
+    
+    try {
+      await navigator.clipboard.writeText(url);
+      const originalText = copyShareLinkBtn.innerHTML;
+      copyShareLinkBtn.innerHTML = '<span class="btn-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span><span>Copied!</span>';
+      hapticFeedback('success');
+      
+      setTimeout(() => {
+        copyShareLinkBtn.innerHTML = originalText;
+      }, 2000);
+    } catch {
+      alert('Copy failed. Please copy manually.');
+    }
+  });
+
+  // Share Link Button - now opens modal
   shareLinkBtn?.addEventListener('click', async () => {
     if (state.addressItems.length === 0) {
       showStatus('Add wallets to generate a share link', 'info');
@@ -7318,26 +7392,12 @@ function setupEventListeners() {
       
       const shortUrl = await response.text();
       
-      // Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(shortUrl);
-        showInputHint('Short link copied!', 'success');
-        hapticFeedback('success');
-      } catch {
-        showInputHint('Copy share link', 'info');
-        prompt('Copy share link', shortUrl);
-      }
+      // Open modal with short URL
+      openShareModal(shortUrl);
     } catch (error) {
       // Fallback to long URL if shortening fails
       const url = buildShareUrlFromCurrent();
-      try {
-        await navigator.clipboard.writeText(url);
-        showInputHint('Share link copied', 'success');
-        hapticFeedback('success');
-      } catch {
-        showInputHint('Copy share link', 'info');
-        prompt('Copy share link', url);
-      }
+      openShareModal(url);
     } finally {
       // Restore button state
       shareLinkBtn.innerHTML = originalText;

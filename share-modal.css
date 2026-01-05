@@ -1,0 +1,93 @@
+/* Share Link Modal Styles */
+.share-modal-content {
+  max-width: 500px;
+  width: calc(100% - 32px);
+}
+
+.share-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+
+.share-qr-code {
+  background: #fff;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  min-width: 200px;
+}
+
+.share-qr-code canvas,
+.share-qr-code img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.share-qr-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.share-link-container {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+
+.share-link-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: text;
+  user-select: all;
+}
+
+.share-link-input:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.1);
+}
+
+#copyShareLinkBtn {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .share-modal-content {
+    max-width: calc(100% - 24px);
+  }
+  
+  .share-qr-container {
+    padding: 16px;
+  }
+  
+  .share-qr-code {
+    min-height: 180px;
+    min-width: 180px;
+    padding: 12px;
+  }
+}
