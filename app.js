@@ -1730,6 +1730,7 @@ function addTokenToWatchlist(token) {
   }
 
   if (list.length >= WATCHLIST_MAX_TOKENS) {
+    setWatchlistHint(`Watchlist limit reached (${WATCHLIST_MAX_TOKENS}). Remove one first.`, 'error');
     hapticFeedback('error');
     return false;
   }
@@ -6150,35 +6151,6 @@ function setSearchHint(message, type = 'info') {
   hint.textContent = msg;
   hint.classList.toggle('error', type === 'error');
   hint.classList.remove('hidden');
-  
-  window.clearTimeout(setSearchHint._t);
-  setSearchHint._t = window.setTimeout(() => {
-    hint.textContent = '';
-    hint.classList.add('hidden');
-    hint.classList.remove('error');
-  }, 6000);
-}
-
-function setWatchlistHint(message, type = 'info') {
-  const hint = $('watchlistHint');
-  if (!hint) return;
-  const msg = String(message || '').trim();
-  if (!msg) {
-    hint.textContent = '';
-    hint.classList.add('hidden');
-    hint.classList.remove('error');
-    return;
-  }
-  hint.textContent = msg;
-  hint.classList.toggle('error', type === 'error');
-  hint.classList.remove('hidden');
-  
-  window.clearTimeout(setWatchlistHint._t);
-  setWatchlistHint._t = window.setTimeout(() => {
-    hint.textContent = '';
-    hint.classList.add('hidden');
-    hint.classList.remove('error');
-  }, 6000);
 }
 
 function renderSearchTokenLoading() {
@@ -6752,11 +6724,7 @@ function setupEventListeners() {
           }
 
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-          const model = await runTokenSearch(addr, { 
-            signal: controller?.signal,
-            chain: chain || undefined,
-            network: network || undefined
-          });
+          const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
           const resolvedChain = String(chain || model?.chain || '');
           const resolvedNetwork = String(network || model?.network || '');
 
