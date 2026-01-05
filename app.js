@@ -6634,6 +6634,7 @@ function setupEventListeners() {
 
   bindChartPopoverDelegation($('tableBody'));
   bindChartPopoverDelegation($('searchResults'));
+  bindChartPopoverDelegation($('watchlistBody'));
 
   document.addEventListener('click', (e) => {
     const whatIfBtn = e.target.closest('button[data-action="whatif-mult"]');
