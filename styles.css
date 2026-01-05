@@ -2307,12 +2307,12 @@ background: var(--panel);
 }
 
 #watchlistBody .holding-metric {
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--panel);
-  padding: 12px;
-  pointer-events: auto;
-  transition: all 0.2s ease;
+    /* border-radius: var(--radius-md); */
+    /* border: 1px solid var(--border); */
+    /* background: var(--panel); */
+    /* padding: 6px; */
+    pointer-events: auto;
+    /* transition: all 0.2s ease;*/
 }
 
 #watchlistBody .holding-metric:hover {
