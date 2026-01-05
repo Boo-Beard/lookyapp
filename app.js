@@ -7295,198 +7295,131 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  // Share Link Popover
+  // Share Link Popover - Simplified
   const sharePopover = $('sharePopover');
   const shareLinkInput = $('shareLinkInput');
   const copyShareLinkBtn = $('copyShareLinkBtn');
   const shareQrCode = $('shareQrCode');
-  let currentQrCode = null;
 
-  function openSharePopover(url) {
-    if (!sharePopover) return;
-    
-    // Set the URL in the hidden input
-    if (shareLinkInput) {
-      shareLinkInput.value = url;
-    }
+  function generateQRCode(url) {
+    if (!shareQrCode || typeof QRCode === 'undefined') return;
     
     // Clear previous QR code
-    if (shareQrCode) {
-      shareQrCode.innerHTML = '';
-    }
+    shareQrCode.innerHTML = '';
     
-    // Generate QR code
-    if (typeof QRCode !== 'undefined' && shareQrCode) {
-      try {
-        currentQrCode = new QRCode(shareQrCode, {
-          text: url,
-          width: 200,
-          height: 200,
-          colorDark: '#000000',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.H
-        });
+    // Generate new QR code
+    new QRCode(shareQrCode, {
+      text: url,
+      width: 200,
+      height: 200,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    
+    // Add logo overlay after a short delay
+    setTimeout(() => {
+      const canvas = shareQrCode.querySelector('canvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      const img = new Image();
+      img.onload = () => {
+        const logoSize = 40;
+        const x = (canvas.width - logoSize) / 2;
+        const y = (canvas.height - logoSize) / 2;
         
-        // Add logo in center after QR code is generated
-        // Use requestAnimationFrame to ensure canvas is fully rendered
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            const canvas = shareQrCode.querySelector('canvas');
-            if (!canvas) {
-              console.error('QR code canvas not found');
-              return;
-            }
-            
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-              console.error('Canvas context not available');
-              return;
-            }
-            
-            const img = new Image();
-            img.onload = () => {
-              try {
-                const logoSize = 40;
-                const x = (canvas.width - logoSize) / 2;
-                const y = (canvas.height - logoSize) / 2;
-                
-                // Draw white background circle with slight padding
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, canvas.height / 2, (logoSize / 2) + 6, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // Draw logo
-                ctx.drawImage(img, x, y, logoSize, logoSize);
-              } catch (e) {
-                console.error('Error drawing logo:', e);
-              }
-            };
-            img.onerror = (e) => {
-              console.error('Failed to load logo image:', e);
-              console.log('Trying alternative path...');
-              // Try alternative path
-              const altImg = new Image();
-              altImg.onload = () => {
-                try {
-                  const logoSize = 40;
-                  const x = (canvas.width - logoSize) / 2;
-                  const y = (canvas.height - logoSize) / 2;
-                  ctx.fillStyle = '#ffffff';
-                  ctx.beginPath();
-                  ctx.arc(canvas.width / 2, canvas.height / 2, (logoSize / 2) + 6, 0, 2 * Math.PI);
-                  ctx.fill();
-                  ctx.drawImage(altImg, x, y, logoSize, logoSize);
-                  console.log('Logo drawn with alternative path');
-                } catch (e2) {
-                  console.error('Error with alternative path:', e2);
-                }
-              };
-              altImg.onerror = () => console.error('Both logo paths failed');
-              altImg.src = '/peeek-icon.png';
-            };
-            // Try relative path first
-            img.src = 'peeek-icon.png';
-          }, 100);
-        });
-      } catch (e) {
-        console.error('QR code generation failed:', e);
-      }
-    }
-    
-    // Show popover
-    sharePopover.classList.remove('hidden');
-    hapticFeedback('light');
+        // White circle background
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, 26, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Draw logo
+        ctx.drawImage(img, x, y, logoSize, logoSize);
+      };
+      img.src = 'peeek-icon.png';
+    }, 200);
   }
 
   function closeSharePopover() {
-    if (!sharePopover) return;
-    sharePopover.classList.add('hidden');
-    currentQrCode = null;
+    if (sharePopover) {
+      sharePopover.classList.add('hidden');
+    }
   }
 
-  // Close popover when clicking outside
+  // Close when clicking outside
   document.addEventListener('click', (e) => {
     if (!sharePopover || sharePopover.classList.contains('hidden')) return;
-    const shareBtn = $('shareLinkBtn');
-    if (!sharePopover.contains(e.target) && e.target !== shareBtn && !shareBtn?.contains(e.target)) {
+    if (!sharePopover.contains(e.target) && !e.target.closest('#shareLinkBtn')) {
       closeSharePopover();
     }
   });
 
-  // Copy button in popover
-  copyShareLinkBtn?.addEventListener('click', async () => {
-    const url = shareLinkInput?.value;
-    if (!url) return;
-    
-    try {
-      await navigator.clipboard.writeText(url);
-      const originalText = copyShareLinkBtn.innerHTML;
-      copyShareLinkBtn.innerHTML = '<span class="btn-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></span><span>Copied!</span>';
-      hapticFeedback('success');
+  // Copy button
+  if (copyShareLinkBtn) {
+    copyShareLinkBtn.addEventListener('click', async () => {
+      const url = shareLinkInput?.value;
+      if (!url) return;
       
-      setTimeout(() => {
-        copyShareLinkBtn.innerHTML = originalText;
-        closeSharePopover();
-      }, 1500);
-    } catch {
-      alert('Copy failed. Please copy manually.');
-    }
-  });
+      try {
+        await navigator.clipboard.writeText(url);
+        const originalText = copyShareLinkBtn.innerHTML;
+        copyShareLinkBtn.innerHTML = '<span class="btn-icon"><i class="fa-solid fa-check"></i></span><span>Copied!</span>';
+        hapticFeedback('success');
+        
+        setTimeout(() => {
+          copyShareLinkBtn.innerHTML = originalText;
+          closeSharePopover();
+        }, 1500);
+      } catch {
+        alert('Failed to copy');
+      }
+    });
+  }
 
-  // Share Link Button - now opens popover
-  if (shareLinkBtn) {
-    shareLinkBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
+  // Share button click handler
+  const shareBtn = $('shareLinkBtn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       
-      // Don't open if already open
-      if (sharePopover && !sharePopover.classList.contains('hidden')) {
-        console.log('Popover already open, ignoring click');
-        return;
-      }
-      
       if (state.addressItems.length === 0) {
-        showStatus('Add wallets to generate a share link', 'info');
+        showStatus('Add wallets first', 'info');
         return;
       }
 
-      // Show loading state - rotate icon
-      const icon = shareLinkBtn.querySelector('.btn-icon i');
-      if (icon) {
-        icon.classList.add('fa-spin');
-      }
-      shareLinkBtn.disabled = true;
+      // Show loading
+      const icon = shareBtn.querySelector('i');
+      if (icon) icon.classList.add('fa-spin');
+      shareBtn.disabled = true;
 
       try {
         const longUrl = buildShareUrlFromCurrent();
-        
-        // Use TinyURL API to shorten the URL
         const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+        const url = response.ok ? await response.text() : longUrl;
         
-        if (!response.ok) {
-          throw new Error('URL shortening failed');
+        // Set URL and generate QR
+        if (shareLinkInput) shareLinkInput.value = url;
+        generateQRCode(url);
+        
+        // Show popover
+        if (sharePopover) {
+          sharePopover.classList.remove('hidden');
+          hapticFeedback('light');
         }
-        
-        const shortUrl = await response.text();
-        
-        // Open popover with short URL
-        openSharePopover(shortUrl);
       } catch (error) {
-        console.error('Share link error:', error);
-        // Fallback to long URL if shortening fails
         const url = buildShareUrlFromCurrent();
-        openSharePopover(url);
+        if (shareLinkInput) shareLinkInput.value = url;
+        generateQRCode(url);
+        if (sharePopover) sharePopover.classList.remove('hidden');
       } finally {
-        // Restore button state - stop rotation
-        if (icon) {
-          icon.classList.remove('fa-spin');
-        }
-        shareLinkBtn.disabled = false;
+        if (icon) icon.classList.remove('fa-spin');
+        shareBtn.disabled = false;
       }
     });
-  } else {
-    console.warn('Share button not found in DOM');
   }
 
   state._refreshProfilesUi = refreshProfilesUi;
