@@ -583,10 +583,11 @@ body.ui-results .amend-wallets-row {
     padding: 12px;
     display: flex;
     gap: 12px;
-    width: var(--results-rail);
+    /* width: var(--results-rail); */
     margin-left: auto;
     margin-right: auto;
     transition: all 0.2s ease;
+    box-shadow: var(--shadow-md);
 }
 
 body.ui-results .amend-wallets-row:hover {
@@ -641,11 +642,11 @@ body.ui-results .amend-wallets-row .btn:hover .btn-icon i {
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-  min-width: 0;
-  position: relative;
-  overflow: hidden;
-  border-color: #000;
-  box-shadow: 0.3em 0.3em 0 #000;
+    border-radius: 19px;
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+    border-color: #000;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn:hover {
@@ -669,8 +670,11 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn:hover i {
 }
 
 body.ui-results .amend-wallets-row #amendWalletsBtn {
-  border-color: #000;
-  box-shadow: 0.3em 0.3em 0 #000;
+    border-radius: 19px;
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+    border-color: #000;
 }
 
 body.ui-results .amend-wallets-row #amendWalletsBtn:hover {
