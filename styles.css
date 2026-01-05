@@ -3479,7 +3479,7 @@ body.ui-results .table-subtitle {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
-  border-spacing: 4px;
+  border-spacing: 10px;
 }
 
 .holdings-table th.token-col,
