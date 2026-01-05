@@ -864,7 +864,7 @@ body.is-redacted .redacted-field.is-revealed {
 }
 
 .pnl-positive {
-    color: #10b981;
+    color: #10b91e;
 }
 
 .pnl-negative {
@@ -876,7 +876,7 @@ body.is-redacted .redacted-field.is-revealed {
 }
 
 .summary-card .summary-value.pnl-positive {
-  color: #10b981;
+  color: #10b91e;
 }
 
 .summary-card .summary-value.pnl-negative {
@@ -888,7 +888,7 @@ body.is-redacted .redacted-field.is-revealed {
 }
 
 .summary-card .summary-sub.summary-change.positive {
-  color: #10b981;
+  color: #10b91e;
 }
 
 .summary-card .summary-sub.summary-change.negative {
@@ -2016,7 +2016,20 @@ body.is-scanning .logo-lockup .eye::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 12px;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.watchlist-controls:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .watchlist-refresh {
