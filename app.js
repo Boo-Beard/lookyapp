@@ -6276,14 +6276,6 @@ function setMode(mode) {
     sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
   }
 
-  document.body.classList.remove('mode-favorites', 'mode-portfolio', 'mode-search');
-  if (m === 'watchlist') {
-    document.body.classList.add('mode-favorites');
-  } else if (m === 'portfolio') {
-    document.body.classList.add('mode-portfolio');
-  } else if (m === 'search') {
-    document.body.classList.add('mode-search');
-  }
 }
 
 function setupEventListeners() {
@@ -7503,8 +7495,71 @@ function safeInitialize() {
   }
 }
 
+let lastEyeExpressionChange = 0;
+const EYE_EXPRESSIONS = ['happy', 'angry', 'sad'];
+let currentEyeExpression = null;
+
+function changeEyeExpression() {
+  const now = Date.now();
+  if (now - lastEyeExpressionChange < 2000) return;
+  
+  if (Math.random() > 0.3) return;
+  
+  lastEyeExpressionChange = now;
+  
+  const availableExpressions = EYE_EXPRESSIONS.filter(e => e !== currentEyeExpression);
+  const newExpression = availableExpressions[Math.floor(Math.random() * availableExpressions.length)];
+  
+  document.body.classList.remove('eye-expression-happy', 'eye-expression-angry', 'eye-expression-sad');
+  
+  if (Math.random() > 0.2) {
+    document.body.classList.add(`eye-expression-${newExpression}`);
+    currentEyeExpression = newExpression;
+  } else {
+    currentEyeExpression = null;
+  }
+}
+
+function setupEyeExpressionTriggers() {
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('button, a, .btn, .holding-action')) {
+      changeEyeExpression();
+    }
+  });
+  
+  let mouseMoveTimeout;
+  document.addEventListener('mousemove', () => {
+    clearTimeout(mouseMoveTimeout);
+    mouseMoveTimeout = setTimeout(() => {
+      if (Math.random() > 0.95) {
+        changeEyeExpression();
+      }
+    }, 500);
+  });
+  
+  const originalAddWallet = window.addWalletFromInput;
+  if (typeof originalAddWallet === 'function') {
+    window.addWalletFromInput = function(...args) {
+      changeEyeExpression();
+      return originalAddWallet.apply(this, args);
+    };
+  }
+  
+  const originalScan = window.scanPortfolio;
+  if (typeof originalScan === 'function') {
+    window.scanPortfolio = function(...args) {
+      changeEyeExpression();
+      return originalScan.apply(this, args);
+    };
+  }
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', safeInitialize);
+  document.addEventListener('DOMContentLoaded', () => {
+    safeInitialize();
+    setupEyeExpressionTriggers();
+  });
 } else {
   safeInitialize();
+  setupEyeExpressionTriggers();
 }
