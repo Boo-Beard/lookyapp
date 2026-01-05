@@ -576,9 +576,9 @@ body.ui-results .amend-wallets-row {
 }
 
 body.ui-results .amend-wallets-row {
-    background: var(--panel);
+background: var(--panel);
     border: 2px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     padding: 12px;
     display: flex;
