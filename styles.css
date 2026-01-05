@@ -602,6 +602,7 @@ body.ui-results .amend-wallets-row .btn {
   border: 2px solid #000;
   border-radius: 8px;
   color: var(--text);
+  font-size: 14px;
   font-weight: 600;
   box-shadow: 0.3em 0.3em 0 #000;
 }
@@ -612,6 +613,7 @@ body.ui-results .amend-wallets-row .btn .btn-icon {
 
 body.ui-results .amend-wallets-row .btn .btn-icon i {
   color: #000;
+  font-size: 14px;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
@@ -2038,6 +2040,7 @@ body.is-scanning .logo-lockup .eye::after {
   border: 2px solid #000;
   border-radius: 8px;
   color: var(--text);
+  font-size: 14px;
   font-weight: 600;
   box-shadow: 0.3em 0.3em 0 #000;
 }
@@ -2048,6 +2051,7 @@ body.is-scanning .logo-lockup .eye::after {
 
 .watchlist-controls .btn .btn-icon i {
   color: #000;
+  font-size: 14px;
 }
 
 .watchlist-controls .select {
@@ -2060,6 +2064,7 @@ body.is-scanning .logo-lockup .eye::after {
   border: 2px solid #000;
   border-radius: 8px;
   color: var(--text);
+  font-size: 14px;
   font-weight: 600;
   box-shadow: 0.3em 0.3em 0 #000;
 }
