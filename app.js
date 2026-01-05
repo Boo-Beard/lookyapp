@@ -6582,7 +6582,15 @@ function setupEventListeners() {
           portfolioRefreshBtn.style.setProperty('--cooldown-pct', '0');
           portfolioRefreshBtn.setAttribute('aria-busy', 'true');
         } catch {}
+        
+        // Clear cache for all wallets before refresh to force fresh data
         const wallets = Array.isArray(state.wallets) ? state.wallets : [];
+        wallets.forEach(w => {
+          if (w?.address && w?.chain) {
+            clearScanCache(w.chain, w.address);
+          }
+        });
+        
         const queueOverride = wallets
           .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
           .filter(w => w.wallet && (w.chain === 'solana' || w.chain === 'evm'));
