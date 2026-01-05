@@ -7324,8 +7324,32 @@ function setupEventListeners() {
           height: 200,
           colorDark: '#000000',
           colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
+          correctLevel: QRCode.CorrectLevel.H
         });
+        
+        // Add logo in center after QR code is generated
+        setTimeout(() => {
+          const canvas = shareQrCode.querySelector('canvas');
+          if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => {
+              const logoSize = 40;
+              const x = (canvas.width - logoSize) / 2;
+              const y = (canvas.height - logoSize) / 2;
+              
+              // Draw white background circle
+              ctx.fillStyle = '#ffffff';
+              ctx.beginPath();
+              ctx.arc(canvas.width / 2, canvas.height / 2, logoSize / 2 + 4, 0, 2 * Math.PI);
+              ctx.fill();
+              
+              // Draw logo
+              ctx.drawImage(img, x, y, logoSize, logoSize);
+            };
+            img.src = '/peeek-icon.png';
+          }
+        }, 100);
       } catch (e) {
         console.error('QR code generation failed:', e);
       }

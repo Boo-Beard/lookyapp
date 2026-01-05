@@ -1818,10 +1818,16 @@ body.is-scanning .logo-lockup .eye::after {
  #portfolioPanel .profiles-bar {
   order: 1;
   margin-top: 0;
-  margin-bottom: 12px;
-  max-width: 520px;
+  margin-bottom: 16px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+  gap: 8px;
  }
 
  @media (max-width: 520px) {
@@ -1841,6 +1847,15 @@ body.is-scanning .logo-lockup .eye::after {
  .profiles-bar .btn {
   padding-left: 16px;
   padding-right: 16px;
+ }
+
+ #portfolioPanel .profiles-bar .select {
+  flex: 1;
+  min-width: 160px;
+ }
+
+ #portfolioPanel .profiles-bar .btn {
+  white-space: nowrap;
  }
 
 .select.select-sm {
