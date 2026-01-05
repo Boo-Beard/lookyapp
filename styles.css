@@ -2815,7 +2815,6 @@ a.holding-action[data-action="copy-contract"]:active i {
 
  #watchlistRefreshBtn,
  #portfolioRefreshBtn {
-  min-width: 130px;
   justify-content: center;
  }
 
