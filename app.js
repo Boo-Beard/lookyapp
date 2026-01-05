@@ -1823,24 +1823,44 @@ function renderWatchlist() {
           ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
           : '';
         
-        // Update price
-        const priceEl = row.querySelector('[data-metric="price"] .holding-metric-value');
-        if (priceEl) priceEl.textContent = price;
-        
         // Update mcap
-        const mcapEl = row.querySelector('[data-metric="mcap"] .holding-metric-value');
+        const mcapEl = row.querySelector('[data-wl-field="mcap"]');
         if (mcapEl) mcapEl.textContent = mcap;
         
-        // Update volume
-        const volEl = row.querySelector('[data-metric="volume"] .holding-metric-value');
-        if (volEl) volEl.textContent = vol;
+        // Update price
+        const priceEl = row.querySelector('[data-wl-field="price"]');
+        if (priceEl) priceEl.textContent = price;
         
         // Update change
-        const changeEl = row.querySelector('[data-metric="change"] .holding-metric-value');
+        const changeEl = row.querySelector('[data-wl-field="change"]');
         if (changeEl) {
           changeEl.textContent = changeText;
-          changeEl.className = `holding-metric-value ${changeClass}`;
+          changeEl.className = changeClass;
         }
+        
+        // Update liquidity
+        const liqEl = row.querySelector('[data-wl-field="liq"]');
+        const liq = token.liquidityUsd != null && Number.isFinite(Number(token.liquidityUsd)) ? `$${formatCompactNumber(Number(token.liquidityUsd))}` : '—';
+        if (liqEl) liqEl.textContent = liq;
+        
+        // Update volume
+        const volEl = row.querySelector('[data-wl-field="vol"]');
+        if (volEl) volEl.textContent = vol;
+        
+        // Update holders
+        const holdersEl = row.querySelector('[data-wl-field="holders"]');
+        const holders = token.holders != null && Number.isFinite(Number(token.holders)) ? formatCompactNumber(Number(token.holders)) : '—';
+        if (holdersEl) holdersEl.textContent = holders;
+        
+        // Update circulating supply
+        const circEl = row.querySelector('[data-wl-field="circ"]');
+        const circ = token.circulatingSupply != null && Number.isFinite(Number(token.circulatingSupply)) ? formatCompactNumber(Number(token.circulatingSupply)) : '—';
+        if (circEl) circEl.textContent = circ;
+        
+        // Update trades
+        const tradesEl = row.querySelector('[data-wl-field="trades"]');
+        const trades = token.trades24h != null && Number.isFinite(Number(token.trades24h)) ? formatCompactNumber(Number(token.trades24h)) : '—';
+        if (tradesEl) tradesEl.textContent = trades;
         
         body.appendChild(row);  // Move to end in correct order
       }

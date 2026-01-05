@@ -2281,8 +2281,7 @@ body.is-scanning .logo-lockup .eye::after {
   justify-content: space-between;
   gap: 12px;
   border-bottom: 2px solid var(--border);
-  background: var(--bg-secondary);
-}
+    background: var(--panel);}
 
 #watchlistBody .holding-card-header-right {
   display: flex;
@@ -2342,7 +2341,7 @@ body.is-scanning .logo-lockup .eye::after {
   justify-content: space-between;
   gap: 12px;
   border-bottom: 2px solid var(--border);
-  background: var(--bg-secondary);
+background: var(--panel);
 }
 
 #searchResults .holding-card-header-right {
@@ -3885,8 +3884,8 @@ body.holdings-cards .holding-card-header {
     justify-content: space-between;
     gap: 12px;
     border-bottom: 2px solid var(--border);
-    background: var(--bg-secondary);
-}
+    background: var(--panel);
+  }
 
 body.holdings-cards .holding-card-header-right {
     display: flex;
