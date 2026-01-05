@@ -579,7 +579,8 @@ body.ui-results .amend-wallets-row {
   padding: 12px;
   display: flex;
   gap: 12px;
-  max-width: 600px;
+  width: 600px;
+  max-width: calc(100% - 32px);
   margin: 0 auto;
 }
 
