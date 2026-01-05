@@ -27,13 +27,22 @@
   min-width: 200px;
 }
 
-/* Prevent QR code from being blurred by redacted mode */
+/* Prevent QR code and entire modal from being blurred by redacted mode */
+body.is-redacted #shareLinkModal,
+body.is-redacted #shareLinkModal *,
+body.is-redacted .share-modal-content,
+body.is-redacted .share-modal-content *,
+body.is-redacted .share-qr-container,
+body.is-redacted .share-qr-container *,
 body.is-redacted .share-qr-code,
 body.is-redacted .share-qr-code *,
 body.is-redacted #shareQrCode,
-body.is-redacted #shareQrCode * {
+body.is-redacted #shareQrCode *,
+body.is-redacted .share-link-container,
+body.is-redacted .share-link-container * {
   filter: none !important;
   user-select: auto !important;
+  color: inherit !important;
 }
 
 .share-qr-code canvas,
