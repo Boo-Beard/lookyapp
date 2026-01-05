@@ -114,9 +114,6 @@ border-color: rgb(0 0 0 / 100%);
   line-height: 1;
 }
 
-.score-excellent .subscore-value {
-    color: #000000;
-}
 
 .score-poor .subscore-value {
   color: var(--danger);
