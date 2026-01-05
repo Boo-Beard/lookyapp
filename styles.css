@@ -593,7 +593,8 @@ body.ui-results #inputHeaderBar .logo-lockup {
 }
 
 body.ui-results .amend-wallets-row .btn {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   margin: 0;
   padding: 0 16px;
   height: 40px;
