@@ -7330,11 +7330,20 @@ function setupEventListeners() {
         // Add logo in center after QR code is generated
         setTimeout(() => {
           const canvas = shareQrCode.querySelector('canvas');
-          if (canvas) {
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
+          if (!canvas) {
+            console.error('QR code canvas not found');
+            return;
+          }
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            console.error('Canvas context not available');
+            return;
+          }
+          
+          const img = new Image();
+          img.onload = () => {
+            try {
               const logoSize = 40;
               const x = (canvas.width - logoSize) / 2;
               const y = (canvas.height - logoSize) / 2;
@@ -7347,13 +7356,19 @@ function setupEventListeners() {
               
               // Draw logo
               ctx.drawImage(img, x, y, logoSize, logoSize);
-            };
-            img.onerror = (e) => {
-              console.error('Failed to load logo image:', e);
-            };
-            img.src = './peeek-icon.png';
-          }
-        }, 200);
+              console.log('Logo drawn successfully');
+            } catch (e) {
+              console.error('Error drawing logo:', e);
+            }
+          };
+          img.onerror = (e) => {
+            console.error('Failed to load logo image. Trying alternative path...');
+            // Try alternative path
+            img.src = '/peeek-icon.png';
+          };
+          // Try relative path first
+          img.src = 'peeek-icon.png';
+        }, 300);
       } catch (e) {
         console.error('QR code generation failed:', e);
       }
@@ -7399,45 +7414,50 @@ function setupEventListeners() {
   });
 
   // Share Link Button - now opens popover
-  shareLinkBtn?.addEventListener('click', async () => {
-    if (state.addressItems.length === 0) {
-      showStatus('Add wallets to generate a share link', 'info');
-      return;
-    }
-
-    // Show loading state - rotate icon
-    const icon = shareLinkBtn.querySelector('.btn-icon i');
-    if (icon) {
-      icon.classList.add('fa-spin');
-    }
-    shareLinkBtn.disabled = true;
-
-    try {
-      const longUrl = buildShareUrlFromCurrent();
-      
-      // Use TinyURL API to shorten the URL
-      const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
-      
-      if (!response.ok) {
-        throw new Error('URL shortening failed');
+  if (shareLinkBtn) {
+    shareLinkBtn.addEventListener('click', async () => {
+      if (state.addressItems.length === 0) {
+        showStatus('Add wallets to generate a share link', 'info');
+        return;
       }
-      
-      const shortUrl = await response.text();
-      
-      // Open popover with short URL
-      openSharePopover(shortUrl);
-    } catch (error) {
-      // Fallback to long URL if shortening fails
-      const url = buildShareUrlFromCurrent();
-      openSharePopover(url);
-    } finally {
-      // Restore button state - stop rotation
+
+      // Show loading state - rotate icon
+      const icon = shareLinkBtn.querySelector('.btn-icon i');
       if (icon) {
-        icon.classList.remove('fa-spin');
+        icon.classList.add('fa-spin');
       }
-      shareLinkBtn.disabled = false;
-    }
-  });
+      shareLinkBtn.disabled = true;
+
+      try {
+        const longUrl = buildShareUrlFromCurrent();
+        
+        // Use TinyURL API to shorten the URL
+        const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+        
+        if (!response.ok) {
+          throw new Error('URL shortening failed');
+        }
+        
+        const shortUrl = await response.text();
+        
+        // Open popover with short URL
+        openSharePopover(shortUrl);
+      } catch (error) {
+        console.error('Share link error:', error);
+        // Fallback to long URL if shortening fails
+        const url = buildShareUrlFromCurrent();
+        openSharePopover(url);
+      } finally {
+        // Restore button state - stop rotation
+        if (icon) {
+          icon.classList.remove('fa-spin');
+        }
+        shareLinkBtn.disabled = false;
+      }
+    });
+  } else {
+    console.warn('Share button not found in DOM');
+  }
 
   state._refreshProfilesUi = refreshProfilesUi;
   refreshProfilesUi();
