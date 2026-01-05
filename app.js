@@ -1807,11 +1807,41 @@ function renderWatchlist() {
       }
     });
     
-    // Reorder rows based on sorted list
+    // Update metrics for existing rows and reorder
     list.forEach((token) => {
       const key = normalizeWatchlistTokenKey(token);
       const row = existingRows.find(r => r.dataset.key === key);
       if (row) {
+        // Update metric values
+        const price = token.priceUsd != null && Number.isFinite(Number(token.priceUsd)) ? formatPrice(Number(token.priceUsd)) : '—';
+        const mcap = token.marketCapUsd != null && Number.isFinite(Number(token.marketCapUsd)) ? `$${formatCompactNumber(Number(token.marketCapUsd))}` : '—';
+        const vol = token.volume24hUsd != null && Number.isFinite(Number(token.volume24hUsd)) ? `$${formatCompactNumber(Number(token.volume24hUsd))}` : '—';
+        
+        const changePct = Number(token.change24hPct);
+        const changeText = Number.isFinite(changePct) ? formatPct(changePct, 2) : '—';
+        const changeClass = Number.isFinite(changePct)
+          ? (changePct > 0 ? 'pnl-positive' : changePct < 0 ? 'pnl-negative' : 'pnl-flat')
+          : '';
+        
+        // Update price
+        const priceEl = row.querySelector('[data-metric="price"] .holding-metric-value');
+        if (priceEl) priceEl.textContent = price;
+        
+        // Update mcap
+        const mcapEl = row.querySelector('[data-metric="mcap"] .holding-metric-value');
+        if (mcapEl) mcapEl.textContent = mcap;
+        
+        // Update volume
+        const volEl = row.querySelector('[data-metric="volume"] .holding-metric-value');
+        if (volEl) volEl.textContent = vol;
+        
+        // Update change
+        const changeEl = row.querySelector('[data-metric="change"] .holding-metric-value');
+        if (changeEl) {
+          changeEl.textContent = changeText;
+          changeEl.className = `holding-metric-value ${changeClass}`;
+        }
+        
         body.appendChild(row);  // Move to end in correct order
       }
     });
