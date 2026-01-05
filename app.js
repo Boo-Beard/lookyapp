@@ -7401,9 +7401,11 @@ function setupEventListeners() {
       return;
     }
 
-    // Show loading state
-    const originalText = shareLinkBtn.innerHTML;
-    shareLinkBtn.innerHTML = '<span class="btn-icon"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i></span><span>Generating...</span>';
+    // Show loading state - rotate icon
+    const icon = shareLinkBtn.querySelector('.btn-icon i');
+    if (icon) {
+      icon.classList.add('fa-spin');
+    }
     shareLinkBtn.disabled = true;
 
     try {
@@ -7425,8 +7427,10 @@ function setupEventListeners() {
       const url = buildShareUrlFromCurrent();
       openSharePopover(url);
     } finally {
-      // Restore button state
-      shareLinkBtn.innerHTML = originalText;
+      // Restore button state - stop rotation
+      if (icon) {
+        icon.classList.remove('fa-spin');
+      }
       shareLinkBtn.disabled = false;
     }
   });
