@@ -2789,6 +2789,7 @@ function updateAddressStats() {
   $('shareLinkBtn')?.classList.toggle('hidden', !hasValid);
   $('saveProfileBtn')?.classList.toggle('hidden', !hasValid);
   $('deleteProfileBtn')?.classList.toggle('hidden', !hasValid);
+  $('profilesBar')?.classList.toggle('hidden', !hasValid);
 
   $('solCount') && ($('solCount').textContent = String(solana));
   $('evmCount') && ($('evmCount').textContent = String(evm));
