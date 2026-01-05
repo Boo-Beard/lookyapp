@@ -1404,7 +1404,66 @@ body.ui-results .input-section.is-minimized {
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+}
+
+/* Happy eyes (Favorites mode) */
+body.mode-favorites .logo-lockup .eye {
+  border-radius: 44% 44% 72% 72% / 74% 74% 46% 46%;
+}
+
+body.mode-favorites .logo-lockup .pupil {
+  transform: translate(-50%, -40%);
+}
+
+/* Angry eyes (Portfolio mode) */
+body.mode-portfolio .logo-lockup .eye {
+  border-radius: 72% 72% 50% 50% / 30% 30% 70% 70%;
+}
+
+body.mode-portfolio .logo-lockup .eye::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: rgba(11, 11, 16, 0.6);
+  transform: rotate(-15deg);
+  z-index: 1;
+}
+
+body.mode-portfolio .logo-lockup .eye:first-child::before {
+  transform: rotate(15deg);
+}
+
+body.mode-portfolio .logo-lockup .pupil {
+  transform: translate(-50%, -35%);
+}
+
+/* Sad eyes (Search mode) */
+body.mode-search .logo-lockup .eye {
+  border-radius: 72% 72% 50% 50% / 50% 50% 60% 60%;
+}
+
+body.mode-search .logo-lockup .eye::before {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: rgba(11, 11, 16, 0.5);
+  transform: rotate(15deg);
+  z-index: 1;
+}
+
+body.mode-search .logo-lockup .eye:first-child::before {
+  transform: rotate(-15deg);
+}
+
+body.mode-search .logo-lockup .pupil {
+  transform: translate(-50%, -45%);
 }
 
 .logo-lockup .eye::after {

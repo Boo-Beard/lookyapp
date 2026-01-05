@@ -6275,6 +6275,15 @@ function setMode(mode) {
     sBtn.classList.toggle('is-active', m === 'search');
     sBtn.setAttribute('aria-selected', m === 'search' ? 'true' : 'false');
   }
+
+  document.body.classList.remove('mode-favorites', 'mode-portfolio', 'mode-search');
+  if (m === 'watchlist') {
+    document.body.classList.add('mode-favorites');
+  } else if (m === 'portfolio') {
+    document.body.classList.add('mode-portfolio');
+  } else if (m === 'search') {
+    document.body.classList.add('mode-search');
+  }
 }
 
 function setupEventListeners() {
