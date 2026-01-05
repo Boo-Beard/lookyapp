@@ -2333,15 +2333,15 @@ background: var(--panel);
   text-transform: uppercase;
   font-size: 10px;
   color: var(--text-tertiary);
-  margin-bottom: 8px;
   font-weight: 600;
 }
 
 #watchlistBody .holding-metric-value {
-  font-size: 14px;
-  color: var(--text-primary);
-  font-weight: 600;
-  line-height: 1.4;
+font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
 }
 
 #watchlistBody .holding-metric-value strong {
@@ -4216,7 +4216,6 @@ body.holdings-cards .holding-metric-label {
   text-transform: uppercase;
   font-size: 10px;
   color: var(--text-tertiary);
-  margin-bottom: 8px;
   font-weight: 600;
 }
 
