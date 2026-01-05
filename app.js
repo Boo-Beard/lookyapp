@@ -6153,6 +6153,21 @@ function setSearchHint(message, type = 'info') {
   hint.classList.remove('hidden');
 }
 
+function setWatchlistHint(message, type = 'info') {
+  const hint = $('watchlistHint');
+  if (!hint) return;
+  const msg = String(message || '').trim();
+  if (!msg) {
+    hint.textContent = '';
+    hint.classList.add('hidden');
+    hint.classList.remove('error');
+    return;
+  }
+  hint.textContent = msg;
+  hint.classList.toggle('error', type === 'error');
+  hint.classList.remove('hidden');
+}
+
 function renderSearchTokenLoading() {
   const root = $('searchResults');
   if (!root) return;
@@ -6724,7 +6739,11 @@ function setupEventListeners() {
           }
 
           const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-          const model = await runTokenSearch(addr, controller ? { signal: controller.signal } : undefined);
+          const model = await runTokenSearch(addr, { 
+            signal: controller?.signal,
+            chain: chain || undefined,
+            network: network || undefined
+          });
           const resolvedChain = String(chain || model?.chain || '');
           const resolvedNetwork = String(network || model?.network || '');
 
