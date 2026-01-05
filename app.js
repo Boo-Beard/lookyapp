@@ -6976,8 +6976,14 @@ function setupEventListeners() {
 
   const STORAGE_KEY_THEME = 'peeek:theme';
 
-  const applyTheme = (theme) => {
+  const applyTheme = (theme, skipTransition = false) => {
     const t = theme === 'dark' ? 'dark' : 'light';
+    
+    // Add no-transition class to prevent jarring initial load
+    if (skipTransition) {
+      document.documentElement.classList.add('no-transition');
+    }
+    
     document.documentElement.dataset.theme = t;
 
     try {
@@ -6993,6 +6999,24 @@ function setupEventListeners() {
       }
       btn.setAttribute('aria-label', t === 'dark' ? 'Disable dark mode' : 'Enable dark mode');
     }
+    
+    // Remove no-transition class after a frame
+    if (skipTransition) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.documentElement.classList.remove('no-transition');
+        });
+      });
+    }
+  };
+
+  const getSystemTheme = () => {
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+    } catch {}
+    return 'light';
   };
 
   const loadTheme = () => {
@@ -7000,10 +7024,26 @@ function setupEventListeners() {
       const saved = localStorage.getItem(STORAGE_KEY_THEME);
       if (saved === 'dark' || saved === 'light') return saved;
     } catch {}
-    return 'light';
+    // Fall back to system preference
+    return getSystemTheme();
   };
 
-  applyTheme(loadTheme());
+  // Apply theme on load without transition
+  applyTheme(loadTheme(), true);
+
+  // Listen for system theme changes
+  try {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeQuery.addEventListener('change', (e) => {
+      // Only auto-switch if user hasn't manually set a preference
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_THEME);
+        if (!saved) {
+          applyTheme(e.matches ? 'dark' : 'light');
+        }
+      } catch {}
+    });
+  } catch {}
 
   $('themeToggleBtn')?.addEventListener('click', () => {
     const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
