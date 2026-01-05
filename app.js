@@ -7346,6 +7346,7 @@ function setupEventListeners() {
             const img = new Image();
             img.onload = () => {
               try {
+                console.log('Image loaded, dimensions:', img.width, 'x', img.height);
                 const logoSize = 40;
                 const x = (canvas.width - logoSize) / 2;
                 const y = (canvas.height - logoSize) / 2;
@@ -7356,9 +7357,14 @@ function setupEventListeners() {
                 ctx.arc(canvas.width / 2, canvas.height / 2, (logoSize / 2) + 6, 0, 2 * Math.PI);
                 ctx.fill();
                 
-                // Draw logo
+                // Test: Draw a red rectangle to verify canvas drawing works
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(x - 5, y - 5, logoSize + 10, logoSize + 10);
+                
+                // Draw logo on top
                 ctx.drawImage(img, x, y, logoSize, logoSize);
                 console.log('Logo drawn successfully at', x, y, 'size:', logoSize);
+                console.log('Canvas data URL (first 100 chars):', canvas.toDataURL().substring(0, 100));
               } catch (e) {
                 console.error('Error drawing logo:', e);
               }
@@ -7396,7 +7402,11 @@ function setupEventListeners() {
     }
     
     // Show popover
+    console.log('Showing share popover, hidden class before:', sharePopover.classList.contains('hidden'));
     sharePopover.classList.remove('hidden');
+    console.log('Share popover shown, hidden class after:', sharePopover.classList.contains('hidden'));
+    console.log('Popover display style:', window.getComputedStyle(sharePopover).display);
+    console.log('Popover z-index:', window.getComputedStyle(sharePopover).zIndex);
     hapticFeedback('light');
   }
 
