@@ -1,111 +1,72 @@
-/* Share Link Modal Styles */
-.share-modal-content {
-  max-width: 500px;
-  width: calc(100% - 32px);
-}
-
-.share-qr-container {
+/* Share Popover Styles */
+.share-popover {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  background: var(--panel);
+  border: 3px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 24px;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 20px;
+  gap: 16px;
+  max-width: 280px;
 }
 
-.share-qr-code {
+.share-popover.hidden {
+  display: none;
+}
+
+.share-qr {
   background: #fff;
-  padding: 16px;
+  padding: 12px;
   border-radius: var(--radius-md);
+  border: 2px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
-  min-width: 200px;
+  width: 200px;
+  height: 200px;
 }
 
-/* Prevent QR code and entire modal from being blurred by redacted mode */
-body.is-redacted #shareLinkModal,
-body.is-redacted #shareLinkModal *,
-body.is-redacted .share-modal-content,
-body.is-redacted .share-modal-content *,
-body.is-redacted .share-qr-container,
-body.is-redacted .share-qr-container *,
-body.is-redacted .share-qr-code,
-body.is-redacted .share-qr-code *,
-body.is-redacted #shareQrCode,
-body.is-redacted #shareQrCode *,
-body.is-redacted .share-link-container,
-body.is-redacted .share-link-container * {
-  filter: none !important;
-  user-select: auto !important;
-  color: inherit !important;
-}
-
-.share-qr-code canvas,
-.share-qr-code img {
+.share-qr canvas,
+.share-qr img {
   display: block;
   max-width: 100%;
   height: auto;
 }
 
-.share-qr-label {
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.share-link-container {
-  display: flex;
-  gap: 12px;
-  flex-direction: column;
-}
-
-.share-link-input {
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  cursor: text;
-  user-select: all;
-}
-
-.share-link-input:focus {
-  outline: none;
-  border-color: var(--accent-2);
-  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.1);
-}
-
-#copyShareLinkBtn {
+.share-copy-btn {
   width: 100%;
   justify-content: center;
 }
 
+/* Prevent popover from being blurred */
+body.is-redacted .share-popover,
+body.is-redacted .share-popover *,
+body.is-redacted #sharePopover,
+body.is-redacted #sharePopover *,
+body.is-redacted .share-qr,
+body.is-redacted .share-qr *,
+body.is-redacted #shareQrCode,
+body.is-redacted #shareQrCode *,
+body.is-redacted #shareQrCode canvas,
+body.is-redacted #shareQrCode img {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
 @media (max-width: 640px) {
-  .share-modal-content {
-    max-width: calc(100% - 24px);
+  .share-popover {
+    max-width: calc(100% - 40px);
   }
   
-  .share-qr-container {
-    padding: 16px;
-  }
-  
-  .share-qr-code {
-    min-height: 180px;
-    min-width: 180px;
-    padding: 12px;
+  .share-qr {
+    width: 180px;
+    height: 180px;
   }
 }

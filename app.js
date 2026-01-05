@@ -7295,18 +7295,17 @@ function setupEventListeners() {
     hapticFeedback('light');
   });
 
-  // Share Link Modal
-  const shareLinkModal = $('shareLinkModal');
-  const closeShareModal = $('closeShareModal');
+  // Share Link Popover
+  const sharePopover = $('sharePopover');
   const shareLinkInput = $('shareLinkInput');
   const copyShareLinkBtn = $('copyShareLinkBtn');
   const shareQrCode = $('shareQrCode');
   let currentQrCode = null;
 
-  function openShareModal(url) {
-    if (!shareLinkModal) return;
+  function openSharePopover(url) {
+    if (!sharePopover) return;
     
-    // Set the URL in the input
+    // Set the URL in the hidden input
     if (shareLinkInput) {
       shareLinkInput.value = url;
     }
@@ -7332,28 +7331,26 @@ function setupEventListeners() {
       }
     }
     
-    // Show modal
-    shareLinkModal.classList.remove('hidden');
-    document.body.classList.add('modal-open');
+    // Show popover
+    sharePopover.classList.remove('hidden');
     hapticFeedback('light');
   }
 
-  function closeShareModalFn() {
-    if (!shareLinkModal) return;
-    shareLinkModal.classList.add('hidden');
-    document.body.classList.remove('modal-open');
+  function closeSharePopover() {
+    if (!sharePopover) return;
+    sharePopover.classList.add('hidden');
     currentQrCode = null;
   }
 
-  // Close modal when clicking backdrop or anywhere outside the modal content
-  shareLinkModal?.addEventListener('click', (e) => {
-    // Close if clicking the modal itself (backdrop) or modal-content, but not its children
-    if (e.target === shareLinkModal || e.target.classList.contains('modal-backdrop') || e.target.classList.contains('share-modal-content')) {
-      closeShareModalFn();
+  // Close popover when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!sharePopover || sharePopover.classList.contains('hidden')) return;
+    if (!sharePopover.contains(e.target) && e.target !== shareLinkBtn) {
+      closeSharePopover();
     }
   });
 
-  // Copy button in modal
+  // Copy button in popover
   copyShareLinkBtn?.addEventListener('click', async () => {
     const url = shareLinkInput?.value;
     if (!url) return;
@@ -7366,13 +7363,14 @@ function setupEventListeners() {
       
       setTimeout(() => {
         copyShareLinkBtn.innerHTML = originalText;
-      }, 2000);
+        closeSharePopover();
+      }, 1500);
     } catch {
       alert('Copy failed. Please copy manually.');
     }
   });
 
-  // Share Link Button - now opens modal
+  // Share Link Button - now opens popover
   shareLinkBtn?.addEventListener('click', async () => {
     if (state.addressItems.length === 0) {
       showStatus('Add wallets to generate a share link', 'info');
@@ -7396,12 +7394,12 @@ function setupEventListeners() {
       
       const shortUrl = await response.text();
       
-      // Open modal with short URL
-      openShareModal(shortUrl);
+      // Open popover with short URL
+      openSharePopover(shortUrl);
     } catch (error) {
       // Fallback to long URL if shortening fails
       const url = buildShareUrlFromCurrent();
-      openShareModal(url);
+      openSharePopover(url);
     } finally {
       // Restore button state
       shareLinkBtn.innerHTML = originalText;

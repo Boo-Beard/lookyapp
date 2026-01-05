@@ -507,24 +507,14 @@
     </footer>
   </div>
 
-  <!-- Share Link Modal -->
-  <div id="shareLinkModal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content share-modal-content">
-      <div class="modal-body">
-        <div class="share-qr-container">
-          <div id="shareQrCode" class="share-qr-code"></div>
-          <p class="share-qr-label">Scan to view portfolio</p>
-        </div>
-        <div class="share-link-container">
-          <input id="shareLinkInput" type="text" class="share-link-input" readonly />
-          <button id="copyShareLinkBtn" class="btn btn-primary" type="button">
-            <span class="btn-icon"><i class="fa-solid fa-copy" aria-hidden="true"></i></span>
-            <span>Copy Link</span>
-          </button>
-        </div>
-      </div>
-    </div>
+  <!-- Share Link Popover -->
+  <div id="sharePopover" class="share-popover hidden">
+    <div id="shareQrCode" class="share-qr"></div>
+    <button id="copyShareLinkBtn" class="btn btn-primary share-copy-btn" type="button">
+      <span class="btn-icon"><i class="fa-solid fa-copy" aria-hidden="true"></i></span>
+      <span>Copy Link</span>
+    </button>
+    <input id="shareLinkInput" type="hidden" />
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
