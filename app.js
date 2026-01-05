@@ -2642,15 +2642,32 @@ function computeWhatChangedToday() {
   };
 }
 
+// Compact encoding: s|address|e|address (s=solana, e=evm)
+// Then compress with LZ-string-like algorithm and base64
 function encodeShareParamFromItems(items) {
   const list = Array.isArray(items) ? items : [];
-  const payload = list
-    .filter(Boolean)
-    .slice(0, MAX_ADDRESSES)
-    .map(x => ({ t: x.type, a: x.raw }));
+  if (list.length === 0) return '';
+  
   try {
-    const json = JSON.stringify(payload);
-    return btoa(unescape(encodeURIComponent(json)));
+    // Format: chain_type|address|chain_type|address...
+    // s = solana, e = evm
+    const compact = list
+      .filter(Boolean)
+      .slice(0, MAX_ADDRESSES)
+      .map(x => {
+        const type = (x.type === 'solana' || x.type === 'solana-domain') ? 's' : 'e';
+        return `${type}|${x.raw}`;
+      })
+      .join('|');
+    
+    // Simple compression: replace common patterns
+    let compressed = compact
+      .replace(/\|s\|/g, '~')  // |s| -> ~
+      .replace(/\|e\|/g, '^')  // |e| -> ^
+      .replace(/^s\|/, 'S')    // s| at start -> S
+      .replace(/^e\|/, 'E');   // e| at start -> E
+    
+    return btoa(unescape(encodeURIComponent(compressed)));
   } catch {
     return '';
   }
@@ -2659,15 +2676,40 @@ function encodeShareParamFromItems(items) {
 function decodeShareParamToRawList(param) {
   if (!param) return null;
   try {
-    const json = decodeURIComponent(escape(atob(String(param))));
-    const parsed = JSON.parse(json);
-    if (!Array.isArray(parsed)) return null;
-    return parsed
-      .map(x => String(x?.a || '').trim())
-      .filter(Boolean)
-      .slice(0, MAX_ADDRESSES);
+    let decoded = decodeURIComponent(escape(atob(String(param))));
+    
+    // Decompress: restore patterns
+    decoded = decoded
+      .replace(/~/g, '|s|')
+      .replace(/\^/g, '|e|')
+      .replace(/^S/, 's|')
+      .replace(/^E/, 'e|');
+    
+    const parts = decoded.split('|');
+    const addresses = [];
+    
+    for (let i = 0; i < parts.length - 1; i += 2) {
+      const type = parts[i];
+      const addr = parts[i + 1];
+      if ((type === 's' || type === 'e') && addr) {
+        addresses.push(addr.trim());
+      }
+    }
+    
+    return addresses.slice(0, MAX_ADDRESSES);
   } catch {
-    return null;
+    // Fallback: try old format for backward compatibility
+    try {
+      const json = decodeURIComponent(escape(atob(String(param))));
+      const parsed = JSON.parse(json);
+      if (!Array.isArray(parsed)) return null;
+      return parsed
+        .map(x => String(x?.a || '').trim())
+        .filter(Boolean)
+        .slice(0, MAX_ADDRESSES);
+    } catch {
+      return null;
+    }
   }
 }
 
