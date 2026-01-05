@@ -1852,6 +1852,28 @@ body.is-scanning .logo-lockup .eye::after {
  #portfolioPanel .profiles-bar .select {
   flex: 1;
   min-width: 160px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  box-shadow: 0.2em 0.2em 0 var(--border);
+  font-weight: 700;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+ }
+
+ #portfolioPanel .profiles-bar .select:hover {
+  background: var(--panel-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: 0.3em 0.3em 0 var(--border);
+ }
+
+ #portfolioPanel .profiles-bar .select:focus {
+  outline: none;
+  border-color: var(--accent-2);
+  box-shadow: 0.2em 0.2em 0 var(--accent-2);
  }
 
  #portfolioPanel .profiles-bar .btn {
