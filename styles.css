@@ -574,23 +574,22 @@ body.ui-results #summaryGrid {
 body.ui-results .amend-wallets-row {
   margin: 0;
   background: var(--panel);
-  border: 2px solid rgba(99, 102, 241, 0.3);
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
-  padding: 10px;
+  border: 2px solid #6366f1;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+  padding: 12px;
   display: flex;
-  gap: 10px;
+  gap: 12px;
   width: var(--results-rail);
   margin-left: auto;
   margin-right: auto;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  transition: all 0.2s ease;
 }
 
 body.ui-results .amend-wallets-row:hover {
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  border-color: #818cf8;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+  transform: translateY(-1px);
 }
 
 body.ui-results #inputHeaderBar {
@@ -605,60 +604,50 @@ body.ui-results #inputHeaderBar .logo-lockup {
 body.ui-results .amend-wallets-row .btn {
   width: 100%;
   margin: 0;
-  min-height: 48px;
+  min-height: 44px;
   background: var(--bg-secondary);
-  border: 1.5px solid rgba(99, 102, 241, 0.25);
-  border-radius: 12px;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
   font-weight: 600;
-  letter-spacing: 0.01em;
-  position: relative;
-  overflow: visible;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 body.ui-results .amend-wallets-row .btn:hover {
   transform: translateY(-1px);
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  border-color: #c7d2fe;
+  box-shadow: 0 3px 8px rgba(99, 102, 241, 0.2);
   background: var(--panel);
 }
 
 body.ui-results .amend-wallets-row .btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 body.ui-results .amend-wallets-row .btn .btn-icon {
-  background: rgba(99, 102, 241, 0.08);
-  border-radius: 8px;
-  padding: 6px 8px;
-  margin-right: 8px;
-  transition: all 0.25s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  background: #eef2ff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin-right: 6px;
+  transition: all 0.2s ease;
 }
 
 body.ui-results .amend-wallets-row .btn:hover .btn-icon {
-  background: rgba(99, 102, 241, 0.15);
-  transform: scale(1.05);
+  background: #e0e7ff;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-  min-width: 60px;
-  max-width: 60px;
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1.5px solid rgba(99, 102, 241, 0.3);
-  padding: 0;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn:hover {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.5);
+  background: #e0e7ff;
+  border-color: #a5b4fc;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
@@ -668,12 +657,12 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
-  font-size: 18px;
-  color: rgb(99, 102, 241);
+  font-size: 16px;
+  color: #6366f1;
 }
 
 body.ui-results .amend-wallets-row #amendWalletsBtn .btn-icon i {
-  color: rgb(168, 85, 247);
+  color: #a855f7;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown {
@@ -694,7 +683,7 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(99, 102, 241, 0.2);
+  background: #c7d2fe;
   transform: translateX(calc((-100% + (var(--cooldown-pct, 0) * 100%))));
   transition: none;
   pointer-events: none;
@@ -746,17 +735,12 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn > * {
 
 @media (max-width: 640px) {
   body.ui-results .amend-wallets-row {
-    padding: 8px;
-    gap: 8px;
+    padding: 10px;
+    gap: 10px;
   }
   
   body.ui-results .amend-wallets-row .btn {
-    min-height: 44px;
-  }
-  
-  body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-    min-width: 52px;
-    max-width: 52px;
+    min-height: 42px;
   }
 }
 
