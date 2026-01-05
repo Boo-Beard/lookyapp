@@ -193,7 +193,7 @@ border-color: rgb(0 0 0 / 100%);
 }
 
 .score-item .fa-arrow-up {
-  color: var(--peeek-accent);
+  color: #3e7c43;
 }
 
 .score-item .fa-arrow-down {
