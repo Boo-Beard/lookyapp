@@ -573,40 +573,24 @@ body.ui-results #summaryGrid {
 
 body.ui-results .amend-wallets-row {
   margin: 0;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: var(--panel);
+  border: 2px solid rgba(99, 102, 241, 0.3);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  padding: 8px;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 10px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   width: var(--results-rail);
   margin-left: auto;
   margin-right: auto;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
-}
-
-body.ui-results .amend-wallets-row::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
 }
 
 body.ui-results .amend-wallets-row:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 12px 48px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
-}
-
-body.ui-results .amend-wallets-row:hover::before {
-  opacity: 1;
 }
 
 body.ui-results #inputHeaderBar {
@@ -622,66 +606,59 @@ body.ui-results .amend-wallets-row .btn {
   width: 100%;
   margin: 0;
   min-height: 48px;
-  background: linear-gradient(135deg, var(--panel) 0%, var(--bg-secondary) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: var(--bg-secondary);
+  border: 1.5px solid rgba(99, 102, 241, 0.25);
   border-radius: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   position: relative;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-body.ui-results .amend-wallets-row .btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-body.ui-results .amend-wallets-row .btn:hover::before {
-  opacity: 1;
+  overflow: visible;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 body.ui-results .amend-wallets-row .btn:hover {
   transform: translateY(-1px);
-  border-color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  background: var(--panel);
 }
 
 body.ui-results .amend-wallets-row .btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
 }
 
 body.ui-results .amend-wallets-row .btn .btn-icon {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  background: rgba(99, 102, 241, 0.08);
   border-radius: 8px;
-  padding: 6px;
+  padding: 6px 8px;
   margin-right: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.ui-results .amend-wallets-row .btn:hover .btn-icon {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+  background: rgba(99, 102, 241, 0.15);
   transform: scale(1.05);
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-  min-width: 56px;
+  min-width: 60px;
+  max-width: 60px;
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  padding: 0;
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
-  border-color: rgba(99, 102, 241, 0.6);
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.5);
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
@@ -692,17 +669,11 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn .btn-icon {
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn i {
   font-size: 18px;
-  color: rgba(99, 102, 241, 1);
-  filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
-}
-
-body.ui-results .amend-wallets-row #amendWalletsBtn {
-  background: linear-gradient(135deg, var(--panel) 0%, var(--bg-secondary) 100%);
+  color: rgb(99, 102, 241);
 }
 
 body.ui-results .amend-wallets-row #amendWalletsBtn .btn-icon i {
-  color: rgba(168, 85, 247, 1);
-  filter: drop-shadow(0 2px 4px rgba(168, 85, 247, 0.3));
+  color: rgb(168, 85, 247);
 }
 
 body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown {
@@ -723,7 +694,7 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn.is-cooldown::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
+  background: rgba(99, 102, 241, 0.2);
   transform: translateX(calc((-100% + (var(--cooldown-pct, 0) * 100%))));
   transition: none;
   pointer-events: none;
@@ -775,8 +746,8 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn > * {
 
 @media (max-width: 640px) {
   body.ui-results .amend-wallets-row {
-    padding: 6px;
-    gap: 6px;
+    padding: 8px;
+    gap: 8px;
   }
   
   body.ui-results .amend-wallets-row .btn {
@@ -784,7 +755,8 @@ body.ui-results .amend-wallets-row #portfolioRefreshBtn > * {
   }
   
   body.ui-results .amend-wallets-row #portfolioRefreshBtn {
-    min-width: 48px;
+    min-width: 52px;
+    max-width: 52px;
   }
 }
 
