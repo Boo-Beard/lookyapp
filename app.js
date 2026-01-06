@@ -5916,6 +5916,13 @@ async function scanWallets({ queueOverride } = {}) {
 
   updateScanCooldownUi();
 
+  // Clear any pending scheduled recomputes to prevent async renders
+  if (recomputeThrottleTimer) {
+    clearTimeout(recomputeThrottleTimer);
+    recomputeThrottleTimer = null;
+  }
+  recomputeQueued = false;
+
   // Recompute aggregates first to populate state.holdings
   console.log('[SCAN] Recomputing aggregates, state.holdings length:', state.holdings?.length);
   await recomputeAggregatesAndRender();
