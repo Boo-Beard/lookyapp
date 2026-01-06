@@ -1499,7 +1499,7 @@ body.ui-results .input-section.is-minimized {
 .logo-lockup .peeek-eyes {
   display: flex;
   justify-content: center;
-  gap: 14px;
+  gap: 0px;
   margin: 0;
   animation: eyesFloat 3s ease-in-out infinite;
 }
