@@ -1692,9 +1692,9 @@ body.eyes-squash .logo-lockup .pupil {
 
 
 body.is-redacted .logo-lockup .eye::after {
+  content: '';
+  position: absolute;
   animation: none;
-  transform: none;
-  inset: auto;
   left: 12%;
   right: 12%;
   top: 50%;
@@ -1704,6 +1704,7 @@ body.is-redacted .logo-lockup .eye::after {
   border-radius: 999px;
   box-shadow: none;
   transform: translateY(-50%);
+  z-index: 10;
 }
 
 :root[data-theme="dark"] body.is-redacted .logo-lockup .eye::after {
