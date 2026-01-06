@@ -4888,6 +4888,8 @@ function getSortValue(holding, sortBy) {
 }
 
 function renderHoldingsTable() {
+  console.trace('[RENDER] renderHoldingsTable called from:');
+  
   const tbody = $('tableBody');
   if (!tbody) return;
 
