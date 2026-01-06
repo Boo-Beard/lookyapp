@@ -5945,8 +5945,10 @@ async function scanWallets({ queueOverride } = {}) {
     volume24hUsd: state.holdings[0]?.volume24hUsd,
     liquidityUsd: state.holdings[0]?.liquidityUsd
   });
+  // Increment version again to force cache invalidation and re-filter from enriched state.holdings
   holdingsDataVersion++;
   invalidateHoldingsTableCache();
+  console.log('[SCAN] holdingsDataVersion now:', holdingsDataVersion);
   renderHoldingsTable();
   updateSummary();
   console.log('[SCAN] Render complete');
