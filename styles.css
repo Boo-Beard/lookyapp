@@ -1522,6 +1522,73 @@ body.ui-results .input-section.is-minimized {
   box-shadow: 0.3em 0.3em 0 var(--border);
 }
 
+/* Eye expressions */
+body.eyes-sad .logo-lockup .eye {
+  border-radius: 50% 50% 45% 45%;
+  transform: scaleY(0.85);
+}
+
+body.eyes-sad .logo-lockup .pupil {
+  transform: translate(-50%, -35%);
+}
+
+body.eyes-excited .logo-lockup .eye {
+  border-radius: 50%;
+  animation: eyeBounce 0.4s ease-in-out infinite;
+}
+
+body.eyes-excited .logo-lockup .pupil {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+body.eyes-surprised .logo-lockup .eye {
+  border-radius: 50%;
+  transform: scale(1.15);
+}
+
+body.eyes-surprised .logo-lockup .pupil {
+  transform: translate(-50%, -50%) scale(0.7);
+}
+
+body.eyes-squint .logo-lockup .eye {
+  border-radius: 50%;
+  transform: scaleY(0.3);
+}
+
+body.eyes-squint .logo-lockup .pupil {
+  opacity: 0.5;
+}
+
+body.eyes-wide .logo-lockup .eye {
+  border-radius: 50%;
+  transform: scale(1.2);
+}
+
+body.eyes-wide .logo-lockup .pupil {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+body.eyes-heart .logo-lockup .eye {
+  animation: eyeHeartBeat 0.6s ease-in-out infinite;
+}
+
+body.eyes-heart .logo-lockup .pupil::after {
+  content: '❤️';
+  position: absolute;
+  font-size: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+body.eyes-dizzy .logo-lockup .eye {
+  animation: eyeDizzy 1s ease-in-out infinite;
+}
+
+body.eyes-dizzy .logo-lockup .pupil {
+  animation: pupilSpin 2s linear infinite;
+}
+
 
 
 
@@ -1755,6 +1822,45 @@ body.is-scanning .logo-lockup .eye::after {
   }
   75% {
     transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
+  }
+}
+
+@keyframes eyeBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.05);
+  }
+}
+
+@keyframes eyeHeartBeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes eyeDizzy {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes pupilSpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 

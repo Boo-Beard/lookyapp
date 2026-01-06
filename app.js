@@ -6145,6 +6145,106 @@ function setupEyeTracking() {
   animateEyes();
 }
 
+function setupEyeExpressions() {
+  const expressions = ['sad', 'excited', 'surprised', 'squint', 'wide', 'heart', 'dizzy'];
+  let currentExpression = null;
+  let expressionTimeout = null;
+  let boredTimeout = null;
+  let lastInteraction = Date.now();
+  const BORED_DELAY_MS = 8000;
+
+  function setExpression(expr, duration = 2000) {
+    if (currentExpression) {
+      document.body.classList.remove(`eyes-${currentExpression}`);
+    }
+    if (expr) {
+      document.body.classList.add(`eyes-${expr}`);
+      currentExpression = expr;
+      
+      clearTimeout(expressionTimeout);
+      if (duration > 0) {
+        expressionTimeout = setTimeout(() => {
+          document.body.classList.remove(`eyes-${expr}`);
+          currentExpression = null;
+        }, duration);
+      }
+    } else {
+      currentExpression = null;
+    }
+  }
+
+  function randomExpression() {
+    const expr = expressions[Math.floor(Math.random() * expressions.length)];
+    setExpression(expr, 1500 + Math.random() * 1500);
+  }
+
+  function resetBoredTimer() {
+    lastInteraction = Date.now();
+    clearTimeout(boredTimeout);
+    boredTimeout = setTimeout(() => {
+      if (Date.now() - lastInteraction >= BORED_DELAY_MS) {
+        randomExpression();
+        resetBoredTimer();
+      }
+    }, BORED_DELAY_MS);
+  }
+
+  // Reset bored timer on any interaction
+  document.addEventListener('mousemove', resetBoredTimer);
+  document.addEventListener('click', (e) => {
+    resetBoredTimer();
+    
+    // Random reaction on clicks
+    if (Math.random() > 0.6) {
+      const reactions = ['surprised', 'excited', 'wide'];
+      const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+      setExpression(reaction, 800);
+    }
+  });
+  document.addEventListener('keydown', resetBoredTimer);
+
+  // Sad eyes when hovering over delete profile button
+  const deleteProfileBtn = $('deleteProfileBtn');
+  if (deleteProfileBtn) {
+    deleteProfileBtn.addEventListener('mouseenter', () => {
+      setExpression('sad', 0);
+    });
+    deleteProfileBtn.addEventListener('mouseleave', () => {
+      setExpression(null);
+    });
+  }
+
+  // Excited eyes when scanning
+  const scanButton = $('scanButton');
+  if (scanButton) {
+    scanButton.addEventListener('click', () => {
+      setExpression('excited', 1200);
+    });
+  }
+
+  // Heart eyes when saving profile
+  const saveProfileBtn = $('saveProfileBtn');
+  if (saveProfileBtn) {
+    saveProfileBtn.addEventListener('click', () => {
+      setExpression('heart', 1500);
+    });
+  }
+
+  // Dizzy eyes when lots of wallets
+  const originalScanWallets = window.scanWallets;
+  if (typeof originalScanWallets === 'function') {
+    window.scanWallets = async function(...args) {
+      const walletCount = state.addressItems?.length || 0;
+      if (walletCount > 15) {
+        setExpression('dizzy', 2000);
+      }
+      return originalScanWallets.apply(this, args);
+    };
+  }
+
+  resetBoredTimer();
+}
+
 function lockInputBodyHeight() {
   if (lockInputBodyHeight._raf) return;
   const now = Date.now();
@@ -7656,6 +7756,7 @@ function initialize() {
   try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
 
   setupEyeTracking();
+  setupEyeExpressions();
   setupEventListeners();
   setupFooterRotator();
 
