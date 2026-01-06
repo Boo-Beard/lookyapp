@@ -2792,11 +2792,10 @@ function renderAddressChips() {
     const hasLabel = !!label;
     
     return `
-      <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}${hasLabel ? ' has-label' : ''}" data-idx="${idx}" data-address="${escapeAttribute(item.raw)}" role="button" tabindex="0">
+      <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}${hasLabel ? ' has-label' : ''}" data-idx="${idx}" data-address="${escapeAttribute(item.raw)}" role="button" tabindex="0" title="Click to edit label">
         <span class="chip-badge">${badge}</span>
         <span class="chip-text" title="${item.raw}">${escapeHtml(displayText)}</span>
-        <button class="chip-edit" type="button" data-action="edit" aria-label="Edit label" title="Edit label"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
-        <button class="chip-remove" type="button" data-action="remove" aria-label="Remove">×</button>
+        <button class="chip-remove" type="button" data-action="remove" aria-label="Remove"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
       </div>
     `;
   }).join('');
@@ -7302,6 +7301,7 @@ function setupEventListeners() {
     const idx = Number(chip.dataset.idx);
     if (!Number.isFinite(idx)) return;
 
+    // Check if clicking remove button
     if (e.target?.dataset?.action === 'remove' || e.target.closest('[data-action="remove"]')) {
       state.addressItems.splice(idx, 1);
       renderAddressChips();
@@ -7311,19 +7311,17 @@ function setupEventListeners() {
       return;
     }
 
-    if (e.target?.dataset?.action === 'edit' || e.target.closest('[data-action="edit"]')) {
-      const address = chip.dataset.address;
-      if (!address) return;
-      
-      const currentLabel = getWalletLabel(address);
-      const newLabel = prompt('Enter wallet label (max 10 characters):', currentLabel);
-      
-      if (newLabel !== null) {
-        setWalletLabel(address, newLabel);
-        renderAddressChips();
-        hapticFeedback('light');
-      }
-      return;
+    // Otherwise, edit the label
+    const address = chip.dataset.address;
+    if (!address) return;
+    
+    const currentLabel = getWalletLabel(address);
+    const newLabel = prompt('Enter wallet label (max 10 characters):', currentLabel);
+    
+    if (newLabel !== null) {
+      setWalletLabel(address, newLabel);
+      renderAddressChips();
+      hapticFeedback('light');
     }
   });
 
