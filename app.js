@@ -661,16 +661,6 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
 
   let idx = 0;
   let changed = false;
-  let lastRenderAt = 0;
-  const maybeRender = () => {
-    const now = Date.now();
-    if (now - lastRenderAt < 1000) return;
-    lastRenderAt = now;
-    holdingsDataVersion++;
-    invalidateHoldingsTableCache();
-    scheduleRenderHoldingsTable();
-    try { savePortfolioSnapshot(); } catch {}
-  };
 
   const concurrency = 4;
   const worker = async () => {
@@ -720,7 +710,6 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       if (localChanged) {
         console.log('[ENRICH] Updated holding:', h.symbol, 'mcap:', h.mcap, 'vol:', h.volume24hUsd, 'liq:', h.liquidityUsd);
       }
-      if (changed) maybeRender();
     }
   };
 
