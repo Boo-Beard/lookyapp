@@ -1697,21 +1697,22 @@ body.is-redacted .logo-lockup .eye::after {
   inset: auto;
   left: 12%;
   right: 12%;
-  top: 52%;
-  height: 0;
-  background: transparent;
-  border-top: 6px solid rgba(11, 11, 16, 0.92);
+  top: 50%;
+  height: 6px;
+  background: rgba(11, 11, 16, 0.92);
+  border: none;
   border-radius: 999px;
-  box-shadow: 0 3px 0 rgba(11, 11, 16, 0.25);
+  box-shadow: none;
+  transform: translateY(-50%);
 }
 
- :root[data-theme="dark"] body.is-redacted .logo-lockup .eye::after {
-   border-top-color: rgba(255, 255, 255, 0.88);
-   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
- }
+:root[data-theme="dark"] body.is-redacted .logo-lockup .eye::after {
+  background: rgba(255, 255, 255, 0.88);
+}
 
 body.is-redacted .logo-lockup .eye {
-  background: transparent;
+  background: white;
+  border-color: rgba(11, 11, 16, 0.92);
 }
 
 body.is-redacted .logo-lockup .eye::before {
