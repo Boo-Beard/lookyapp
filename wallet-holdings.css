@@ -85,7 +85,7 @@
 
 /* Wallet Level (nested under chain) */
 .wallet-subsection {
-  background: transparent;
+  background: var(--panel);
 }
 
 .wallet-subheader {
