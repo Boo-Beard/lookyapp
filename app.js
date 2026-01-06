@@ -5947,15 +5947,14 @@ async function scanWallets({ queueOverride } = {}) {
     console.error('[SCAN] Failed to enrich holdings with overview metadata:', e);
   }
   
+  // Force final render after enrichment completes to show mcap/volume/liquidity
+  console.log('[SCAN] Forcing final render with enriched data');
+  holdingsDataVersion++;
+  invalidateHoldingsTableCache();
+  renderHoldingsTable();
+  updateSummary();
+  
   forceCollapseResultsSections();
-
-  try {
-    requestAnimationFrame(() => {
-      try { scheduleRenderHoldingsTable(); } catch {}
-    });
-  } catch {
-    try { scheduleRenderHoldingsTable(); } catch {}
-  }
 
   updateScanCooldownUi();
 
