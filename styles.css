@@ -1711,8 +1711,7 @@ body.is-redacted .logo-lockup .eye::after {
 }
 
 body.is-redacted .logo-lockup .eye {
-  background: white;
-  border-color: rgba(11, 11, 16, 0.92);
+  background: transparent;
 }
 
 body.is-redacted .logo-lockup .eye::before {
