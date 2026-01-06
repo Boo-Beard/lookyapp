@@ -6823,9 +6823,23 @@ function setupEventListeners() {
       if (!key) return;
       const wasHidden = isHoldingHidden(key);
       setHoldingHidden(key, !wasHidden);
-      try {
-        showInlineStarToast(hideToggle, wasHidden ? 'Unhidden' : 'Hidden');
-      } catch {}
+      
+      // Update the icon immediately
+      const icon = hideToggle.querySelector('i');
+      if (icon) {
+        if (wasHidden) {
+          // Was hidden, now showing - use eye icon
+          icon.className = 'fa-regular fa-eye';
+          hideToggle.setAttribute('aria-label', 'Hide token');
+          hideToggle.setAttribute('title', 'Hide token');
+        } else {
+          // Was showing, now hidden - use eye-slash icon
+          icon.className = 'fa-regular fa-eye-slash';
+          hideToggle.setAttribute('aria-label', 'Unhide token');
+          hideToggle.setAttribute('title', 'Unhide token');
+        }
+      }
+      
       try { hapticFeedback('light'); } catch {}
       return;
     }
