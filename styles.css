@@ -2246,7 +2246,7 @@ background: var(--panel);
 @media (max-width: 420px) {
   .watchlist-controls {
     justify-content: center;
-    flex-direction: column;
+    flex-direction: row;
   }
   .watchlist-controls .select {
     min-width: 0;
@@ -4104,17 +4104,21 @@ body.holdings-cards .holding-card-header-right {
   }
   
   body.holdings-cards .holding-card-header {
-    flex-wrap: nowrap;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
   
   body.holdings-cards .holding-card-header .token-cell {
     min-width: 0;
+    flex: 1 1 100%;
+    margin-bottom: 12px;
   }
   
   body.holdings-cards .holding-card-header .holding-card-actions {
     flex-shrink: 0;
     gap: 0px;
+    flex: 1 1 100%;
+    justify-content: flex-start;
   }
   
   body.holdings-cards .holding-card-header .chain-badge-small {
