@@ -6820,6 +6820,14 @@ function setupEventListeners() {
     containerEl.addEventListener('click', (e) => {
       const chart = e.target.closest('a.holding-action[data-action="chart"]');
       if (!chart) return;
+      
+      // Check if the link is disabled
+      if (chart.classList.contains('disabled') || chart.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      
       e.preventDefault();
       e.stopPropagation();
 
@@ -7235,8 +7243,8 @@ function setupEventListeners() {
       const saved = localStorage.getItem(STORAGE_KEY_THEME);
       if (saved === 'dark' || saved === 'light') return saved;
     } catch {}
-    // Fall back to system preference
-    return getSystemTheme();
+    // Always default to light theme
+    return 'light';
   };
 
   // Apply theme on load without transition

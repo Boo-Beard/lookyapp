@@ -1751,66 +1751,7 @@ body.is-redacted .logo-lockup .pupil {
 }
 
 
-body.is-scanning .logo-lockup .eye {
-  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.5), 0 0 20px rgba(0, 194, 255, 0.3), 0.2em 0.2em 0 var(--border);
-  animation: scanEyePulse 0.8s ease-in-out infinite;
-}
-
-body.is-scanning .logo-lockup .eye::after {
-  animation: none;
-}
-
-.logo-lockup .eye-loader {
-  position: absolute;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-body.is-scanning .logo-lockup .pupil {
-  opacity: 0;
-  animation: none;
-}
-
-body.is-scanning .logo-lockup .eye-loader {
-  display: flex;
-}
-
-.logo-lockup .eye-loader .loader {
-  width: 48px;
-  height: 48px;
-  background:
-    radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.92) 0 10%, rgba(255, 255, 255, 0) 11% 100%),
-    radial-gradient(circle at 55% 58%, #2aa8ff 0%, #0b2a6d 55%, #05060a 100%);
-  border-radius: 50%;
-  position: relative;
-  animation: skLinRotate 1s ease-in-out infinite alternate;
-}
-.logo-lockup .eye-loader .loader:after {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border-radius: 50%;
-  border: 5px solid transparent;
-  border-top-color: #2aa8ff;
-}
-
-@keyframes skLinRotate {
-  95%,
-  100% {
-    transform: rotate(840deg);
-  }
-}
-
-body.is-scanning .logo-lockup .eye::before {
-  animation: none;
-}
-
-body.is-scanning .logo-lockup .eye::after {
-  animation: none;
-  transform: scaleY(0);
-}
+/* Scanning eye animations removed per user request */
 
 @keyframes scanEyePulse {
   0%, 100% {
