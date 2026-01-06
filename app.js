@@ -3378,16 +3378,6 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
 
   let idx = 0;
   let mcapChanged = false;
-  let lastRenderAt = 0;
-  const maybeRender = () => {
-    const now = Date.now();
-    if (now - lastRenderAt < 1000) return;
-    lastRenderAt = now;
-    holdingsDataVersion++;
-    invalidateHoldingsTableCache();
-    scheduleRenderHoldingsTable();
-    try { savePortfolioSnapshot(); } catch {}
-  };
 
   const worker = async () => {
     while (idx < candidates.length) {
@@ -3401,7 +3391,6 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
       if (mcap && mcap > 0) {
         current.mcap = mcap;
         mcapChanged = true;
-        maybeRender();
       }
     }
   };
@@ -3412,9 +3401,6 @@ function enrichHoldingsWithMcap(holdings, { signal } = {}) {
   Promise.all(workers).then(() => {
     if (signal?.aborted) return;
     if (!mcapChanged) return;
-    holdingsDataVersion++;
-    invalidateHoldingsTableCache();
-    scheduleRenderHoldingsTable();
     try { savePortfolioSnapshot(); } catch {}
   }).catch(() => {});
 }
