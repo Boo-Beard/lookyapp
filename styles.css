@@ -1717,6 +1717,7 @@ body.is-redacted .logo-lockup .eye {
 
 :root[data-theme="dark"] body.is-redacted .logo-lockup .eye {
   background: transparent;
+  border-color: rgba(255, 255, 255, 0.88);
 }
 
 body.is-redacted .logo-lockup .eye::before {
