@@ -4208,6 +4208,7 @@ body.holdings-cards .holding-metric {
   padding: 5px;
   pointer-events: auto;
   transition: all 0.2s ease;
+      text-align: center;
 }
 
 body.holdings-cards .holding-metric:hover {

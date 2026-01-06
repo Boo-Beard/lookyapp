@@ -6560,13 +6560,11 @@ function setupEventListeners() {
     let portfolioRefreshCooldownTimer = null;
     let portfolioRefreshCooldownTick = null;
     portfolioRefreshBtn.addEventListener('click', async () => {
-      console.log('[REFRESH] Button clicked');
       try {
         portfolioRefreshBtn.disabled = true;
         
         // Clear cache for all wallets before refresh to force fresh data
         const wallets = Array.isArray(state.wallets) ? state.wallets : [];
-        console.log('[REFRESH] Clearing cache for', wallets.length, 'wallets');
         wallets.forEach(w => {
           if (w?.address && w?.chain) {
             const key = scanCacheKey(w.chain, w.address);
@@ -6577,14 +6575,12 @@ function setupEventListeners() {
         const queueOverride = wallets
           .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
           .filter(w => w.wallet && (w.chain === 'solana' || w.chain === 'evm'));
-        console.log('[REFRESH] Queue override:', queueOverride);
         await scanWallets({ queueOverride });
         hapticFeedback('light');
         
         portfolioRefreshBtn.disabled = false;
-        console.log('[REFRESH] Complete');
       } catch (err) {
-        console.error('[REFRESH] Error:', err);
+        console.error('Portfolio refresh failed:', err);
         try { hapticFeedback('error'); } catch {}
         try {
           portfolioRefreshBtn.classList.remove('is-cooldown');
