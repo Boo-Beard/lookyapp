@@ -1522,18 +1522,6 @@ body.ui-results .input-section.is-minimized {
   box-shadow: 0.3em 0.3em 0 var(--border);
 }
 
-.logo-lockup .eye::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  background: white;
-  border-radius: 50%;
-  transform: scaleY(0);
-  transform-origin: 50% 50%;
-  animation: eyeBlink 4s infinite;
-  pointer-events: none;
-  border: 3px solid var(--border);
-}
 
 
 
@@ -1578,6 +1566,18 @@ body.is-redacted .logo-lockup .pupil {
   left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease-out;
+}
+
+.logo-lockup .pupil::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 6px;
+  left: 8px;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
 }
 
 
