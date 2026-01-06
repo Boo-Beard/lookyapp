@@ -2150,6 +2150,20 @@ function getWalletLabel(address) {
   }
 }
 
+function shouldDisableTokenLinks(symbol) {
+  const sym = String(symbol || '').toUpperCase().trim();
+  
+  // Native tokens
+  const nativeTokens = new Set(['ETH', 'SOL', 'BNB', 'AVAX', 'MATIC', 'FTM']);
+  if (nativeTokens.has(sym)) return true;
+  
+  // Stablecoins
+  const stablecoins = new Set(['USDC', 'USDT', 'DAI', 'USDE', 'FDUSD', 'TUSD', 'USDP', 'PYUSD', 'USDY', 'FRAX', 'LUSD', 'SUSD', 'GUSD']);
+  if (stablecoins.has(sym)) return true;
+  
+  return false;
+}
+
 function shortenAddress(address, useLabel = false) {
   if (!address) return address;
   
@@ -5190,6 +5204,8 @@ function renderHoldingsTable() {
         const isHidden = isHoldingHidden(holding.key);
         const hideIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
         const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
+        
+        const linksDisabled = shouldDisableTokenLinks(holding.symbol);
 
         return `
           <tr class="holding-row" data-key="${holding.key}">
@@ -5213,16 +5229,16 @@ function renderHoldingsTable() {
                   <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
                     <i class="fa-regular fa-copy" aria-hidden="true"></i>
                   </a>
-                  <a class="holding-action holding-action-explorer" href="${(() => {
+                  <a class="holding-action holding-action-explorer ${linksDisabled ? 'disabled' : ''}" href="${linksDisabled ? '#' : (() => {
                     const base = holding.chain === 'solana' ? 'https://solscan.io/token/' : evmExplorerBase(holding.network) + '/token/';
                     return escapeAttribute(base + displayAddress);
-                  })()}" target="_blank" rel="noopener noreferrer" aria-label="View on ${(() => { const lbl = holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network); return escapeAttribute(lbl); })()} Explorer">
+                  })()}" ${linksDisabled ? 'aria-disabled="true" tabindex="-1"' : 'target="_blank" rel="noopener noreferrer"'} aria-label="View on ${(() => { const lbl = holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network); return escapeAttribute(lbl); })()} Explorer">
                     ${(() => {
                       const chainLogoUrl = getChainLogoUrl(holding.chain, holding.network);
                       return chainLogoUrl ? `<img class=\"chain-logo-action\" src=\"${escapeAttribute(chainLogoUrl)}\" alt=\"\" />` : '<i class=\"fa-solid fa-up-right-from-square\" aria-hidden=\"true\"></i>';
                     })()}
                   </a>
-                  <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
+                  <a class="holding-action ${linksDisabled ? 'disabled' : ''}" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart" ${linksDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
                     <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                   </a>
                   <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
@@ -5359,6 +5375,8 @@ function renderHoldingsTable() {
         const isHidden = isHoldingHidden(holding.key);
         const hideIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
         const hideLabel = isHidden ? 'Unhide token' : 'Hide token';
+        
+        const linksDisabled = shouldDisableTokenLinks(holding.symbol);
 
         const basePriceNum = Number(holding.price || 0) || 0;
         const baseMcapNum = Number(holding.mcap || 0) || 0;
@@ -5396,13 +5414,13 @@ function renderHoldingsTable() {
                       <a class="holding-action" href="#" data-action="copy-contract" data-address="${escapeAttribute(String(displayAddress || ''))}" aria-label="Copy contract address">
                         <i class="fa-regular fa-copy" aria-hidden="true"></i>
                       </a>
-                      <a class="holding-action holding-action-explorer ${explorerDisabled ? 'disabled' : ''}" href="${explorerHref}" target="_blank" rel="noopener noreferrer" aria-label="View on ${(() => { const lbl = holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network); return escapeAttribute(lbl); })()} Explorer" ${explorerDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
+                      <a class="holding-action holding-action-explorer ${explorerDisabled || linksDisabled ? 'disabled' : ''}" href="${linksDisabled ? '#' : explorerHref}" ${explorerDisabled || linksDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : 'target=\"_blank\" rel=\"noopener noreferrer\"'} aria-label="View on ${(() => { const lbl = holding.chain === 'solana' ? 'SOL' : evmNetworkLabel(holding.network); return escapeAttribute(lbl); })()} Explorer">
                         ${(() => {
                           const chainLogoUrl = getChainLogoUrl(holding.chain, holding.network);
                           return chainLogoUrl ? `<img class=\"chain-logo-action\" src=\"${escapeAttribute(chainLogoUrl)}\" alt=\"\" />` : '<i class=\"fa-solid fa-up-right-from-square\" aria-hidden=\"true\"></i>';
                         })()}
                       </a>
-                      <a class="holding-action" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart">
+                      <a class="holding-action ${linksDisabled ? 'disabled' : ''}" href="#" data-action="chart" data-chain="${holding.chain}" data-network="${holding.network || ''}" data-address="${chartAddress}" data-symbol="${escapeHtml(holding.symbol || '')}" data-name="${escapeHtml(holding.name || '')}" aria-label="View Chart" ${linksDisabled ? 'aria-disabled=\"true\" tabindex=\"-1\"' : ''}>
                         <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
                       </a>
                       <a class="holding-action" href="#" data-action="holding-hide-toggle" data-holding-key="${escapeAttribute(String(holding.key || ''))}" aria-label="${escapeAttribute(hideLabel)}" title="${escapeAttribute(hideLabel)}">
