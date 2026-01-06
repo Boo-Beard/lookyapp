@@ -1501,17 +1501,38 @@ body.ui-results .input-section.is-minimized {
   justify-content: center;
   gap: 14px;
   margin: 0;
+  animation: eyesFloat 3s ease-in-out infinite;
 }
 
 .logo-lockup .eye {
   width: 100px;
   height: 100px;
-  background: var(--panel);
+  background: white;
   border: 3px solid var(--border);
   border-radius: 50%;
   position: relative;
   overflow: hidden;
   box-shadow: 0.2em 0.2em 0 var(--border);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.logo-lockup .eye:hover {
+  transform: scale(1.1);
+  box-shadow: 0.3em 0.3em 0 var(--border);
+}
+
+.logo-lockup .eye::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background: white;
+  border-radius: 50%;
+  transform: scaleY(0);
+  transform-origin: 50% 50%;
+  animation: eyeBlink 4s infinite;
+  pointer-events: none;
+  border: 3px solid var(--border);
 }
 
 
@@ -1556,12 +1577,22 @@ body.is-redacted .logo-lockup .pupil {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  transition: transform 0.1s linear;
+  transition: transform 0.1s ease-out;
+  animation: pupilBreathe 2s ease-in-out infinite;
+}
+
+.logo-lockup .eye:hover .pupil {
+  animation: pupilExcited 0.3s ease-in-out infinite;
 }
 
 
 body.is-scanning .logo-lockup .eye {
-  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.3), 0.2em 0.2em 0 var(--border);
+  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.5), 0 0 20px rgba(0, 194, 255, 0.3), 0.2em 0.2em 0 var(--border);
+  animation: scanEyePulse 0.8s ease-in-out infinite;
+}
+
+body.is-scanning .logo-lockup .eye::after {
+  animation: none;
 }
 
 .logo-lockup .eye-loader {
@@ -1687,6 +1718,48 @@ body.is-scanning .logo-lockup .eye::after {
   }
   98% {
     transform: scaleY(0);
+  }
+}
+
+@keyframes eyesFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+  66% {
+    transform: translateY(-1px) rotate(1deg);
+  }
+}
+
+@keyframes eyeBlink {
+  0%, 90%, 100% {
+    transform: scaleY(0);
+  }
+  92%, 94% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pupilBreathe {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+@keyframes pupilExcited {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(-50%, -50%) scale(1.15) rotate(-5deg);
+  }
+  75% {
+    transform: translate(-50%, -50%) scale(1.15) rotate(5deg);
   }
 }
 
