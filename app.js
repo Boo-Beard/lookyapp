@@ -5441,7 +5441,11 @@ function renderHoldingsTable() {
                       <div class="${valueClass} mono"><strong class="redacted-field" tabindex="0" data-whatif-field="value">${escapeHtml(valueText)}</strong></div>
                     </div>`;
                   })()}
-                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${(() => {
+                    const val = holding.mcap ? formatCurrency(holding.mcap) : '—';
+                    console.log('[TEMPLATE] Rendering mcap for', holding.symbol, ':', holding.mcap, '→', val);
+                    return val;
+                  })()}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Volume (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.volume24hUsd || 0) > 0) ? formatCurrency(holding.volume24hUsd) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.liquidityUsd || 0) > 0) ? formatCurrency(holding.liquidityUsd) : '—'}</strong></div></div>
