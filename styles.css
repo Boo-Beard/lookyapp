@@ -1608,16 +1608,6 @@ body.eyes-angry .logo-lockup .pupil {
   animation: pupilShake 0.2s ease-in-out infinite;
 }
 
-body.eyes-sleepy .logo-lockup .eye {
-  border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%;
-  transform: scaleY(0.4);
-  animation: eyeDroop 2s ease-in-out infinite;
-}
-
-body.eyes-sleepy .logo-lockup .pupil {
-  opacity: 0.6;
-  transform: translate(-50%, -60%) scale(0.8);
-}
 
 body.eyes-wink .logo-lockup .eye:first-child {
   border-radius: 50% 50% 50% 50% / 85% 85% 15% 15%;
@@ -2015,14 +2005,6 @@ body.is-scanning .logo-lockup .eye::after {
   }
 }
 
-@keyframes eyeDroop {
-  0%, 100% {
-    transform: scaleY(0.4);
-  }
-  50% {
-    transform: scaleY(0.3);
-  }
-}
 
 @keyframes pupilWander {
   0%, 100% {

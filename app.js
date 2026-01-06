@@ -6146,7 +6146,7 @@ function setupEyeTracking() {
 }
 
 function setupEyeExpressions() {
-  const expressions = ['sad', 'excited', 'surprised', 'wide', 'heart', 'dizzy', 'angry', 'sleepy', 'wink', 'confused', 'shocked', 'lovestruck', 'squash'];
+  const expressions = ['sad', 'excited', 'surprised', 'wide', 'heart', 'dizzy', 'angry', 'wink', 'confused', 'shocked', 'lovestruck', 'squash'];
   let currentExpression = null;
   let expressionTimeout = null;
   let boredTimeout = null;
@@ -6154,6 +6154,11 @@ function setupEyeExpressions() {
   const BORED_DELAY_MS = 8000;
 
   function setExpression(expr, duration = 2000) {
+    // Don't allow expressions in incognito/redacted mode
+    if (document.body.classList.contains('is-redacted')) {
+      return;
+    }
+    
     if (currentExpression) {
       document.body.classList.remove(`eyes-${currentExpression}`);
     }
@@ -6254,12 +6259,11 @@ function setupEyeExpressions() {
       '5': 'heart',
       '6': 'dizzy',
       '7': 'angry',
-      '8': 'sleepy',
-      '9': 'wink',
-      'q': 'confused',
-      'w': 'shocked',
-      'e': 'lovestruck',
-      'r': 'squash',
+      '8': 'wink',
+      '9': 'confused',
+      'q': 'shocked',
+      'w': 'lovestruck',
+      'e': 'squash',
       '0': null // Press 0 to clear expression
     };
 
