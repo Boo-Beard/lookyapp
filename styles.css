@@ -3250,6 +3250,11 @@ body.ui-results .table-header {
   margin: 0;
   cursor: pointer;
   font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 #holdingsCard .table-controls .checkbox-wrapper-10 {
