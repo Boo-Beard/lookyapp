@@ -6269,6 +6269,17 @@ function setupEyeExpressions() {
     });
   }
 
+  // Confused eyes when hovering over settings button
+  const settingsBtn = $('settingsBtn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('mouseenter', () => {
+      setExpression('confused', 0);
+    });
+    settingsBtn.addEventListener('mouseleave', () => {
+      setExpression(null);
+    });
+  }
+
   // Excited eyes when scanning
   const scanButton = $('scanButton');
   if (scanButton) {
