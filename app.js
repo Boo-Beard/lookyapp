@@ -635,11 +635,7 @@ function parseOverviewMeta(overview) {
 }
 
 async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
-  console.log('[ENRICH] Called with holdings length:', holdings?.length);
-  if (!Array.isArray(holdings) || holdings.length === 0) {
-    console.log('[ENRICH] No holdings to enrich');
-    return;
-  }
+  if (!Array.isArray(holdings) || holdings.length === 0) return;
 
   const candidates = holdings
     .filter((h) => h && h.address && h.chain)
@@ -653,11 +649,7 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
     .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0))
     .slice(0, 30);
 
-  console.log('[ENRICH] Candidates to enrich:', candidates.length);
-  if (!candidates.length) {
-    console.log('[ENRICH] No candidates need enrichment');
-    return;
-  }
+  if (!candidates.length) return;
 
   let idx = 0;
   let changed = false;
@@ -687,48 +679,26 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       if (!overview) continue;
       const meta = parseOverviewMeta(overview);
 
-      let localChanged = false;
       if (Number(meta.marketCapUsd) > 0 && !(Number(h.mcap || 0) > 0)) {
         h.mcap = Number(meta.marketCapUsd) || 0;
         changed = true;
-        localChanged = true;
-        console.log('[ENRICH] Set mcap for', h.symbol, ':', h.mcap);
       }
       if (Number(meta.volume24hUsd) > 0 && !(Number(h.volume24hUsd || 0) > 0)) {
         h.volume24hUsd = Number(meta.volume24hUsd) || 0;
         changed = true;
-        localChanged = true;
-        console.log('[ENRICH] Set volume24hUsd for', h.symbol, ':', h.volume24hUsd);
       }
       if (Number(meta.liquidityUsd) > 0 && !(Number(h.liquidityUsd || 0) > 0)) {
         h.liquidityUsd = Number(meta.liquidityUsd) || 0;
         changed = true;
-        localChanged = true;
-        console.log('[ENRICH] Set liquidityUsd for', h.symbol, ':', h.liquidityUsd);
-      }
-
-      if (localChanged) {
-        console.log('[ENRICH] Updated holding:', h.symbol, 'mcap:', h.mcap, 'vol:', h.volume24hUsd, 'liq:', h.liquidityUsd);
       }
     }
   };
 
   await Promise.allSettled(Array.from({ length: Math.min(concurrency, candidates.length) }, () => worker()));
   
-  console.log('[ENRICH] All workers complete, changed:', changed);
-  if (signal?.aborted) {
-    console.log('[ENRICH] Signal aborted, returning');
-    return;
-  }
-  if (!changed) {
-    console.log('[ENRICH] No changes made, returning');
-    return;
-  }
-  console.log('[ENRICH] Data enriched, render will be handled by caller');
-  // Don't render here - let the caller (scanWallets) handle the final render
-  // to avoid multiple renders with stale data
+  if (signal?.aborted) return;
+  if (!changed) return;
   try { savePortfolioSnapshot(); } catch {}
-  console.log('[ENRICH] Function complete');
 }
 
 function getWalletPnlCache(chain, wallet) {
@@ -5077,13 +5047,6 @@ function renderHoldingsTable() {
   const startIdx = (page - 1) * HOLDINGS_PAGE_SIZE;
   const pageItems = filtered.slice(startIdx, startIdx + HOLDINGS_PAGE_SIZE);
   
-  console.log('[RENDER] Rendering page', page, 'with', pageItems.length, 'items');
-  console.log('[RENDER] First item:', pageItems[0]?.symbol, {
-    mcap: pageItems[0]?.mcap,
-    volume24hUsd: pageItems[0]?.volume24hUsd,
-    liquidityUsd: pageItems[0]?.liquidityUsd
-  });
-  
   // For DOM manipulation, we need all filtered items, not just current page
   const allFilteredItems = filtered;
 
@@ -5092,8 +5055,6 @@ function renderHoldingsTable() {
     holdingsTableCache.useCardRows === useCardRows &&
     holdingsTableCache.page === page &&
     typeof holdingsTableCache.htmlBase === 'string';
-  
-  console.log('[RENDER] Cache check - canReuseHtmlBase:', canReuseHtmlBase, 'cacheKey:', cacheKey, 'cached key:', holdingsTableCache.key);
 
   const pageIndicator = $('pageIndicator');
   if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
@@ -5441,11 +5402,7 @@ function renderHoldingsTable() {
                       <div class="${valueClass} mono"><strong class="redacted-field" tabindex="0" data-whatif-field="value">${escapeHtml(valueText)}</strong></div>
                     </div>`;
                   })()}
-                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${(() => {
-                    const val = holding.mcap ? formatCurrency(holding.mcap) : '—';
-                    console.log('[TEMPLATE] Rendering mcap for', holding.symbol, ':', holding.mcap, '→', val);
-                    return val;
-                  })()}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Volume (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.volume24hUsd || 0) > 0) ? formatCurrency(holding.volume24hUsd) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.liquidityUsd || 0) > 0) ? formatCurrency(holding.liquidityUsd) : '—'}</strong></div></div>
@@ -5929,36 +5886,23 @@ async function scanWallets({ queueOverride } = {}) {
   recomputeQueued = false;
 
   // Recompute aggregates first to populate state.holdings
-  console.log('[SCAN] Recomputing aggregates, state.holdings length:', state.holdings?.length);
   await recomputeAggregatesAndRender();
-  console.log('[SCAN] After recompute, state.holdings length:', state.holdings?.length);
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
-  console.log('[SCAN] Starting enrichHoldingsWithOverviewMeta');
   try {
     await enrichHoldingsWithOverviewMeta(state.holdings, { signal });
-    console.log('[SCAN] Enrichment complete');
   } catch (e) {
-    console.error('[SCAN] Failed to enrich holdings with overview metadata:', e);
+    console.error('Failed to enrich holdings with overview metadata:', e);
   }
   
   // Force final render after enrichment completes to show mcap/volume/liquidity
-  console.log('[SCAN] Forcing final render with enriched data');
-  console.log('[SCAN] Sample holding before render:', state.holdings[0]?.symbol, {
-    mcap: state.holdings[0]?.mcap,
-    volume24hUsd: state.holdings[0]?.volume24hUsd,
-    liquidityUsd: state.holdings[0]?.liquidityUsd
-  });
-  // Increment version again to force cache invalidation and re-filter from enriched state.holdings
   holdingsDataVersion++;
   invalidateHoldingsTableCache();
   // Clear hasRendered flag to force full HTML regeneration with enriched data
   const tbody = document.getElementById('tableBody');
   if (tbody) tbody.dataset.hasRendered = '';
-  console.log('[SCAN] holdingsDataVersion now:', holdingsDataVersion);
   renderHoldingsTable();
   updateSummary();
-  console.log('[SCAN] Render complete');
   
   forceCollapseResultsSections();
 
