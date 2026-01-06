@@ -5908,7 +5908,16 @@ async function scanWallets({ queueOverride } = {}) {
 
   updateScanCooldownUi();
 
-  scheduleRecomputeAggregatesAndRender();
+  // Recompute aggregates first to populate state.holdings
+  recomputeAggregatesAndRender();
+  
+  // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
+  try {
+    await enrichHoldingsWithOverviewMeta(state.holdings, { signal });
+  } catch (e) {
+    console.error('Failed to enrich holdings with overview metadata:', e);
+  }
+  
   forceCollapseResultsSections();
 
   try {
