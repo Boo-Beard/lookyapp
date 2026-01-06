@@ -1534,7 +1534,7 @@ body.eyes-sad .logo-lockup .pupil {
 
 body.eyes-excited .logo-lockup .eye {
   border-radius: 48% 52% 50% 50% / 50% 50% 52% 48%;
-  animation: eyeBounce 0.4s ease-in-out infinite, eyeSquash 0.4s ease-in-out infinite;
+  animation: eyeBounce 0.4s ease-in-out infinite;
 }
 
 body.eyes-excited .logo-lockup .pupil {
@@ -1874,14 +1874,6 @@ body.is-scanning .logo-lockup .eye::after {
   }
 }
 
-@keyframes eyeSquash {
-  0%, 100% {
-    transform: scaleX(1) scaleY(1);
-  }
-  50% {
-    transform: scaleX(1.08) scaleY(0.95);
-  }
-}
 
 @keyframes eyeShake {
   0%, 100% {

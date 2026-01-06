@@ -6243,6 +6243,28 @@ function setupEyeExpressions() {
   }
 
   resetBoredTimer();
+
+  // Debug mode: Press number keys 1-7 to trigger expressions
+  document.addEventListener('keydown', (e) => {
+    const expressionMap = {
+      '1': 'sad',
+      '2': 'excited',
+      '3': 'surprised',
+      '4': 'squint',
+      '5': 'wide',
+      '6': 'heart',
+      '7': 'dizzy',
+      '0': null // Press 0 to clear expression
+    };
+
+    if (expressionMap.hasOwnProperty(e.key)) {
+      const expr = expressionMap[e.key];
+      setExpression(expr, expr ? 0 : 0); // 0 duration = stays until changed
+      
+      // Log to console for debugging
+      console.log(`👀 Eye Expression: ${expr || 'normal'} (Key: ${e.key})`);
+    }
+  });
 }
 
 function lockInputBodyHeight() {
