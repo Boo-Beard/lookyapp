@@ -3193,22 +3193,12 @@ a.holding-action[data-action="copy-contract"]:active i {
   color: var(--text-primary);
   font-family: var(--mono);
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
   min-width: 0;
   flex: 1;
 }
 
-.address-chip .chip-badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: var(--panel);
-}
 
 .address-chip.solana {
   border-color: rgba(153, 69, 255, 0.35);

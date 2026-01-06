@@ -2784,7 +2784,6 @@ function renderAddressChips() {
   }
 
   chips.innerHTML = state.addressItems.map((item, idx) => {
-    const badge = (item.type === 'solana' || item.type === 'solana-domain') ? 'SOL' : item.type === 'evm' ? 'EVM' : 'Invalid';
     const cls = (item.type === 'solana' || item.type === 'solana-domain') ? 'solana' : item.type === 'evm' ? 'evm' : 'invalid';
     const isNew = !!state._lastAddedNormalized && (item.normalized || item.raw) === state._lastAddedNormalized;
     const label = getWalletLabel(item.raw);
@@ -2793,7 +2792,6 @@ function renderAddressChips() {
     
     return `
       <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}${hasLabel ? ' has-label' : ''}" data-idx="${idx}" data-address="${escapeAttribute(item.raw)}" role="button" tabindex="0" title="Click to edit label">
-        <span class="chip-badge">${badge}</span>
         <span class="chip-text" title="${item.raw}">${escapeHtml(displayText)}</span>
         <button class="chip-remove" type="button" data-action="remove" aria-label="Remove"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
       </div>
