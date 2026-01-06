@@ -76,7 +76,7 @@
 }
 
 .chain-wallets {
-  background: var(--card-bg);
+  background: var(--paper);
 }
 
 .chain-wallets.hidden {
