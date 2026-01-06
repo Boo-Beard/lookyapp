@@ -15,6 +15,7 @@ function shouldIgnoreGlobalError(message, source) {
 }
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
+const STORAGE_KEY_WALLET_LABELS = 'peeek:walletLabelsV1';
 
 const WHATIF_PRESETS = [2, 5, 8, 10, 100];
 const WHATIF_AUTO_RESET_MS = 3_000;
@@ -2113,8 +2114,50 @@ const MCAP_CONCURRENCY = 4;
 let statusHideTimer = null;
 function hapticFeedback() {}
 
-function shortenAddress(address) {
+function getWalletLabels() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_WALLET_LABELS);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+function setWalletLabel(address, label) {
+  try {
+    const labels = getWalletLabels();
+    const normalized = String(address || '').trim().toLowerCase();
+    if (!normalized) return;
+    
+    if (label && String(label).trim()) {
+      // Enforce 10 character limit
+      labels[normalized] = String(label).trim().slice(0, 10);
+    } else {
+      delete labels[normalized];
+    }
+    
+    localStorage.setItem(STORAGE_KEY_WALLET_LABELS, JSON.stringify(labels));
+  } catch {}
+}
+
+function getWalletLabel(address) {
+  try {
+    const labels = getWalletLabels();
+    const normalized = String(address || '').trim().toLowerCase();
+    return labels[normalized] || '';
+  } catch {
+    return '';
+  }
+}
+
+function shortenAddress(address, useLabel = false) {
   if (!address) return address;
+  
+  if (useLabel) {
+    const label = getWalletLabel(address);
+    if (label) return label;
+  }
+  
   const s = String(address);
   if (s.length <= 8) return s;
   return `${s.slice(0, 3)}...${s.slice(-3)}`;
@@ -2744,10 +2787,15 @@ function renderAddressChips() {
     const badge = (item.type === 'solana' || item.type === 'solana-domain') ? 'SOL' : item.type === 'evm' ? 'EVM' : 'Invalid';
     const cls = (item.type === 'solana' || item.type === 'solana-domain') ? 'solana' : item.type === 'evm' ? 'evm' : 'invalid';
     const isNew = !!state._lastAddedNormalized && (item.normalized || item.raw) === state._lastAddedNormalized;
+    const label = getWalletLabel(item.raw);
+    const displayText = label || shortenAddress(item.raw);
+    const hasLabel = !!label;
+    
     return `
-      <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}" data-idx="${idx}" role="button" tabindex="0">
+      <div class="address-chip ${cls}${isNew ? ' chip-new' : ''}${hasLabel ? ' has-label' : ''}" data-idx="${idx}" data-address="${escapeAttribute(item.raw)}" role="button" tabindex="0">
         <span class="chip-badge">${badge}</span>
-        <span class="chip-text" title="${item.raw}">${shortenAddress(item.raw)}</span>
+        <span class="chip-text" title="${item.raw}">${escapeHtml(displayText)}</span>
+        <button class="chip-edit" type="button" data-action="edit" aria-label="Edit label" title="Edit label"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
         <button class="chip-remove" type="button" data-action="remove" aria-label="Remove">×</button>
       </div>
     `;
@@ -4687,7 +4735,7 @@ function renderHoldingsByWallet() {
           <div class="wallet-subheader" data-wallet="${escapeHtml(walletRow.wallet)}">
             <div class="wallet-subheader-left">
               <i class="wallet-subchevron fa-solid fa-chevron-right"></i>
-              <div class="wallet-address mono">${escapeHtml(shortenAddress(walletRow.wallet))}</div>
+              <div class="wallet-address mono">${escapeHtml(shortenAddress(walletRow.wallet, true))}</div>
             </div>
             <div class="wallet-subheader-right">
               <div class="wallet-stats">${visibleTokenCount} token${visibleTokenCount === 1 ? '' : 's'} · ${formatPct(walletPct)}</div>
@@ -7254,12 +7302,27 @@ function setupEventListeners() {
     const idx = Number(chip.dataset.idx);
     if (!Number.isFinite(idx)) return;
 
-    if (e.target?.dataset?.action === 'remove') {
+    if (e.target?.dataset?.action === 'remove' || e.target.closest('[data-action="remove"]')) {
       state.addressItems.splice(idx, 1);
       renderAddressChips();
       persistAddressItems();
       updateAddressStats();
       hapticFeedback('light');
+      return;
+    }
+
+    if (e.target?.dataset?.action === 'edit' || e.target.closest('[data-action="edit"]')) {
+      const address = chip.dataset.address;
+      if (!address) return;
+      
+      const currentLabel = getWalletLabel(address);
+      const newLabel = prompt('Enter wallet label (max 10 characters):', currentLabel);
+      
+      if (newLabel !== null) {
+        setWalletLabel(address, newLabel);
+        renderAddressChips();
+        hapticFeedback('light');
+      }
       return;
     }
   });
