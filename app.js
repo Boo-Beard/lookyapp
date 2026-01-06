@@ -5103,6 +5103,13 @@ function renderHoldingsTable() {
   const startIdx = (page - 1) * HOLDINGS_PAGE_SIZE;
   const pageItems = filtered.slice(startIdx, startIdx + HOLDINGS_PAGE_SIZE);
   
+  console.log('[RENDER] Rendering page', page, 'with', pageItems.length, 'items');
+  console.log('[RENDER] First item:', pageItems[0]?.symbol, {
+    mcap: pageItems[0]?.mcap,
+    volume24hUsd: pageItems[0]?.volume24hUsd,
+    liquidityUsd: pageItems[0]?.liquidityUsd
+  });
+  
   // For DOM manipulation, we need all filtered items, not just current page
   const allFilteredItems = filtered;
 
