@@ -679,15 +679,16 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       if (!overview) continue;
       const meta = parseOverviewMeta(overview);
 
-      if (Number(meta.marketCapUsd) > 0 && !(Number(h.mcap || 0) > 0)) {
+      // Always update with fresh data from API
+      if (Number(meta.marketCapUsd) > 0) {
         h.mcap = Number(meta.marketCapUsd) || 0;
         changed = true;
       }
-      if (Number(meta.volume24hUsd) > 0 && !(Number(h.volume24hUsd || 0) > 0)) {
+      if (Number(meta.volume24hUsd) > 0) {
         h.volume24hUsd = Number(meta.volume24hUsd) || 0;
         changed = true;
       }
-      if (Number(meta.liquidityUsd) > 0 && !(Number(h.liquidityUsd || 0) > 0)) {
+      if (Number(meta.liquidityUsd) > 0) {
         h.liquidityUsd = Number(meta.liquidityUsd) || 0;
         changed = true;
       }
