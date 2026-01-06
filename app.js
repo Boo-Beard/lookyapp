@@ -635,7 +635,11 @@ function parseOverviewMeta(overview) {
 }
 
 async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
-  if (!Array.isArray(holdings) || holdings.length === 0) return;
+  console.log('[ENRICH] Called with holdings length:', holdings?.length);
+  if (!Array.isArray(holdings) || holdings.length === 0) {
+    console.log('[ENRICH] No holdings to enrich');
+    return;
+  }
 
   const candidates = holdings
     .filter((h) => h && h.address && h.chain)
@@ -649,7 +653,11 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
     .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0))
     .slice(0, 30);
 
-  if (!candidates.length) return;
+  console.log('[ENRICH] Candidates to enrich:', candidates.length);
+  if (!candidates.length) {
+    console.log('[ENRICH] No candidates need enrichment');
+    return;
+  }
 
   let idx = 0;
   let changed = false;
@@ -5909,13 +5917,17 @@ async function scanWallets({ queueOverride } = {}) {
   updateScanCooldownUi();
 
   // Recompute aggregates first to populate state.holdings
-  recomputeAggregatesAndRender();
+  console.log('[SCAN] Recomputing aggregates, state.holdings length:', state.holdings?.length);
+  await recomputeAggregatesAndRender();
+  console.log('[SCAN] After recompute, state.holdings length:', state.holdings?.length);
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
+  console.log('[SCAN] Starting enrichHoldingsWithOverviewMeta');
   try {
     await enrichHoldingsWithOverviewMeta(state.holdings, { signal });
+    console.log('[SCAN] Enrichment complete');
   } catch (e) {
-    console.error('Failed to enrich holdings with overview metadata:', e);
+    console.error('[SCAN] Failed to enrich holdings with overview metadata:', e);
   }
   
   forceCollapseResultsSections();
