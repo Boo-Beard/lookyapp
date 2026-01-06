@@ -1590,6 +1590,104 @@ body.eyes-dizzy .logo-lockup .pupil {
   transform: translate(-50%, -50%) scale(1.1);
 }
 
+body.eyes-angry .logo-lockup .eye {
+  border-radius: 60% 40% 50% 50% / 30% 70% 40% 60%;
+  transform: scaleY(0.7) rotate(-5deg);
+}
+
+body.eyes-angry .logo-lockup .eye:first-child {
+  transform: scaleY(0.7) rotate(-8deg);
+}
+
+body.eyes-angry .logo-lockup .eye:last-child {
+  transform: scaleY(0.7) rotate(8deg);
+}
+
+body.eyes-angry .logo-lockup .pupil {
+  transform: translate(-50%, -35%) scale(1.1);
+  animation: pupilShake 0.2s ease-in-out infinite;
+}
+
+body.eyes-sleepy .logo-lockup .eye {
+  border-radius: 50% 50% 50% 50% / 80% 80% 20% 20%;
+  transform: scaleY(0.4);
+  animation: eyeDroop 2s ease-in-out infinite;
+}
+
+body.eyes-sleepy .logo-lockup .pupil {
+  opacity: 0.6;
+  transform: translate(-50%, -60%) scale(0.8);
+}
+
+body.eyes-wink .logo-lockup .eye:first-child {
+  border-radius: 50% 50% 50% 50% / 85% 85% 15% 15%;
+  transform: scaleY(0.15);
+}
+
+body.eyes-wink .logo-lockup .eye:first-child .pupil {
+  opacity: 0;
+}
+
+body.eyes-wink .logo-lockup .eye:last-child {
+  border-radius: 45% 55% 50% 50% / 50% 50% 55% 45%;
+  transform: scale(1.15);
+}
+
+body.eyes-wink .logo-lockup .eye:last-child .pupil {
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+body.eyes-confused .logo-lockup .eye:first-child {
+  border-radius: 55% 45% 50% 50% / 50% 50% 60% 40%;
+  transform: translateY(-3px) rotate(-10deg);
+}
+
+body.eyes-confused .logo-lockup .eye:last-child {
+  border-radius: 45% 55% 50% 50% / 40% 60% 50% 50%;
+  transform: translateY(3px) rotate(10deg);
+}
+
+body.eyes-confused .logo-lockup .pupil {
+  animation: pupilWander 1.5s ease-in-out infinite;
+}
+
+body.eyes-shocked .logo-lockup .eye {
+  border-radius: 48% 52% 48% 52% / 48% 52% 48% 52%;
+  transform: scale(1.35);
+  animation: eyeVibrate 0.08s ease-in-out infinite;
+}
+
+body.eyes-shocked .logo-lockup .pupil {
+  transform: translate(-50%, -50%) scale(0.5);
+}
+
+body.eyes-lovestruck .logo-lockup .eye {
+  border-radius: 50%;
+  animation: eyeFloat 1.5s ease-in-out infinite;
+}
+
+body.eyes-lovestruck .logo-lockup .pupil {
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+body.eyes-lovestruck .logo-lockup .pupil::after {
+  content: '💕';
+  position: absolute;
+  font-size: 16px;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: floatHeart 2s ease-in-out infinite;
+}
+
+body.eyes-squash .logo-lockup .eye {
+  animation: eyeSquash 0.4s ease-in-out infinite;
+}
+
+body.eyes-squash .logo-lockup .pupil {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
 
 
 
@@ -1902,6 +2000,80 @@ body.is-scanning .logo-lockup .eye::after {
   }
   50% {
     transform: translate(-50%, -50%) translateX(1px);
+  }
+}
+
+@keyframes pupilShake {
+  0%, 100% {
+    transform: translate(-50%, -35%) translateX(0);
+  }
+  25% {
+    transform: translate(-50%, -35%) translateX(-2px);
+  }
+  75% {
+    transform: translate(-50%, -35%) translateX(2px);
+  }
+}
+
+@keyframes eyeDroop {
+  0%, 100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(0.3);
+  }
+}
+
+@keyframes pupilWander {
+  0%, 100% {
+    transform: translate(-50%, -50%);
+  }
+  25% {
+    transform: translate(-45%, -55%);
+  }
+  50% {
+    transform: translate(-55%, -50%);
+  }
+  75% {
+    transform: translate(-50%, -45%);
+  }
+}
+
+@keyframes eyeVibrate {
+  0%, 100% {
+    transform: scale(1.35) translate(0, 0);
+  }
+  25% {
+    transform: scale(1.35) translate(-1px, 1px);
+  }
+  50% {
+    transform: scale(1.35) translate(1px, -1px);
+  }
+  75% {
+    transform: scale(1.35) translate(-1px, -1px);
+  }
+}
+
+@keyframes eyeFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes floatHeart {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-15px);
   }
 }
 

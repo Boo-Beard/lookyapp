@@ -6146,7 +6146,7 @@ function setupEyeTracking() {
 }
 
 function setupEyeExpressions() {
-  const expressions = ['sad', 'excited', 'surprised', 'wide', 'heart', 'dizzy'];
+  const expressions = ['sad', 'excited', 'surprised', 'wide', 'heart', 'dizzy', 'angry', 'sleepy', 'wink', 'confused', 'shocked', 'lovestruck', 'squash'];
   let currentExpression = null;
   let expressionTimeout = null;
   let boredTimeout = null;
@@ -6244,7 +6244,7 @@ function setupEyeExpressions() {
 
   resetBoredTimer();
 
-  // Debug mode: Press number keys 1-6 to trigger expressions
+  // Debug mode: Press number keys to trigger expressions
   document.addEventListener('keydown', (e) => {
     const expressionMap = {
       '1': 'sad',
@@ -6253,6 +6253,13 @@ function setupEyeExpressions() {
       '4': 'wide',
       '5': 'heart',
       '6': 'dizzy',
+      '7': 'angry',
+      '8': 'sleepy',
+      '9': 'wink',
+      'q': 'confused',
+      'w': 'shocked',
+      'e': 'lovestruck',
+      'r': 'squash',
       '0': null // Press 0 to clear expression
     };
 
