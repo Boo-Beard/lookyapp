@@ -1751,17 +1751,20 @@ body.is-redacted .logo-lockup .pupil {
 }
 
 
-/* Scanning eye animation - just spinning pupils */
+/* Scanning eye animation - just spinning pupils centered */
 body.is-scanning .logo-lockup .pupil {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   animation: spinPupil 1s linear infinite;
 }
 
 @keyframes spinPupil {
   from {
-    transform: rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   to {
-    transform: rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
