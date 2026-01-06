@@ -3222,7 +3222,7 @@ a.holding-action[data-action="copy-contract"]:active i {
 
 .address-chip.has-label .chip-text {
   font-weight: 600;
-  color: var(--accent-2);
+  color: var(--text-primary);
 }
 
 .address-chip .chip-remove {

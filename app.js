@@ -2130,8 +2130,8 @@ function setWalletLabel(address, label) {
     if (!normalized) return;
     
     if (label && String(label).trim()) {
-      // Enforce 10 character limit
-      labels[normalized] = String(label).trim().slice(0, 10);
+      // Enforce 5 character limit
+      labels[normalized] = String(label).trim().slice(0, 5);
     } else {
       delete labels[normalized];
     }
@@ -7314,7 +7314,7 @@ function setupEventListeners() {
     if (!address) return;
     
     const currentLabel = getWalletLabel(address);
-    const newLabel = prompt('Enter wallet label (max 10 characters):', currentLabel);
+    const newLabel = prompt('Enter wallet label (max 5 characters):', currentLabel);
     
     if (newLabel !== null) {
       setWalletLabel(address, newLabel);
