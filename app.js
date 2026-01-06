@@ -3531,6 +3531,9 @@ function setScanningUi(active) {
     try {
       forceCollapseResultsSections();
     } catch {}
+    // Scanning animation handled by CSS (rotating pupils)
+  } else {
+    // Scanning animation cleared by CSS
   }
 }
 
@@ -6257,19 +6260,7 @@ function setupEyeExpressions() {
     }, BORED_DELAY_MS);
   }
 
-  // Reset bored timer on any interaction
-  document.addEventListener('mousemove', resetBoredTimer);
-  document.addEventListener('click', (e) => {
-    resetBoredTimer();
-    
-    // Random reaction on clicks
-    if (Math.random() > 0.6) {
-      const reactions = ['surprised', 'excited', 'wide'];
-      const reaction = reactions[Math.floor(Math.random() * reactions.length)];
-      setExpression(reaction, 800);
-    }
-  });
-  document.addEventListener('keydown', resetBoredTimer);
+  // No random animations - only scenario-based triggers
 
   // Sad eyes when hovering over delete profile button
   const deleteProfileBtn = $('deleteProfileBtn');
@@ -6310,7 +6301,7 @@ function setupEyeExpressions() {
     };
   }
 
-  resetBoredTimer();
+  // Bored timer removed - eyes only animate for specific scenarios
 
   // Debug mode: Press number keys to trigger expressions
   document.addEventListener('keydown', (e) => {
