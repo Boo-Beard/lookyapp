@@ -2311,14 +2311,16 @@ background: var(--panel);
   border: 2px solid var(--border);
   background: var(--panel);
   box-shadow: var(--shadow-sm);
-  color: var(--text-secondary);
+  color: var(--danger);
   cursor: pointer;
   flex: 0 0 auto;
   transition: all 0.2s ease;
 }
 
 .textarea-wrapper.address-entry .input-clear-btn:hover {
-  border-color: var(--primary);
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
