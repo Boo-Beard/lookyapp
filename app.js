@@ -6026,11 +6026,7 @@ function setupEyeTracking() {
     introActive = true;
   }
 
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    startIntroLookAround();
-  });
+  // Look-around animation on button clicks removed per user request
 
   document.addEventListener('mousemove', (e) => {
     cursorX = e.clientX;
