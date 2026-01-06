@@ -5722,6 +5722,8 @@ async function refreshPortfolioMetrics({ force } = {}) {
 }
 
 async function scanWallets({ queueOverride } = {}) {
+  console.log('👀\nWhat you looking at bro?\n👀');
+  
   if (state.scanning) return;
 
   if (!DISABLE_SCAN_COOLDOWN) {
