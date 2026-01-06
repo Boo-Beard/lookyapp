@@ -6569,7 +6569,8 @@ function setupEventListeners() {
         console.log('[REFRESH] Clearing cache for', wallets.length, 'wallets');
         wallets.forEach(w => {
           if (w?.address && w?.chain) {
-            clearScanCache(w.chain, w.address);
+            const key = scanCacheKey(w.chain, w.address);
+            scanCache.delete(key);
           }
         });
         
