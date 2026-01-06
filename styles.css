@@ -1501,62 +1501,20 @@ body.ui-results .input-section.is-minimized {
   justify-content: center;
   gap: 14px;
   margin: 0;
-  animation: eyesWiggle 2.8s ease-in-out infinite;
 }
 
 .logo-lockup .eye {
   width: 100px;
   height: 100px;
-  background-color:whitesmoke;
-  background-image:
-    linear-gradient(to bottom, rgba(11, 11, 16, 0.18) 0%, rgba(11, 11, 16, 0.05) 10%, transparent 38%),
-    radial-gradient(120px 32px at 50% 12px, rgba(11, 11, 16, 0.38) 0%, rgba(11, 11, 16, 0.0) 70%);
-  border: 2px solid var(--border);
-  border-radius: 72% 72% 44% 44% / 46% 46% 74% 74%;
+  background: var(--panel);
+  border: 3px solid var(--border);
+  border-radius: 50%;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
+  box-shadow: 0.2em 0.2em 0 var(--border);
 }
 
-/* Happy eyes */
-body.eye-expression-happy .logo-lockup .eye {
-  border-radius: 44% 44% 72% 72% / 74% 74% 46% 46%;
-}
 
-body.eye-expression-happy .logo-lockup .pupil {
-  transform: translate(-50%, -40%);
-}
-
-/* Angry eyes */
-body.eye-expression-angry .logo-lockup .eye {
-  border-radius: 72% 72% 50% 50% / 30% 30% 70% 70%;
-}
-
-body.eye-expression-angry .logo-lockup .pupil {
-  transform: translate(-50%, -35%);
-}
-
-/* Sad eyes */
-body.eye-expression-sad .logo-lockup .eye {
-  border-radius: 72% 72% 50% 50% / 50% 50% 60% 60%;
-}
-
-body.eye-expression-sad .logo-lockup .pupil {
-  transform: translate(-50%, -45%);
-}
-
-.logo-lockup .eye::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 50%;
-  transform: scaleY(0);
-  transform-origin: 50% 50%;
-  animation: blink 5.2s infinite;
-  pointer-events: none;
-}
 
 body.is-redacted .logo-lockup .eye::after {
   animation: none;
@@ -1591,50 +1549,19 @@ body.is-redacted .logo-lockup .pupil {
 
 .logo-lockup .pupil {
   position: absolute;
-  width: 46px;
-  height: 46px;
-  background:
-    radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.92) 0 10%, rgba(255, 255, 255, 0) 11% 100%),
-    radial-gradient(circle at 55% 58%, #2aa8ff 0%, #0b2a6d 55%, #05060a 100%);
+  width: 40px;
+  height: 40px;
+  background: var(--ink);
   border-radius: 50%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.1s linear;
-  box-shadow:
-    0 0 0 2px rgba(11, 11, 16, 0.92),
-    inset 0 0 0 6px rgba(255, 255, 255, 0.10),
-    inset 0 -10px 16px rgba(0, 0, 0, 0.18);
 }
 
-.logo-lockup .pupil::before {
-  content: '';
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 10px 14px 0 rgba(255, 255, 255, 0.35);
-}
-
-.logo-lockup .pupil::after {
-  content: '';
-  position: absolute;
-  inset: 9px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 58%, rgba(5, 6, 10, 0.98) 0%, rgba(5, 6, 10, 0.98) 40%, rgba(5, 6, 10, 0) 41%);
-  opacity: 0.95;
-}
 
 body.is-scanning .logo-lockup .eye {
-  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.12), 0 0 22px rgba(0, 194, 255, 0.20), var(--shadow-md);
-  animation: scanEyePulse 1.05s ease-in-out infinite;
-}
-
-body.is-scanning .logo-lockup .pupil {
-  animation: scanPupilJitter 0.35s steps(2, end) infinite;
+  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.3), 0.2em 0.2em 0 var(--border);
 }
 
 .logo-lockup .eye-loader {
