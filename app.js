@@ -5949,10 +5949,16 @@ async function scanWallets({ queueOverride } = {}) {
   
   // Force final render after enrichment completes to show mcap/volume/liquidity
   console.log('[SCAN] Forcing final render with enriched data');
+  console.log('[SCAN] Sample holding before render:', state.holdings[0]?.symbol, {
+    mcap: state.holdings[0]?.mcap,
+    volume24hUsd: state.holdings[0]?.volume24hUsd,
+    liquidityUsd: state.holdings[0]?.liquidityUsd
+  });
   holdingsDataVersion++;
   invalidateHoldingsTableCache();
   renderHoldingsTable();
   updateSummary();
+  console.log('[SCAN] Render complete');
   
   forceCollapseResultsSections();
 
