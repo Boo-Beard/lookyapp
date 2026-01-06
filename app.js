@@ -735,10 +735,9 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
     console.log('[ENRICH] No changes made, returning');
     return;
   }
-  console.log('[ENRICH] Invalidating cache and scheduling render');
-  holdingsDataVersion++;
-  invalidateHoldingsTableCache();
-  scheduleRenderHoldingsTable();
+  console.log('[ENRICH] Data enriched, render will be handled by caller');
+  // Don't render here - let the caller (scanWallets) handle the final render
+  // to avoid multiple renders with stale data
   try { savePortfolioSnapshot(); } catch {}
   console.log('[ENRICH] Function complete');
 }
