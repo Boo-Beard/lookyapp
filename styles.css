@@ -3148,7 +3148,7 @@ body.ui-results .table-header {
 #holdingsCard .table-controls .select,
 #holdingsCard .table-controls .checkbox-wrapper-11 {
   flex: 1 1 0;
-  min-width: 200px;
+  min-width: 165px;
   max-width: 300px;
 }
 

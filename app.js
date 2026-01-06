@@ -7293,41 +7293,26 @@ function setupEventListeners() {
       return;
     }
     
-    // Add logo overlay after a short delay
+    // Add emoji overlay after a short delay
     setTimeout(() => {
-      console.log('Attempting to add logo overlay');
       const canvas = shareQrCode.querySelector('canvas');
-      if (!canvas) {
-        console.error('Canvas not found in shareQrCode');
-        return;
-      }
-      console.log('Canvas found, dimensions:', canvas.width, 'x', canvas.height);
+      if (!canvas) return;
       
       const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        console.error('Could not get canvas context');
-        return;
-      }
+      if (!ctx) return;
       
-      const img = new Image();
-      img.onload = () => {
-        console.log('Logo image loaded');
-        const logoSize = 40;
-        const x = (canvas.width - logoSize) / 2;
-        const y = (canvas.height - logoSize) / 2;
-        
-        // White circle background
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, 26, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Draw logo
-        ctx.drawImage(img, x, y, logoSize, logoSize);
-        console.log('Logo drawn successfully');
-      };
-      img.onerror = () => console.error('Failed to load logo image');
-      img.src = 'peeek-icon.png';
+      // White circle background
+      const circleRadius = 35;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, circleRadius, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      // Draw 👀 emoji
+      ctx.font = '60px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('👀', canvas.width / 2, canvas.height / 2);
     }, 200);
   }
 
