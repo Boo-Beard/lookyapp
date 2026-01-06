@@ -304,7 +304,7 @@ const STORAGE_KEY_SHOW_HIDDEN_HOLDINGS = 'peeek:showHiddenHoldingsV1';
 
 const STORAGE_KEY_LAST_SCAN_AT = 'peeek:lastScanAt';
 const SCAN_COOLDOWN_MS = 60 * 1000;
-const DISABLE_SCAN_COOLDOWN = false;
+const DISABLE_SCAN_COOLDOWN = true;
 
 const HOLDINGS_PAGE_SIZE = 5;
 
@@ -6573,14 +6573,8 @@ function setupEventListeners() {
     let portfolioRefreshCooldownTimer = null;
     let portfolioRefreshCooldownTick = null;
     portfolioRefreshBtn.addEventListener('click', async () => {
-      if (portfolioRefreshCooldownTimer || portfolioRefreshCooldownTick) return;
       try {
         portfolioRefreshBtn.disabled = true;
-        try {
-          portfolioRefreshBtn.classList.add('is-cooldown');
-          portfolioRefreshBtn.style.setProperty('--cooldown-pct', '0');
-          portfolioRefreshBtn.setAttribute('aria-busy', 'true');
-        } catch {}
         
         // Clear cache for all wallets before refresh to force fresh data
         const wallets = Array.isArray(state.wallets) ? state.wallets : [];
@@ -6595,41 +6589,8 @@ function setupEventListeners() {
           .filter(w => w.wallet && (w.chain === 'solana' || w.chain === 'evm'));
         await scanWallets({ queueOverride });
         hapticFeedback('light');
-
-        const endsAt = Date.now() + 60_000;
-        const tick = () => {
-          const remaining = endsAt - Date.now();
-          if (remaining > 0) {
-            const pct = Math.max(0, Math.min(1, 1 - (remaining / 60_000)));
-            try { portfolioRefreshBtn.style.setProperty('--cooldown-pct', String(pct)); } catch {}
-            try {
-              const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
-              const baseLabel = labelEl ? String(labelEl.textContent || '').replace(/\s*\(\d+:\d+\)\s*$/, '').trim() : '';
-              if (labelEl) labelEl.textContent = `${baseLabel || 'Refresh'} (${formatCooldownMs(remaining)})`;
-            } catch {}
-            return;
-          }
-          try {
-            if (portfolioRefreshCooldownTick) window.clearInterval(portfolioRefreshCooldownTick);
-          } catch {}
-          portfolioRefreshCooldownTick = null;
-          try {
-            portfolioRefreshBtn.disabled = false;
-            portfolioRefreshBtn.classList.remove('is-cooldown');
-            portfolioRefreshBtn.style.removeProperty('--cooldown-pct');
-            portfolioRefreshBtn.removeAttribute('aria-busy');
-            try {
-              const labelEl = portfolioRefreshBtn.querySelector('span:not(.btn-icon)') || portfolioRefreshBtn.querySelector('span:last-child');
-              if (labelEl) labelEl.textContent = 'Refresh';
-            } catch {}
-          } catch {}
-        };
-
-        tick();
-        portfolioRefreshCooldownTick = window.setInterval(tick, 1000);
-        portfolioRefreshCooldownTimer = window.setTimeout(() => {
-          portfolioRefreshCooldownTimer = null;
-        }, 60_000);
+        
+        portfolioRefreshBtn.disabled = false;
       } catch {
         try { hapticFeedback('error'); } catch {}
         try {
