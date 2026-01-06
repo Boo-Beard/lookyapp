@@ -4116,7 +4116,7 @@ body.holdings-cards .holding-card-header-right {
   
   body.holdings-cards .holding-card-header .holding-card-actions {
     flex-shrink: 0;
-    gap: 0px;
+    gap: 20px;
     flex: 1 1 100%;
     justify-content: flex-start;
   }
@@ -4130,7 +4130,7 @@ body.holdings-cards .holding-card-header-right {
   
   body.holdings-cards .holding-card-header-right {
     width: 100%;
-    justify-content: space-between;
+    justify-content: center;
     flex: 1 1;
   }
 }
