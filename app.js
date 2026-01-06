@@ -4863,8 +4863,6 @@ function getSortValue(holding, sortBy) {
 }
 
 function renderHoldingsTable() {
-  console.trace('[RENDER] renderHoldingsTable called from:');
-  
   const tbody = $('tableBody');
   if (!tbody) return;
 
@@ -5094,6 +5092,8 @@ function renderHoldingsTable() {
     holdingsTableCache.useCardRows === useCardRows &&
     holdingsTableCache.page === page &&
     typeof holdingsTableCache.htmlBase === 'string';
+  
+  console.log('[RENDER] Cache check - canReuseHtmlBase:', canReuseHtmlBase, 'cacheKey:', cacheKey, 'cached key:', holdingsTableCache.key);
 
   const pageIndicator = $('pageIndicator');
   if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
