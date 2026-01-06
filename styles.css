@@ -1534,7 +1534,7 @@ body.eyes-sad .logo-lockup .pupil {
 
 body.eyes-excited .logo-lockup .eye {
   border-radius: 48% 52% 50% 50% / 50% 50% 52% 48%;
-  animation: eyeBounce 0.4s ease-in-out infinite;
+  animation: eyeBounce 0.4s ease-in-out infinite, eyeSquash 0.4s ease-in-out infinite;
 }
 
 body.eyes-excited .logo-lockup .pupil {
@@ -1551,15 +1551,6 @@ body.eyes-surprised .logo-lockup .pupil {
   transform: translate(-50%, -50%) scale(0.6);
 }
 
-body.eyes-squint .logo-lockup .eye {
-  border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
-  transform: scaleY(0.25) scaleX(1.1);
-}
-
-body.eyes-squint .logo-lockup .pupil {
-  opacity: 0.3;
-  transform: translate(-50%, -50%) scaleY(0.4);
-}
 
 body.eyes-wide .logo-lockup .eye {
   border-radius: 45% 55% 50% 50% / 50% 50% 55% 45%;
@@ -1871,6 +1862,15 @@ body.is-scanning .logo-lockup .eye::after {
   }
   to {
     transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes eyeSquash {
+  0%, 100% {
+    transform: scaleX(1) scaleY(1);
+  }
+  50% {
+    transform: scaleX(1.08) scaleY(0.95);
   }
 }
 
