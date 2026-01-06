@@ -5657,11 +5657,9 @@ async function recomputeAggregatesAndRender() {
   try { savePortfolioSnapshot(); } catch {}
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
-
-  // Enrich with overview metadata (marketcap, volume, liquidity) immediately
-  try {
-    await enrichHoldingsWithOverviewMeta(state.holdings, { signal: state.scanAbortController?.signal });
-  } catch {}
+  
+  // Note: enrichHoldingsWithOverviewMeta is now called explicitly in scanWallets after recompute
+  // to ensure it completes before scan finishes
 }
 
 let portfolioRefreshInFlight = false;
