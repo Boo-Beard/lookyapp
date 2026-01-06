@@ -2968,6 +2968,9 @@ a.holding-action[data-action="copy-contract"]:active i {
   outline: none;
   text-decoration: none;
   box-shadow: 0.2em 0.2em 0 var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn .btn-icon i {

@@ -5386,7 +5386,7 @@ function renderHoldingsTable() {
                     const v = Number(holding.value || 0) || 0;
                     const pct = (total > 0) ? ((v / total) * 100) : NaN;
                     const text = Number.isFinite(pct) ? `${pct.toFixed(2)}%` : '—';
-                    return `<div class="holding-metric"><div class="holding-metric-label">Allocation</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(text)}</strong></div></div>`;
+                    return `<div class="holding-metric"><div class="holding-metric-label">Portfolio Weight</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${escapeHtml(text)}</strong></div></div>`;
                   })()}
                   ${(() => {
                     const key = holdingWhatIfKey(holding);
