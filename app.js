@@ -5892,7 +5892,8 @@ async function scanWallets({ queueOverride } = {}) {
         setScanCache(chain, wallet, { holdings, dayChange });
         upsertScanProgressItem(wallet, chain, index, totalWallets, 'done', 'done');
         markComplete();
-        scheduleRecomputeAggregatesAndRender();
+        // Don't schedule recompute during scan - we'll do explicit recompute after scan completes
+        // scheduleRecomputeAggregatesAndRender();
       } catch (error) {
         if (!signal.aborted) {
           state.lastScanFailedQueue.push({ wallet, chain, index });
