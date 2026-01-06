@@ -634,7 +634,7 @@ function parseOverviewMeta(overview) {
   return { marketCapUsd, volume24hUsd, liquidityUsd };
 }
 
-function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
+async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
   if (!Array.isArray(holdings) || holdings.length === 0) return;
 
   const candidates = holdings
@@ -706,16 +706,14 @@ function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
     }
   };
 
-  Promise.allSettled(Array.from({ length: Math.min(concurrency, candidates.length) }, () => worker()))
-    .then(() => {
-      if (signal?.aborted) return;
-      if (!changed) return;
-      holdingsDataVersion++;
-      invalidateHoldingsTableCache();
-      scheduleRenderHoldingsTable();
-      try { savePortfolioSnapshot(); } catch {}
-    })
-    .catch(() => {});
+  await Promise.allSettled(Array.from({ length: Math.min(concurrency, candidates.length) }, () => worker()));
+  
+  if (signal?.aborted) return;
+  if (!changed) return;
+  holdingsDataVersion++;
+  invalidateHoldingsTableCache();
+  scheduleRenderHoldingsTable();
+  try { savePortfolioSnapshot(); } catch {}
 }
 
 function getWalletPnlCache(chain, wallet) {
@@ -5485,7 +5483,7 @@ function renderHoldingsTable() {
   try { syncWatchlistStars(); } catch {}
 }
 
-function recomputeAggregatesAndRender() {
+async function recomputeAggregatesAndRender() {
   const holdingsMap = new Map();
   const wallets = [];
   let total = 0;
@@ -5652,8 +5650,9 @@ function recomputeAggregatesAndRender() {
 
   enrichHoldingsWithMcap(state.holdings, { signal: state.scanAbortController?.signal });
 
+  // Enrich with overview metadata (marketcap, volume, liquidity) immediately
   try {
-    enrichHoldingsWithOverviewMeta(state.holdings, { signal: state.scanAbortController?.signal });
+    await enrichHoldingsWithOverviewMeta(state.holdings, { signal: state.scanAbortController?.signal });
   } catch {}
 }
 
