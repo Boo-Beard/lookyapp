@@ -5952,6 +5952,9 @@ async function scanWallets({ queueOverride } = {}) {
   // Increment version again to force cache invalidation and re-filter from enriched state.holdings
   holdingsDataVersion++;
   invalidateHoldingsTableCache();
+  // Clear hasRendered flag to force full HTML regeneration with enriched data
+  const tbody = document.getElementById('tableBody');
+  if (tbody) tbody.dataset.hasRendered = '';
   console.log('[SCAN] holdingsDataVersion now:', holdingsDataVersion);
   renderHoldingsTable();
   updateSummary();
