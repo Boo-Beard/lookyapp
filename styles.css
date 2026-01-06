@@ -1505,8 +1505,8 @@ body.ui-results .input-section.is-minimized {
 }
 
 .logo-lockup .eye {
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
   background: white;
   border: 3px solid var(--border);
   border-radius: 50%;
@@ -1518,7 +1518,7 @@ body.ui-results .input-section.is-minimized {
 }
 
 .logo-lockup .eye:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0.3em 0.3em 0 var(--border);
 }
 
