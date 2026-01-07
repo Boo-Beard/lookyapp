@@ -240,15 +240,16 @@ function initTokenSwipeToHide() {
 
 // Initialize all mobile gestures
 function initMobileGestures() {
+  // Gestures disabled per user request
   // Only initialize on mobile devices
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-    || window.matchMedia('(max-width: 768px)').matches;
+  // const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+  //   || window.matchMedia('(max-width: 768px)').matches;
   
-  if (!isMobile) return;
+  // if (!isMobile) return;
 
-  initPullToRefresh();
-  initTabSwipeGestures();
-  initTokenSwipeToHide();
+  // initPullToRefresh();
+  // initTabSwipeGestures();
+  // initTokenSwipeToHide();
 }
 
 // Auto-initialize when DOM is ready

@@ -1,0 +1,276 @@
+/* Cache & Offline Mode Styles */
+
+/* Update notification */
+.update-notification {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 16px 24px;
+  transition: top 0.3s ease;
+}
+
+.update-notification.show {
+  top: 20px;
+}
+
+.update-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.update-notification-content .btn {
+  white-space: nowrap;
+}
+
+/* Connection status indicator */
+.connection-status {
+  position: fixed;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  transition: bottom 0.3s ease;
+}
+
+.connection-status.show {
+  bottom: 20px;
+}
+
+.connection-status-online {
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.connection-status-offline {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.connection-status i {
+  font-size: 16px;
+}
+
+/* Last updated display */
+#lastUpdatedDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: opacity 0.2s ease;
+}
+
+#lastUpdatedDisplay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#lastUpdatedDisplay::before {
+  content: '•';
+  color: var(--success);
+  font-size: 14px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Offline indicator in header */
+.header-offline-indicator {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-full);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+body.is-offline .header-offline-indicator {
+  display: flex;
+}
+
+/* Cache status in footer */
+.cache-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.cache-status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cache-status-item i {
+  font-size: 12px;
+}
+
+.cache-status-item.active {
+  color: var(--success);
+}
+
+.cache-status-item.inactive {
+  color: var(--text-tertiary);
+}
+
+/* Loading state for cached content */
+.loading-cached {
+  position: relative;
+}
+
+.loading-cached::after {
+  content: 'Cached';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 193, 7, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Stale data indicator */
+.data-stale {
+  opacity: 0.7;
+  position: relative;
+}
+
+.data-stale::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 193, 7, 0.05) 10px,
+    rgba(255, 193, 7, 0.05) 20px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .update-notification {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    top: -100px;
+  }
+
+  .update-notification.show {
+    top: 12px;
+  }
+
+  .update-notification-content {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .update-notification-content .btn {
+    width: 100%;
+  }
+
+  .connection-status {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    justify-content: center;
+  }
+
+  #lastUpdatedDisplay {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .update-notification,
+[data-theme="dark"] .connection-status {
+  background: var(--panel);
+}
+
+[data-theme="dark"] .loading-cached::after {
+  background: rgba(255, 193, 7, 0.15);
+  border-color: rgba(255, 193, 7, 0.4);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .update-notification,
+  .connection-status,
+  #lastUpdatedDisplay {
+    transition: none !important;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+  }
+}
+
+/* Print styles - hide cache indicators */
+@media print {
+  .update-notification,
+  .connection-status,
+  #lastUpdatedDisplay,
+  .header-offline-indicator,
+  .cache-status {
+    display: none !important;
+  }
+}

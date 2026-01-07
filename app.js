@@ -2032,21 +2032,31 @@ const MCAP_CONCURRENCY = 4;
 
 let statusHideTimer = null;
 function hapticFeedback(type = 'light') {
-  if (!navigator.vibrate) return;
+  // Check if Vibration API is supported
+  if (!('vibrate' in navigator)) {
+    console.log('[Haptic] Vibration API not supported');
+    return;
+  }
   
   const patterns = {
-    light: [10],
-    medium: [20],
-    heavy: [30],
+    light: 10,
+    medium: 20,
+    heavy: 30,
     success: [10, 50, 10],
     error: [20, 100, 20],
     warning: [15, 80, 15]
   };
   
   const pattern = patterns[type] || patterns.light;
+  
   try {
-    navigator.vibrate(pattern);
-  } catch {}
+    const result = navigator.vibrate(pattern);
+    if (!result) {
+      console.log('[Haptic] Vibration request denied or failed');
+    }
+  } catch (err) {
+    console.log('[Haptic] Vibration error:', err);
+  }
 }
 
 function getWalletLabels() {
