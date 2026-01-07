@@ -3582,14 +3582,17 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   else el.insertAdjacentHTML('beforeend', rowHtml);
 }
 
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 800) {
-  if (!element || !state.scanning) {
-    // If not scanning, just set the value directly
-    if (element) element.textContent = formatter(targetValue);
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 600) {
+  if (!element) return;
+
+  const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
+  
+  // If values are the same or very close, just set directly
+  if (Math.abs(targetValue - startValue) < 0.01) {
+    element.textContent = formatter(targetValue);
     return;
   }
 
-  const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
   const startTime = performance.now();
 
   const animate = (currentTime) => {
@@ -3602,7 +3605,7 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     
     element.textContent = formatter(currentValue);
     
-    if (progress < 1 && state.scanning) {
+    if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
       element.textContent = formatter(targetValue);
