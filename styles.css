@@ -2451,7 +2451,7 @@ background: var(--panel);
  }
 
 #searchResults {
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 .watchlist-list {
