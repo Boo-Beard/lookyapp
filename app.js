@@ -647,15 +647,16 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       const needsMcap = !(Number(h.mcap || 0) > 0);
       return needsVol || needsLiq || needsMcap;
     })
-    .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0));
-    // Removed .slice(0, 30) to fetch all holdings instead of limiting to 30
+    .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0))
+    .slice(0, 50); // Limit to top 50 holdings for faster initial load
 
   if (!candidates.length) return;
 
   let idx = 0;
   let changed = false;
+  let updateCounter = 0;
 
-  const concurrency = 12; // Increased from 4 to 12 for faster parallel fetching
+  const concurrency = 20; // Increased to 20 for maximum speed
   const worker = async () => {
     while (idx < candidates.length) {
       const h = candidates[idx++];
@@ -666,20 +667,22 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       const chain = String(h.chain || '').trim();
       if (!addr || !chain) continue;
 
-      // Always fetch fresh data from API, don't use cache
-      let overview;
-      try {
-        overview = await fetchTokenOverview(addr, chain, { signal });
-        if (overview) setTokenOverviewCache(addr, chain, overview);
-      } catch {
-        setTokenOverviewCache(addr, chain, null);
-        continue;
+      // Try cache first for speed, then fetch if needed
+      let overview = getTokenOverviewCache(addr, chain);
+      if (!overview) {
+        try {
+          overview = await fetchTokenOverview(addr, chain, { signal });
+          if (overview) setTokenOverviewCache(addr, chain, overview);
+        } catch {
+          setTokenOverviewCache(addr, chain, null);
+          continue;
+        }
       }
 
       if (!overview) continue;
       const meta = parseOverviewMeta(overview);
 
-      // Always update with fresh data from API
+      // Update with data from API or cache
       if (Number(meta.marketCapUsd) > 0) {
         h.mcap = Number(meta.marketCapUsd) || 0;
         changed = true;
@@ -691,6 +694,15 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       if (Number(meta.liquidityUsd) > 0) {
         h.liquidityUsd = Number(meta.liquidityUsd) || 0;
         changed = true;
+      }
+      
+      // Progressive rendering: update UI every 5 tokens
+      updateCounter++;
+      if (updateCounter % 5 === 0) {
+        try {
+          invalidateHoldingsTableCache();
+          scheduleRenderHoldingsTable();
+        } catch {}
       }
     }
   };
@@ -5731,8 +5743,7 @@ async function recomputeAggregatesAndRender() {
   updateSummary();
   renderAllocationAndRisk();
   renderHoldingsByWallet();
-  // Don't render holdings table here - wait for enrichment to complete in scanWallets
-  // to avoid showing stale mcap/volume/liquidity values
+  renderHoldingsTable(); // Show table immediately, enrichment will update mcap/volume/liquidity
 
   try { savePortfolioSnapshot(); } catch {}
 
