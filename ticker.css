@@ -45,6 +45,11 @@
   width: 18px;
   height: 18px;
   object-fit: contain;
+  filter: brightness(0) saturate(100%);
+}
+
+[data-theme="dark"] .ticker-icon-img {
+  filter: brightness(0) saturate(100%) invert(1);
 }
 
 .ticker-symbol {
