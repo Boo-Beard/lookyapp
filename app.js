@@ -3531,6 +3531,16 @@ let shouldAnimateSummary = false;
 
 function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 600) {
   if (!element) return;
+  
+  // Use new NumberAnimator if available for better animations
+  if (window.numberAnimator && shouldAnimateSummary) {
+    window.numberAnimator.animateNumber(element, targetValue, {
+      duration,
+      easing: 'easeOutQuart',
+      formatter
+    });
+    return;
+  }
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
   
@@ -4932,6 +4942,11 @@ function renderHoldingsTable() {
 
   const showSkeleton = state.scanning && state.walletHoldings.size === 0;
   if (showSkeleton) {
+    // Use new skeleton loader if available
+    if (window.SkeletonLoader) {
+      window.SkeletonLoader.show(tbody, 'holdings', { count: 6 });
+      return;
+    }
     const rows = Array.from({ length: 6 }).map(() => {
       if (!useCardRows) {
         return `
@@ -7857,6 +7872,19 @@ function initialize() {
   setupEyeExpressions();
   setupEventListeners();
   setupFooterRotator();
+  
+  // Add entrance animations to UI elements
+  try {
+    if (window.MicroInteractions) {
+      // Animate summary cards on load
+      setTimeout(() => {
+        const summaryCards = document.querySelectorAll('.summary-card');
+        if (summaryCards.length > 0) {
+          window.MicroInteractions.stagger(Array.from(summaryCards), 'slideIn', 100);
+        }
+      }, 300);
+    }
+  } catch {}
 
   const appliedFromUrl = applyAddressesFromUrlIfPresent();
 

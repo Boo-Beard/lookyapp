@@ -71,14 +71,15 @@
 .ripple {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(59, 130, 246, 0.4);
   transform: scale(0);
   animation: ripple-animation 0.6s ease-out;
   pointer-events: none;
+  z-index: 1;
 }
 
 [data-theme="dark"] .ripple {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(59, 130, 246, 0.3);
 }
 
 @keyframes ripple-animation {
