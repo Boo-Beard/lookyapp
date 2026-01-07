@@ -647,15 +647,15 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
       const needsMcap = !(Number(h.mcap || 0) > 0);
       return needsVol || needsLiq || needsMcap;
     })
-    .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0))
-    .slice(0, 30);
+    .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0));
+    // Removed .slice(0, 30) to fetch all holdings instead of limiting to 30
 
   if (!candidates.length) return;
 
   let idx = 0;
   let changed = false;
 
-  const concurrency = 4;
+  const concurrency = 12; // Increased from 4 to 12 for faster parallel fetching
   const worker = async () => {
     while (idx < candidates.length) {
       const h = candidates[idx++];
@@ -5972,7 +5972,7 @@ async function scanWallets({ queueOverride } = {}) {
   renderHoldingsTable();
   updateSummary();
   
-  forceCollapseResultsSections();
+  // Don't force collapse sections - preserve user's open/close state
 
   updateScanCooldownUi();
 
