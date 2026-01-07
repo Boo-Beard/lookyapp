@@ -1442,7 +1442,7 @@ body.ui-results .input-section.is-minimized {
  .mode-toggle-wrap .watchlist-count {
   position: absolute;
     top: -20px;
-    left: -10px;
+    left: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
