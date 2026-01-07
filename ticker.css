@@ -41,6 +41,12 @@
   color: var(--text-primary);
 }
 
+.ticker-icon-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
 .ticker-symbol {
   font-size: 12px;
   font-weight: 700;
