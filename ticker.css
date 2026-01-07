@@ -10,11 +10,11 @@
 }
 
 .ticker-track {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+    display: flex;
+    /* gap: 8px; */
+    justify-content: center;
+    align-items: center;
+    /* flex-wrap: wrap;*/
 }
 
 .ticker-item {
