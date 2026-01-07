@@ -126,11 +126,15 @@
 }
 
 .summary-card.has-tooltip .sub-hover {
-  position: absolute;
-  left: 0;
-  right: 0;
-  opacity: 0;
-  pointer-events: none;
+    font-size: 12px;
+    /* text-align: center; */
+    /* height: 26px; */
+    color: var(--text-secondary);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* white-space: nowrap; */
+    width: 100%;
 }
 
 .summary-card.has-tooltip:hover .sub-default {
