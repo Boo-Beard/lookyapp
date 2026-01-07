@@ -5,12 +5,17 @@
 
 .summary-card.has-previous .label-current,
 .summary-card.has-previous .label-previous {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  line-height: inherit;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .summary-card.has-previous .label-previous {
   position: absolute;
   left: 0;
+  top: 0;
   opacity: 0;
   transform: translateY(-5px);
 }
@@ -31,12 +36,17 @@
 
 .summary-card.has-previous .value-current,
 .summary-card.has-previous .value-previous {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  line-height: inherit;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .summary-card.has-previous .value-previous {
   position: absolute;
   left: 0;
+  top: 0;
   opacity: 0;
   transform: translateY(-5px);
 }
@@ -57,12 +67,17 @@
 
 .summary-card.has-previous .sub-current,
 .summary-card.has-previous .sub-previous {
+  font-size: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  line-height: inherit;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .summary-card.has-previous .sub-previous {
   position: absolute;
   left: 0;
+  top: 0;
   opacity: 0;
   transform: translateY(-5px);
 }
