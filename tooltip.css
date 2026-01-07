@@ -122,19 +122,37 @@
   color: var(--text-secondary);
 }
 
-/* Previous hint icon */
-.previous-hint {
-  font-size: 9px;
-  margin-left: 6px;
-  color: var(--text-secondary);
-  opacity: 0.6;
-  transition: opacity 0.2s ease, color 0.2s ease;
-  vertical-align: middle;
+/* Icon swap on hover */
+.summary-card.has-previous .summary-icon {
+  position: relative;
 }
 
-.summary-card.has-previous:hover .previous-hint {
+.summary-card.has-previous .summary-icon .icon-current,
+.summary-card.has-previous .summary-icon .icon-previous {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.summary-card.has-previous .summary-icon .icon-previous {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.summary-card.has-previous:hover .summary-icon .icon-current {
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8);
+}
+
+.summary-card.has-previous:hover .summary-icon .icon-previous {
   opacity: 1;
-  color: var(--primary);
+  visibility: visible;
+  transform: scale(1);
+  pointer-events: auto;
 }
 
 .summary-label {
