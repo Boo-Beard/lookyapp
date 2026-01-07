@@ -1,12 +1,12 @@
 /* Price Ticker Styles */
 .price-ticker {
-  width: 100%;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 8px 0;
-  margin-bottom: 24px;
-  position: relative;
+    /* width: 100%; */
+    background: #00000000;
+    /* border: 2px solid var(--border); */
+    /* border-radius: var(--radius-lg); */
+    /* padding: 8px 0; */
+    margin-top: 25px;
+    position: relative;
 }
 
 .ticker-track {
