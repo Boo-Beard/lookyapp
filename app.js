@@ -3582,6 +3582,8 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   else el.insertAdjacentHTML('beforeend', rowHtml);
 }
 
+const animationTimestamps = new Map();
+
 function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 600) {
   if (!element) return;
 
@@ -3592,6 +3594,19 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     element.textContent = formatter(targetValue);
     return;
   }
+
+  // Prevent duplicate animations within 2 seconds
+  const elementId = element.id || element;
+  const lastAnimTime = animationTimestamps.get(elementId) || 0;
+  const now = Date.now();
+  
+  if (now - lastAnimTime < 2000) {
+    // Too soon, just update directly without animation
+    element.textContent = formatter(targetValue);
+    return;
+  }
+  
+  animationTimestamps.set(elementId, now);
 
   const startTime = performance.now();
 
