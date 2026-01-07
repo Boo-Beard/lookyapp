@@ -1,159 +1,64 @@
-/* Summary card with previous value swap */
-.summary-card.has-previous .summary-label {
+/* Summary card tooltip styles */
+.summary-card.has-tooltip {
   position: relative;
-  min-height: 1em;
 }
 
-.summary-card.has-previous .label-current,
-.summary-card.has-previous .label-previous {
-  font-size: inherit;
-  font-weight: inherit;
-  font-family: inherit;
-  line-height: inherit;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  display: inline-block;
-}
-
-.summary-card.has-previous .label-previous {
+.summary-tooltip {
   position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-  pointer-events: none;
-}
-
-.summary-card.has-previous:hover .label-current {
-  opacity: 0;
-  transform: translateY(5px);
-}
-
-.summary-card.has-previous:hover .label-previous {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.summary-card.has-previous .summary-value-row {
-  position: relative;
-  min-height: 1em;
-}
-
-.summary-card.has-previous .value-current,
-.summary-card.has-previous .value-previous {
-  font-size: inherit;
-  font-weight: inherit;
-  font-family: inherit;
-  line-height: inherit;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  display: block;
-}
-
-.summary-card.has-previous .value-previous {
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-  pointer-events: none;
-}
-
-.summary-card.has-previous:hover .value-current {
-  opacity: 0;
-  transform: translateY(5px);
-}
-
-.summary-card.has-previous:hover .value-previous {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.summary-card.has-previous .summary-sub-row {
-  position: relative;
-  min-height: 1em;
-}
-
-.summary-card.has-previous .sub-current,
-.summary-card.has-previous .sub-previous {
-  font-size: inherit;
-  font-weight: inherit;
-  font-family: inherit;
-  line-height: inherit;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  display: block;
-}
-
-.summary-card.has-previous .sub-previous {
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-  pointer-events: none;
-}
-
-.summary-card.has-previous:hover .sub-current {
-  opacity: 0;
-  transform: translateY(5px);
-}
-
-.summary-card.has-previous:hover .sub-previous {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.sub-previous.positive {
-  color: var(--pnl-positive);
-}
-
-.sub-previous.negative {
-  color: var(--pnl-negative);
-}
-
-.sub-previous.neutral {
-  color: var(--text-secondary);
-}
-
-/* Icon swap on hover */
-.summary-card.has-previous .summary-icon .icon-current,
-.summary-card.has-previous .summary-icon .icon-previous {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  position: absolute;
-  top: 50%;
+  bottom: 100%;
   left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.summary-card.has-previous .summary-icon .icon-previous {
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
   opacity: 0;
   visibility: hidden;
-  transform: translate(-50%, -50%) scale(0.8);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
   pointer-events: none;
+  z-index: 1000;
+  min-width: 200px;
+  white-space: nowrap;
 }
 
-.summary-card.has-previous:hover .summary-icon .icon-current {
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(-50%, -50%) scale(0.8);
+.summary-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--border);
 }
 
-.summary-card.has-previous:hover .summary-icon .icon-previous {
+.summary-card.has-tooltip:hover .summary-tooltip[data-has-data="true"] {
   opacity: 1;
   visibility: visible;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
+  transform: translateX(-50%) translateY(-12px);
 }
 
-.summary-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.tooltip-row {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.tooltip-row + .tooltip-row {
+  margin-top: 4px;
+}
+
+.tooltip-row.positive {
+  color: var(--pnl-positive);
+  font-weight: 600;
+}
+
+.tooltip-row.negative {
+  color: var(--pnl-negative);
+  font-weight: 600;
+}
+
+.tooltip-row.neutral {
+  color: var(--text-secondary);
 }

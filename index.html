@@ -241,25 +241,16 @@
 
         
         <div class="summary-grid" id="summaryGrid">
-          <div class="summary-card total has-previous" id="totalValueCard">
-            <div class="summary-icon">
-              <i class="fa-solid fa-sack-dollar icon-current" aria-hidden="true"></i>
-              <i class="fa-solid fa-clock-rotate-left icon-previous" aria-hidden="true"></i>
-            </div>
+          <div class="summary-card total has-tooltip">
+            <div class="summary-icon"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></div>
             <div class="summary-content">
-              <div class="summary-label">
-                <span class="label-current">Total Value</span>
-                <span class="label-previous">Previous Value</span>
-              </div>
+              <div class="summary-label">Total Value</div>
               <div class="summary-value-row">
-                <div id="totalValue" class="summary-value value-current redacted-field" tabindex="0">$0.00</div>
-                <div id="previousValue" class="summary-value value-previous redacted-field" tabindex="0">$0.00</div>
+                <div id="totalValue" class="summary-value redacted-field" tabindex="0">$0.00</div>
               </div>
-              <div class="summary-sub-row">
-                <div id="walletCount" class="summary-sub sub-current redacted-field" tabindex="0">0 wallets</div>
-                <div id="previousChange" class="summary-sub sub-previous redacted-field" tabindex="0">↑ $0.00 (0.00%)</div>
-              </div>
+              <div id="walletCount" class="summary-sub redacted-field" tabindex="0">0 wallets</div>
             </div>
+            <div class="summary-tooltip" id="totalValueTooltip"></div>
           </div>
 
           <div class="summary-card total">

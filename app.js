@@ -16,7 +16,6 @@ function shouldIgnoreGlobalError(message, source) {
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 const STORAGE_KEY_WALLET_LABELS = 'peeek:walletLabelsV1';
-const STORAGE_KEY_PREVIOUS_VALUE = 'peeek:previousTotalValue';
 
 const WHATIF_PRESETS = [2, 5, 8, 10, 100];
 const WHATIF_AUTO_RESET_MS = 3_000;
@@ -134,11 +133,6 @@ function savePortfolioSnapshot() {
       },
     };
     localStorage.setItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT, JSON.stringify(payload));
-    
-    // Store previous value separately for tooltip persistence
-    if (state.previousTotalValue && state.previousTotalValue > 0) {
-      localStorage.setItem(STORAGE_KEY_PREVIOUS_VALUE, String(state.previousTotalValue));
-    }
   } catch {}
 }
 
@@ -192,18 +186,6 @@ function restorePortfolioSnapshot() {
     const wd = Array.isArray(snap.walletDayChangeEntries) ? snap.walletDayChangeEntries : [];
     const totals = snap.totals || {};
     state.totalValue = Number(totals.totalValue || 0) || 0;
-    
-    // Load previous value from separate storage for tooltip
-    try {
-      const savedPrevious = localStorage.getItem(STORAGE_KEY_PREVIOUS_VALUE);
-      if (savedPrevious) {
-        state.previousTotalValue = Number(savedPrevious) || 0;
-      } else {
-        state.previousTotalValue = state.totalValue;
-      }
-    } catch {
-      state.previousTotalValue = state.totalValue;
-    }
     state.totalSolValue = Number(totals.totalSolValue || 0) || 0;
     state.totalEvmValue = Number(totals.totalEvmValue || 0) || 0;
     state.totalChangeSolUsd = Number(totals.totalChangeSolUsd || 0) || 0;
@@ -3658,29 +3640,24 @@ function updateSummary() {
   if (totalValueEl) {
     // Store previous value before updating
     const previousValue = state.previousTotalValue || 0;
-    const currentValue = state.totalValue;
+    state.previousTotalValue = state.totalValue;
     
-    animateNumber(totalValueEl, currentValue, formatCurrency);
+    animateNumber(totalValueEl, state.totalValue, formatCurrency);
     
-    // Update previous value display
-    const previousValueEl = $('previousValue');
-    const previousChangeEl = $('previousChange');
-    const cardEl = $('totalValueCard');
-    
-    if (previousValueEl && previousChangeEl && cardEl && previousValue > 0 && Math.abs(currentValue - previousValue) > 0.01) {
-      const change = currentValue - previousValue;
+    // Update previous value tooltip
+    const tooltipEl = $('totalValueTooltip');
+    if (tooltipEl && previousValue > 0) {
+      const change = state.totalValue - previousValue;
       const changePct = previousValue > 0 ? (change / previousValue) * 100 : 0;
       const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
       const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
       
-      previousValueEl.textContent = formatCurrency(previousValue);
-      previousChangeEl.textContent = `${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)`;
-      previousChangeEl.className = `previous-change ${changeClass}`;
-      cardEl.dataset.hasData = 'true';
+      tooltipEl.innerHTML = `
+        <div class="tooltip-row">Previous: ${formatCurrency(previousValue)}</div>
+        <div class="tooltip-row ${changeClass}">${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)</div>
+      `;
+      tooltipEl.dataset.hasData = 'true';
     }
-    
-    // Update previous value after tooltip is set
-    state.previousTotalValue = currentValue;
   }
   const walletCount = (state.walletHoldings && typeof state.walletHoldings.size === 'number')
     ? state.walletHoldings.size
