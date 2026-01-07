@@ -1,91 +1,91 @@
-/* Summary card with previous value flip */
-.summary-card.has-previous {
+/* Summary card with previous value swap */
+.summary-card.has-previous .summary-label {
   position: relative;
 }
 
-.summary-card.has-previous .summary-icon {
-  position: relative;
-  z-index: 2;
+.summary-card.has-previous .label-current,
+.summary-card.has-previous .label-previous {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.summary-card.has-previous .summary-content {
-  position: relative;
-  z-index: 1;
-  transition: opacity 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), 
-              transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
-}
-
-.summary-card.has-previous .summary-previous {
+.summary-card.has-previous .label-previous {
   position: absolute;
-  top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 20px;
-  padding-left: 70px;
   opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: opacity 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), 
-              transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1),
-              visibility 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
-  pointer-events: none;
-  z-index: 3;
+  transform: translateY(-5px);
 }
 
-.summary-card.has-previous:hover .summary-content {
+.summary-card.has-previous:hover .label-current {
   opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
+  transform: translateY(5px);
 }
 
-.summary-card.has-previous:hover .summary-previous {
+.summary-card.has-previous:hover .label-previous {
   opacity: 1;
-  visibility: visible;
   transform: translateY(0);
-  pointer-events: auto;
 }
 
-.previous-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  font-weight: 700;
+.summary-card.has-previous .summary-value-row {
+  position: relative;
 }
 
-.previous-value {
-  font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
+.summary-card.has-previous .value-current,
+.summary-card.has-previous .value-previous {
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.previous-change {
-  font-family: var(--mono);
-  font-size: 16px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.summary-card.has-previous .value-previous {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  transform: translateY(-5px);
 }
 
-.previous-change.positive {
+.summary-card.has-previous:hover .value-current {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.summary-card.has-previous:hover .value-previous {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.summary-card.has-previous .summary-sub-row {
+  position: relative;
+}
+
+.summary-card.has-previous .sub-current,
+.summary-card.has-previous .sub-previous {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.summary-card.has-previous .sub-previous {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+.summary-card.has-previous:hover .sub-current {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.summary-card.has-previous:hover .sub-previous {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sub-previous.positive {
   color: var(--pnl-positive);
 }
 
-.previous-change.negative {
+.sub-previous.negative {
   color: var(--pnl-negative);
 }
 
-.previous-change.neutral {
+.sub-previous.neutral {
   color: var(--text-secondary);
 }
 
