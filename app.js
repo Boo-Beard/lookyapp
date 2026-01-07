@@ -130,6 +130,7 @@ function savePortfolioSnapshot() {
         totalChangeEvmUsd: Number(state.totalChangeEvmUsd || 0) || 0,
         totalValueForChange: Number(state.totalValueForChange || 0) || 0,
         totalValue24hAgo: Number(state.totalValue24hAgo || 0) || 0,
+        previousTotalValue: Number(state.previousTotalValue || 0) || 0,
       },
     };
     localStorage.setItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT, JSON.stringify(payload));
@@ -192,6 +193,7 @@ function restorePortfolioSnapshot() {
     state.totalChangeEvmUsd = Number(totals.totalChangeEvmUsd || 0) || 0;
     state.totalValueForChange = Number(totals.totalValueForChange || 0) || 0;
     state.totalValue24hAgo = Number(totals.totalValue24hAgo || 0) || 0;
+    state.previousTotalValue = Number(totals.previousTotalValue || 0) || 0;
     state.walletHoldings = wh.length
       ? new Map(wh)
       : new Map((Array.isArray(state.wallets) ? state.wallets : []).map((w) => [`${String(w.chain || '')}:${String(w.address || '')}`, []]));
