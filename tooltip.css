@@ -1,8 +1,4 @@
 /* Summary card tooltip styles */
-.summary-card.has-tooltip {
-  position: relative;
-}
-
 .summary-tooltip {
   position: absolute;
   bottom: 100%;
