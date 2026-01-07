@@ -3640,14 +3640,11 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 function updateSummary() {
   const totalValueEl = $('totalValue');
   if (totalValueEl) {
-    // Store previous value before updating
-    const previousValue = state.previousTotalValue || 0;
-    state.previousTotalValue = state.totalValue;
-    
     animateNumber(totalValueEl, state.totalValue, formatCurrency);
     
     // Update previous value display
     const previousTotalValueEl = $('previousTotalValue');
+    const previousValue = state.previousTotalValue || 0;
     if (previousTotalValueEl && previousValue > 0) {
       previousTotalValueEl.textContent = formatCurrency(previousValue);
     }
@@ -6041,8 +6038,16 @@ async function scanWallets({ queueOverride } = {}) {
   }
   recomputeQueued = false;
 
+  // Store the current total value as previous before recomputing with new scan data
+  const valueBeforeScan = state.totalValue;
+  
   // Recompute aggregates first to populate state.holdings
   await recomputeAggregatesAndRender();
+  
+  // Update previous total value to the value before this scan
+  if (valueBeforeScan > 0) {
+    state.previousTotalValue = valueBeforeScan;
+  }
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
   try {
