@@ -114,3 +114,42 @@
 .summary-card.has-tooltip:hover .value-hover {
   opacity: 1;
 }
+
+/* Sub-row swap on hover */
+.summary-card.has-tooltip .summary-sub-row {
+  position: relative;
+}
+
+.summary-card.has-tooltip .sub-default,
+.summary-card.has-tooltip .sub-hover {
+  transition: opacity 0.2s ease;
+}
+
+.summary-card.has-tooltip .sub-hover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.summary-card.has-tooltip:hover .sub-default {
+  opacity: 0;
+}
+
+.summary-card.has-tooltip:hover .sub-hover {
+  opacity: 1;
+}
+
+/* Color coding for change indicator */
+.sub-hover.positive {
+  color: var(--pnl-positive);
+}
+
+.sub-hover.negative {
+  color: var(--pnl-negative);
+}
+
+.sub-hover.neutral {
+  color: var(--text-secondary);
+}
