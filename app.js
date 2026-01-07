@@ -5681,7 +5681,8 @@ async function recomputeAggregatesAndRender() {
   updateSummary();
   renderAllocationAndRisk();
   renderHoldingsByWallet();
-  renderHoldingsTable();
+  // Don't render holdings table here - wait for enrichment to complete in scanWallets
+  // to avoid showing stale mcap/volume/liquidity values
 
   try { savePortfolioSnapshot(); } catch {}
 
