@@ -62,3 +62,29 @@
 .tooltip-row.neutral {
   color: var(--text-secondary);
 }
+
+/* Label text swap on hover */
+.summary-card.has-tooltip .summary-label {
+  position: relative;
+}
+
+.summary-card.has-tooltip .label-default,
+.summary-card.has-tooltip .label-hover {
+  transition: opacity 0.2s ease;
+}
+
+.summary-card.has-tooltip .label-hover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.summary-card.has-tooltip:hover .label-default {
+  opacity: 0;
+}
+
+.summary-card.has-tooltip:hover .label-hover {
+  opacity: 1;
+}
