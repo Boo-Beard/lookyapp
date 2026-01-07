@@ -1,84 +1,96 @@
-/* Summary card tooltip styles */
-.summary-card.has-tooltip {
+/* Summary card with previous value flip */
+.summary-card.has-previous {
   position: relative;
+  overflow: hidden;
 }
 
-.summary-tooltip {
+.summary-card.has-previous .summary-content {
+  transition: opacity 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), 
+              transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.summary-card.has-previous .summary-previous {
   position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-8px);
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px 20px;
-  box-shadow: 0.3em 0.3em 0 var(--border), var(--shadow-lg);
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s cubic-bezier(0.2, 0.9, 0.2, 1), 
-              visibility 0.25s cubic-bezier(0.2, 0.9, 0.2, 1), 
-              transform 0.25s cubic-bezier(0.2, 0.9, 0.2, 1);
+  transform: translateY(10px);
+  transition: opacity 0.3s cubic-bezier(0.2, 0.9, 0.2, 1), 
+              transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
   pointer-events: none;
-  z-index: 1000;
-  min-width: 220px;
-  white-space: nowrap;
 }
 
-.summary-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 10px solid transparent;
-  border-top-color: var(--border);
-  margin-top: -2px;
+.summary-card.has-previous:hover .summary-content {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
-.summary-card.has-tooltip:hover .summary-tooltip[data-has-data="true"] {
+.summary-card.has-previous:hover .summary-previous {
   opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(-16px);
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
-.tooltip-label {
+.previous-label {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-secondary);
   font-weight: 700;
-  margin-bottom: 8px;
 }
 
-.tooltip-value {
+.previous-value {
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
-.tooltip-change {
+.previous-change {
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
 }
 
-.tooltip-change.positive {
+.previous-change.positive {
   color: var(--pnl-positive);
 }
 
-.tooltip-change.negative {
+.previous-change.negative {
   color: var(--pnl-negative);
 }
 
-.tooltip-change.neutral {
+.previous-change.neutral {
   color: var(--text-secondary);
+}
+
+/* Previous hint icon */
+.previous-hint {
+  font-size: 9px;
+  margin-left: 6px;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  vertical-align: middle;
+}
+
+.summary-card.has-previous:hover .previous-hint {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.summary-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }

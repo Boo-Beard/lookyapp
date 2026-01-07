@@ -3662,20 +3662,21 @@ function updateSummary() {
     
     animateNumber(totalValueEl, currentValue, formatCurrency);
     
-    // Update previous value tooltip
-    const tooltipEl = $('totalValueTooltip');
-    if (tooltipEl && previousValue > 0 && Math.abs(currentValue - previousValue) > 0.01) {
+    // Update previous value display
+    const previousValueEl = $('previousValue');
+    const previousChangeEl = $('previousChange');
+    const cardEl = $('totalValueCard');
+    
+    if (previousValueEl && previousChangeEl && cardEl && previousValue > 0 && Math.abs(currentValue - previousValue) > 0.01) {
       const change = currentValue - previousValue;
       const changePct = previousValue > 0 ? (change / previousValue) * 100 : 0;
       const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
       const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
       
-      tooltipEl.innerHTML = `
-        <div class="tooltip-label">Previous Scan</div>
-        <div class="tooltip-value">${formatCurrency(previousValue)}</div>
-        <div class="tooltip-change ${changeClass}">${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)</div>
-      `;
-      tooltipEl.dataset.hasData = 'true';
+      previousValueEl.textContent = formatCurrency(previousValue);
+      previousChangeEl.textContent = `${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)`;
+      previousChangeEl.className = `previous-change ${changeClass}`;
+      cardEl.dataset.hasData = 'true';
     }
     
     // Update previous value after tooltip is set
