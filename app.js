@@ -17,7 +17,6 @@ function shouldIgnoreGlobalError(message, source) {
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 const STORAGE_KEY_WALLET_LABELS = 'peeek:walletLabelsV1';
 const TICKER_TOKENS = ['bitcoin', 'ethereum', 'solana', 'binancecoin'];
-const TICKER_REFRESH_INTERVAL = 60000; // 60 seconds
 
 const WHATIF_PRESETS = [2, 5, 8, 10, 100];
 const WHATIF_AUTO_RESET_MS = 3_000;
@@ -6067,6 +6066,13 @@ async function scanWallets({ queueOverride } = {}) {
   renderHoldingsTable();
   updateSummary();
   
+  // Update ticker prices after scan completes
+  try {
+    fetchTickerPrices();
+  } catch (e) {
+    console.error('Failed to update ticker after scan:', e);
+  }
+  
   // Don't force collapse sections - preserve user's open/close state
 
   updateScanCooldownUi();
@@ -8093,8 +8099,6 @@ function setupEyeExpressionTriggers() {
 }
 
 // Price Ticker Functions
-let tickerInterval = null;
-
 async function fetchTickerPrices() {
   try {
     const ids = TICKER_TOKENS.join(',');
@@ -8152,10 +8156,8 @@ function initializeTicker() {
     track.appendChild(clone);
   });
   
-  // Fetch prices immediately and then every 60 seconds
+  // Fetch prices on initialization
   fetchTickerPrices();
-  if (tickerInterval) clearInterval(tickerInterval);
-  tickerInterval = setInterval(fetchTickerPrices, TICKER_REFRESH_INTERVAL);
 }
 
 if (document.readyState === 'loading') {
