@@ -16,6 +16,8 @@ function shouldIgnoreGlobalError(message, source) {
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 const STORAGE_KEY_WALLET_LABELS = 'peeek:walletLabelsV1';
+const TICKER_TOKENS = ['bitcoin', 'ethereum', 'solana', 'binancecoin'];
+const TICKER_REFRESH_INTERVAL = 60000; // 60 seconds
 
 const WHATIF_PRESETS = [2, 5, 8, 10, 100];
 const WHATIF_AUTO_RESET_MS = 3_000;
@@ -8090,12 +8092,80 @@ function setupEyeExpressionTriggers() {
   }
 }
 
+// Price Ticker Functions
+let tickerInterval = null;
+
+async function fetchTickerPrices() {
+  try {
+    const ids = TICKER_TOKENS.join(',');
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const data = await res.json();
+    updateTickerDisplay(data);
+  } catch (e) {
+    console.error('Failed to fetch ticker prices:', e);
+  }
+}
+
+function updateTickerDisplay(data) {
+  TICKER_TOKENS.forEach(tokenId => {
+    const item = document.querySelector(`.ticker-item[data-token="${tokenId}"]`);
+    if (!item || !data[tokenId]) return;
+    
+    const price = data[tokenId].usd || 0;
+    const change = data[tokenId].usd_24h_change || 0;
+    
+    const priceEl = item.querySelector('.ticker-price');
+    const changeEl = item.querySelector('.ticker-change');
+    
+    if (priceEl) {
+      priceEl.textContent = price >= 1000 ? `$${(price / 1000).toFixed(2)}K` : `$${price.toFixed(2)}`;
+    }
+    
+    if (changeEl) {
+      const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
+      changeEl.textContent = `${arrow} ${Math.abs(change).toFixed(2)}%`;
+      
+      if (change > 0) {
+        item.setAttribute('data-change', 'positive');
+      } else if (change < 0) {
+        item.setAttribute('data-change', 'negative');
+      } else {
+        item.setAttribute('data-change', 'neutral');
+      }
+    }
+  });
+}
+
+function initializeTicker() {
+  const tickerEl = $('priceTicker');
+  if (!tickerEl) return;
+  
+  // Duplicate items for seamless loop
+  const track = tickerEl.querySelector('.ticker-track');
+  if (!track) return;
+  
+  const items = Array.from(track.children);
+  items.forEach(item => {
+    const clone = item.cloneNode(true);
+    track.appendChild(clone);
+  });
+  
+  // Fetch prices immediately and then every 60 seconds
+  fetchTickerPrices();
+  if (tickerInterval) clearInterval(tickerInterval);
+  tickerInterval = setInterval(fetchTickerPrices, TICKER_REFRESH_INTERVAL);
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     safeInitialize();
     setupEyeExpressionTriggers();
+    initializeTicker();
   });
 } else {
   safeInitialize();
   setupEyeExpressionTriggers();
+  initializeTicker();
 }

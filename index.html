@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="./wallet-holdings.css?v=5" />
   <link rel="stylesheet" href="./share-modal.css" />
   <link rel="stylesheet" href="./tooltip.css?v=5" />
+  <link rel="stylesheet" href="./ticker.css" />
   
   <!-- Apply theme immediately to prevent flash -->
   <script>
@@ -239,6 +240,30 @@
           </button>
         </div>
 
+        <div class="price-ticker" id="priceTicker">
+          <div class="ticker-track">
+            <div class="ticker-item" data-token="bitcoin">
+              <span class="ticker-symbol">BTC</span>
+              <span class="ticker-price">$0.00</span>
+              <span class="ticker-change">0.00%</span>
+            </div>
+            <div class="ticker-item" data-token="ethereum">
+              <span class="ticker-symbol">ETH</span>
+              <span class="ticker-price">$0.00</span>
+              <span class="ticker-change">0.00%</span>
+            </div>
+            <div class="ticker-item" data-token="solana">
+              <span class="ticker-symbol">SOL</span>
+              <span class="ticker-price">$0.00</span>
+              <span class="ticker-change">0.00%</span>
+            </div>
+            <div class="ticker-item" data-token="binancecoin">
+              <span class="ticker-symbol">BNB</span>
+              <span class="ticker-price">$0.00</span>
+              <span class="ticker-change">0.00%</span>
+            </div>
+          </div>
+        </div>
         
         <div class="summary-grid" id="summaryGrid">
           <div class="summary-card total has-tooltip">

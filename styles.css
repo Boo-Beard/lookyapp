@@ -924,7 +924,7 @@ body.is-redacted .share-qr-container * {
 .summary-value-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 4px;
   flex-wrap: wrap;
   min-width: 0;
   justify-content: center;
