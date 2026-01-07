@@ -3661,7 +3661,7 @@ function updateSummary() {
       
       // Update previous change element
       if (previousChangeEl) {
-        previousChangeEl.textContent = `${arrow} ${formatCurrency(Math.abs(change))}\n(${Math.abs(changePct).toFixed(2)}%)`;
+        previousChangeEl.textContent = `${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)`;
         previousChangeEl.className = `summary-sub sub-hover redacted-field ${changeClass}`;
       }
       
