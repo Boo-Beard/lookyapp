@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="./allocation.css?v=4" />
   <link rel="stylesheet" href="./wallet-holdings.css?v=5" />
   <link rel="stylesheet" href="./share-modal.css" />
+  <link rel="stylesheet" href="./tooltip.css" />
   
   <!-- Apply theme immediately to prevent flash -->
   <script>
@@ -240,7 +241,7 @@
 
         
         <div class="summary-grid" id="summaryGrid">
-          <div class="summary-card total">
+          <div class="summary-card total has-tooltip">
             <div class="summary-icon"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></div>
             <div class="summary-content">
               <div class="summary-label">Total Value</div>
@@ -249,6 +250,7 @@
               </div>
               <div id="walletCount" class="summary-sub redacted-field" tabindex="0">0 wallets</div>
             </div>
+            <div class="summary-tooltip" id="totalValueTooltip"></div>
           </div>
 
           <div class="summary-card total">

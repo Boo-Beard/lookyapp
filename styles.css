@@ -3448,8 +3448,7 @@ body.ui-results .table-header {
   border-radius: var(--radius-lg);
   border: 2px solid var(--border);
   background: var(--panel);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-  color: var(--ink);
+    box-shadow: 0.2em 0.2em 0 var(--border);  color: var(--ink);
   font-family: var(--mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -3771,8 +3770,7 @@ body.ui-results .table-header {
   border-radius: var(--radius-lg);
   border: 2px solid var(--border);
   background: var(--panel);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-  height: 40px;
+box-shadow: 0.2em 0.2em 0 var(--border);  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3853,8 +3851,7 @@ body.ui-results .table-header {
   padding: 10px 14px 10px 42px;
   border-radius: var(--radius-lg);
   border: 2px solid var(--border);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-  color: var(--ink);
+    box-shadow: 0.2em 0.2em 0 var(--border);  color: var(--ink);
   font-size: 14px;
   outline: none;
   background: var(--panel);

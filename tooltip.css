@@ -1,0 +1,64 @@
+/* Summary card tooltip styles */
+.summary-card.has-tooltip {
+  position: relative;
+}
+
+.summary-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 1000;
+  min-width: 200px;
+  white-space: nowrap;
+}
+
+.summary-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--border);
+}
+
+.summary-card.has-tooltip:hover .summary-tooltip[data-has-data="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-12px);
+}
+
+.tooltip-row {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.tooltip-row + .tooltip-row {
+  margin-top: 4px;
+}
+
+.tooltip-row.positive {
+  color: var(--pnl-positive);
+  font-weight: 600;
+}
+
+.tooltip-row.negative {
+  color: var(--pnl-negative);
+  font-weight: 600;
+}
+
+.tooltip-row.neutral {
+  color: var(--text-secondary);
+}

@@ -3638,7 +3638,26 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 function updateSummary() {
   const totalValueEl = $('totalValue');
   if (totalValueEl) {
+    // Store previous value before updating
+    const previousValue = state.previousTotalValue || 0;
+    state.previousTotalValue = state.totalValue;
+    
     animateNumber(totalValueEl, state.totalValue, formatCurrency);
+    
+    // Update previous value tooltip
+    const tooltipEl = $('totalValueTooltip');
+    if (tooltipEl && previousValue > 0) {
+      const change = state.totalValue - previousValue;
+      const changePct = previousValue > 0 ? (change / previousValue) * 100 : 0;
+      const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
+      const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+      
+      tooltipEl.innerHTML = `
+        <div class="tooltip-row">Previous: ${formatCurrency(previousValue)}</div>
+        <div class="tooltip-row ${changeClass}">${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)</div>
+      `;
+      tooltipEl.dataset.hasData = 'true';
+    }
   }
   const walletCount = (state.walletHoldings && typeof state.walletHoldings.size === 'number')
     ? state.walletHoldings.size
