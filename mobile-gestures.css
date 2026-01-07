@@ -1,0 +1,217 @@
+/* Mobile Gestures & Optimizations CSS */
+
+/* Pull-to-refresh indicator */
+.pull-to-refresh-indicator {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0;
+  z-index: 100;
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.pull-to-refresh-indicator.is-refreshing {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(60px) !important;
+}
+
+/* Swipe gesture visual feedback */
+tr.holding-card-row {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+/* Mobile-specific touch optimizations */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  .btn,
+  .mode-toggle-btn,
+  .collapse-toggle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better spacing for touch */
+  .holding-action {
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  /* Smooth scrolling on mobile */
+  .table-container,
+  .watchlist-list,
+  #holdingsContent {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent text selection during swipes */
+  .input-body,
+  .holdings-table tbody {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Re-enable text selection for specific elements */
+  .holding-metric-value,
+  .token-symbol,
+  .token-name {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Swipe indicator hint */
+  tr.holding-card-row::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to left, var(--border), transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  tr.holding-card-row:active::after {
+    opacity: 0.5;
+  }
+
+  /* Tab swipe hint animation */
+  .mode-toggle-wrap {
+    position: relative;
+  }
+
+  .mode-toggle-wrap::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--accent) 50%,
+      transparent
+    );
+    opacity: 0;
+    animation: swipeHint 3s ease-in-out infinite;
+  }
+
+  @keyframes swipeHint {
+    0%, 100% {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    50% {
+      opacity: 0.3;
+      transform: translateX(100%);
+    }
+  }
+
+  /* Disable swipe hint after first interaction */
+  .mode-toggle-wrap.has-interacted::before {
+    display: none;
+  }
+
+  /* Better mobile table layout */
+  .holdings-table {
+    font-size: 13px;
+  }
+
+  /* Improved mobile card layout */
+  .holding-card {
+    padding: 12px;
+  }
+
+  .holding-card-metrics {
+    gap: 8px;
+  }
+
+  /* Mobile-optimized modals */
+  .share-popover {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 80vh;
+  }
+
+  .share-popover:not(.hidden) {
+    transform: translateY(0);
+  }
+
+  /* Haptic feedback visual indicator */
+  @keyframes hapticPulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+  }
+
+  .btn:active,
+  .mode-toggle-btn:active,
+  .holding-action:active {
+    animation: hapticPulse 0.1s ease;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .pull-to-refresh-indicator {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .mode-toggle {
+    gap: 4px;
+  }
+
+  .mode-toggle-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Enable some mobile features on tablets */
+  .pull-to-refresh-indicator {
+    display: flex;
+  }
+
+  tr.holding-card-row {
+    transition: transform 0.3s ease;
+  }
+}
+
+/* Accessibility: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .pull-to-refresh-indicator,
+  tr.holding-card-row,
+  .share-popover {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -2031,7 +2031,23 @@ const MCAP_MAX_LOOKUPS_PER_RENDER = 80;
 const MCAP_CONCURRENCY = 4;
 
 let statusHideTimer = null;
-function hapticFeedback() {}
+function hapticFeedback(type = 'light') {
+  if (!navigator.vibrate) return;
+  
+  const patterns = {
+    light: [10],
+    medium: [20],
+    heavy: [30],
+    success: [10, 50, 10],
+    error: [20, 100, 20],
+    warning: [15, 80, 15]
+  };
+  
+  const pattern = patterns[type] || patterns.light;
+  try {
+    navigator.vibrate(pattern);
+  } catch {}
+}
 
 function getWalletLabels() {
   try {
