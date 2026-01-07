@@ -163,10 +163,6 @@
 }
 
 /* Icon swap on hover */
-.summary-card.has-tooltip .summary-icon {
-  position: relative;
-}
-
 .summary-card.has-tooltip .icon-default,
 .summary-card.has-tooltip .icon-hover {
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -174,9 +170,13 @@
 
 .summary-card.has-tooltip .icon-hover {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
 }
 
@@ -187,5 +187,5 @@
 
 .summary-card.has-tooltip:hover .icon-hover {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  transform: scale(1);
 }
