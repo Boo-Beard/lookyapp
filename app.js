@@ -345,7 +345,6 @@ function migrateLegacyStorageKeys() {
       'uiSections',
       'redactedMode',
       'lastScanAt',
-      'debugSolChange',
     ];
 
     for (const suffix of suffixes) {
@@ -479,17 +478,6 @@ function renderSearchTokenActions(model) {
     </div>
   `;
 }
-
-const DEBUG_SOL_CHANGE = (() => {
-  try {
-    if (localStorage.getItem('peeek:debugSolChange') === '1') return true;
-    const legacyPrefixA = ['l', 'o', 'o', 'k', 'y', ':'].join('');
-    const legacyPrefixB = ['p', 'e', 'e', 'k', ':'].join('');
-    return localStorage.getItem(legacyPrefixA + 'debugSolChange') === '1'
-      || localStorage.getItem(legacyPrefixB + 'debugSolChange') === '1';
-  }
-  catch { return false; }
-})();
 
 const preloadImage = (url) => {
   if (!url) return;
@@ -1007,14 +995,6 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
     if (Number.isFinite(pct) && Math.abs(pct) > 0) {
       pct24h = pct;
       source = 'price';
-    } else if (DEBUG_SOL_CHANGE) {
-      try {
-        console.debug('[SOL 24h] /defi/price pct not found', {
-          tokenAddress,
-          keys: Object.keys(d || {}),
-          valueKeys: Object.keys(v || {}),
-        });
-      } catch {}
     }
   } catch {}
   if (!Number.isFinite(pct24h) || Math.abs(pct24h) < 1e-9) {
@@ -1052,15 +1032,6 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       if (Number.isFinite(pct) && Math.abs(pct) > 0) {
         pct24h = pct;
         source = 'overview';
-      } else if (DEBUG_SOL_CHANGE) {
-        try {
-          console.debug('[SOL 24h] /defi/token_overview pct not found', {
-            tokenAddress,
-            keys: Object.keys(d || {}),
-            valueKeys: Object.keys(v || {}),
-            frameKeys: frame24 ? Object.keys(frame24 || {}) : [],
-          });
-        } catch {}
       }
     } catch {}
   }
@@ -1070,18 +1041,8 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
       if (Number.isFinite(pct) && Math.abs(pct) > 0) {
         pct24h = pct;
         source = 'hist_unix';
-      } else if (DEBUG_SOL_CHANGE) {
-        try {
-          console.debug('[SOL 24h] /defi/historical_price_unix pct not found', { tokenAddress });
-        } catch {}
       }
-    } catch (err) {
-      if (DEBUG_SOL_CHANGE) {
-        try {
-          console.debug('[SOL 24h] /defi/historical_price_unix error', { tokenAddress, message: err?.message || String(err) });
-        } catch {}
-      }
-    }
+    } catch (err) {}
   }
 
   // Native SOL often fails to return pct from Birdeye endpoints; use a safe fallback.
@@ -1099,13 +1060,6 @@ async function fetchSolTokenChangePct24h(tokenAddress, { signal } = {}) {
   }
 
   if (!Number.isFinite(pct24h)) pct24h = 0;
-
-  if (DEBUG_SOL_CHANGE) {
-    try {
-      if (Math.abs(pct24h) > 0) console.debug('[SOL 24h] token pct', { tokenAddress, pct24h, source });
-      else console.debug('[SOL 24h] token pct missing/0', { tokenAddress, pct24h, source });
-    } catch {}
-  }
 
   setSolTokenChangeCache(tokenAddress, { pct24h, source });
   return pct24h;
@@ -1154,20 +1108,6 @@ function normalizeSolHoldingTokenAddress(h) {
 
 async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
   if (!Array.isArray(holdings) || holdings.length === 0) {
-    if (DEBUG_SOL_CHANGE) {
-      try {
-        const reason = !Array.isArray(holdings) ? 'holdings_not_array' : 'holdings_empty';
-        const summary = {
-          reason,
-          holdings: Array.isArray(holdings) ? holdings.length : null,
-          missing: null,
-          missingValueUsd: null,
-          top: [],
-        };
-        window.__peekSol24hDebug = summary;
-        console.warn('[SOL 24h] enrich skipped', summary);
-      } catch {}
-    }
     return holdings;
   }
 
@@ -1249,43 +1189,7 @@ async function enrichSolHoldingsWith24hChange(holdings, { signal } = {}) {
     h.changeUsd = deltaUsd;
     h.change_1d_usd = deltaUsd;
     h._changeEligible = eligible;
-
-    if (DEBUG_SOL_CHANGE && valueUsd > 0 && Math.abs(pct24h) < 1e-9) {
-      try {
-        console.debug('[SOL 24h] holding missing pct24h', {
-          address: addr,
-          symbol: h?.symbol,
-          valueUsd,
-          eligible,
-          liquidityUsd: meta?.liquidityUsd,
-          volume24hUsd: meta?.volume24hUsd,
-        });
-      } catch {}
-
-      missing.push({ address: addr, symbol: h?.symbol, valueUsd });
-    }
   });
-
-  if (DEBUG_SOL_CHANGE) {
-    try {
-      const missingValue = missing.reduce((s, x) => s + (Number(x?.valueUsd) || 0), 0);
-      const top = missing
-        .slice()
-        .sort((a, b) => (b.valueUsd || 0) - (a.valueUsd || 0))
-        .slice(0, 10);
-      const summary = {
-        reason: 'ok',
-        holdings: out.length,
-        missing: missing.length,
-        missingValueUsd: missingValue,
-        top,
-      };
-
-      window.__peekSol24hDebug = summary;
-      console.debug('[SOL 24h] missing pct24h summary', summary);
-      console.log('[SOL 24h] missing pct24h summary json', JSON.stringify(summary));
-    } catch {}
-  }
 
   return out;
 }
@@ -5615,9 +5519,6 @@ async function recomputeAggregatesAndRender() {
   let totalForChange = 0;
   let total24hAgo = 0;
 
-
-  const solDebugContrib = [];
-
   state.walletHoldings.forEach((items, walletKey) => {
     const [chain, wallet] = walletKey.split(':');
     wallets.push({ address: wallet, chain, count: items.length });
@@ -5697,19 +5598,6 @@ async function recomputeAggregatesAndRender() {
       total += value;
       if (chain === 'solana') {
         const eligible = holding._changeEligible !== false;
-        if (DEBUG_SOL_CHANGE) {
-          try {
-            solDebugContrib.push({
-              wallet,
-              address: holding.address,
-              symbol: holding.symbol,
-              valueUsd: value,
-              pct24h: Number(holding.changePct || 0) || 0,
-              changeUsd,
-              eligible,
-            });
-          } catch {}
-        }
         if (eligible) {
           solWalletNow += value;
           solWalletHasChange = true;
@@ -5743,22 +5631,6 @@ async function recomputeAggregatesAndRender() {
   state.totalChangeEvmUsd = totalChangeEvmUsd;
   state.totalValueForChange = totalForChange;
   state.totalValue24hAgo = total24hAgo;
-
-  if (DEBUG_SOL_CHANGE) {
-    try {
-      const absSorted = solDebugContrib
-        .slice()
-        .sort((a, b) => Math.abs(b.changeUsd || 0) - Math.abs(a.changeUsd || 0));
-      const summary = {
-        count: solDebugContrib.length,
-        eligibleCount: solDebugContrib.filter(x => x.eligible).length,
-        ineligibleCount: solDebugContrib.filter(x => !x.eligible).length,
-        topByAbsDelta: absSorted.slice(0, 10),
-      };
-      window.__peekSol24hContrib = summary;
-      console.log('[SOL 24h] contrib summary json', JSON.stringify(summary));
-    } catch {}
-  }
 
   setHoldingsPage(1);
 
@@ -5872,8 +5744,6 @@ async function refreshPortfolioMetrics({ force } = {}) {
 }
 
 async function scanWallets({ queueOverride } = {}) {
-  console.log('👀\nWhat you looking at bro?\n👀');
-  
   if (state.scanning) return;
 
   if (!DISABLE_SCAN_COOLDOWN) {
@@ -5983,15 +5853,7 @@ async function scanWallets({ queueOverride } = {}) {
         if (chain === 'solana') {
           try {
             holdings = await enrichSolHoldingsWith24hChange(holdings, { signal });
-          } catch (err) {
-            if (DEBUG_SOL_CHANGE) {
-              try {
-                const info = { reason: 'enrich_throw', message: err?.message || String(err) };
-                window.__peekSol24hDebug = info;
-                console.warn('[SOL 24h] enrich threw', info);
-              } catch {}
-            }
-          }
+          } catch (err) {}
         }
         state.walletHoldings.set(walletKey, holdings);
 
@@ -6421,9 +6283,6 @@ function setupEyeExpressions() {
     if (expressionMap.hasOwnProperty(e.key)) {
       const expr = expressionMap[e.key];
       setExpression(expr, expr ? 0 : 0); // 0 duration = stays until changed
-      
-      // Log to console for debugging
-      console.log(`👀 Eye Expression: ${expr || 'normal'} (Key: ${e.key})`);
     }
   });
 }
@@ -6971,7 +6830,6 @@ function setupEventListeners() {
       } catch {}
       try { scheduleHoldingWhatIfReset(key); } catch {}
       try { hapticFeedback('light'); } catch {}
-      try { console.debug('[whatif] applied', { key, mult }); } catch {}
       return;
     }
 
@@ -7581,8 +7439,6 @@ function setupEventListeners() {
   const shareQrCode = $('shareQrCode');
 
   function generateQRCode(url) {
-    console.log('generateQRCode called with URL:', url);
-    
     if (!shareQrCode) {
       console.error('shareQrCode element not found');
       return;
@@ -7593,10 +7449,8 @@ function setupEventListeners() {
       return;
     }
     
-    console.log('Clearing previous QR code');
     shareQrCode.innerHTML = '';
     
-    console.log('Creating new QR code');
     try {
       new QRCode(shareQrCode, {
         text: url,
@@ -7606,7 +7460,6 @@ function setupEventListeners() {
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.H
       });
-      console.log('QR code created successfully');
     } catch (e) {
       console.error('Failed to create QR code:', e);
       return;
