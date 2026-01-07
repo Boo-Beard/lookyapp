@@ -3671,8 +3671,9 @@ function updateSummary() {
       const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
       
       tooltipEl.innerHTML = `
-        <div class="tooltip-row">Previous: ${formatCurrency(previousValue)}</div>
-        <div class="tooltip-row ${changeClass}">${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)</div>
+        <div class="tooltip-label">Previous Scan</div>
+        <div class="tooltip-value">${formatCurrency(previousValue)}</div>
+        <div class="tooltip-change ${changeClass}">${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)</div>
       `;
       tooltipEl.dataset.hasData = 'true';
     }
