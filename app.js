@@ -8102,7 +8102,7 @@ function setupEyeExpressionTriggers() {
 async function fetchTickerPrices() {
   try {
     const ids = TICKER_TOKENS.join(',');
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
     const res = await fetch(url);
     if (!res.ok) return;
     const data = await res.json();
@@ -8118,26 +8118,10 @@ function updateTickerDisplay(data) {
     if (!item || !data[tokenId]) return;
     
     const price = data[tokenId].usd || 0;
-    const change = data[tokenId].usd_24h_change || 0;
-    
     const priceEl = item.querySelector('.ticker-price');
-    const changeEl = item.querySelector('.ticker-change');
     
     if (priceEl) {
       priceEl.textContent = price >= 1000 ? `$${(price / 1000).toFixed(2)}K` : `$${price.toFixed(2)}`;
-    }
-    
-    if (changeEl) {
-      const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
-      changeEl.textContent = `${arrow} ${Math.abs(change).toFixed(2)}%`;
-      
-      if (change > 0) {
-        item.setAttribute('data-change', 'positive');
-      } else if (change < 0) {
-        item.setAttribute('data-change', 'negative');
-      } else {
-        item.setAttribute('data-change', 'neutral');
-      }
     }
   });
 }

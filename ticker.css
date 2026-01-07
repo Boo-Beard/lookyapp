@@ -1,21 +1,9 @@
 /* Price Ticker Styles */
-.price-ticker {
-    /* width: 100%; */
-    background: #00000000;
-    /* border: 2px solid var(--border); */
-    /* border-radius: var(--radius-lg); */
-    /* padding: 8px 0; */
-    margin-top: 25px;
-    position: relative;
-}
-
 .ticker-track {
-    display: flex;
-    /* gap: 8px; */
-    justify-content: center;
-    align-items: center;
-    /* flex-wrap: wrap;*/
-    margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .ticker-item {
@@ -57,40 +45,8 @@
   filter: brightness(0) saturate(100%) invert(1);
 }
 
-.ticker-symbol {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-}
-
 .ticker-price {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-primary);
 }
-
-.ticker-change {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  min-width: 70px;
-  text-align: center;
-}
-
-.ticker-item[data-change="positive"] .ticker-change {
-  color: var(--pnl-positive);
-  background: rgba(34, 197, 94, 0.1);
-}
-
-.ticker-item[data-change="negative"] .ticker-change {
-  color: var(--pnl-negative);
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.ticker-item[data-change="neutral"] .ticker-change {
-  color: var(--text-secondary);
-  background: var(--surface);
-}
-
