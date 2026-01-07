@@ -143,13 +143,19 @@
 
 /* Color coding for change indicator */
 .sub-hover.positive {
-  color: var(--pnl-positive);
+  color: var(--pnl-positive) !important;
 }
 
 .sub-hover.negative {
-  color: var(--pnl-negative);
+  color: var(--pnl-negative) !important;
 }
 
 .sub-hover.neutral {
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
+}
+
+/* Ensure text is visible */
+.summary-card.has-tooltip .sub-hover {
+  font-size: 11px;
+  text-align: center;
 }
