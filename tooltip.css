@@ -1,6 +1,7 @@
 /* Summary card with previous value swap */
 .summary-card.has-previous .summary-label {
   position: relative;
+  min-height: 1em;
 }
 
 .summary-card.has-previous .label-current,
@@ -10,6 +11,7 @@
   font-family: inherit;
   line-height: inherit;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  display: inline-block;
 }
 
 .summary-card.has-previous .label-previous {
@@ -17,7 +19,9 @@
   left: 0;
   top: 0;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-5px);
+  pointer-events: none;
 }
 
 .summary-card.has-previous:hover .label-current {
@@ -27,11 +31,14 @@
 
 .summary-card.has-previous:hover .label-previous {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .summary-card.has-previous .summary-value-row {
   position: relative;
+  min-height: 1em;
 }
 
 .summary-card.has-previous .value-current,
@@ -41,6 +48,7 @@
   font-family: inherit;
   line-height: inherit;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  display: block;
 }
 
 .summary-card.has-previous .value-previous {
@@ -48,7 +56,9 @@
   left: 0;
   top: 0;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-5px);
+  pointer-events: none;
 }
 
 .summary-card.has-previous:hover .value-current {
@@ -58,11 +68,14 @@
 
 .summary-card.has-previous:hover .value-previous {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .summary-card.has-previous .summary-sub-row {
   position: relative;
+  min-height: 1em;
 }
 
 .summary-card.has-previous .sub-current,
@@ -72,6 +85,7 @@
   font-family: inherit;
   line-height: inherit;
   transition: opacity 0.3s ease, transform 0.3s ease;
+  display: block;
 }
 
 .summary-card.has-previous .sub-previous {
@@ -79,7 +93,9 @@
   left: 0;
   top: 0;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-5px);
+  pointer-events: none;
 }
 
 .summary-card.has-previous:hover .sub-current {
@@ -89,7 +105,9 @@
 
 .summary-card.has-previous:hover .sub-previous {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .sub-previous.positive {
