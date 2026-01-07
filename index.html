@@ -22,6 +22,20 @@
   <link rel="stylesheet" href="./allocation.css?v=4" />
   <link rel="stylesheet" href="./wallet-holdings.css?v=5" />
   <link rel="stylesheet" href="./share-modal.css" />
+  
+  <!-- Apply theme immediately to prevent flash -->
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('peeek:theme');
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.dataset.theme = saved;
+        } else {
+          document.documentElement.dataset.theme = 'light';
+        }
+      } catch {}
+    })();
+  </script>
 </head>
 
 <body class="ui-landing">
