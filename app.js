@@ -3650,29 +3650,16 @@ function updateSummary() {
       previousTotalValueEl.textContent = formatCurrency(previousValue);
     }
     
-    // Update previous change display and tooltip
-    const tooltipEl = $('totalValueTooltip');
+    // Update previous change display
     const previousChangeEl = $('previousChange');
-    if (previousValue > 0) {
+    if (previousValue > 0 && previousChangeEl) {
       const change = state.totalValue - previousValue;
       const changePct = previousValue > 0 ? (change / previousValue) * 100 : 0;
       const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
       const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
       
-      // Update previous change element
-      if (previousChangeEl) {
-        previousChangeEl.textContent = `${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)`;
-        previousChangeEl.className = `summary-sub sub-hover redacted-field ${changeClass}`;
-      }
-      
-      // Update tooltip
-      if (tooltipEl) {
-        tooltipEl.innerHTML = `
-          <div class="tooltip-row">Previous: ${formatCurrency(previousValue)}</div>
-          <div class="tooltip-row ${changeClass}">${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)</div>
-        `;
-        tooltipEl.dataset.hasData = 'true';
-      }
+      previousChangeEl.textContent = `${arrow} ${formatCurrency(Math.abs(change))} (${Math.abs(changePct).toFixed(2)}%)`;
+      previousChangeEl.className = `summary-sub sub-hover redacted-field ${changeClass}`;
     }
   }
   const walletCount = (state.walletHoldings && typeof state.walletHoldings.size === 'number')
