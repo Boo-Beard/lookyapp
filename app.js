@@ -6260,7 +6260,8 @@ function setupEyeExpressions() {
     }, BORED_DELAY_MS);
   }
 
-  // No random animations - only scenario-based triggers
+  // Start random eye animations when idle
+  resetBoredTimer();
 
   // Sad eyes when hovering over delete profile button
   const deleteProfileBtn = $('deleteProfileBtn');

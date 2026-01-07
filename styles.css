@@ -627,6 +627,7 @@ body.ui-results .amend-wallets-row {
 body.ui-results #inputHeaderBar {
   display: flex;
   justify-content: center;
+      margin-bottom: 15px;
 }
 
 body.ui-results #inputHeaderBar .logo-lockup {
@@ -1269,15 +1270,16 @@ position: absolute;
  }
 
  .settings-menu {
-  position: absolute;
-  top: 46px;
-  right: 0;
-  min-width: 160px;
-  padding: 10px;
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+    position: absolute;
+    top: 46px;
+    right: 0;
+    min-width: 121px;
+    padding: 10px;
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: 999;
  }
 
  .settings-menu.hidden {
@@ -1441,8 +1443,8 @@ body.ui-results .input-section.is-minimized {
 
  .mode-toggle-wrap .watchlist-count {
   position: absolute;
-    top: -20px;
-    left: 10px;
+    top: -21px;
+    left: 35px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
