@@ -128,7 +128,9 @@
     top: 0;
     opacity: 0;
     pointer-events: none;
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     overflow: visible;  /* Allows text to extend beyond container */
     text-overflow: ellipsis;
     white-space: nowrap;
