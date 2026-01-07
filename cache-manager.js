@@ -28,18 +28,18 @@ class CacheManager {
 
       console.log('[Cache] Service Worker registered:', registration.scope);
 
-      // Handle updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        console.log('[Cache] New Service Worker found');
+      // Handle updates - disabled per user request
+      // registration.addEventListener('updatefound', () => {
+      //   const newWorker = registration.installing;
+      //   console.log('[Cache] New Service Worker found');
 
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New service worker available
-            this.showUpdateNotification();
-          }
-        });
-      });
+      //   newWorker.addEventListener('statechange', () => {
+      //     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+      //       // New service worker available
+      //       this.showUpdateNotification();
+      //     }
+      //   });
+      // });
 
       // Listen for messages from service worker
       navigator.serviceWorker.addEventListener('message', (event) => {
