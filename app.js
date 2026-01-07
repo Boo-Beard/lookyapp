@@ -3582,7 +3582,7 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   else el.insertAdjacentHTML('beforeend', rowHtml);
 }
 
-const animationTimestamps = new Map();
+let shouldAnimateSummary = false;
 
 function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 600) {
   if (!element) return;
@@ -3595,18 +3595,11 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     return;
   }
 
-  // Prevent duplicate animations within 2 seconds
-  const elementId = element.id || element;
-  const lastAnimTime = animationTimestamps.get(elementId) || 0;
-  const now = Date.now();
-  
-  if (now - lastAnimTime < 2000) {
-    // Too soon, just update directly without animation
+  // Only animate if explicitly enabled (during scan progress)
+  if (!shouldAnimateSummary) {
     element.textContent = formatter(targetValue);
     return;
   }
-  
-  animationTimestamps.set(elementId, now);
 
   const startTime = performance.now();
 
@@ -5891,6 +5884,7 @@ async function scanWallets({ queueOverride } = {}) {
   }
 
   state.scanning = true;
+  shouldAnimateSummary = true; // Enable animations during scan
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
@@ -5999,6 +5993,7 @@ async function scanWallets({ queueOverride } = {}) {
   await Promise.allSettled(workers);
 
   state.scanning = false;
+  shouldAnimateSummary = false; // Disable animations after scan completes
   setScanningUi(false);
   state.scanAbortController = null;
 
