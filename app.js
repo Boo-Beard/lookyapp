@@ -16,6 +16,7 @@ function shouldIgnoreGlobalError(message, source) {
 
 const STORAGE_KEY_PORTFOLIO_SNAPSHOT = 'peeek:portfolioSnapshotV1';
 const STORAGE_KEY_WALLET_LABELS = 'peeek:walletLabelsV1';
+const STORAGE_KEY_PREVIOUS_VALUE = 'peeek:previousTotalValue';
 
 const WHATIF_PRESETS = [2, 5, 8, 10, 100];
 const WHATIF_AUTO_RESET_MS = 3_000;
@@ -133,6 +134,11 @@ function savePortfolioSnapshot() {
       },
     };
     localStorage.setItem(STORAGE_KEY_PORTFOLIO_SNAPSHOT, JSON.stringify(payload));
+    
+    // Store previous value separately for tooltip persistence
+    if (state.previousTotalValue && state.previousTotalValue > 0) {
+      localStorage.setItem(STORAGE_KEY_PREVIOUS_VALUE, String(state.previousTotalValue));
+    }
   } catch {}
 }
 
@@ -186,7 +192,18 @@ function restorePortfolioSnapshot() {
     const wd = Array.isArray(snap.walletDayChangeEntries) ? snap.walletDayChangeEntries : [];
     const totals = snap.totals || {};
     state.totalValue = Number(totals.totalValue || 0) || 0;
-    state.previousTotalValue = state.totalValue; // Initialize previous value from snapshot
+    
+    // Load previous value from separate storage for tooltip
+    try {
+      const savedPrevious = localStorage.getItem(STORAGE_KEY_PREVIOUS_VALUE);
+      if (savedPrevious) {
+        state.previousTotalValue = Number(savedPrevious) || 0;
+      } else {
+        state.previousTotalValue = state.totalValue;
+      }
+    } catch {
+      state.previousTotalValue = state.totalValue;
+    }
     state.totalSolValue = Number(totals.totalSolValue || 0) || 0;
     state.totalEvmValue = Number(totals.totalEvmValue || 0) || 0;
     state.totalChangeSolUsd = Number(totals.totalChangeSolUsd || 0) || 0;
