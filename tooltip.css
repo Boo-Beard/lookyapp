@@ -161,3 +161,31 @@
 .sub-hover.neutral {
   color: var(--text-secondary) !important;
 }
+
+/* Icon swap on hover */
+.summary-card.has-tooltip .summary-icon {
+  position: relative;
+}
+
+.summary-card.has-tooltip .icon-default,
+.summary-card.has-tooltip .icon-hover {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.summary-card.has-tooltip .icon-hover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.summary-card.has-tooltip:hover .icon-default {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.summary-card.has-tooltip:hover .icon-hover {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
