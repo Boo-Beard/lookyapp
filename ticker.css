@@ -1,7 +1,6 @@
 /* Price Ticker Styles */
 .price-ticker {
   width: 100%;
-  overflow: hidden;
   background: var(--panel);
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
@@ -13,21 +12,8 @@
 .ticker-track {
   display: flex;
   gap: 48px;
-  animation: ticker-scroll 20s linear infinite;
-  width: max-content;
-}
-
-.ticker-track:hover {
-  animation-play-state: paused;
-}
-
-@keyframes ticker-scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+  justify-content: center;
+  align-items: center;
 }
 
 .ticker-item {
@@ -78,9 +64,3 @@
   background: var(--surface);
 }
 
-/* Duplicate items for seamless loop */
-.ticker-track::after {
-  content: '';
-  display: flex;
-  gap: 48px;
-}

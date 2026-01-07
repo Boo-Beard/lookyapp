@@ -8143,19 +8143,6 @@ function updateTickerDisplay(data) {
 }
 
 function initializeTicker() {
-  const tickerEl = $('priceTicker');
-  if (!tickerEl) return;
-  
-  // Duplicate items for seamless loop
-  const track = tickerEl.querySelector('.ticker-track');
-  if (!track) return;
-  
-  const items = Array.from(track.children);
-  items.forEach(item => {
-    const clone = item.cloneNode(true);
-    track.appendChild(clone);
-  });
-  
   // Fetch prices on initialization
   fetchTickerPrices();
 }
