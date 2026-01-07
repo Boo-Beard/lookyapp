@@ -10,7 +10,7 @@ class CacheManager {
   // Initialize cache manager
   init() {
     this.startUpdateTimer();
-    this.registerServiceWorker();
+    // this.registerServiceWorker(); // Disabled - causing update notifications
     this.setupOnlineOfflineHandlers();
   }
 
