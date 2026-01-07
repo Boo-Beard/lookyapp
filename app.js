@@ -3644,6 +3644,12 @@ function updateSummary() {
     
     animateNumber(totalValueEl, state.totalValue, formatCurrency);
     
+    // Update previous value display
+    const previousTotalValueEl = $('previousTotalValue');
+    if (previousTotalValueEl && previousValue > 0) {
+      previousTotalValueEl.textContent = formatCurrency(previousValue);
+    }
+    
     // Update previous value tooltip
     const tooltipEl = $('totalValueTooltip');
     if (tooltipEl && previousValue > 0) {

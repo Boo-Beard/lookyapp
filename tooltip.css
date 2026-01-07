@@ -88,3 +88,29 @@
 .summary-card.has-tooltip:hover .label-hover {
   opacity: 1;
 }
+
+/* Value swap on hover */
+.summary-card.has-tooltip .summary-value-row {
+  position: relative;
+}
+
+.summary-card.has-tooltip .value-default,
+.summary-card.has-tooltip .value-hover {
+  transition: opacity 0.2s ease;
+}
+
+.summary-card.has-tooltip .value-hover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.summary-card.has-tooltip:hover .value-default {
+  opacity: 0;
+}
+
+.summary-card.has-tooltip:hover .value-hover {
+  opacity: 1;
+}
