@@ -3582,8 +3582,41 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   else el.insertAdjacentHTML('beforeend', rowHtml);
 }
 
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 800) {
+  if (!element || !state.scanning) {
+    // If not scanning, just set the value directly
+    if (element) element.textContent = formatter(targetValue);
+    return;
+  }
+
+  const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
+  const startTime = performance.now();
+
+  const animate = (currentTime) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Easing function for smooth animation
+    const easeOutQuad = progress * (2 - progress);
+    const currentValue = startValue + (targetValue - startValue) * easeOutQuad;
+    
+    element.textContent = formatter(currentValue);
+    
+    if (progress < 1 && state.scanning) {
+      requestAnimationFrame(animate);
+    } else {
+      element.textContent = formatter(targetValue);
+    }
+  };
+
+  requestAnimationFrame(animate);
+}
+
 function updateSummary() {
-  $('totalValue') && ($('totalValue').textContent = formatCurrency(state.totalValue));
+  const totalValueEl = $('totalValue');
+  if (totalValueEl) {
+    animateNumber(totalValueEl, state.totalValue, formatCurrency);
+  }
   const walletCount = (state.walletHoldings && typeof state.walletHoldings.size === 'number')
     ? state.walletHoldings.size
     : Array.isArray(state.wallets)
@@ -3606,7 +3639,7 @@ function updateSummary() {
       total24hAgo += Math.max(0, value - changeUsd);
     }
 
-    totalPnl24hEl.textContent = formatCurrency(totalPnlUsd);
+    animateNumber(totalPnl24hEl, totalPnlUsd, formatCurrency);
     try {
       totalPnl24hEl.classList.remove('pnl-positive', 'pnl-negative', 'pnl-flat');
       const v = Number(totalPnlUsd || 0) || 0;
@@ -3632,11 +3665,17 @@ function updateSummary() {
       }
     }
   }
-  $('tokenCount') && ($('tokenCount').textContent = String(state.holdings.length));
+  const tokenCountEl = $('tokenCount');
+  if (tokenCountEl) {
+    animateNumber(tokenCountEl, state.holdings.length, (v) => String(Math.round(v)));
+  }
 
   const largest = state.holdings.reduce((max, h) => (h.value > max.value ? h : max), { value: 0, symbol: '—' });
   $('largestHolding') && ($('largestHolding').textContent = largest.symbol || '—');
-  $('largestValue') && ($('largestValue').textContent = formatCurrency(largest.value || 0));
+  const largestValueEl = $('largestValue');
+  if (largestValueEl) {
+    animateNumber(largestValueEl, largest.value || 0, formatCurrency);
+  }
 
   const summaryScoreEl = $('summaryPortfolioScore');
   const summaryScoreMetaEl = $('summaryPortfolioScoreMeta');
