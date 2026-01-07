@@ -45,10 +45,14 @@
   width: 18px;
   height: 18px;
   object-fit: contain;
+}
+
+/* Only apply filter to external images (SOL), not inline SVGs (BNB) */
+.ticker-icon-img[src] {
   filter: brightness(0) saturate(100%);
 }
 
-[data-theme="dark"] .ticker-icon-img {
+[data-theme="dark"] .ticker-icon-img[src] {
   filter: brightness(0) saturate(100%) invert(1);
 }
 
