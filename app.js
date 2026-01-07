@@ -186,6 +186,7 @@ function restorePortfolioSnapshot() {
     const wd = Array.isArray(snap.walletDayChangeEntries) ? snap.walletDayChangeEntries : [];
     const totals = snap.totals || {};
     state.totalValue = Number(totals.totalValue || 0) || 0;
+    state.previousTotalValue = state.totalValue; // Initialize previous value from snapshot
     state.totalSolValue = Number(totals.totalSolValue || 0) || 0;
     state.totalEvmValue = Number(totals.totalEvmValue || 0) || 0;
     state.totalChangeSolUsd = Number(totals.totalChangeSolUsd || 0) || 0;
@@ -3640,14 +3641,14 @@ function updateSummary() {
   if (totalValueEl) {
     // Store previous value before updating
     const previousValue = state.previousTotalValue || 0;
-    state.previousTotalValue = state.totalValue;
+    const currentValue = state.totalValue;
     
-    animateNumber(totalValueEl, state.totalValue, formatCurrency);
+    animateNumber(totalValueEl, currentValue, formatCurrency);
     
     // Update previous value tooltip
     const tooltipEl = $('totalValueTooltip');
-    if (tooltipEl && previousValue > 0) {
-      const change = state.totalValue - previousValue;
+    if (tooltipEl && previousValue > 0 && Math.abs(currentValue - previousValue) > 0.01) {
+      const change = currentValue - previousValue;
       const changePct = previousValue > 0 ? (change / previousValue) * 100 : 0;
       const arrow = change > 0 ? '↑' : change < 0 ? '↓' : '•';
       const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
@@ -3658,6 +3659,9 @@ function updateSummary() {
       `;
       tooltipEl.dataset.hasData = 'true';
     }
+    
+    // Update previous value after tooltip is set
+    state.previousTotalValue = currentValue;
   }
   const walletCount = (state.walletHoldings && typeof state.walletHoldings.size === 'number')
     ? state.walletHoldings.size
