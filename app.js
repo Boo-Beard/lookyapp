@@ -659,8 +659,12 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
       const chain = String(h.chain || '').trim();
       if (!addr || !chain) continue;
 
-      // Try cache first for speed, then fetch if needed
-      let overview = getTokenOverviewCache(addr, chain);
+      // When force refreshing, skip cache to get fresh data
+      let overview = null;
+      if (!forceRefresh) {
+        overview = getTokenOverviewCache(addr, chain);
+      }
+      
       if (!overview) {
         try {
           overview = await fetchTokenOverview(addr, chain, { signal });
@@ -676,6 +680,7 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
 
       // Update with data from API or cache
       if (Number(meta.marketCapUsd) > 0) {
+        console.log(`[MCAP UPDATE] ${h.symbol}: ${h.mcap} -> ${meta.marketCapUsd}`);
         h.mcap = Number(meta.marketCapUsd) || 0;
         changed = true;
       }
