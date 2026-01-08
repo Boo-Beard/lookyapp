@@ -640,7 +640,7 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
       return needsVol || needsLiq || needsMcap;
     })
     .sort((a, b) => (Number(b.value || 0) || 0) - (Number(a.value || 0) || 0))
-    .slice(0, 50); // Limit to top 50 holdings for faster initial load
+    .slice(0, forceRefresh ? holdings.length : 50); // When force refreshing, update all holdings, not just top 50
 
   if (!candidates.length) return;
 
@@ -5985,12 +5985,7 @@ async function scanWallets({ queueOverride } = {}) {
   renderHoldingsTable();
   updateSummary();
   
-  // Update ticker prices after scan completes
-  try {
-    fetchTickerPrices();
-  } catch (e) {
-    console.error('Failed to update ticker after scan:', e);
-  }
+  // Ticker updates automatically every 5 minutes only, not after scan
   
   // Don't force collapse sections - preserve user's open/close state
 
@@ -8062,6 +8057,9 @@ function updateTickerDisplay(data) {
 function initializeTicker() {
   // Fetch prices on initialization
   fetchTickerPrices();
+  
+  // Auto-update every 5 minutes
+  setInterval(fetchTickerPrices, 5 * 60 * 1000);
 }
 
 if (document.readyState === 'loading') {
