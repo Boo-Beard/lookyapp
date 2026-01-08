@@ -2296,6 +2296,10 @@ async function resolveIpfsLogoUrl(cid, { timeoutMs = 1500 } = {}) {
 function extractIpfsCid(url) {
   const raw = String(url || '').trim();
   if (!raw) return null;
+  
+  // Skip deprecated/broken gateways
+  if (raw.includes('gateway.irys.xyz') || raw.includes('arweave.net')) return null;
+  
   if (raw.startsWith('ipfs://')) return raw.slice('ipfs://'.length).replace(/^ipfs\//, '') || null;
 
   for (const prefix of IPFS_GATEWAYS) {
