@@ -5189,11 +5189,11 @@ function renderHoldingsTable() {
       ? Array.from({ length: scanSkeletonCount }).map(() => `
           <tr class="skeleton-row">
             <td><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></td>
-            <td><div class="skeleton-line w-30"></div></td>
-            <td><div class="skeleton-line w-40"></div></td>
-            <td><div class="skeleton-line w-40"></div></td>
-            <td><div class="skeleton-line w-50"></div></td>
-            <td><div class="skeleton-line w-40"></div></td>
+            <td class="mcap-col"><div class="skeleton-line w-30"></div></td>
+            <td class="balance-col"><div class="skeleton-line w-40"></div></td>
+            <td class="price-col"><div class="skeleton-line w-40"></div></td>
+            <td class="value-col"><div class="skeleton-line w-50"></div></td>
+            <td class="pnl-col"><div class="skeleton-line w-40"></div></td>
           </tr>
         `).join('')
       : '';
@@ -5304,11 +5304,11 @@ function renderHoldingsTable() {
                 </div>
               </div>
             </td>
-            <td><strong class="mono redacted-field" tabindex="0" data-mcap="${holding.mcap || 0}">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></td>
-            <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
-            <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
-            <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
-            <td class="mono">${formatPnlCell(holding.changeUsd)}</td>
+            <td class="mcap-col"><strong class="mono redacted-field" tabindex="0" data-mcap="${holding.mcap || 0}">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></td>
+            <td class="balance-col mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
+            <td class="price-col mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
+            <td class="value-col mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
+            <td class="pnl-col mono">${formatPnlCell(holding.changeUsd)}</td>
           </tr>
         `;
       }).join('');

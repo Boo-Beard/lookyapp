@@ -4293,6 +4293,11 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 }
 
+body:not(.holdings-cards) .holdings-table th.price-col,
+body:not(.holdings-cards) .holdings-table td.price-col {
+  display: none;
+}
+
 body.holdings-cards .holdings-table thead {
   display: none;
 }
