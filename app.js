@@ -7771,12 +7771,15 @@ function setupEventListeners() {
       
       const icon = viewToggleBtn.querySelector('.btn-icon i');
       const text = viewToggleBtn.querySelector('span:not(.btn-icon)');
+      // Button shows what you'll switch TO, not current mode
       if (state.holdingsViewMode === 'list') {
-        if (icon) icon.className = 'fa-solid fa-list';
-        if (text) text.textContent = 'List';
-      } else {
+        // Currently in list view, button should show "Cards" (to switch to cards)
         if (icon) icon.className = 'fa-solid fa-table-cells';
         if (text) text.textContent = 'Cards';
+      } else {
+        // Currently in cards view, button should show "List" (to switch to list)
+        if (icon) icon.className = 'fa-solid fa-list';
+        if (text) text.textContent = 'List';
       }
       
       setHoldingsPage(1);
@@ -7915,17 +7918,19 @@ function initialize() {
     const savedViewMode = localStorage.getItem('holdingsViewMode');
     state.holdingsViewMode = savedViewMode === 'list' ? 'list' : 'cards';
     
-    // Update button UI to match saved preference
+    // Update button UI to show target view (what you'll switch TO)
     const viewToggleBtn = $('viewToggleBtn');
     if (viewToggleBtn) {
       const icon = viewToggleBtn.querySelector('.btn-icon i');
       const text = viewToggleBtn.querySelector('span:not(.btn-icon)');
       if (state.holdingsViewMode === 'list') {
-        if (icon) icon.className = 'fa-solid fa-list';
-        if (text) text.textContent = 'List';
-      } else {
+        // Currently in list view, button shows "Cards" (to switch to cards)
         if (icon) icon.className = 'fa-solid fa-table-cells';
         if (text) text.textContent = 'Cards';
+      } else {
+        // Currently in cards view, button shows "List" (to switch to list)
+        if (icon) icon.className = 'fa-solid fa-list';
+        if (text) text.textContent = 'List';
       }
     }
   } catch {}
