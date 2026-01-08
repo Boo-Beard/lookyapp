@@ -616,15 +616,10 @@ body.ui-results #summaryGrid {
   margin-right: auto;
 }
 
-.amend-wallets-row {
-  margin: 0 0 12px;
-}
-
 body.ui-results .amend-wallets-row {
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin: 0 auto 16px;
 }
 
 body.ui-results #inputHeaderBar {
@@ -3874,7 +3869,6 @@ box-shadow: 0.2em 0.2em 0 var(--border);  height: 40px;
 }
 
 .select {
-  width: 100%;
   height: 44px;
   padding: 10px 14px;
   border-radius: var(--radius-lg);
