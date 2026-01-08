@@ -5305,7 +5305,7 @@ function renderHoldingsTable() {
                 </div>
               </div>
             </td>
-            <td><strong class="mono redacted-field" tabindex="0">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></td>
+            <td><strong class="mono redacted-field" tabindex="0" data-mcap="${holding.mcap || 0}">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></td>
             <td class="mono"><strong class="redacted-field" tabindex="0">${formatNumber(holding.balance)}</strong></td>
             <td class="mono"><strong class="redacted-field" tabindex="0">${formatPrice(holding.price)}</strong></td>
             <td class="mono"><strong class="redacted-field" tabindex="0">${formatCurrency(holding.value)}</strong></td>
@@ -5512,7 +5512,7 @@ function renderHoldingsTable() {
                       <div class="${valueClass} mono"><strong class="redacted-field" tabindex="0" data-whatif-field="value">${escapeHtml(valueText)}</strong></div>
                     </div>`;
                   })()}
-                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
+                  <div class="holding-metric"><div class="holding-metric-label">Market Cap</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0" data-whatif-field="mcap" data-mcap="${holding.mcap || 0}">${holding.mcap ? formatCurrency(holding.mcap) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Volume (24h)</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.volume24hUsd || 0) > 0) ? formatCurrency(holding.volume24hUsd) : '—'}</strong></div></div>
                   <div class="holding-metric"><div class="holding-metric-label">PnL (24h)</div><div class="holding-metric-value mono">${formatPnlCell(holding.changeUsd)}</div></div>
                   <div class="holding-metric"><div class="holding-metric-label">Liquidity</div><div class="holding-metric-value mono"><strong class="redacted-field" tabindex="0">${(Number(holding.liquidityUsd || 0) > 0) ? formatCurrency(holding.liquidityUsd) : '—'}</strong></div></div>
