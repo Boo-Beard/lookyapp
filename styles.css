@@ -4324,6 +4324,11 @@ body:not(.holdings-cards) .holdings-table td.price-col {
   display: none;
 }
 
+/* Hide action icons in list view - they appear on hover instead */
+body:not(.holdings-cards) .holding-card-actions {
+  display: none;
+}
+
 body.holdings-cards .holdings-table thead {
   display: none;
 }
