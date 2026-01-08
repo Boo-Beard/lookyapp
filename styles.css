@@ -1139,6 +1139,10 @@ body.ui-results #resultsSection .card:hover {
   transform: translateY(-2px);
 }
 
+#inputSection.card:hover {
+  border-color: var(--border);
+}
+
 body.ui-results #resultsSection .card::before {
   opacity: 0.14;
   background:
