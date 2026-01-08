@@ -680,7 +680,6 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
 
       // Update with data from API or cache
       if (Number(meta.marketCapUsd) > 0) {
-        console.log(`[MCAP UPDATE] ${h.symbol}: ${h.mcap} -> ${meta.marketCapUsd}`);
         h.mcap = Number(meta.marketCapUsd) || 0;
         changed = true;
       }
