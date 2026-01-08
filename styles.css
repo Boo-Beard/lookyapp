@@ -4329,6 +4329,17 @@ body:not(.holdings-cards) .holding-card-actions {
   display: none;
 }
 
+/* Hide token icons in list view */
+body:not(.holdings-cards) .token-icon {
+  display: none;
+}
+
+/* Adjust token cell layout in list view without icon */
+body:not(.holdings-cards) .token-cell {
+  gap: 0;
+  padding-left: 0;
+}
+
 body.holdings-cards .holdings-table thead {
   display: none;
 }
