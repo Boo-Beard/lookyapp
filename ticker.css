@@ -21,11 +21,11 @@
 }
 
 .ticker-item.ticker-positive {
-  border-color: var(--pnl-positive);
+  border-top-color: var(--pnl-positive);
 }
 
 .ticker-item.ticker-negative {
-  border-color: var(--pnl-negative);
+  border-bottom-color: var(--pnl-negative);
 }
 
 .ticker-item:hover {
