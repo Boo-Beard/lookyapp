@@ -4944,8 +4944,8 @@ function renderHoldingsTable() {
 
   state.viewMode = 'aggregate';
 
-  const useCardRows = true;
-  document.body.classList.toggle('holdings-cards', true);
+  const useCardRows = state.holdingsViewMode !== 'list';
+  document.body.classList.toggle('holdings-cards', useCardRows);
 
   const formatPnlCell = (pnlUsd) => {
     const v = Number(pnlUsd || 0) || 0;
@@ -7759,6 +7759,31 @@ function setupEventListeners() {
     setHoldingsPage(1); 
     scheduleRenderHoldingsTable();
   });
+  
+  // View toggle button
+  const viewToggleBtn = $('viewToggleBtn');
+  if (viewToggleBtn) {
+    viewToggleBtn.addEventListener('click', () => {
+      const isCards = state.holdingsViewMode !== 'list';
+      state.holdingsViewMode = isCards ? 'list' : 'cards';
+      try { localStorage.setItem('holdingsViewMode', state.holdingsViewMode); } catch {}
+      
+      const icon = viewToggleBtn.querySelector('.btn-icon i');
+      const text = viewToggleBtn.querySelector('span:not(.btn-icon)');
+      if (state.holdingsViewMode === 'list') {
+        if (icon) icon.className = 'fa-solid fa-list';
+        if (text) text.textContent = 'List';
+      } else {
+        if (icon) icon.className = 'fa-solid fa-table-cells';
+        if (text) text.textContent = 'Cards';
+      }
+      
+      setHoldingsPage(1);
+      invalidateHoldingsTableCache();
+      scheduleRenderHoldingsTable();
+      hapticFeedback('light');
+    });
+  }
   $('showHiddenHoldings')?.addEventListener('change', (e) => {
     const el = e?.target;
     const checked = !!(el && el.checked);
@@ -7883,6 +7908,26 @@ function initialize() {
   migrateLegacyStorageKeys();
 
   try { document.body?.setAttribute('data-js-ready', '1'); } catch {}
+  
+  // Initialize holdings view mode from localStorage
+  try {
+    const savedViewMode = localStorage.getItem('holdingsViewMode');
+    state.holdingsViewMode = savedViewMode === 'list' ? 'list' : 'cards';
+    
+    // Update button UI to match saved preference
+    const viewToggleBtn = $('viewToggleBtn');
+    if (viewToggleBtn) {
+      const icon = viewToggleBtn.querySelector('.btn-icon i');
+      const text = viewToggleBtn.querySelector('span:not(.btn-icon)');
+      if (state.holdingsViewMode === 'list') {
+        if (icon) icon.className = 'fa-solid fa-list';
+        if (text) text.textContent = 'List';
+      } else {
+        if (icon) icon.className = 'fa-solid fa-table-cells';
+        if (text) text.textContent = 'Cards';
+      }
+    }
+  } catch {}
 
   setupEyeTracking();
   setupEyeExpressions();
