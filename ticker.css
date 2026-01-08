@@ -18,6 +18,29 @@
   border: 2px solid var(--border);
   border-radius: 999px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.ticker-item.ticker-positive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--success);
+  border-radius: 999px 999px 0 0;
+}
+
+.ticker-item.ticker-negative::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--danger);
+  border-radius: 0 0 999px 999px;
 }
 
 .ticker-item:hover {
