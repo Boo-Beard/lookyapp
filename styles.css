@@ -2469,31 +2469,24 @@ background: var(--panel);
 }
 
 .watchlist-controls {
-  background: var(--panel);
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  box-shadow: var(--shadow-md);
-  padding: 12px;
   display: flex;
-  gap: 12px;
-  width: 600px;
-  max-width: calc(100% - 32px);
-  margin: 0 auto;
+  gap: 10px;
+  justify-content: center;
+  margin: 0 auto 16px;
 }
 
 .watchlist-controls .btn {
-  flex: 1 1 0;
-  min-width: 0;
-  margin: 0;
-  padding: 0 16px;
-  height: 40px;
+  padding: 10px 20px;
+  height: auto;
   background: var(--panel);
-  border: 2px solid #000;
-  border-radius: 8px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
   color: var(--text);
   font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0.3em 0.3em 0 #000;
+  font-weight: 700;
+  box-shadow: 0.2em 0.2em 0 var(--border);
+  transition: all 0.15s ease;
+  min-width: 120px;
 }
 
 .watchlist-controls .btn .btn-icon {
@@ -2510,18 +2503,17 @@ background: var(--panel);
 }
 
 .watchlist-controls .select {
-  flex: 1 1 0;
-  min-width: 0;
-  margin: 0;
-  padding: 0 12px;
-  height: 40px;
+  padding: 10px 20px;
+  height: auto;
   background: var(--panel);
-  border: 2px solid #000;
-  border-radius: 8px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
   color: var(--text);
   font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0.3em 0.3em 0 #000;
+  font-weight: 700;
+  box-shadow: 0.2em 0.2em 0 var(--border);
+  transition: all 0.15s ease;
+  min-width: 140px;
 }
 
 @media (max-width: 420px) {

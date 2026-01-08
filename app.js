@@ -5787,6 +5787,11 @@ async function refreshPortfolioMetrics({ force } = {}) {
       enrichHoldingsWithOverviewMeta(state.holdings, { signal: state.scanAbortController?.signal });
     } catch {}
 
+    // Increment version to force table re-render with updated mcap values
+    holdingsDataVersion++;
+    invalidateHoldingsTableCache();
+    renderHoldingsTable();
+
     try { savePortfolioSnapshot(); } catch {}
   } finally {
     portfolioRefreshInFlight = false;
