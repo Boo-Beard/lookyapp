@@ -626,13 +626,14 @@ function parseOverviewMeta(overview) {
   return { marketCapUsd, volume24hUsd, liquidityUsd };
 }
 
-async function enrichHoldingsWithOverviewMeta(holdings, { signal } = {}) {
+async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh = false } = {}) {
   if (!Array.isArray(holdings) || holdings.length === 0) return;
 
   const candidates = holdings
     .filter((h) => h && h.address && h.chain)
     .filter((h) => String(h.chain) !== 'evm' || isValidEvmContractAddress(String(h.address || '')))
     .filter((h) => {
+      if (forceRefresh) return true; // Force refresh all tokens
       const needsVol = !(Number(h.volume24hUsd || 0) > 0);
       const needsLiq = !(Number(h.liquidityUsd || 0) > 0);
       const needsMcap = !(Number(h.mcap || 0) > 0);
@@ -5968,8 +5969,9 @@ async function scanWallets({ queueOverride } = {}) {
   }
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
+  // Force refresh to get latest mcap values even if old values exist
   try {
-    await enrichHoldingsWithOverviewMeta(state.holdings, { signal });
+    await enrichHoldingsWithOverviewMeta(state.holdings, { signal, forceRefresh: true });
   } catch (e) {
     console.error('Failed to enrich holdings with overview metadata:', e);
   }
