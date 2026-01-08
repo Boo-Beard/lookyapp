@@ -2498,9 +2498,9 @@ background: var(--panel);
 }
 
 .watchlist-controls .select {
-  padding: 10px 20px;
+  padding: 10px 38px 10px 20px;
   height: auto;
-  background: var(--panel);
+  background-color: var(--panel);
   border: 2px solid var(--border);
   border-radius: 999px;
   color: var(--text);
@@ -2509,6 +2509,15 @@ background: var(--panel);
   box-shadow: 0.2em 0.2em 0 var(--border);
   transition: all 0.15s ease;
   min-width: 140px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230B0B10' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M7 12h10'/%3E%3Cpath d='M10 18h4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+:root[data-theme="dark"] .watchlist-controls .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23F7F3E8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M7 12h10'/%3E%3Cpath d='M10 18h4'/%3E%3C/svg%3E");
 }
 
 @media (max-width: 420px) {
