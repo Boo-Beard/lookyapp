@@ -1283,6 +1283,7 @@ const state = {
   holdingsPage: 1,
   lastScanFailedQueue: [],
   watchlistTokens: [],
+  holdingsViewMode: 'cards',
 };
 
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
