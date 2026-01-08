@@ -249,11 +249,6 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
 /* Button Press Effect */
 .btn:active,
 .mode-toggle-btn:active {
