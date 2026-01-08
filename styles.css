@@ -2548,7 +2548,6 @@ background: var(--panel);
 }
 
 #watchlistBody .holding-card:hover {
-  border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transform: translateX(-50%) translateY(-2px);
 }
@@ -4351,7 +4350,6 @@ width: 100%;
 }
 
 body.holdings-cards .holding-card:hover {
-  border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
