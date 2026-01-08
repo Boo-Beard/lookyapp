@@ -2195,6 +2195,11 @@ function resolveTokenIcon(logoUrl, symbol, { preferFast = true } = {}) {
   const sym = String(symbol || '').trim();
   const fallback = tokenIconDataUri(sym);
   if (!raw) return { src: fallback, fallback, cid: null };
+  
+  // Skip deprecated/broken gateways
+  if (raw.includes('gateway.irys.xyz') || raw.includes('arweave.net')) {
+    return { src: fallback, fallback, cid: null };
+  }
 
   const cid = extractIpfsCid(raw);
   if (!cid) {
