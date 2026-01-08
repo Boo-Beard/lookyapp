@@ -4338,6 +4338,19 @@ body:not(.holdings-cards) .token-icon {
 body:not(.holdings-cards) .token-cell {
   gap: 0;
   padding-left: 0;
+  display: block;
+}
+
+body:not(.holdings-cards) .token-info {
+  display: block;
+  overflow: visible;
+}
+
+body:not(.holdings-cards) .token-symbol,
+body:not(.holdings-cards) .token-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 body.holdings-cards .holdings-table thead {
