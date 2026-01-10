@@ -692,8 +692,10 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
         changed = true;
       }
       
-      // Update logo URL if available from overview API (only every 10 scans)
-      const shouldRefreshLogos = (state.scanCount || 0) % 10 === 0;
+      // Update logo URL if available from overview API
+      // Always refresh on normal scans, only every 10 scans on refresh scans
+      const isRefreshScan = state.isRefreshScan || false;
+      const shouldRefreshLogos = !isRefreshScan || ((state.scanCount || 0) % 10 === 0);
       if (shouldRefreshLogos && meta.logoUrl && String(meta.logoUrl).trim()) {
         const newLogo = String(meta.logoUrl).trim();
         if (newLogo && newLogo !== h.logo) {
@@ -5842,7 +5844,7 @@ async function refreshPortfolioMetrics({ force } = {}) {
   }
 }
 
-async function scanWallets({ queueOverride } = {}) {
+async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   if (state.scanning) return;
 
   if (!DISABLE_SCAN_COOLDOWN) {
@@ -5894,6 +5896,7 @@ async function scanWallets({ queueOverride } = {}) {
   state.scanMeta = { completed: 0, total: walletsQueue.length };
   state.scanAbortController = new AbortController();
   state.scanCount = (state.scanCount || 0) + 1;
+  state.isRefreshScan = isRefreshScan;
 
   const scanButton = $('scanButton');
   if (scanButton) {
@@ -6816,7 +6819,7 @@ function setupEventListeners() {
         const queueOverride = wallets
           .map((w, index) => ({ wallet: String(w?.address || ''), chain: String(w?.chain || ''), index }))
           .filter(w => w.wallet && (w.chain === 'solana' || w.chain === 'evm'));
-        await scanWallets({ queueOverride });
+        await scanWallets({ queueOverride, isRefreshScan: true });
         hapticFeedback('light');
         
         portfolioRefreshBtn.disabled = false;
