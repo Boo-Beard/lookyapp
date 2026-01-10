@@ -5032,6 +5032,12 @@ function renderHoldingsTable() {
   const canReuseFiltered = holdingsTableCache.key === cacheKey
     && holdingsTableCache.useCardRows === useCardRows
     && Array.isArray(holdingsTableCache.filtered);
+  
+  // Force cache invalidation if view mode changed
+  if (holdingsTableCache.useCardRows !== useCardRows) {
+    holdingsTableCache.htmlBase = null;
+    holdingsTableCache.page = null;
+  }
 
   let filtered = canReuseFiltered ? holdingsTableCache.filtered : null;
 
