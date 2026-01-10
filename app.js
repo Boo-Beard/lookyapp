@@ -704,12 +704,15 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
       }
       
       // Update logo URL if available from overview API
-      // Always refresh on normal scans, only every 10 scans on refresh scans
+      // Only update if current logo is a placeholder (data:image/svg) or missing
+      const currentLogo = String(h.logo || '').trim();
+      const isPlaceholder = !currentLogo || currentLogo.startsWith('data:image/svg');
       const isRefreshScan = state.isRefreshScan || false;
       const shouldRefreshLogos = !isRefreshScan || ((state.scanCount || 0) % 10 === 0);
-      if (shouldRefreshLogos && meta.logoUrl && String(meta.logoUrl).trim()) {
+      
+      if (isPlaceholder && shouldRefreshLogos && meta.logoUrl && String(meta.logoUrl).trim()) {
         const newLogo = String(meta.logoUrl).trim();
-        if (newLogo && newLogo !== h.logo) {
+        if (newLogo && !newLogo.startsWith('data:image/svg')) {
           h.logo = newLogo;
           changed = true;
         }
