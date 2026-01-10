@@ -7769,6 +7769,10 @@ function setupEventListeners() {
       state.holdingsViewMode = isCards ? 'list' : 'cards';
       try { localStorage.setItem('holdingsViewMode', state.holdingsViewMode); } catch {}
       
+      // Toggle body class immediately
+      const useCardRows = state.holdingsViewMode !== 'list';
+      document.body.classList.toggle('holdings-cards', useCardRows);
+      
       const icon = viewToggleBtn.querySelector('.btn-icon i');
       const text = viewToggleBtn.querySelector('span:not(.btn-icon)');
       // Button shows what you'll switch TO, not current mode
