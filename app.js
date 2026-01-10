@@ -5256,7 +5256,7 @@ function renderHoldingsTable() {
 
         return `
           <tr class="holding-row" data-key="${holding.key}">
-            <td>
+            <td class="token-col">
               <div class="token-cell">
                 ${(() => {
                   const icon = resolveTokenIcon(holding.logo, holding.symbol, { preferFast: false });
