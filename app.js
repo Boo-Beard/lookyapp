@@ -1293,6 +1293,7 @@ const state = {
   lastScanFailedQueue: [],
   watchlistTokens: [],
   holdingsViewMode: 'cards',
+  scanCount: 0,
 };
 
 const STORAGE_KEY_WATCHLIST_TOKENS = 'looky_watchlist_tokens_v1';
