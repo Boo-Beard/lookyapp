@@ -5037,6 +5037,9 @@ function renderHoldingsTable() {
   if (holdingsTableCache.useCardRows !== useCardRows) {
     holdingsTableCache.htmlBase = null;
     holdingsTableCache.page = null;
+    // Clear the hasRendered flag to force full HTML regeneration
+    const tbody = $('tableBody');
+    if (tbody) tbody.dataset.hasRendered = 'false';
   }
 
   let filtered = canReuseFiltered ? holdingsTableCache.filtered : null;
