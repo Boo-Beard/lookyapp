@@ -3037,7 +3037,17 @@ async function runTokenSearch(address, { signal, chain, network } = {}) {
 
   const symbol = String(data?.symbol || '').trim();
   const name = String(data?.name || '').trim();
-  const logoUrl = String(data?.logoURI ?? data?.logo_uri ?? data?.logoUrl ?? data?.logo_url ?? '').trim();
+  const logoUrl = String(
+    data?.logoURI ?? 
+    data?.logo_uri ?? 
+    data?.logoUrl ?? 
+    data?.logo_url ?? 
+    data?.icon ?? 
+    data?.image ?? 
+    data?.imageUrl ?? 
+    data?.image_url ?? 
+    ''
+  ).trim();
 
   return {
     address: raw,
@@ -3430,7 +3440,15 @@ async function fetchWalletHoldings(wallet, chain, { signal } = {}) {
         contract_address: contractAddress,
         symbol: String(fungible?.symbol || '—'),
         name: String(fungible?.name || 'Unknown Token'),
-        logo_uri: String(fungible?.icon?.url || ''),
+        logo_uri: String(
+          fungible?.icon?.url || 
+          fungible?.icon || 
+          fungible?.image?.url || 
+          fungible?.image || 
+          fungible?.logo || 
+          fungible?.logoUrl || 
+          ''
+        ),
         price: priceUsd,
         value: valueUsd,
         amount,
@@ -5649,7 +5667,7 @@ async function recomputeAggregatesAndRender() {
           network: network,
           symbol: holding.symbol || '—',
           name: holding.name || 'Unknown Token',
-          logo: holding.logo_uri || holding.logoURI || holding.icon || '',
+          logo: holding.logo_uri || holding.logoURI || holding.logoUrl || holding.logo_url || holding.icon || holding.image || holding.imageUrl || holding.image_url || '',
           price: Number(holding.price || holding.priceUsd || holding.price_usd || 0) || 0,
           balance: amount,
           value: value,
