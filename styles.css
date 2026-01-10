@@ -4000,27 +4000,27 @@ body.ui-results .table-subtitle {
 /* List view column widths (without price column) */
 body:not(.holdings-cards) .holdings-table th.token-col,
 body:not(.holdings-cards) .holdings-table td.token-col {
-  width: 35%;
+  width: 20%;
 }
 
 body:not(.holdings-cards) .holdings-table th.mcap-col,
 body:not(.holdings-cards) .holdings-table td.mcap-col {
-  width: 18%;
+  width: 20%;
 }
 
 body:not(.holdings-cards) .holdings-table th.balance-col,
 body:not(.holdings-cards) .holdings-table td.balance-col {
-  width: 17%;
+  width: 20%;
 }
 
 body:not(.holdings-cards) .holdings-table th.value-col,
 body:not(.holdings-cards) .holdings-table td.value-col {
-  width: 17%;
+  width: 20%;
 }
 
 body:not(.holdings-cards) .holdings-table th.pnl-col,
 body:not(.holdings-cards) .holdings-table td.pnl-col {
-  width: 13%;
+  width: 20%;
 }
 
 .holdings-table thead th:first-child {
