@@ -692,8 +692,9 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
         changed = true;
       }
       
-      // Update logo URL if available from overview API
-      if (meta.logoUrl && String(meta.logoUrl).trim()) {
+      // Update logo URL if available from overview API (only every 10 scans)
+      const shouldRefreshLogos = (state.scanCount || 0) % 10 === 0;
+      if (shouldRefreshLogos && meta.logoUrl && String(meta.logoUrl).trim()) {
         const newLogo = String(meta.logoUrl).trim();
         if (newLogo && newLogo !== h.logo) {
           h.logo = newLogo;
@@ -5892,6 +5893,7 @@ async function scanWallets({ queueOverride } = {}) {
   state.lastScanFailedQueue = [];
   state.scanMeta = { completed: 0, total: walletsQueue.length };
   state.scanAbortController = new AbortController();
+  state.scanCount = (state.scanCount || 0) + 1;
 
   const scanButton = $('scanButton');
   if (scanButton) {
