@@ -692,6 +692,15 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
         changed = true;
       }
       
+      // Update logo URL if available from overview API
+      if (meta.logoUrl && String(meta.logoUrl).trim()) {
+        const newLogo = String(meta.logoUrl).trim();
+        if (newLogo && newLogo !== h.logo) {
+          h.logo = newLogo;
+          changed = true;
+        }
+      }
+      
       // Progressive rendering: update UI every 5 tokens
       updateCounter++;
       if (updateCounter % 5 === 0) {
