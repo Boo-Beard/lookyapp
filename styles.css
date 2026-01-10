@@ -4192,21 +4192,30 @@ body.ui-results .holdings-table td:nth-child(5) {
     padding: 20px 18px 16px;
   }
 
-  .holdings-table thead {
+  body.holdings-cards .holdings-table thead {
     display: none;
   }
+  
+  body:not(.holdings-cards) .holdings-table thead {
+    display: table-header-group;
+  }
 
-  .holdings-table {
+  body.holdings-cards .holdings-table {
     border-spacing: 0 12px;
   }
 
-  .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
+  body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
     background: transparent;
   }
 
-  .holdings-table td {
+  body.holdings-cards .holdings-table td {
     border-bottom: none;
     padding: 0;
+  }
+  
+  body:not(.holdings-cards) .holdings-table td {
+    padding: 12px 10px;
+    border-bottom: 2px solid var(--border);
   }
 
   .holding-card-row {
@@ -4351,6 +4360,12 @@ body:not(.holdings-cards) .token-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Hide pseudo-elements in list view that cause layout issues */
+body:not(.holdings-cards) .holding-row::before,
+body:not(.holdings-cards) .holding-row::after {
+  content: none;
 }
 
 body.holdings-cards .holdings-table thead {
