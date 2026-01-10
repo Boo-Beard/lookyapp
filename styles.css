@@ -858,7 +858,7 @@ body.is-redacted .share-qr-container * {
 
 .summary-card:hover {
   border-color: var(--border-hover);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.65), 10px 10px 0 rgba(11, 11, 16, 0.95), 14px 14px 0 rgba(0, 194, 255, 0.2);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.65), 10px 10px 0 rgba(11, 11, 16, 0.95);
   transform: translateY(-3px) translateX(-1px);
 }
 
@@ -902,7 +902,7 @@ body.is-redacted .share-qr-container * {
 
 .summary-card:hover .summary-icon {
   transform: translateX(-50%) translateY(-2px);
-  box-shadow: 4px 4px 0 rgba(11, 11, 16, 0.95), 6px 6px 0 rgba(0, 194, 255, 0.25);
+  box-shadow: 4px 4px 0 rgba(11, 11, 16, 0.95);
 }
 
 .summary-card .summary-content {
@@ -1019,23 +1019,23 @@ body.is-redacted .share-qr-container * {
 
 @media (max-width: 640px) {
   .container {
-    padding: 0 14px;
+    padding: 0 16px;
   }
   .main {
-    padding: 14px 0 120px;
+    padding: 16px 0 120px;
   }
   .input-container {
-    padding: 0 16px 18px;
+    padding: 0 18px 20px;
   }
   .input-header {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
     align-items: flex-start;
   }
 
   body.ui-landing .input-section {
     justify-content: flex-start;
-    padding-top: 10px;
+    padding-top: 12px;
   }
 
   body.ui-landing .action-buttons {
@@ -1043,11 +1043,31 @@ body.is-redacted .share-qr-container * {
   }
 
   .chain-badges {
-    gap: 8px;
+    gap: 10px;
   }
 
   .chain-badge {
-    padding: 6px 12px;
+    padding: 8px 14px;
+    font-size: 14px;
+    min-height: 36px;
+  }
+  
+  /* Better spacing for summary grid on mobile */
+  .summary-grid {
+    gap: 16px;
+  }
+  
+  .summary-card {
+    padding: 38px 18px 20px;
+  }
+  
+  /* Improve table footer on mobile */
+  .table-footer {
+    padding: 16px 0;
+    gap: 14px;
+  }
+  
+  .table-stats {
     font-size: 13px;
   }
 
@@ -4239,7 +4259,34 @@ body.ui-results .holdings-table td:nth-child(5) {
 
 @media (max-width: 640px) {
   .table-header {
-    padding: 20px 18px 16px;
+    padding: 24px 20px 18px;
+  }
+  
+  /* Larger touch targets for mobile */
+  .btn {
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  
+  .btn-sm {
+    min-height: 44px;
+    height: 44px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+  
+  .select {
+    min-height: 44px;
+    height: 44px;
+    font-size: 15px;
+  }
+  
+  .search-input {
+    min-height: 44px;
+    height: 44px;
+    font-size: 15px;
+    padding: 12px 14px 12px 42px;
   }
 
   body.holdings-cards .holdings-table thead {
@@ -4264,8 +4311,14 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
   
   body:not(.holdings-cards) .holdings-table td {
-    padding: 12px 10px;
+    padding: 14px 8px;
     border-bottom: 2px solid var(--border);
+    font-size: 14px;
+  }
+  
+  body:not(.holdings-cards) .holdings-table th {
+    padding: 12px 8px;
+    font-size: 12px;
   }
 
   .holding-card-row {
@@ -4327,17 +4380,18 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-card-metrics {
-    padding: 16px;
+    padding: 18px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
   }
 
   .holding-metric {
     border-radius: 16px;
     border: 2px solid var(--border);
     background: var(--panel);
-    padding: 10px;
+    padding: 12px;
+    min-height: 60px;
   }
 
   .holding-metric-label {
@@ -4350,8 +4404,9 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
 
   .holding-metric-value {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--text-primary);
+    line-height: 1.3;
   }
 
   .holding-metric-value strong {
@@ -5458,8 +5513,14 @@ body.ui-results .table-stats {
   }
 
   .table-pagination-top {
-    margin-top: 10px;
-    margin-bottom: 0;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+  
+  .table-pagination-top .page-indicator {
+    font-size: 14px;
+    padding: 12px 14px;
   }
 
   .table-container {
