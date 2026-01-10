@@ -637,6 +637,46 @@ function parseOverviewMeta(overview) {
   return { marketCapUsd, volume24hUsd, liquidityUsd, logoUrl };
 }
 
+const dexScreenerLogoCache = new Map();
+const DEXSCREENER_LOGO_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+async function fetchDexScreenerLogo(address, chain) {
+  const addr = String(address || '').trim();
+  const ch = String(chain || '').trim();
+  if (!addr || !ch) return null;
+  
+  const cacheKey = `${ch}:${addr}`;
+  const cached = dexScreenerLogoCache.get(cacheKey);
+  if (cached && (Date.now() - cached.ts) < DEXSCREENER_LOGO_CACHE_TTL_MS) {
+    return cached.logo || null;
+  }
+  
+  try {
+    const dexChain = dexscreenerChain(ch, '');
+    const url = `https://api.dexscreener.com/latest/dex/tokens/${addr}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      dexScreenerLogoCache.set(cacheKey, { ts: Date.now(), logo: null });
+      return null;
+    }
+    
+    const data = await response.json();
+    const pairs = Array.isArray(data?.pairs) ? data.pairs : [];
+    if (pairs.length === 0) {
+      dexScreenerLogoCache.set(cacheKey, { ts: Date.now(), logo: null });
+      return null;
+    }
+    
+    // Get logo from first pair
+    const logo = String(pairs[0]?.info?.imageUrl || '').trim();
+    dexScreenerLogoCache.set(cacheKey, { ts: Date.now(), logo });
+    return logo || null;
+  } catch {
+    dexScreenerLogoCache.set(cacheKey, { ts: Date.now(), logo: null });
+    return null;
+  }
+}
+
 async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh = false } = {}) {
   if (!Array.isArray(holdings) || holdings.length === 0) return;
 
@@ -710,11 +750,24 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
       const isRefreshScan = state.isRefreshScan || false;
       const shouldRefreshLogos = !isRefreshScan || ((state.scanCount || 0) % 10 === 0);
       
-      if (isPlaceholder && shouldRefreshLogos && meta.logoUrl && String(meta.logoUrl).trim()) {
-        const newLogo = String(meta.logoUrl).trim();
-        if (newLogo && !newLogo.startsWith('data:image/svg')) {
-          h.logo = newLogo;
-          changed = true;
+      if (isPlaceholder && shouldRefreshLogos) {
+        // Try Birdeye logo first
+        if (meta.logoUrl && String(meta.logoUrl).trim()) {
+          const newLogo = String(meta.logoUrl).trim();
+          if (newLogo && !newLogo.startsWith('data:image/svg')) {
+            h.logo = newLogo;
+            changed = true;
+          }
+        }
+        // Fallback to DexScreener if still placeholder
+        else {
+          try {
+            const dexLogo = await fetchDexScreenerLogo(addr, chain);
+            if (dexLogo && !dexLogo.startsWith('data:image/svg')) {
+              h.logo = dexLogo;
+              changed = true;
+            }
+          } catch {}
         }
       }
       
