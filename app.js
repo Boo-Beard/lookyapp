@@ -623,7 +623,18 @@ function parseOverviewMeta(overview) {
     data?.liquidity_1d ??
     0
   ) || 0;
-  return { marketCapUsd, volume24hUsd, liquidityUsd };
+  const logoUrl = String(
+    data?.logoURI ?? 
+    data?.logo_uri ?? 
+    data?.logoUrl ?? 
+    data?.logo_url ?? 
+    data?.icon ?? 
+    data?.image ?? 
+    data?.imageUrl ?? 
+    data?.image_url ?? 
+    ''
+  ).trim();
+  return { marketCapUsd, volume24hUsd, liquidityUsd, logoUrl };
 }
 
 async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh = false } = {}) {
