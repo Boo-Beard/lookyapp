@@ -3642,7 +3642,7 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 let shouldAnimateSummary = false;
 
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 1400) {
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 2000) {
   if (!element) return;
   
   // Use new NumberAnimator if available for better animations
