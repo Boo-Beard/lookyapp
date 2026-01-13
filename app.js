@@ -6081,6 +6081,11 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   renderHoldingsTable();
   updateSummary();
   
+  // Save portfolio history snapshot
+  if (typeof savePortfolioHistorySnapshot === 'function') {
+    savePortfolioHistorySnapshot();
+  }
+  
   // Ticker updates automatically every 5 minutes only, not after scan
   
   // Don't force collapse sections - preserve user's open/close state
@@ -8217,9 +8222,11 @@ if (document.readyState === 'loading') {
     safeInitialize();
     setupEyeExpressionTriggers();
     initializeTicker();
+    if (typeof initPortfolioHistory === 'function') initPortfolioHistory();
   });
 } else {
   safeInitialize();
   setupEyeExpressionTriggers();
   initializeTicker();
+  if (typeof initPortfolioHistory === 'function') initPortfolioHistory();
 }

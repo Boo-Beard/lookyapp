@@ -27,6 +27,7 @@
   <!-- <link rel="stylesheet" href="./mobile-gestures.css?v=2" /> -->
   <link rel="stylesheet" href="./cache-styles.css?v=2" />
   <link rel="stylesheet" href="./animations.css?v=4" />
+  <link rel="stylesheet" href="./portfolio-history.css?v=1" />
   
   <!-- Apply theme immediately to prevent flash -->
   <script>
@@ -433,6 +434,50 @@
           </div>
         </div>
 
+        <div class="card alloc-risk-card is-collapsed" id="historyChartCard">
+          <div class="alloc-risk-header">
+            <div class="collapsible-header-left">
+              <h3 class="table-title">Portfolio History</h3>
+              <div class="table-subtitle">Track your portfolio value over time</div>
+            </div>
+            <div class="section-scan-indicator" aria-hidden="true"></div>
+            <button id="historyChartToggle" class="collapse-toggle" type="button" aria-label="Toggle Portfolio History" aria-controls="historyChartContent" aria-expanded="false">
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="historyChartContent" class="alloc-risk-body collapsible-content hidden">
+            <div class="history-chart-container">
+              <div class="history-chart-controls">
+                <button class="btn btn-sm history-period-btn is-active" data-period="7d">7D</button>
+                <button class="btn btn-sm history-period-btn" data-period="30d">30D</button>
+                <button class="btn btn-sm history-period-btn" data-period="90d">90D</button>
+                <button class="btn btn-sm history-period-btn" data-period="all">All</button>
+              </div>
+              <div class="history-chart-wrapper">
+                <canvas id="historyChart" aria-label="Portfolio value history chart"></canvas>
+              </div>
+              <div class="history-chart-stats">
+                <div class="history-stat">
+                  <div class="history-stat-label">Current Value</div>
+                  <div id="historyCurrentValue" class="history-stat-value redacted-field" tabindex="0">$0.00</div>
+                </div>
+                <div class="history-stat">
+                  <div class="history-stat-label">Period Change</div>
+                  <div id="historyPeriodChange" class="history-stat-value">+$0.00 (0.00%)</div>
+                </div>
+                <div class="history-stat">
+                  <div class="history-stat-label">All-Time High</div>
+                  <div id="historyAllTimeHigh" class="history-stat-value redacted-field" tabindex="0">$0.00</div>
+                </div>
+                <div class="history-stat">
+                  <div class="history-stat-label">Data Points</div>
+                  <div id="historyDataPoints" class="history-stat-value">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card alloc-risk-card is-collapsed" id="portfolioScoreCard">
           <div class="alloc-risk-header">
             <div class="collapsible-header-left">
@@ -575,7 +620,8 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="animations.js?v=1"></script>
   <script src="cache-manager.js?v=1"></script>
-  <script src="./app.js?v=117"></script>
+  <script src="portfolio-history.js?v=1"></script>
+  <script src="./app.js?v=118"></script>
   <!-- <script src="mobile-gestures.js?v=1" defer></script> -->
 </body>
 </html>
