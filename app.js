@@ -3702,10 +3702,18 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
-      element.textContent = formatter(currentTarget);
-      element.classList.remove('counting-animation');
-      animatingElements.delete(element.id);
-      delete element.dataset.targetValue;
+      // Animation reached target, but keep it "alive" if scanning is still active
+      if (shouldAnimateSummary && state.scanning) {
+        // Hold at current value and keep checking for updates
+        element.textContent = formatter(currentTarget);
+        requestAnimationFrame(animate);
+      } else {
+        // Scan complete, finalize the animation
+        element.textContent = formatter(currentTarget);
+        element.classList.remove('counting-animation');
+        animatingElements.delete(element.id);
+        delete element.dataset.targetValue;
+      }
     }
   };
 
