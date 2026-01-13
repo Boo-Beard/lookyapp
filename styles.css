@@ -2587,6 +2587,26 @@ background: var(--panel);
   opacity: 0 !important;
 }
 
+#watchlistBody .holding-card {
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  left: auto;
+  transform: none;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: var(--paper);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 15px;
+}
+
+#watchlistBody .holding-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
 #watchlistBody .holding-card-metrics {
   padding: 18px;
   display: grid;
@@ -2812,6 +2832,26 @@ font-size: 14px;
   font-weight: 700;
 }
 
+
+#searchResults .holding-card {
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  left: auto;
+  transform: none;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: var(--paper);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 15px;
+}
+
+#searchResults .holding-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
 
 #searchResults .search-token-card {
   border: none;
