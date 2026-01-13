@@ -3697,6 +3697,7 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 }
 
 function updateSummary() {
+  console.log('📊 updateSummary called - shouldAnimateSummary:', shouldAnimateSummary, 'totalValue:', state.totalValue);
   const totalValueEl = $('totalValue');
   if (totalValueEl) {
     animateNumber(totalValueEl, state.totalValue, formatCurrency);
@@ -5964,6 +5965,7 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   
   state.scanning = true;
   shouldAnimateSummary = true; // Enable animations during scan
+  console.log('🚀 Scan started - shouldAnimateSummary set to:', shouldAnimateSummary);
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
@@ -6071,6 +6073,7 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
 
   state.scanning = false;
   shouldAnimateSummary = false; // Disable animations after scan completes
+  console.log('🏁 Scan completed - shouldAnimateSummary set to:', shouldAnimateSummary);
   setScanningUi(false);
   state.scanAbortController = null;
 
