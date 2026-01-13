@@ -2838,6 +2838,47 @@ font-size: 14px;
   flex-shrink: 0;
 }
 
+#searchResults .holding-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+#searchResults .holding-action {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+#searchResults .holding-action:hover {
+  background: var(--panel);
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+#searchResults .holding-action:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+#searchResults .holding-action:active {
+  transform: scale(0.95);
+}
+
+#searchResults .holding-action.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 #searchResults .holding-card-metrics {
   padding: 18px;
   display: grid;
