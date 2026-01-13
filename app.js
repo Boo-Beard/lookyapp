@@ -3642,7 +3642,7 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 let shouldAnimateSummary = false;
 
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 1200) {
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 1800) {
   if (!element) return;
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
@@ -3659,8 +3659,7 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     return;
   }
 
-  // Add animation class for visual effect
-  element.classList.add('counting-animation');
+  // Animation class removed - no visual effects needed
 
   const startTime = performance.now();
 
@@ -3678,7 +3677,6 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
       requestAnimationFrame(animate);
     } else {
       element.textContent = formatter(targetValue);
-      element.classList.remove('counting-animation');
     }
   };
 
