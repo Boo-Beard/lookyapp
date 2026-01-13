@@ -3641,12 +3641,14 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 }
 
 let shouldAnimateSummary = false;
+const animatingElements = new Set();
 
 function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 2000) {
-  console.log('🎬 animateNumber called:', { element: element?.id, targetValue, shouldAnimateSummary });
+  if (!element) return;
   
-  if (!element) {
-    console.log('❌ No element provided');
+  // If this element is already animating, just update the target value smoothly
+  if (animatingElements.has(element.id)) {
+    element.dataset.targetValue = targetValue;
     return;
   }
   
@@ -3663,31 +3665,24 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
   
-  console.log('🔍 animateNumber check:', { 
-    elementId: element.id, 
-    startValue, 
-    targetValue, 
-    diff: Math.abs(targetValue - startValue),
-    shouldAnimateSummary 
-  });
-  
   // If values are the same or very close, just set directly
   if (Math.abs(targetValue - startValue) < 0.01) {
-    console.log('⏭️ Skipping animation - values too close');
     element.textContent = formatter(targetValue);
     return;
   }
 
   // Only animate if explicitly enabled (during scan progress)
   if (!shouldAnimateSummary) {
-    console.log('⏭️ Skipping animation - shouldAnimateSummary is false');
     element.textContent = formatter(targetValue);
     return;
   }
 
+  // Mark this element as animating
+  animatingElements.add(element.id);
+  element.dataset.targetValue = targetValue;
+
   // Add animation class for visual effect
   element.classList.add('counting-animation');
-  console.log('🎯 Animation triggered!', { element: element.id, startValue, targetValue, shouldAnimateSummary });
 
   const startTime = performance.now();
 
@@ -3695,17 +3690,22 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
+    // Check if target value was updated during animation
+    const currentTarget = parseFloat(element.dataset.targetValue) || targetValue;
+    
     // Easing function for smooth animation (easeOutCubic for more dramatic effect)
     const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-    const currentValue = startValue + (targetValue - startValue) * easeOutCubic;
+    const currentValue = startValue + (currentTarget - startValue) * easeOutCubic;
     
     element.textContent = formatter(currentValue);
     
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
-      element.textContent = formatter(targetValue);
+      element.textContent = formatter(currentTarget);
       element.classList.remove('counting-animation');
+      animatingElements.delete(element.id);
+      delete element.dataset.targetValue;
     }
   };
 
@@ -3713,7 +3713,6 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 }
 
 function updateSummary() {
-  console.log('📊 updateSummary called - shouldAnimateSummary:', shouldAnimateSummary, 'totalValue:', state.totalValue);
   const totalValueEl = $('totalValue');
   if (totalValueEl) {
     animateNumber(totalValueEl, state.totalValue, formatCurrency);
@@ -5981,7 +5980,6 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   
   state.scanning = true;
   shouldAnimateSummary = true; // Enable animations during scan
-  console.log('🚀 Scan started - shouldAnimateSummary set to:', shouldAnimateSummary);
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
@@ -6094,7 +6092,6 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   // Keep animations enabled for a bit longer to allow final updates to animate
   setTimeout(() => {
     shouldAnimateSummary = false;
-    console.log('🏁 Animations disabled after final updates');
   }, 2500); // Wait 2.5 seconds (longer than animation duration) before disabling
 
   updateScanCooldownUi();
