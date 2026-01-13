@@ -3650,16 +3650,16 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     return;
   }
   
-  // Use new NumberAnimator if available for better animations
-  if (window.numberAnimator && shouldAnimateSummary) {
-    console.log('🎥 Using window.numberAnimator');
-    window.numberAnimator.animateNumber(element, targetValue, {
-      duration,
-      easing: 'easeOutQuart',
-      formatter
-    });
-    return;
-  }
+  // Disable external NumberAnimator to use our custom epic animation instead
+  // if (window.numberAnimator && shouldAnimateSummary) {
+  //   console.log('🎥 Using window.numberAnimator');
+  //   window.numberAnimator.animateNumber(element, targetValue, {
+  //     duration,
+  //     easing: 'easeOutQuart',
+  //     formatter
+  //   });
+  //   return;
+  // }
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
   
