@@ -180,6 +180,29 @@ function renderPortfolioHistoryChart() {
     return;
   }
   
+  if (filteredHistory.length === 1) {
+    // Show single data point with message
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth || 600;
+    canvas.height = 300;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw single point
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    const pointColor = isDark ? '#00c2ff' : '#0066cc';
+    ctx.fillStyle = pointColor;
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Show message
+    ctx.fillStyle = 'var(--text-tertiary)';
+    ctx.font = '14px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('1 data point recorded. Scan again tomorrow to see the trend!', canvas.width / 2, canvas.height / 2 + 30);
+    return;
+  }
+  
   // Prepare data
   const values = filteredHistory.map(p => p.value);
   const timestamps = filteredHistory.map(p => p.timestamp);
