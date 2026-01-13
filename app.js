@@ -5958,6 +5958,9 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
     updateScanCooldownUi();
   }
 
+  // Store the current total value as previous before starting the scan
+  const valueBeforeScan = state.totalValue || 0;
+  
   state.scanning = true;
   shouldAnimateSummary = true; // Enable animations during scan
   setScanningUi(true);
@@ -5968,6 +5971,11 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   state.scanAbortController = new AbortController();
   state.scanCount = (state.scanCount || 0) + 1;
   state.isRefreshScan = isRefreshScan;
+  
+  // Set previous total value at the start of scan
+  if (valueBeforeScan > 0) {
+    state.previousTotalValue = valueBeforeScan;
+  }
 
   const scanButton = $('scanButton');
   if (scanButton) {
@@ -6074,16 +6082,8 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   }
   recomputeQueued = false;
 
-  // Store the current total value as previous before recomputing with new scan data
-  const valueBeforeScan = state.totalValue;
-  
   // Recompute aggregates first to populate state.holdings
   await recomputeAggregatesAndRender();
-  
-  // Update previous total value to the value before this scan
-  if (valueBeforeScan > 0) {
-    state.previousTotalValue = valueBeforeScan;
-  }
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
   // Force refresh to get latest mcap values even if old values exist
