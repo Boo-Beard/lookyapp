@@ -4304,34 +4304,34 @@ body.ui-results .holdings-table td:nth-child(5) {
     padding: 12px 14px 12px 42px;
   }
 
-  body.holdings-cards .holdings-table thead {
+  body.holdings-cards #holdingsTable thead {
     display: none;
   }
   
-  body:not(.holdings-cards) .holdings-table thead {
+  body:not(.holdings-cards) #holdingsTable thead {
     display: table-header-group;
   }
 
-  body.holdings-cards .holdings-table {
+  body.holdings-cards #holdingsTable {
     border-spacing: 0 12px;
   }
 
-  body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
+  body.holdings-cards #holdingsTable tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
     background: transparent;
   }
 
-  body.holdings-cards .holdings-table td {
+  body.holdings-cards #holdingsTable td {
     border-bottom: none;
     padding: 0;
   }
   
-  body:not(.holdings-cards) .holdings-table td {
+  body:not(.holdings-cards) #holdingsTable td {
     padding: 14px 8px;
     border-bottom: 2px solid var(--border);
     font-size: 14px;
   }
   
-  body:not(.holdings-cards) .holdings-table th {
+  body:not(.holdings-cards) #holdingsTable th {
     padding: 12px 8px;
     font-size: 12px;
   }
@@ -4428,40 +4428,35 @@ body.ui-results .holdings-table td:nth-child(5) {
     font-weight: 900;
   }
 
-  body.holdings-cards .holdings-table th,
-  body.holdings-cards .holdings-table td {
+  body.holdings-cards #holdingsTable th,
+  body.holdings-cards #holdingsTable td {
     padding: 12px 10px;
   }
 
-  .holdings-table th.price-col,
-  .holdings-table td.price-col {
-    display: none;
-  }
-
-  body.holdings-cards .token-icon {
+  body.holdings-cards #holdingsTable .token-icon {
     width: 38px;
     height: 38px;
   }
 
-  body.holdings-cards .token-name {
+  body.holdings-cards #holdingsTable .token-name {
     display: none;
   }
   
   /* List view mobile optimizations */
-  body:not(.holdings-cards) .holdings-table {
+  body:not(.holdings-cards) #holdingsTable {
     font-size: 13px;
   }
   
-  body:not(.holdings-cards) .holdings-table th {
+  body:not(.holdings-cards) #holdingsTable th {
     font-size: 11px;
     padding: 10px 6px;
   }
   
-  body:not(.holdings-cards) .holdings-table td {
+  body:not(.holdings-cards) #holdingsTable td {
     padding: 10px 6px;
   }
   
-  body:not(.holdings-cards) .token-symbol {
+  body:not(.holdings-cards) #holdingsTable .token-symbol {
     font-size: 13px;
   }
 }
@@ -4472,37 +4467,37 @@ body:not(.holdings-cards) .holdings-table td.price-col {
 }
 
 /* Hide action icons in list view - they appear on hover instead */
-body:not(.holdings-cards) .holding-card-actions {
+body:not(.holdings-cards) #holdingsTable .holding-card-actions {
   display: none;
 }
 
 /* Hide token icons in list view */
-body:not(.holdings-cards) .token-icon {
+body:not(.holdings-cards) #holdingsTable .token-icon {
   display: none;
 }
 
 /* Adjust token cell layout in list view without icon */
-body:not(.holdings-cards) .token-cell {
+body:not(.holdings-cards) #holdingsTable .token-cell {
   gap: 0;
   padding-left: 0;
   display: block;
 }
 
-body:not(.holdings-cards) .token-info {
+body:not(.holdings-cards) #holdingsTable .token-info {
   display: block;
   overflow: visible;
 }
 
-body:not(.holdings-cards) .token-symbol,
-body:not(.holdings-cards) .token-name {
+body:not(.holdings-cards) #holdingsTable .token-symbol,
+body:not(.holdings-cards) #holdingsTable .token-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* Hide pseudo-elements in list view that cause layout issues */
-body:not(.holdings-cards) .holding-row::before,
-body:not(.holdings-cards) .holding-row::after {
+body:not(.holdings-cards) #holdingsTable .holding-row::before,
+body:not(.holdings-cards) #holdingsTable .holding-row::after {
   content: none;
 }
 
@@ -4520,26 +4515,26 @@ body:not(.holdings-cards) .holding-row::after {
   margin: 0;
 }
 
-body.holdings-cards .holdings-table thead {
+body.holdings-cards #holdingsTable thead {
   display: none;
 }
 
 
-body.holdings-cards .holdings-table tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
+body.holdings-cards #holdingsTable tbody tr:nth-child(even):not(.empty-row):not(.skeleton-row) {
   background: transparent;
 }
 
-body.holdings-cards .holdings-table {
+body.holdings-cards #holdingsTable {
       margin-bottom: 10px;
     margin-top: 10px;
 }
 
-body.holdings-cards .holdings-table th,
-body.holdings-cards .holdings-table td {
+body.holdings-cards #holdingsTable th,
+body.holdings-cards #holdingsTable td {
   width: 100% !important;
 }
 
-body.holdings-cards .holdings-table td {
+body.holdings-cards #holdingsTable td {
   border-bottom: none;
   padding: 0;
 }
@@ -4556,23 +4551,23 @@ body.holdings-cards .table-container {
   }
 }
 
-body.holdings-cards .holding-card-row {
+body.holdings-cards #holdingsTable .holding-card-row {
   background: transparent !important;
 }
 
-body.holdings-cards .holding-card-row,
-body.holdings-cards .holding-card-row > td,
-body.holdings-cards .holding-card-row .holding-card,
-body.holdings-cards .holding-card-row .holding-card * {
+body.holdings-cards #holdingsTable .holding-card-row,
+body.holdings-cards #holdingsTable .holding-card-row > td,
+body.holdings-cards #holdingsTable .holding-card-row .holding-card,
+body.holdings-cards #holdingsTable .holding-card-row .holding-card * {
   pointer-events: auto;
 }
 
-body.holdings-cards .holding-card-row:hover::before,
-body.holdings-cards .holding-card-row:hover::after {
+body.holdings-cards #holdingsTable .holding-card-row:hover::before,
+body.holdings-cards #holdingsTable .holding-card-row:hover::after {
   opacity: 0;
 }
 
-body.holdings-cards .holding-card {
+body.holdings-cards #holdingsTable .holding-card {
 width: 100%;
     max-width: 100%;
     position: relative;
@@ -4588,12 +4583,12 @@ width: 100%;
     margin-bottom: 15px;
 }
 
-body.holdings-cards .holding-card:hover {
+body.holdings-cards #holdingsTable .holding-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
-body.holdings-cards .holding-card-header {
+body.holdings-cards #holdingsTable .holding-card-header {
     padding: 18px 18px 16px;
     display: flex;
     align-items: center;
@@ -4603,7 +4598,7 @@ body.holdings-cards .holding-card-header {
     background: var(--panel);
   }
 
-body.holdings-cards .holding-card-header-right {
+body.holdings-cards #holdingsTable .holding-card-header-right {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -4611,36 +4606,36 @@ body.holdings-cards .holding-card-header-right {
 }
 
 @media (max-width: 640px) {
-  body.holdings-cards .holding-card {
+  body.holdings-cards #holdingsTable .holding-card {
     position: relative;
   }
   
-  body.holdings-cards .holding-card-header {
+  body.holdings-cards #holdingsTable .holding-card-header {
     flex-wrap: wrap;
     align-items: flex-start;
   }
   
-  body.holdings-cards .holding-card-header .token-cell {
+  body.holdings-cards #holdingsTable .holding-card-header .token-cell {
     min-width: 0;
     flex: 1 1 100%;
     margin-bottom: 12px;
   }
   
-  body.holdings-cards .holding-card-header .holding-card-actions {
+  body.holdings-cards #holdingsTable .holding-card-header .holding-card-actions {
     flex-shrink: 0;
     gap: 20px;
     flex: 1 1 100%;
     justify-content: flex-start;
   }
   
-  body.holdings-cards .holding-card-header .chain-badge-small {
+  body.holdings-cards #holdingsTable .holding-card-header .chain-badge-small {
     position: absolute;
     top: -12px;
     right: -12px;
     z-index: 2;
   }
   
-  body.holdings-cards .holding-card-header-right {
+  body.holdings-cards #holdingsTable .holding-card-header-right {
     width: 100%;
     justify-content: center;
     flex: 1 1;
@@ -4648,14 +4643,14 @@ body.holdings-cards .holding-card-header-right {
 }
 
 
-body.holdings-cards .holding-card-actions {
+body.holdings-cards #holdingsTable .holding-card-actions {
   display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
 }
 
-body.holdings-cards .holding-action {
+body.holdings-cards #holdingsTable .holding-action {
   width: 36px;
   height: 36px;
   display: inline-flex;
@@ -4669,7 +4664,7 @@ body.holdings-cards .holding-action {
   transition: all 0.2s ease;
 }
 
-body.holdings-cards .holding-action:hover {
+body.holdings-cards #holdingsTable .holding-action:hover {
   background: var(--panel);
   color: var(--text-primary);
   transform: scale(1.1);
