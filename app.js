@@ -2088,9 +2088,23 @@ function buildWalletQueue() {
 let recomputeQueued = false;
 let recomputeLastAt = 0;
 let recomputeThrottleTimer = null;
+let walletBatchCounter = 0;
+const WALLET_BATCH_SIZE = 10; // Update UI every 10 wallets for smoother animation
+
 function scheduleRecomputeAggregatesAndRender() {
   const now = Date.now();
-  const throttleMs = state.scanning ? 450 : 0;
+  
+  // During scanning, only update every WALLET_BATCH_SIZE wallets
+  if (state.scanning) {
+    walletBatchCounter++;
+    if (walletBatchCounter < WALLET_BATCH_SIZE) {
+      return; // Skip update, wait for batch to complete
+    }
+    // Batch complete, reset counter and proceed with update
+    walletBatchCounter = 0;
+  }
+  
+  const throttleMs = state.scanning ? 1200 : 0; // Slower throttle for smoother animation
 
   if (throttleMs > 0 && (now - recomputeLastAt) < throttleMs) {
     if (recomputeThrottleTimer) return;
@@ -3647,7 +3661,7 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 let shouldAnimateSummary = false;
 
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 1800) {
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 2500) {
   if (!element) return;
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
@@ -5956,6 +5970,7 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   
   state.scanning = true;
   shouldAnimateSummary = true; // Enable animations during scan
+  walletBatchCounter = 0; // Reset batch counter at scan start
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
