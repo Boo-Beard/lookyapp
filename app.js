@@ -6088,10 +6088,14 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   await Promise.allSettled(workers);
 
   state.scanning = false;
-  shouldAnimateSummary = false; // Disable animations after scan completes
-  console.log('🏁 Scan completed - shouldAnimateSummary set to:', shouldAnimateSummary);
   setScanningUi(false);
   state.scanAbortController = null;
+  
+  // Keep animations enabled for a bit longer to allow final updates to animate
+  setTimeout(() => {
+    shouldAnimateSummary = false;
+    console.log('🏁 Animations disabled after final updates');
+  }, 2500); // Wait 2.5 seconds (longer than animation duration) before disabling
 
   updateScanCooldownUi();
 
