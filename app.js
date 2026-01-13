@@ -3657,14 +3657,24 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
   
+  console.log('🔍 animateNumber check:', { 
+    elementId: element.id, 
+    startValue, 
+    targetValue, 
+    diff: Math.abs(targetValue - startValue),
+    shouldAnimateSummary 
+  });
+  
   // If values are the same or very close, just set directly
   if (Math.abs(targetValue - startValue) < 0.01) {
+    console.log('⏭️ Skipping animation - values too close');
     element.textContent = formatter(targetValue);
     return;
   }
 
   // Only animate if explicitly enabled (during scan progress)
   if (!shouldAnimateSummary) {
+    console.log('⏭️ Skipping animation - shouldAnimateSummary is false');
     element.textContent = formatter(targetValue);
     return;
   }
