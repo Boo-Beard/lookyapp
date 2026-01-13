@@ -4501,6 +4501,64 @@ body:not(.holdings-cards) #holdingsTable .holding-row::after {
   content: none;
 }
 
+/* Force watchlist and search to always display as cards, regardless of holdings view mode */
+#watchlistBody .holding-card,
+#searchPanel .holding-card {
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  left: auto;
+  transform: none;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  background: var(--paper);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 15px;
+  display: block !important;
+}
+
+#watchlistBody .holding-card-header,
+#searchPanel .holding-card-header {
+  padding: 18px 18px 16px;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 2px solid var(--border);
+  background: var(--panel);
+}
+
+#watchlistBody .holding-card-metrics,
+#searchPanel .holding-card-metrics {
+  padding: 18px;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--paper);
+}
+
+#watchlistBody .token-icon,
+#searchPanel .token-icon {
+  display: block !important;
+  width: 40px;
+  height: 40px;
+}
+
+#watchlistBody .token-name,
+#searchPanel .token-name {
+  display: block !important;
+}
+
+#watchlistBody .holding-card-actions,
+#searchPanel .holding-card-actions {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
 /* View toggle button - icon only */
 #viewToggleBtn {
   padding: 8px 12px;
