@@ -3671,6 +3671,7 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
 
   // Add animation class for visual effect
   element.classList.add('counting-animation');
+  console.log('🎯 Animation triggered!', { element: element.id, startValue, targetValue, shouldAnimateSummary });
 
   const startTime = performance.now();
 
