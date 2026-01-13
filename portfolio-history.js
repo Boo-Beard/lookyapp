@@ -70,6 +70,13 @@ function savePortfolioHistorySnapshot() {
     
     localStorage.setItem(STORAGE_KEY_PORTFOLIO_HISTORY, JSON.stringify(history));
     console.log('✅ Portfolio history saved. Total snapshots:', history.length);
+    
+    // Re-render chart if it's currently visible
+    const content = document.getElementById('historyChartContent');
+    if (content && !content.classList.contains('hidden')) {
+      console.log('🔄 Re-rendering chart with new snapshot');
+      renderPortfolioHistoryChart();
+    }
   } catch (e) {
     console.error('Failed to save portfolio history:', e);
   }
