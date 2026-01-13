@@ -2821,6 +2821,23 @@ font-size: 14px;
   }
 }
 
+#searchResults .holding-card-header {
+  padding: 18px 18px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 2px solid var(--border);
+  background: var(--panel);
+}
+
+#searchResults .holding-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 #searchResults .holding-card-metrics {
   padding: 18px;
   display: grid;
