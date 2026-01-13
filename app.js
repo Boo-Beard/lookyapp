@@ -3642,7 +3642,7 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 let shouldAnimateSummary = false;
 
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 600) {
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 800) {
   if (!element) return;
   
   // Use new NumberAnimator if available for better animations
@@ -3669,15 +3669,18 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     return;
   }
 
+  // Add animation class for visual effect
+  element.classList.add('counting-animation');
+
   const startTime = performance.now();
 
   const animate = (currentTime) => {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
-    // Easing function for smooth animation
-    const easeOutQuad = progress * (2 - progress);
-    const currentValue = startValue + (targetValue - startValue) * easeOutQuad;
+    // Easing function for smooth animation (easeOutCubic for more dramatic effect)
+    const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+    const currentValue = startValue + (targetValue - startValue) * easeOutCubic;
     
     element.textContent = formatter(currentValue);
     
@@ -3685,6 +3688,7 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
       requestAnimationFrame(animate);
     } else {
       element.textContent = formatter(targetValue);
+      element.classList.remove('counting-animation');
     }
   };
 
