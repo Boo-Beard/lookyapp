@@ -2629,6 +2629,7 @@ background: var(--panel);
     padding: 6px;
     pointer-events: auto;
     transition: all 0.2s ease;
+text-align: center;
 }
 
 #watchlistBody .holding-metric:hover {
@@ -4353,6 +4354,8 @@ body.ui-results .holdings-table td:nth-child(5) {
   
   body:not(.holdings-cards) #holdingsTable thead {
     display: table-header-group;
+    background: var(--panel);
+    border-radius: var(--radius-md);
   }
 
   body.holdings-cards #holdingsTable {
@@ -4369,14 +4372,34 @@ body.ui-results .holdings-table td:nth-child(5) {
   }
   
   body:not(.holdings-cards) #holdingsTable td {
-    padding: 14px 8px;
-    border-bottom: 2px solid var(--border);
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--border);
     font-size: 14px;
+    background: var(--paper);
   }
   
   body:not(.holdings-cards) #holdingsTable th {
-    padding: 12px 8px;
-    font-size: 12px;
+    padding: 14px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    border-bottom: 2px solid var(--border);
+    background: var(--panel);
+    text-align: left;
+  }
+  
+  body:not(.holdings-cards) #holdingsTable tbody tr {
+    transition: all 0.2s ease;
+  }
+  
+  body:not(.holdings-cards) #holdingsTable tbody tr:hover {
+    background: var(--bg-secondary);
+  }
+  
+  body:not(.holdings-cards) #holdingsTable tbody tr:hover td {
+    background: var(--bg-secondary);
   }
 
   .holding-card-row {
