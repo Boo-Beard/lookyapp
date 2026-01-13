@@ -2088,23 +2088,10 @@ function buildWalletQueue() {
 let recomputeQueued = false;
 let recomputeLastAt = 0;
 let recomputeThrottleTimer = null;
-let walletBatchCounter = 0;
-const WALLET_BATCH_SIZE = 10; // Update UI every 10 wallets for smoother animation
 
 function scheduleRecomputeAggregatesAndRender() {
   const now = Date.now();
-  
-  // During scanning, only update every WALLET_BATCH_SIZE wallets
-  if (state.scanning) {
-    walletBatchCounter++;
-    if (walletBatchCounter < WALLET_BATCH_SIZE) {
-      return; // Skip update, wait for batch to complete
-    }
-    // Batch complete, reset counter and proceed with update
-    walletBatchCounter = 0;
-  }
-  
-  const throttleMs = state.scanning ? 1200 : 0; // Slower throttle for smoother animation
+  const throttleMs = state.scanning ? 450 : 0;
 
   if (throttleMs > 0 && (now - recomputeLastAt) < throttleMs) {
     if (recomputeThrottleTimer) return;
@@ -3659,47 +3646,10 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   else el.insertAdjacentHTML('beforeend', rowHtml);
 }
 
-let shouldAnimateSummary = false;
-
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 2500) {
+function animateNumber(element, targetValue, formatter = (v) => v.toString()) {
   if (!element) return;
-
-  const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
-  
-  // If values are the same or very close, just set directly
-  if (Math.abs(targetValue - startValue) < 0.01) {
-    element.textContent = formatter(targetValue);
-    return;
-  }
-
-  // Only animate if explicitly enabled (during scan progress)
-  if (!shouldAnimateSummary) {
-    element.textContent = formatter(targetValue);
-    return;
-  }
-
-  // Animation class removed - no visual effects needed
-
-  const startTime = performance.now();
-
-  const animate = (currentTime) => {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Easing function for smooth animation (easeOutCubic for more dramatic effect)
-    const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-    const currentValue = startValue + (targetValue - startValue) * easeOutCubic;
-    
-    element.textContent = formatter(currentValue);
-    
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      element.textContent = formatter(targetValue);
-    }
-  };
-
-  requestAnimationFrame(animate);
+  // No animation - just set the value directly
+  element.textContent = formatter(targetValue);
 }
 
 function updateSummary() {
@@ -5969,8 +5919,6 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   const valueBeforeScan = state.totalValue || 0;
   
   state.scanning = true;
-  shouldAnimateSummary = true; // Enable animations during scan
-  walletBatchCounter = 0; // Reset batch counter at scan start
   setScanningUi(true);
   state.walletHoldings = new Map();
   state.walletDayChange = new Map();
@@ -6093,18 +6041,12 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   await recomputeAggregatesAndRender();
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
-  // Keep animations enabled during enrichment for smooth progressive updates
   // Force refresh to get latest mcap values even if old values exist
   try {
     await enrichHoldingsWithOverviewMeta(state.holdings, { signal, forceRefresh: true });
   } catch (e) {
     console.error('Failed to enrich holdings with overview metadata:', e);
   }
-  
-  // Disable animations after enrichment completes and allow final animation to finish
-  setTimeout(() => {
-    shouldAnimateSummary = false;
-  }, 2000); // Wait 2 seconds after enrichment for final animation to complete
   
   // Force final render after enrichment completes to show mcap/volume/liquidity
   holdingsDataVersion++;
