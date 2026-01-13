@@ -3643,10 +3643,16 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 let shouldAnimateSummary = false;
 
 function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 2000) {
-  if (!element) return;
+  console.log('🎬 animateNumber called:', { element: element?.id, targetValue, shouldAnimateSummary });
+  
+  if (!element) {
+    console.log('❌ No element provided');
+    return;
+  }
   
   // Use new NumberAnimator if available for better animations
   if (window.numberAnimator && shouldAnimateSummary) {
+    console.log('🎥 Using window.numberAnimator');
     window.numberAnimator.animateNumber(element, targetValue, {
       duration,
       easing: 'easeOutQuart',
