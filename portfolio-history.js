@@ -5,6 +5,27 @@ const MAX_HISTORY_POINTS = 365; // Keep up to 1 year of data
 let historyChart = null;
 let currentHistoryPeriod = '7d';
 
+// Generate demo data for testing (30 days of simulated portfolio values)
+function generateDemoHistoryData() {
+  const demoData = [];
+  const now = Date.now();
+  const baseValue = 150000;
+  
+  for (let i = 29; i >= 0; i--) {
+    const timestamp = now - (i * 24 * 60 * 60 * 1000);
+    const randomChange = (Math.random() - 0.5) * 0.15; // ±15% variation
+    const trendChange = (29 - i) * 0.01; // Slight upward trend
+    const value = baseValue * (1 + randomChange + trendChange);
+    
+    demoData.push({
+      timestamp,
+      value: Math.round(value * 100) / 100,
+    });
+  }
+  
+  return demoData;
+}
+
 // Save portfolio snapshot to history
 function savePortfolioHistorySnapshot() {
   try {
@@ -12,8 +33,13 @@ function savePortfolioHistorySnapshot() {
     const now = Date.now();
     const totalValue = Number(state.totalValue || 0) || 0;
     
+    console.log('💾 Saving portfolio snapshot:', { totalValue, historyLength: history.length });
+    
     // Don't save if value is 0 or invalid
-    if (totalValue <= 0) return;
+    if (totalValue <= 0) {
+      console.warn('⚠️ Skipping snapshot - invalid value:', totalValue);
+      return;
+    }
     
     // Check if we already have a snapshot from today
     const today = new Date().toDateString();
@@ -22,6 +48,7 @@ function savePortfolioHistorySnapshot() {
       const lastDate = new Date(lastSnapshot.timestamp).toDateString();
       if (lastDate === today) {
         // Update today's snapshot instead of creating a new one
+        console.log('📝 Updating today\'s snapshot');
         lastSnapshot.value = totalValue;
         lastSnapshot.timestamp = now;
         localStorage.setItem(STORAGE_KEY_PORTFOLIO_HISTORY, JSON.stringify(history));
@@ -30,6 +57,7 @@ function savePortfolioHistorySnapshot() {
     }
     
     // Add new snapshot
+    console.log('✅ Adding new snapshot');
     history.push({
       timestamp: now,
       value: totalValue,
@@ -41,6 +69,7 @@ function savePortfolioHistorySnapshot() {
     }
     
     localStorage.setItem(STORAGE_KEY_PORTFOLIO_HISTORY, JSON.stringify(history));
+    console.log('✅ Portfolio history saved. Total snapshots:', history.length);
   } catch (e) {
     console.error('Failed to save portfolio history:', e);
   }
@@ -50,12 +79,41 @@ function savePortfolioHistorySnapshot() {
 function loadPortfolioHistory() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PORTFOLIO_HISTORY);
-    if (!raw) return [];
+    if (!raw) {
+      console.log('📊 No portfolio history found in localStorage');
+      return [];
+    }
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(p => p && typeof p.timestamp === 'number' && typeof p.value === 'number');
-  } catch {
+    const filtered = parsed.filter(p => p && typeof p.timestamp === 'number' && typeof p.value === 'number');
+    console.log('📊 Loaded portfolio history:', filtered.length, 'snapshots');
+    return filtered;
+  } catch (e) {
+    console.error('Failed to load portfolio history:', e);
     return [];
+  }
+}
+
+// Load demo data into localStorage (for testing)
+function loadDemoHistoryData() {
+  try {
+    const demoData = generateDemoHistoryData();
+    localStorage.setItem(STORAGE_KEY_PORTFOLIO_HISTORY, JSON.stringify(demoData));
+    console.log('✅ Demo data loaded:', demoData.length, 'snapshots');
+    renderPortfolioHistoryChart();
+  } catch (e) {
+    console.error('Failed to load demo data:', e);
+  }
+}
+
+// Clear all portfolio history
+function clearPortfolioHistory() {
+  try {
+    localStorage.removeItem(STORAGE_KEY_PORTFOLIO_HISTORY);
+    console.log('🗑️ Portfolio history cleared');
+    renderPortfolioHistoryChart();
+  } catch (e) {
+    console.error('Failed to clear portfolio history:', e);
   }
 }
 
@@ -282,6 +340,24 @@ function initPortfolioHistory() {
       renderPortfolioHistoryChart();
     });
   });
+  
+  // Load demo data button
+  const loadDemoBtn = document.getElementById('loadDemoHistoryBtn');
+  if (loadDemoBtn) {
+    loadDemoBtn.addEventListener('click', () => {
+      loadDemoHistoryData();
+    });
+  }
+  
+  // Clear history button
+  const clearBtn = document.getElementById('clearHistoryBtn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all portfolio history?')) {
+        clearPortfolioHistory();
+      }
+    });
+  }
   
   // Re-render chart on window resize
   let resizeTimeout;
