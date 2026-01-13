@@ -3647,13 +3647,18 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 }
 
 const lastAnimationTime = new Map();
-const ANIMATION_COOLDOWN = 300; // Minimum 300ms between animations for same element
+const ANIMATION_COOLDOWN = 800; // Minimum 800ms between animations for same element
 
 function animateNumber(element, targetValue, formatter = (v) => v.toString()) {
   if (!element) return;
   
   // Set the value directly (no counting animation)
   element.textContent = formatter(targetValue);
+  
+  // Only animate during active scanning, not during enrichment phase
+  if (!state.scanning) {
+    return; // Skip animation after scan completes
+  }
   
   // Debounce animation - prevent multiple pops in quick succession
   const now = Date.now();
