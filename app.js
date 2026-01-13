@@ -3648,8 +3648,14 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 
 function animateNumber(element, targetValue, formatter = (v) => v.toString()) {
   if (!element) return;
-  // No animation - just set the value directly
+  
+  // Set the value directly (no counting animation)
   element.textContent = formatter(targetValue);
+  
+  // Add cartoon pop animation
+  element.classList.remove('number-pop');
+  void element.offsetWidth; // Force reflow to restart animation
+  element.classList.add('number-pop');
 }
 
 function updateSummary() {
