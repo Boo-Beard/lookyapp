@@ -775,8 +775,13 @@ async function enrichHoldingsWithOverviewMeta(holdings, { signal, forceRefresh =
       updateCounter++;
       if (updateCounter % 5 === 0) {
         try {
+          // Recompute totals and update summary to show progressive enrichment
+          const totalValue = holdings.reduce((sum, h) => sum + (Number(h?.value || 0) || 0), 0);
+          state.totalValue = totalValue;
+          
           invalidateHoldingsTableCache();
           scheduleRenderHoldingsTable();
+          updateSummary();
         } catch {}
       }
     }
