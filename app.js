@@ -6064,11 +6064,6 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   state.scanning = false;
   setScanningUi(false);
   state.scanAbortController = null;
-  
-  // Keep animations enabled for a bit longer to allow final updates to animate
-  setTimeout(() => {
-    shouldAnimateSummary = false;
-  }, 2500); // Wait 2.5 seconds (longer than animation duration) before disabling
 
   updateScanCooldownUi();
 
@@ -6083,12 +6078,18 @@ async function scanWallets({ queueOverride, isRefreshScan = false } = {}) {
   await recomputeAggregatesAndRender();
   
   // Now enrich with overview metadata (marketcap, volume, liquidity) before final render
+  // Keep animations enabled during enrichment for smooth progressive updates
   // Force refresh to get latest mcap values even if old values exist
   try {
     await enrichHoldingsWithOverviewMeta(state.holdings, { signal, forceRefresh: true });
   } catch (e) {
     console.error('Failed to enrich holdings with overview metadata:', e);
   }
+  
+  // Disable animations after enrichment completes and allow final animation to finish
+  setTimeout(() => {
+    shouldAnimateSummary = false;
+  }, 2000); // Wait 2 seconds after enrichment for final animation to complete
   
   // Force final render after enrichment completes to show mcap/volume/liquidity
   holdingsDataVersion++;
