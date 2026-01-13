@@ -3641,27 +3641,9 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
 }
 
 let shouldAnimateSummary = false;
-const animatingElements = new Set();
 
-function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 2000) {
+function animateNumber(element, targetValue, formatter = (v) => v.toString(), duration = 1200) {
   if (!element) return;
-  
-  // If this element is already animating, just update the target value smoothly
-  if (animatingElements.has(element.id)) {
-    element.dataset.targetValue = targetValue;
-    return;
-  }
-  
-  // Disable external NumberAnimator to use our custom epic animation instead
-  // if (window.numberAnimator && shouldAnimateSummary) {
-  //   console.log('🎥 Using window.numberAnimator');
-  //   window.numberAnimator.animateNumber(element, targetValue, {
-  //     duration,
-  //     easing: 'easeOutQuart',
-  //     formatter
-  //   });
-  //   return;
-  // }
 
   const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
   
@@ -3677,10 +3659,6 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     return;
   }
 
-  // Mark this element as animating
-  animatingElements.add(element.id);
-  element.dataset.targetValue = targetValue;
-
   // Add animation class for visual effect
   element.classList.add('counting-animation');
 
@@ -3690,30 +3668,17 @@ function animateNumber(element, targetValue, formatter = (v) => v.toString(), du
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
-    // Check if target value was updated during animation
-    const currentTarget = parseFloat(element.dataset.targetValue) || targetValue;
-    
     // Easing function for smooth animation (easeOutCubic for more dramatic effect)
     const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-    const currentValue = startValue + (currentTarget - startValue) * easeOutCubic;
+    const currentValue = startValue + (targetValue - startValue) * easeOutCubic;
     
     element.textContent = formatter(currentValue);
     
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
-      // Animation reached target, but keep it "alive" if scanning is still active
-      if (shouldAnimateSummary && state.scanning) {
-        // Hold at current value and keep checking for updates
-        element.textContent = formatter(currentTarget);
-        requestAnimationFrame(animate);
-      } else {
-        // Scan complete, finalize the animation
-        element.textContent = formatter(currentTarget);
-        element.classList.remove('counting-animation');
-        animatingElements.delete(element.id);
-        delete element.dataset.targetValue;
-      }
+      element.textContent = formatter(targetValue);
+      element.classList.remove('counting-animation');
     }
   };
 
