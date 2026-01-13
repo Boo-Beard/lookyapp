@@ -3646,11 +3646,24 @@ function upsertScanProgressItem(wallet, chain, index, total, status, extraClass 
   else el.insertAdjacentHTML('beforeend', rowHtml);
 }
 
+const lastAnimationTime = new Map();
+const ANIMATION_COOLDOWN = 300; // Minimum 300ms between animations for same element
+
 function animateNumber(element, targetValue, formatter = (v) => v.toString()) {
   if (!element) return;
   
   // Set the value directly (no counting animation)
   element.textContent = formatter(targetValue);
+  
+  // Debounce animation - prevent multiple pops in quick succession
+  const now = Date.now();
+  const lastTime = lastAnimationTime.get(element.id) || 0;
+  
+  if (now - lastTime < ANIMATION_COOLDOWN) {
+    return; // Skip animation if too soon after last one
+  }
+  
+  lastAnimationTime.set(element.id, now);
   
   // Add cartoon pop animation
   element.classList.remove('number-pop');
