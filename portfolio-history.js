@@ -52,6 +52,13 @@ function savePortfolioHistorySnapshot() {
         lastSnapshot.value = totalValue;
         lastSnapshot.timestamp = now;
         localStorage.setItem(STORAGE_KEY_PORTFOLIO_HISTORY, JSON.stringify(history));
+        
+        // Re-render chart if it's currently visible
+        const content = document.getElementById('historyChartContent');
+        if (content && !content.classList.contains('hidden')) {
+          console.log('🔄 Re-rendering chart with updated snapshot');
+          renderPortfolioHistoryChart();
+        }
         return;
       }
     }
